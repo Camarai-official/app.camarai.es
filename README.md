@@ -1,2 +1,0 @@
-# CamaraiDashboardFinal
-Dashboard del Gerente

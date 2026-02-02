@@ -1,0 +1,385 @@
+
+'use client';
+
+import * as React from 'react';
+import { addDays } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
+import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone } from 'lucide-react';
+import {
+    mockStaffMembers,
+    mockProducts,
+    mockTaxes,
+    mockIngredients,
+    mockIngredientCategories,
+    mockAbsenceRequests,
+    getCategoryName,
+    getTaxName
+} from '@/data/mock-data';
+import type { AbsenceRequest } from '@/data/mock-data';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useToast } from '@/hooks/use-toast';
+import { PageHeader } from '@/components/layout/page-header';
+import {
+    allOrders,
+    mockReportOrderDetails as mockOrderDetails,
+    mockStaffTotals,
+    mockTimeReportData
+} from '@/data/reportes';
+import type { OrderDetails } from '@/data/reportes';
+import { BillingTab } from '@/app/reportes/_components/billing-tab';
+import { PerformanceTab } from '@/app/reportes/_components/performance-tab';
+import { StaffTab } from '@/app/reportes/_components/staff-tab';
+import { InventoryTab } from '@/app/reportes/_components/inventory-tab';
+import { CashClosingTab } from '@/app/reportes/_components/cash-closing-tab';
+import { OrderDetailsDialog } from '@/app/reportes/_components/order-details-dialog';
+import { MovementsDetailsDialog } from '@/app/reportes/_components/movements-details-dialog';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+
+// Mock WhatsApp metrics
+const mockWhatsAppMetrics = {
+    mensajesEnviados: 1247,
+    mensajesEntregados: 1198,
+    mensajesLeidos: 1089,
+    pedidosViaWhatsApp: 89,
+    reservasViaWhatsApp: 34,
+    tasaRespuesta: 92,
+    tiempoRespuestaPromedio: '2.5 min',
+    conversaciones: [
+        { id: 'conv-1', cliente: 'Carlos M.', tipo: 'Pedido', fecha: '2024-01-29 14:30', estado: 'Completado' },
+        { id: 'conv-2', cliente: 'Ana G.', tipo: 'Reserva', fecha: '2024-01-29 13:15', estado: 'Confirmada' },
+        { id: 'conv-3', cliente: 'Luis P.', tipo: 'Consulta', fecha: '2024-01-29 12:00', estado: 'Pendiente' },
+        { id: 'conv-4', cliente: 'María R.', tipo: 'Pedido', fecha: '2024-01-29 11:45', estado: 'En preparación' },
+        { id: 'conv-5', cliente: 'Pedro S.', tipo: 'Pedido', fecha: '2024-01-29 10:30', estado: 'Completado' },
+    ],
+};
+
+export default function ReportesPage() {
+    // Local state for absence requests to simulate updates
+    const [absenceRequests, setAbsenceRequests] = React.useState<AbsenceRequest[]>(mockAbsenceRequests);
+    const [isInitialized, setIsInitialized] = React.useState(false);
+
+    // Simulate initialization
+    React.useEffect(() => {
+        setIsInitialized(true);
+    }, []);
+
+    // Construct appData object to maintain compatibility with existing code
+    const appData = {
+        staffMembers: mockStaffMembers,
+        products: mockProducts,
+        taxes: mockTaxes,
+        ingredients: mockIngredients,
+        ingredientCategories: mockIngredientCategories,
+        absenceRequests: absenceRequests,
+    };
+
+    const updateAbsenceRequest = (id: string, data: Partial<AbsenceRequest>) => {
+        setAbsenceRequests(prev => prev.map(req => req.id === id ? { ...req, ...data } : req));
+    };
+
+    const { toast } = useToast();
+
+    // Shared Filters
+    const [selectedStaffId, setSelectedStaffId] = React.useState<string>('all');
+    const [date, setDate] = React.useState<DateRange | undefined>({
+        from: addDays(new Date(), -30),
+        to: new Date(),
+    });
+    const [reportType, setReportType] = React.useState<string>('accounts');
+    const [currentPage, setCurrentPage] = React.useState(1);
+    const [ordersPerPage] = React.useState(11);
+    const [isAnimating, setIsAnimating] = React.useState(false);
+
+    // Absence Filters
+    const [selectedAbsenceType, setSelectedAbsenceType] = React.useState<string>('all');
+    const [selectedAbsenceStatus, setSelectedAbsenceStatus] = React.useState<string>('all');
+
+    // Dialog States
+    const [selectedOrder, setSelectedOrder] = React.useState<OrderDetails | null>(null);
+    const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
+    const [isMovementsOpen, setIsMovementsOpen] = React.useState(false);
+
+    // Cash closing state
+    const [realCash, setRealCash] = React.useState<string>("");
+    const initialCash = 100.00;
+    const totalSales = 2875.50; // Mock data
+    const cashSales = 1250.25; // Mock data
+    const cardSales = 1625.25; // Mock data
+    const theoreticalCash = initialCash + cashSales;
+    const cashDifference = realCash ? parseFloat(realCash) - theoreticalCash : null;
+
+    const handleViewDetails = (orderId: string) => {
+        const details = mockOrderDetails[orderId] || null;
+        if (details) {
+            setSelectedOrder(details);
+            setIsDetailsOpen(true);
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'No se encontraron los detalles para esta comanda.',
+            })
+        }
+    }
+
+    // Pagination logic
+    const totalPages = Math.ceil(allOrders.length / ordersPerPage);
+    const indexOfLastOrder = currentPage * ordersPerPage;
+    const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+    const currentOrders = allOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+
+    const paginate = (pageNumber: number) => {
+        if (pageNumber < 1 || pageNumber > totalPages) return;
+        setIsAnimating(true);
+        setTimeout(() => {
+            setCurrentPage(pageNumber);
+            setIsAnimating(false);
+        }, 300);
+    };
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
+
+
+    // --- Time Logs Logic ---
+    const timeReportData = React.useMemo(() => {
+        if (!isInitialized) return [];
+
+        const filteredByStaff = mockTimeReportData.filter(entry =>
+            selectedStaffId === 'all' || entry.log.staffMemberId === selectedStaffId
+        );
+
+        return filteredByStaff.filter(entry => {
+            const logDate = new Date(entry.log.entrada);
+            const isAfterFrom = !date?.from || logDate >= date.from;
+            const isBeforeTo = !date?.to || logDate <= date.to;
+            return isAfterFrom && isBeforeTo;
+        });
+    }, [selectedStaffId, date, isInitialized]);
+
+
+    // --- Absence Requests Logic ---
+    const filteredAbsenceRequests = appData.absenceRequests.filter(req => {
+        const matchesStaff = selectedStaffId === 'all' || req.staffId === selectedStaffId;
+        const matchesType = selectedAbsenceType === 'all' || req.type === selectedAbsenceType;
+        const matchesStatus = selectedAbsenceStatus === 'all' || req.status === selectedAbsenceStatus;
+        return matchesStaff && matchesType && matchesStatus;
+    });
+
+    const handleUpdateRequest = (req: AbsenceRequest, newStatus: AbsenceRequest['status']) => {
+        updateAbsenceRequest(req.id, { status: newStatus });
+        toast({
+            title: `Solicitud ${newStatus === 'approved' ? 'aprobada' : 'rechazada'}`,
+            description: `La solicitud de ${appData.staffMembers.find(s => s.id === req.staffId)?.nombre} ha sido actualizada.`,
+        });
+    };
+
+
+    if (!isInitialized) {
+        return <div>Cargando datos...</div>
+    }
+
+    return (
+        <div className="flex flex-1 flex-col h-full">
+            <header className="p-4 md:p-6">
+                <PageHeader title="Panel de Reportes & Cierre de Caja" />
+            </header>
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+                <Tabs defaultValue="billing">
+                    <div className="overflow-x-auto pb-2 custom-scrollbar">
+                        <TabsList className="mb-4">
+                            <TabsTrigger value="billing"><DollarSign className="mr-2 h-4 w-4" />Facturación</TabsTrigger>
+                            <TabsTrigger value="performance"><TrendingUp className="mr-2 h-4 w-4" />Ventas</TabsTrigger>
+                            <TabsTrigger value="staff"><Users2 className="mr-2 h-4 w-4" />Personal</TabsTrigger>
+                            <TabsTrigger value="inventory"><Archive className="mr-2 h-4 w-4" />Inventario</TabsTrigger>
+                            <TabsTrigger value="whatsapp"><MessageSquare className="mr-2 h-4 w-4 text-brand-whatsapp" />WhatsApp</TabsTrigger>
+                            <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
+                        </TabsList>
+                    </div>
+
+                    <BillingTab
+                        date={date}
+                        onDateChange={setDate}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        reportType={reportType}
+                        onReportTypeChange={setReportType}
+                        staffMembers={appData.staffMembers}
+                        currentOrders={currentOrders}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        pageNumbers={pageNumbers}
+                        isAnimating={isAnimating}
+                        onPaginate={paginate}
+                        onViewDetails={handleViewDetails}
+                    />
+                    <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
+                    <StaffTab
+                        staffMembers={appData.staffMembers}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        date={date}
+                        onDateChange={setDate}
+                        timeReportData={timeReportData}
+                        staffTotals={mockStaffTotals}
+                        selectedAbsenceType={selectedAbsenceType}
+                        onAbsenceTypeChange={setSelectedAbsenceType}
+                        selectedAbsenceStatus={selectedAbsenceStatus}
+                        onAbsenceStatusChange={setSelectedAbsenceStatus}
+                        filteredAbsenceRequests={filteredAbsenceRequests}
+                        onUpdateRequest={handleUpdateRequest}
+                    />
+                    <InventoryTab
+                        products={appData.products}
+                        taxes={appData.taxes}
+                        ingredients={appData.ingredients}
+                        ingredientCategories={appData.ingredientCategories}
+                        getTaxName={getTaxName}
+                    />
+                    <CashClosingTab
+                        realCash={realCash}
+                        onRealCashChange={setRealCash}
+                        initialCash={initialCash}
+                        totalSales={totalSales}
+                        cashSales={cashSales}
+                        cardSales={cardSales}
+                        theoreticalCash={theoreticalCash}
+                        cashDifference={cashDifference}
+                        onOpenMovements={() => setIsMovementsOpen(true)}
+                    />
+
+                    {/* WhatsApp Metrics Tab */}
+                    <TabsContent value="whatsapp" className="space-y-4">
+                        {/* KPI Cards - design system: sin iconos, limpio */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <Card className="border-none shadow-none rounded-lg p-4">
+                                <CardContent className="p-0">
+                                    <p className="text-sm font-medium text-muted-foreground">Mensajes Enviados</p>
+                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.mensajesEnviados.toLocaleString()}</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="border-none shadow-none rounded-lg p-4">
+                                <CardContent className="p-0">
+                                    <p className="text-sm font-medium text-muted-foreground">Tasa de Lectura</p>
+                                    <p className="text-2xl font-bold text-primary mt-1">{Math.round((mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100)}%</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="border-none shadow-none rounded-lg p-4">
+                                <CardContent className="p-0">
+                                    <p className="text-sm font-medium text-muted-foreground">Pedidos WhatsApp</p>
+                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.pedidosViaWhatsApp}</p>
+                                </CardContent>
+                            </Card>
+                            <Card className="border-none shadow-none rounded-lg p-4">
+                                <CardContent className="p-0">
+                                    <p className="text-sm font-medium text-muted-foreground">Tiempo Respuesta</p>
+                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.tiempoRespuestaPromedio}</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Delivery Stats */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base">Estadísticas de Entrega</CardTitle>
+                                    <CardDescription>Rendimiento de mensajes del mes</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span>Enviados</span>
+                                            <span className="font-medium">{mockWhatsAppMetrics.mensajesEnviados}</span>
+                                        </div>
+                                        <Progress value={100} className="h-2" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span>Entregados</span>
+                                            <span className="font-medium">{mockWhatsAppMetrics.mensajesEntregados} ({Math.round((mockWhatsAppMetrics.mensajesEntregados / mockWhatsAppMetrics.mensajesEnviados) * 100)}%)</span>
+                                        </div>
+                                        <Progress value={(mockWhatsAppMetrics.mensajesEntregados / mockWhatsAppMetrics.mensajesEnviados) * 100} className="h-2" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span>Leídos</span>
+                                            <span className="font-medium">{mockWhatsAppMetrics.mensajesLeidos} ({Math.round((mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100)}%)</span>
+                                        </div>
+                                        <Progress value={(mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100} className="h-2" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Conversions */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-base">Conversiones</CardTitle>
+                                    <CardDescription>Acciones generadas vía WhatsApp</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                        <span>Pedidos realizados</span>
+                                        <Badge variant="default">{mockWhatsAppMetrics.pedidosViaWhatsApp}</Badge>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                        <span>Reservas confirmadas</span>
+                                        <Badge variant="secondary">{mockWhatsAppMetrics.reservasViaWhatsApp}</Badge>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                                        <span>Tasa de respuesta</span>
+                                        <Badge variant="outline">{mockWhatsAppMetrics.tasaRespuesta}%</Badge>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        {/* Recent Conversations */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base">Conversaciones Recientes</CardTitle>
+                                <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Cliente</TableHead>
+                                            <TableHead>Tipo</TableHead>
+                                            <TableHead>Fecha</TableHead>
+                                            <TableHead>Estado</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {mockWhatsAppMetrics.conversaciones.map((conv) => (
+                                            <TableRow key={conv.id}>
+                                                <TableCell className="font-medium">{conv.cliente}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
+                                                        {conv.tipo}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
+                                                        {conv.estado}
+                                                    </Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+                <OrderDetailsDialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen} order={selectedOrder} />
+                <MovementsDetailsDialog open={isMovementsOpen} onOpenChange={setIsMovementsOpen} />
+            </main>
+        </div>
+    );
+}

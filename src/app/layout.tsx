@@ -1,0 +1,51 @@
+'use client';
+
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarNav } from '@/components/layout/sidebar-nav';
+import { Toaster } from '@/components/ui/toaster';
+import * as React from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+import { MobileHeader } from '@/components/layout/mobile-header';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+
+function MainContent({ children }: { children: React.ReactNode }) {
+  const { isMobile, isTablet } = useIsMobile();
+
+  const getPadding = () => {
+    if (isMobile || isTablet) {
+      return 'pt-20 pl-0';
+    }
+    return '';
+  };
+
+  return (
+    <SidebarInset className={cn("transition-[padding] !pl-0", getPadding())}>
+      {children}
+    </SidebarInset>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="es" className="dark" suppressHydrationWarning>
+      <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
+        <SidebarProvider>
+          <MobileHeader />
+          <Sidebar variant="sidebar" collapsible="icon">
+            <SidebarNav />
+          </Sidebar>
+          <MainContent>{children}</MainContent>
+        </SidebarProvider>
+        <Toaster />
+      </body>
+    </html>
+  );
+}
