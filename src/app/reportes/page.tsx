@@ -186,10 +186,8 @@ export default function ReportesPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title="Panel de Reportes & Cierre de Caja" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Panel de Reportes & Cierre de Caja" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <Tabs defaultValue="billing">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">

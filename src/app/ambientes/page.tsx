@@ -358,10 +358,8 @@ export default function AmbientesPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title="Gestión de Ambientes" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Gestión de Ambientes" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {environments.map(env => {
                         const occupancyPercentage = calculateOccupancyPercentage(env);

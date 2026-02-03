@@ -84,10 +84,8 @@ export default function NotificationsPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Gestión de Notificaciones" />
-      </header>
-      <main className="flex-grow p-4 pt-0 md:p-6 md:pt-0 pb-24">
+      <PageHeader title="Gestión de Notificaciones" />
+      <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3 pb-24">
         <Card>
             <CardHeader>
                 <CardTitle>Configuración de Alertas</CardTitle>

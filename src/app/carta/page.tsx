@@ -171,14 +171,12 @@ export default function CartaPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full bg-muted/10">
-            <header className="p-4 md:p-6 pb-0">
-                <PageHeader
-                    title="Gestión de Cartas y Menús"
-                    subtitle="Diseña y organiza las cartas digitales y menús combinados."
-                />
-            </header>
+            <PageHeader
+                title="Gestión de Cartas y Menús"
+                subtitle="Diseña y organiza las cartas digitales y menús combinados."
+            />
 
-            <main className="flex-grow p-4 md:p-6 pt-0 space-y-6">
+            <main className="flex-grow p-4 md:p-6 pt-2 md:pt-3 space-y-6">
                 <Tabs defaultValue="cartas" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-4">
                         <TabsTrigger value="cartas">Cartas Digitales</TabsTrigger>

@@ -517,10 +517,8 @@ export default function ReservasPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Gestión de Reservas" />
-      </header>
-      <main className="flex-grow flex flex-col lg:flex-row gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+      <PageHeader title="Gestión de Reservas" />
+      <main className="flex-grow flex flex-col lg:flex-row gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <Card className="w-full lg:w-auto flex-grow flex justify-center items-start p-2 md:p-4">
             <div className="w-full">
                 <UICalendar

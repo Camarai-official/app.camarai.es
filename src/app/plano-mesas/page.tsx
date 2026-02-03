@@ -620,12 +620,10 @@ export default function PlanoMesasPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6 pb-0">
-                <PageHeader title="Plano de Mesas" />
-            </header>
-            <main className="flex-grow flex flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Plano de Mesas" />
+            <main className="flex-grow flex flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <Tabs value={activeEnvironmentId} onValueChange={setActiveEnvironmentId} className="flex flex-col flex-grow">
-                    <div className="flex items-center gap-2 mt-4 overflow-x-auto custom-scrollbar pb-2">
+                    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
                         <TabsList>
                             {environments.map(env => (
                                 <TabsTrigger key={env.id} value={env.id}>{env.name}</TabsTrigger>

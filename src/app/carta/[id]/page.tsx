@@ -223,15 +223,13 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <Link href="/carta">
-                    <PageHeader
-                        className="cursor-pointer"
-                        title={<>Gestionar Menú/Combo: &quot;{activeMenu.nombre_carta}&quot;</>}
-                    />
-                </Link>
-            </header>
-            <main className="flex-grow p-4 pt-0 md:p-6 md:pt-0">
+            <Link href="/carta">
+                <PageHeader
+                    className="cursor-pointer"
+                    title={<>Gestionar Menú/Combo: &quot;{activeMenu.nombre_carta}&quot;</>}
+                />
+            </Link>
+            <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     {/* Left Column: Menu Details & Profitability */}
                     <div className="lg:col-span-1 flex flex-col gap-8">

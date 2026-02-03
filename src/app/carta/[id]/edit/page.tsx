@@ -132,10 +132,8 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title={<>Gestionar Carta: &quot;{activeCarta.nombre_carta}&quot;</>} />
-            </header>
-            <main className="flex-grow p-4 pt-0 md:p-6 md:pt-0">
+            <PageHeader title={<>Gestionar Carta: &quot;{activeCarta.nombre_carta}&quot;</>} />
+            <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                     {/* Bento Grid Layout */}
                     <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">

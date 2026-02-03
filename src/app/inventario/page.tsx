@@ -343,10 +343,8 @@ export default function InventarioPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Gestión de Inventario" />
-      </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+      <PageHeader title="Gestión de Inventario" />
+      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base font-bold text-muted-foreground">Filtros</CardTitle>

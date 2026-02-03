@@ -238,37 +238,35 @@ export default function Home() {
     return (
         <div className="flex flex-1 flex-col h-full">
             {/* Header full width: título + acción */}
-            <header className="p-4 md:p-6 w-full">
-                <PageHeader
-                    title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
-                    actions={
-                        <div className="flex items-center gap-2">
-                            <CalendarDateRangePicker date={date} setDate={setDate} />
+            <PageHeader
+                title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
+                actions={
+                    <div className="flex items-center gap-2">
+                        <CalendarDateRangePicker date={date} setDate={setDate} />
 
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-10 w-10"
-                                title="Exportar Informe Global"
-                                onClick={() => {
-                                    const data = prepareDashboardExportData({}, allOrders, mockProducts);
-                                    generateCSV(data, 'camarai_global_report');
-                                    toast({
-                                        title: "Exportación iniciada",
-                                        description: "El reporte global se está descargando."
-                                    });
-                                }}
-                            >
-                                <Download className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setConfigOpen(true)}>
-                                <Settings className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    }
-                />
-            </header>
-            <main className="flex flex-1 flex-col gap-6 p-4 pt-0 md:p-6 md:pt-0">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10"
+                            title="Exportar Informe Global"
+                            onClick={() => {
+                                const data = prepareDashboardExportData({}, allOrders, mockProducts);
+                                generateCSV(data, 'camarai_global_report');
+                                toast({
+                                    title: "Exportación iniciada",
+                                    description: "El reporte global se está descargando."
+                                });
+                            }}
+                        >
+                            <Download className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setConfigOpen(true)}>
+                            <Settings className="h-4 w-4" />
+                        </Button>
+                    </div>
+                }
+            />
+            <main className="flex flex-1 flex-col gap-6 p-4 pt-2 md:p-6 md:pt-3">
 
                 {/* Sección de Métricas Principales */}
                 {dashboardConfig.metrics && (

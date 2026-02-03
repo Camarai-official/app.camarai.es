@@ -739,11 +739,9 @@ export default function ProductosPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6 pb-0">
-                <PageHeader title="Librería de Productos" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
-                <Card className="min-h-[70vh] mt-4">
+            <PageHeader title="Librería de Productos" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+                <Card className="min-h-[70vh]">
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="relative w-full md:w-1/3">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

@@ -551,10 +551,8 @@ export default function PromocionesPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title="Gestión de Promociones y Campañas" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Gestión de Promociones y Campañas" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 {/* Stats KPIs - design system: sin iconos */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatsCard 
