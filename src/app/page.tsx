@@ -5,7 +5,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings } from 'lucide-react';
+import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, ShoppingBag, Trophy, Star, Activity, LayoutGrid } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -23,6 +23,7 @@ import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -172,6 +173,7 @@ export default function Home() {
         const dateFactor = (dateFrom + dateTo) / 1000000;
 
         // Simular que los datos cambian con la fecha
+        const numberFormatter = new Intl.NumberFormat('es-ES');
         const metrics = {
             totalRevenue: `€${((2.6 + (dateFactor % 1))).toFixed(1)}M`,
             avgTicket: `€${(38.5 + (dateFactor % 2)).toFixed(2)}`,
@@ -179,7 +181,7 @@ export default function Home() {
             conversion: `${(35 + (dateFactor % 15)).toFixed(0)}%`,
             // Nuevas métricas operacionales
             serviceTime: `${(24 - (dateFactor % 8)).toFixed(0)} min`,
-            totalOrders: Math.floor(1248 + (dateFactor % 1000)).toLocaleString(),
+            totalOrders: numberFormatter.format(Math.floor(1248 + (dateFactor % 1000))),
             nps: (78 + (dateFactor % 12)).toFixed(0)
         };
 
@@ -270,38 +272,37 @@ export default function Home() {
 
                 {/* Sección de Métricas Principales */}
                 {dashboardConfig.metrics && (
-                    <Card className="bg-card p-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Ingresos totales"
                                 value={metricsData.totalRevenue}
                                 change="+4.5% que la semana pasada"
                                 changeType="increase"
                             />
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Ticket Medio"
                                 value={metricsData.avgTicket}
                                 change="-1.2% que la semana pasada"
                                 changeType="decrease"
                             />
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Productos por Comanda"
                                 value={metricsData.itemsPerOrder}
                                 change="+0.5% que la semana pasada"
                                 changeType="increase"
                             />
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Tasa Conversión Upsell"
                                 value={metricsData.conversion}
                                 change="+3% que la semana pasada"
                                 changeType="increase"
                             />
                         </div>
-                    </Card>
+
                 )}
 
                 {/* Gráfico de Ventas por Hora */}
@@ -584,89 +585,177 @@ export default function Home() {
                     </div>
                 )}
 
-                {/* Dashboard Configuration Modal */}
                 <Dialog open={configOpen} onOpenChange={setConfigOpen}>
-                    <DialogContent className="sm:max-w-[500px]">
+                    <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
                         <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                                <Settings className="h-5 w-5" />
+                            <DialogTitle className="flex items-center gap-3">
+                                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                                    <Settings className="h-6 w-6 text-white" />
+                                </div>
                                 Configurar Dashboard
                             </DialogTitle>
                             <DialogDescription>
-                                Personaliza qué widgets se muestran en tu panel de control.
+                                Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Métricas Principales</Label>
-                                    <p className="text-xs text-muted-foreground">Ingresos, ticket medio, etc.</p>
+                        
+                        <ScrollArea className="max-h-[60vh] pt-2">
+                            <div className="space-y-6 py-4">
+                                {/* Sección: Análisis de Ventas */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <TrendingUp className="h-3 w-3" /> Análisis de Ventas
+                                    </h4>
+                                    <div className="grid gap-3">
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                                                    <TrendingUp className="h-4 w-4 text-primary" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Métricas Principales</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Ingresos, ticket medio y variación temporal.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.metrics} onCheckedChange={() => handleConfigToggle('metrics')} />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                                                    <LineChart className="h-4 w-4 text-blue-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Ventas por Hora</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Curva de demanda distribuida por franjas horarias.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.salesChart} onCheckedChange={() => handleConfigToggle('salesChart')} />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
+                                                    <BarChart className="h-4 w-4 text-green-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Gráfico de Ingresos</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Visualización comparativa de facturación bruta.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.revenueChart} onCheckedChange={() => handleConfigToggle('revenueChart')} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <Switch checked={dashboardConfig.metrics} onCheckedChange={() => handleConfigToggle('metrics')} />
-                            </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Gráfico de Ventas por Hora</Label>
-                                    <p className="text-xs text-muted-foreground">Ventas distribuidas por hora</p>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Sección: Operaciones */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <LayoutGrid className="h-3 w-3" /> Operaciones y Stock
+                                    </h4>
+                                    <div className="grid gap-3">
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
+                                                    <ShoppingBag className="h-4 w-4 text-orange-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Comandas Recientes</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Monitor en tiempo real de los últimos pedidos.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.recentOrders} onCheckedChange={() => handleConfigToggle('recentOrders')} />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-red-500/10 rounded-lg group-hover:bg-red-500/20 transition-colors">
+                                                    <AlertTriangle className="h-4 w-4 text-red-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Alertas de Stock</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Aviso crítico de ingredientes bajo mínimos.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.stockAlerts} onCheckedChange={() => handleConfigToggle('stockAlerts')} />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                                                    <Users className="h-4 w-4 text-purple-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Distribución de Aforo</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Ocupación porcentual por salones y terrazas.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.occupancyChart} onCheckedChange={() => handleConfigToggle('occupancyChart')} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <Switch checked={dashboardConfig.salesChart} onCheckedChange={() => handleConfigToggle('salesChart')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Gráfico de Ingresos</Label>
-                                    <p className="text-xs text-muted-foreground">Ingresos y ocupación</p>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Sección: Rendimiento */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <Trophy className="h-3 w-3" /> Rendimiento y Costes
+                                    </h4>
+                                    <div className="grid gap-3">
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-yellow-500/10 rounded-lg group-hover:bg-yellow-500/20 transition-colors">
+                                                    <Trophy className="h-4 w-4 text-yellow-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Ranking de Equipo</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Leaderboard de ventas y desempeño del personal.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.teamRanking} onCheckedChange={() => handleConfigToggle('teamRanking')} />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-pink-500/10 rounded-lg group-hover:bg-pink-500/20 transition-colors">
+                                                    <Star className="h-4 w-4 text-pink-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Top Productos</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Análisis de los platos y bebidas más populares.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.topProducts} onCheckedChange={() => handleConfigToggle('topProducts')} />
+                                        </div>
+
+                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-cyan-500/10 rounded-lg group-hover:bg-cyan-500/20 transition-colors">
+                                                    <Activity className="h-4 w-4 text-cyan-500" />
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-semibold cursor-pointer">Desglose de Costes</Label>
+                                                    <p className="text-[11px] text-muted-foreground">Distribución de gastos fijos y variables.</p>
+                                                </div>
+                                            </div>
+                                            <Switch checked={dashboardConfig.costBreakdown} onCheckedChange={() => handleConfigToggle('costBreakdown')} />
+                                        </div>
+                                    </div>
                                 </div>
-                                <Switch checked={dashboardConfig.revenueChart} onCheckedChange={() => handleConfigToggle('revenueChart')} />
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Distribución de Aforo</Label>
-                                    <p className="text-xs text-muted-foreground">Ocupación por ambiente</p>
-                                </div>
-                                <Switch checked={dashboardConfig.occupancyChart} onCheckedChange={() => handleConfigToggle('occupancyChart')} />
+                        </ScrollArea>
+                        
+                        <DialogFooter className="bg-muted/30 border-t -mx-6 -mb-6 p-6 flex items-center justify-between sm:justify-between">
+                            <p className="text-xs text-muted-foreground">Los cambios se aplicarán instantáneamente.</p>
+                            <div className="flex gap-3">
+                                <Button variant="ghost" onClick={() => setConfigOpen(false)}>Cerrar</Button>
+                                <Button onClick={handleSaveConfig} variant="brand">
+                                    Guardar Cambios
+                                </Button>
                             </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Comandas Recientes</Label>
-                                    <p className="text-xs text-muted-foreground">Tabla de últimas comandas</p>
-                                </div>
-                                <Switch checked={dashboardConfig.recentOrders} onCheckedChange={() => handleConfigToggle('recentOrders')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Alertas de Stock</Label>
-                                    <p className="text-xs text-muted-foreground">Ingredientes con stock bajo</p>
-                                </div>
-                                <Switch checked={dashboardConfig.stockAlerts} onCheckedChange={() => handleConfigToggle('stockAlerts')} />
-                            </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Ranking de Equipo</Label>
-                                    <p className="text-xs text-muted-foreground">Leaderboard del personal</p>
-                                </div>
-                                <Switch checked={dashboardConfig.teamRanking} onCheckedChange={() => handleConfigToggle('teamRanking')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Top Productos</Label>
-                                    <p className="text-xs text-muted-foreground">Productos más vendidos</p>
-                                </div>
-                                <Switch checked={dashboardConfig.topProducts} onCheckedChange={() => handleConfigToggle('topProducts')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Desglose de Costes</Label>
-                                    <p className="text-xs text-muted-foreground">Distribución de gastos</p>
-                                </div>
-                                <Switch checked={dashboardConfig.costBreakdown} onCheckedChange={() => handleConfigToggle('costBreakdown')} />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setConfigOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleSaveConfig}>Guardar</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

@@ -258,7 +258,7 @@ export default function ReportesPage() {
                             <Card className="border-none shadow-none rounded-lg p-4">
                                 <CardContent className="p-0">
                                     <p className="text-sm font-medium text-muted-foreground">Mensajes Enviados</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.mensajesEnviados.toLocaleString()}</p>
+                                    <p className="text-2xl font-bold text-primary mt-1">{new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}</p>
                                 </CardContent>
                             </Card>
                             <Card className="border-none shadow-none rounded-lg p-4">
