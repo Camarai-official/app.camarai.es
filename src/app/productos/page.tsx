@@ -302,13 +302,15 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                 </DialogHeader>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="general">General</TabsTrigger>
-                        <TabsTrigger value="precios">Precios</TabsTrigger>
-                        <TabsTrigger value="receta">Receta</TabsTrigger>
-                        <TabsTrigger value="variantes">Variantes</TabsTrigger>
-                        <TabsTrigger value="disponibilidad">Disponibilidad</TabsTrigger>
-                    </TabsList>
+                    <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
+                        <TabsList className="inline-flex w-max sm:w-full sm:grid sm:grid-cols-5 p-1">
+                            <TabsTrigger value="general" className="px-4 sm:px-0">General</TabsTrigger>
+                            <TabsTrigger value="precios" className="px-4 sm:px-0">Precios</TabsTrigger>
+                            <TabsTrigger value="receta" className="px-4 sm:px-0">Receta</TabsTrigger>
+                            <TabsTrigger value="variantes" className="px-4 sm:px-0">Variantes</TabsTrigger>
+                            <TabsTrigger value="disponibilidad" className="px-4 sm:px-0">Disponibilidad</TabsTrigger>
+                        </TabsList>
+                    </div>
 
                     <ScrollArea className="h-[50vh] mt-4 pr-4">
                         {/* Tab General */}
@@ -349,7 +351,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
 
                         {/* Tab Precios */}
                         <TabsContent value="precios" className="space-y-6 mt-0">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="precio_venta">Precio de Venta (€) *</Label>
                                     <Input id="precio_venta" type="number" value={product.precio_venta} onChange={handleNumberChange} step="0.01" />
@@ -544,8 +546,8 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                     <CardDescription>Opcional: limitar el producto a ciertas horas.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="flex items-center gap-4">
-                                        <div className="space-y-2 flex-1">
+                                    <div className="grid grid-cols-1 sm:grid-cols-[1fr,1fr,auto] items-end gap-4">
+                                        <div className="space-y-2">
                                             <Label>Hora Inicio</Label>
                                             <Input
                                                 type="time"
@@ -559,7 +561,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                                 }))}
                                             />
                                         </div>
-                                        <div className="space-y-2 flex-1">
+                                        <div className="space-y-2">
                                             <Label>Hora Fin</Label>
                                             <Input
                                                 type="time"
@@ -576,7 +578,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                         <Button
                                             variant="outline"
                                             onClick={() => setProduct(prev => ({ ...prev, horario_disponible: null }))}
-                                            className="mt-6"
+                                            className="w-full sm:w-auto"
                                         >
                                             Limpiar
                                         </Button>
@@ -590,7 +592,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                     <CardDescription>Selecciona los alérgenos presentes en este producto.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                                         {alergenosList.map(alergeno => (
                                             <div key={alergeno} className="flex items-center space-x-2">
                                                 <Checkbox
@@ -607,7 +609,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                 </CardContent>
                             </Card>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="stock_minimo">Stock Mínimo de Alerta</Label>
                                     <Input
@@ -753,118 +755,126 @@ export default function ProductosPage() {
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Producto</TableHead>
-                                    <TableHead>Categoría</TableHead>
-                                    <TableHead>Precio Venta</TableHead>
-                                    <TableHead>Costo Escandallo</TableHead>
-                                    <TableHead>Margen</TableHead>
-                                    <TableHead>Impuesto</TableHead>
-                                    <TableHead>Disponible</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody
-                                key={currentPage}
-                                className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
-                            >
-                                {currentProducts.length > 0 ? currentProducts.map((prod) => (
-                                    <TableRow key={prod.id}>
-                                        <TableCell className="font-medium flex items-center gap-3 py-3">
-                                            {prod.url_imagen_producto ? (
-                                                <Image 
-                                                    src={prod.url_imagen_producto} 
-                                                    alt={prod.nombre_producto} 
-                                                    width={40} 
-                                                    height={40} 
-                                                    className="rounded-lg object-cover bg-muted" 
-                                                />
-                                            ) : (
-                                                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground border border-dashed">
-                                                    <Package className="h-5 w-5 opacity-40" />
-                                                </div>
-                                            )}
-                                            {prod.nombre_producto}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant={'secondary'}>
-                                                {getCategoryName(prod.id_categoria) || 'Sin categoría'}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>€{prod.precio_venta.toFixed(2)}</TableCell>
-                                        <TableCell>€{(prod.costo_escandallo_calculado || 0).toFixed(2)}</TableCell>
-                                        <TableCell>€{(prod.margen_beneficio || 0).toFixed(2)}</TableCell>
-                                        <TableCell>{getTaxName(prod.id_impuesto) || 'N/A'}</TableCell>
-                                        <TableCell>
-                                            <Badge variant={prod.disponible ? 'default' : 'destructive'}>
-                                                {prod.disponible ? 'Sí' : 'No'}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <AlertDialog>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent>
-                                                        <DropdownMenuItem onClick={() => handleOpenDialog(prod)}>
-                                                            <Edit className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                                            Editar
-                                                        </DropdownMenuItem>
-                                                        <AlertDialogTrigger asChild>
-                                                            <DropdownMenuItem>
-                                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                                                Eliminar
-                                                            </DropdownMenuItem>
-                                                        </AlertDialogTrigger>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Esta acción no se puede deshacer. Se eliminará el producto de tu librería y de todas las cartas en las que aparezca.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleRemove(prod.id, prod.nombre_producto)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </TableCell>
-                                    </TableRow>
-                                )) : (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={8} className="h-24 text-center">
-                                            {searchTerm ? 'No se encontraron productos.' : 'No has creado ningún producto todavía.'}
-                                        </TableCell>
+                                        <TableHead>Producto</TableHead>
+                                        <TableHead className="hidden md:table-cell">Categoría</TableHead>
+                                        <TableHead>Precio Venta</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Costo Escandallo</TableHead>
+                                        <TableHead className="hidden lg:table-cell">Margen</TableHead>
+                                        <TableHead className="hidden xl:table-cell">Impuesto</TableHead>
+                                        <TableHead className="hidden md:table-cell">Disponible</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody
+                                    key={currentPage}
+                                    className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
+                                >
+                                    {currentProducts.length > 0 ? currentProducts.map((prod) => (
+                                        <TableRow key={prod.id}>
+                                            <TableCell className="font-medium flex items-center gap-3 py-3">
+                                                {prod.url_imagen_producto ? (
+                                                    <Image 
+                                                        src={prod.url_imagen_producto} 
+                                                        alt={prod.nombre_producto} 
+                                                        width={40} 
+                                                        height={40} 
+                                                        className="rounded-lg object-cover bg-muted" 
+                                                    />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground border border-dashed">
+                                                        <Package className="h-5 w-5 opacity-40" />
+                                                    </div>
+                                                )}
+                                                {prod.nombre_producto}
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell">
+                                                <Badge variant={'secondary'}>
+                                                    {getCategoryName(prod.id_categoria) || 'Sin categoría'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="font-medium whitespace-nowrap">€{prod.precio_venta.toFixed(2)}</TableCell>
+                                            <TableCell className="hidden lg:table-cell">€{(prod.costo_escandallo_calculado || 0).toFixed(2)}</TableCell>
+                                            <TableCell className="hidden lg:table-cell">€{(prod.margen_beneficio || 0).toFixed(2)}</TableCell>
+                                            <TableCell className="hidden xl:table-cell">{getTaxName(prod.id_impuesto) || 'N/A'}</TableCell>
+                                            <TableCell className="hidden md:table-cell">
+                                                <Badge variant={prod.disponible ? 'default' : 'destructive'}>
+                                                    {prod.disponible ? 'Sí' : 'No'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <AlertDialog>
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent>
+                                                            <DropdownMenuItem onClick={() => handleOpenDialog(prod)}>
+                                                                <Edit className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                                Editar
+                                                            </DropdownMenuItem>
+                                                            <AlertDialogTrigger asChild>
+                                                                <DropdownMenuItem>
+                                                                    <Trash className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                                    Eliminar
+                                                                </DropdownMenuItem>
+                                                            </AlertDialogTrigger>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                Esta acción no se puede deshacer. Se eliminará el producto de tu librería y de todas las cartas en las que aparezca.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                            <AlertDialogAction onClick={() => handleRemove(prod.id, prod.nombre_producto)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </TableCell>
+                                        </TableRow>
+                                    )) : (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="h-24 text-center">
+                                                {searchTerm ? 'No se encontraron productos.' : 'No has creado ningún producto todavía.'}
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
-                    <CardFooter className="flex justify-between items-center">
-                        <div className="text-xs text-muted-foreground">
+                    <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 py-6">
+                        <div className="text-xs text-muted-foreground order-2 sm:order-1">
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredProducts.length)}-{Math.min(indexOfLastItem, filteredProducts.length)}</strong> de <strong>{filteredProducts.length}</strong> productos.
                         </div>
-                        <div className="flex justify-end items-center gap-2">
+                        <div className="flex justify-center sm:justify-end items-center gap-2 order-1 sm:order-2">
                             <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            {pageNumbers.map(number => (
-                                <Button
-                                    key={number}
-                                    variant={currentPage === number ? "default" : "outline"}
-                                    size="icon"
-                                    className="h-8 w-8"
-                                    onClick={() => paginate(number)}
-                                >
-                                    {number}
-                                </Button>
-                            ))}
+                            <div className="flex gap-1">
+                                {pageNumbers.map(number => (
+                                    <Button
+                                        key={number}
+                                        variant={currentPage === number ? "default" : "outline"}
+                                        size="icon"
+                                        className={cn(
+                                            "h-8 w-8",
+                                            // Hide most page numbers on small mobile
+                                            number !== currentPage && number !== 1 && number !== totalPages && "hidden xs:flex"
+                                        )}
+                                        onClick={() => paginate(number)}
+                                    >
+                                        {number}
+                                    </Button>
+                                ))}
+                            </div>
                             <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
                                 <ChevronRight className="h-4 w-4" />
                             </Button>

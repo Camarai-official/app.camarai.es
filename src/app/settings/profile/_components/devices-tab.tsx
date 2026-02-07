@@ -66,7 +66,7 @@ export function DevicesTab({
     return (
         <TabsContent value="devices">
             <Dialog open={isDeviceDialogOpen} onOpenChange={setIsDeviceDialogOpen}>
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
                     {deviceCategories.map(({ type, title, description, icon: Icon }) => {
                         const filteredDevices = devices.filter(d => d.type === type);
                         return (

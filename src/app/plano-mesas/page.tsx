@@ -801,13 +801,13 @@ export default function PlanoMesasPage() {
             <PageHeader title="Plano de Mesas" />
             <main className="flex-grow flex flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <Tabs value={activeEnvironmentId} onValueChange={setActiveEnvironmentId} className="flex flex-col flex-grow">
-                    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
-                        <TabsList>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                        <TabsList className="inline-flex w-auto shrink-0">
                             {environments.map(env => (
-                                <TabsTrigger key={env.id} value={env.id}>{env.name}</TabsTrigger>
+                                <TabsTrigger key={env.id} value={env.id} className="whitespace-nowrap">{env.name}</TabsTrigger>
                             ))}
                         </TabsList>
-                        <Button size="icon" variant="outline" onClick={addEnvironment}>
+                        <Button size="icon" variant="outline" onClick={addEnvironment} className="shrink-0 h-9 w-9">
                             <Plus className="h-4 w-4" />
                         </Button>
                     </div>

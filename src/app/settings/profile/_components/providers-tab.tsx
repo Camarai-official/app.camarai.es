@@ -242,7 +242,7 @@ export function ProvidersTab() {
                         </TabsList>
                         
                         <InnerTabsContent value="datos" className="space-y-4 mt-4">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="providerName">Nombre *</Label>
                                     <Input 
@@ -262,7 +262,7 @@ export function ProvidersTab() {
                                     />
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="providerContact">Persona de Contacto</Label>
                                     <Input 
@@ -289,7 +289,7 @@ export function ProvidersTab() {
                                     </Select>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="providerEmail">Email *</Label>
                                     <Input 

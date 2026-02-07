@@ -58,9 +58,11 @@ export function ProfileTab({
                                     </Button>
                                     <Input ref={profileFileInputRef} type="file" accept="image/*" className="hidden" onChange={onProfileImageChange} />
                                 </div>
-                                <div className="grid gap-1.5 flex-grow text-center md:text-left">
-                                    <h2 className="text-2xl font-bold">{localUser.firstName} {localUser.lastName}</h2>
-                                    <p className="text-muted-foreground">{localUser.email}</p>
+                                <div className="grid grid-cols-1 gap-1.5 flex-grow text-center md:text-left">
+                                    <div>
+                                        <h2 className="text-2xl font-bold">{localUser.firstName} {localUser.lastName}</h2>
+                                        <p className="text-muted-foreground">{localUser.email}</p>
+                                    </div>
                                     <p className="text-sm text-muted-foreground">Último login: 12/07/2024 10:30 AM</p>
                                 </div>
                             </div>

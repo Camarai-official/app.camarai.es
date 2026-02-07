@@ -150,8 +150,8 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                             <Input ref={companyFileInputRef} type="file" accept="image/*" className="hidden" onChange={onCompanyImageChange} />
                         </div>
                         <div className="grid gap-1.5 flex-grow text-center md:text-left">
-                            <h2 className="text-2xl font-bold">{formData.companyName}</h2>
-                            <p className="text-muted-foreground">{formData.legalName}</p>
+                            <h2 className="text-xl sm:text-2xl font-bold">{formData.companyName}</h2>
+                            <p className="text-sm text-muted-foreground">{formData.legalName}</p>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -94,15 +94,15 @@ export function ConfigItem({
     <div
       onClick={onClick}
       className={cn(
-        "flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
+        "flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className
       )}
     >
-      <div className="flex items-center gap-4 overflow-hidden">
+      <div className="flex items-center gap-4 overflow-hidden min-w-0 flex-1">
         {renderIcon()}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <div className="text-sm font-bold truncate pr-2 text-foreground">
             {typeof label === 'string' ? <p>{label}</p> : label}
           </div>
@@ -113,7 +113,7 @@ export function ConfigItem({
           )}
         </div>
       </div>
-      <div className="flex-1 min-w-0 flex items-center gap-2 justify-end ml-4">
+      <div className="flex items-center gap-2 justify-end sm:ml-4 sm:flex-none">
         {children}
       </div>
     </div>

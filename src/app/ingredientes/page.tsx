@@ -623,102 +623,104 @@ export default function IngredientesPage() {
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[40px]">
-                                        <Checkbox
-                                            checked={isAllOnPageSelected}
-                                            onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
-                                            aria-label="Seleccionar todas las filas de esta página"
-                                            data-state={isSomeOnPageSelected ? 'indeterminate' : (isAllOnPageSelected ? 'checked' : 'unchecked')}
-                                        />
-                                    </TableHead>
-                                    <TableHead>Ingrediente</TableHead>
-                                    <TableHead>Stock</TableHead>
-                                    <TableHead>Costo Unitario</TableHead>
-                                    <TableHead>Impuesto</TableHead>
-                                    <TableHead className="text-right">Acciones</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody
-                                key={currentPage}
-                                className={cn(
-                                    'transition-opacity duration-300',
-                                    isAnimating ? 'opacity-0' : 'opacity-100'
-                                )}
-                            >
-                                {currentIngredients.length > 0 ? currentIngredients.map((ing) => {
-                                    const stockStatus = getStockStatus(ing.stock_actual, ing.stock_minimo_alerta);
-                                    return (
-                                        <TableRow key={ing.id} data-state={selectedRows[ing.id] && 'selected'}>
-                                            <TableCell>
-                                                <Checkbox
-                                                    checked={!!selectedRows[ing.id]}
-                                                    onCheckedChange={() => handleRowSelect(ing.id)}
-                                                    aria-label={`Seleccionar fila ${ing.id}`}
-                                                />
-                                            </TableCell>
-                                            <TableCell className="font-medium">{ing.nombre_ingrediente}</TableCell>
-                                            <TableCell>
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger>
-                                                            <Badge variant={
-                                                                stockStatus === 'low' ? 'destructive' :
-                                                                    stockStatus === 'warning' ? 'destructive' : // Mapped warning to destructive for standard Shadcn badges or keep if custom
-                                                                        'secondary'
-                                                            }>
-                                                                {(stockStatus === 'low' || stockStatus === 'warning') && <AlertTriangle className="mr-1 h-3 w-3" />}
-                                                                {ing.stock_actual} {ing.unidad_medida}
-                                                            </Badge>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>Alerta de stock mínimo: {ing.stock_minimo_alerta} {ing.unidad_medida}</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            </TableCell>
-                                            <TableCell>€{ing.costo_unitario.toFixed(2)}</TableCell>
-                                            <TableCell>{getTaxName(ing.id_impuesto)}</TableCell>
-                                            <TableCell className="text-right">
-                                                <AlertDialog>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent>
-                                                            <DropdownMenuItem onClick={() => handleOpenDialog(ing)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
-                                                            <AlertDialogTrigger asChild>
-                                                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
-                                                            </AlertDialogTrigger>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                Esta acción no se puede deshacer. Se eliminará el ingrediente de tu librería.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleRemove(ing.id, ing.nombre_ingrediente)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="w-[40px]">
+                                            <Checkbox
+                                                checked={isAllOnPageSelected}
+                                                onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
+                                                aria-label="Seleccionar todas las filas de esta página"
+                                                data-state={isSomeOnPageSelected ? 'indeterminate' : (isAllOnPageSelected ? 'checked' : 'unchecked')}
+                                            />
+                                        </TableHead>
+                                        <TableHead>Ingrediente</TableHead>
+                                        <TableHead>Stock</TableHead>
+                                        <TableHead>Costo Unitario</TableHead>
+                                        <TableHead>Impuesto</TableHead>
+                                        <TableHead className="text-right">Acciones</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody
+                                    key={currentPage}
+                                    className={cn(
+                                        'transition-opacity duration-300',
+                                        isAnimating ? 'opacity-0' : 'opacity-100'
+                                    )}
+                                >
+                                    {currentIngredients.length > 0 ? currentIngredients.map((ing) => {
+                                        const stockStatus = getStockStatus(ing.stock_actual, ing.stock_minimo_alerta);
+                                        return (
+                                            <TableRow key={ing.id} data-state={selectedRows[ing.id] && 'selected'}>
+                                                <TableCell>
+                                                    <Checkbox
+                                                        checked={!!selectedRows[ing.id]}
+                                                        onCheckedChange={() => handleRowSelect(ing.id)}
+                                                        aria-label={`Seleccionar fila ${ing.id}`}
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="font-medium">{ing.nombre_ingrediente}</TableCell>
+                                                <TableCell>
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger>
+                                                                <Badge variant={
+                                                                    stockStatus === 'low' ? 'destructive' :
+                                                                        stockStatus === 'warning' ? 'destructive' : // Mapped warning to destructive for standard Shadcn badges or keep if custom
+                                                                            'secondary'
+                                                                }>
+                                                                    {(stockStatus === 'low' || stockStatus === 'warning') && <AlertTriangle className="mr-1 h-3 w-3" />}
+                                                                    {ing.stock_actual} {ing.unidad_medida}
+                                                                </Badge>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Alerta de stock mínimo: {ing.stock_minimo_alerta} {ing.unidad_medida}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
+                                                </TableCell>
+                                                <TableCell>€{ing.costo_unitario.toFixed(2)}</TableCell>
+                                                <TableCell>{getTaxName(ing.id_impuesto)}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <AlertDialog>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent>
+                                                                <DropdownMenuItem onClick={() => handleOpenDialog(ing)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
+                                                                <AlertDialogTrigger asChild>
+                                                                    <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                                                </AlertDialogTrigger>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    Esta acción no se puede deshacer. Se eliminará el ingrediente de tu librería.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleRemove(ing.id, ing.nombre_ingrediente)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        );
+                                    }) : (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="h-24 text-center">
+                                                {searchTerm ? 'No se encontraron ingredientes.' : 'No has creado ningún ingrediente todavía.'}
                                             </TableCell>
                                         </TableRow>
-                                    );
-                                }) : (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">
-                                            {searchTerm ? 'No se encontraron ingredientes.' : 'No has creado ningún ingrediente todavía.'}
-                                        </TableCell>
-                                    </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center">
                         <div className="text-xs text-muted-foreground">

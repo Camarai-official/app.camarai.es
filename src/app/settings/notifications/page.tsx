@@ -96,7 +96,7 @@ export default function NotificationsPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
                     {Object.entries(categoryInfo).map(([key, info]) => {
                         const categoryKey = key as NotificationCategory;
                         const Icon = info.icon;
@@ -140,10 +140,10 @@ export default function NotificationsPage() {
             </CardContent>
         </Card>
       </main>
-      <footer className="p-4 md:p-6 pt-0 sticky bottom-0">
-          <Card className="p-4 border-t bg-background/80 backdrop-blur-sm">
-            <div className="flex justify-start items-center">
-                <Button variant="outline" onClick={() => router.push('/settings')}>
+      <footer className="p-4 md:p-6 pt-0 sticky bottom-0 z-10 sm:relative sm:sticky-0">
+          <Card className="p-4 border shadow-lg sm:shadow-none bg-background/90 backdrop-blur-sm sm:bg-transparent sm:border-none">
+            <div className="flex justify-center sm:justify-start items-center">
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => router.push('/settings')}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Volver a Configuración
                 </Button>
