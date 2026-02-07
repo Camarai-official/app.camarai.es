@@ -118,11 +118,11 @@ const roleConfig: Record<UserRole, {
   },
 };
 
-// Priority badge colors
-const priorityColors = {
-  high: 'bg-red-100 text-red-700 border-red-200',
-  medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  low: 'bg-green-100 text-green-700 border-green-200',
+// Priority badge variants
+const priorityVariants: Record<string, any> = {
+  high: 'danger',
+  medium: 'warning',
+  low: 'success',
 };
 
 // Default tasks by role
@@ -238,7 +238,7 @@ export function RoleDashboard({
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Mis Tareas</CardTitle>
-              <Badge variant="secondary">{pendingTasks} pendientes</Badge>
+              <Badge variant="neutral">{pendingTasks} pendientes</Badge>
             </div>
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -275,7 +275,7 @@ export function RoleDashboard({
                           </p>
                         )}
                       </div>
-                      <Badge variant="outline" className={cn("text-[10px]", priorityColors[task.priority])}>
+                      <Badge variant={priorityVariants[task.priority]}>
                         {task.priority === 'high' ? 'Alta' : task.priority === 'medium' ? 'Media' : 'Baja'}
                       </Badge>
                     </div>
@@ -291,7 +291,7 @@ export function RoleDashboard({
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Notificaciones</CardTitle>
-              <Badge variant="secondary">
+              <Badge variant="neutral">
                 {displayNotifications.filter(n => !n.read).length} nuevas
               </Badge>
             </div>

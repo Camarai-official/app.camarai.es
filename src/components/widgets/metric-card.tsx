@@ -28,7 +28,7 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
           </p>
         )}
         {change && (
-          <Badge variant={isIncrease ? 'completed' : 'destructive'} className="border-transparent font-normal text-xs mt-1">
+          <Badge variant={isIncrease ? 'success' : 'danger'}>
             {change}
           </Badge>
         )}

@@ -11,7 +11,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -297,7 +297,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle>{productToEdit ? 'Editar' : 'Crear'} Producto</DialogTitle>
+                    <DialogTitle icon={PlusCircle}>{productToEdit ? 'Editar' : 'Crear'} Producto</DialogTitle>
                     <DialogDescription>Rellena los detalles. Los productos se añadirán a tu librería global para usarlos en las cartas.</DialogDescription>
                 </DialogHeader>
 
@@ -452,8 +452,8 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                                         <span className="text-xs text-muted-foreground w-10">{assocIng.unidad_medida}</span>
                                                         <span className="text-xs font-medium w-16 text-right">€{subtotal.toFixed(2)}</span>
                                                     </div>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveIngredient(assocIng.id_ingrediente)}>
-                                                        <Trash2 className="h-4 w-4" />
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveIngredient(assocIng.id_ingrediente)}>
+                                                        <Trash className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </div>
                                             )
@@ -514,8 +514,8 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                                     <Badge variant={variant.precio_extra > 0 ? 'default' : 'secondary'}>
                                                         {variant.precio_extra > 0 ? `+€${variant.precio_extra.toFixed(2)}` : 'Sin cargo'}
                                                     </Badge>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveVariant(variant.id)}>
-                                                        <Trash2 className="h-4 w-4" />
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveVariant(variant.id)}>
+                                                        <Trash className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </div>
                                             </div>
@@ -637,7 +637,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
 
                 <DialogFooter>
                     <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button onClick={handleSaveClick}>Guardar Producto</Button>
+                    <Button variant="brand" onClick={handleSaveClick}>Guardar Producto</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -772,8 +772,20 @@ export default function ProductosPage() {
                             >
                                 {currentProducts.length > 0 ? currentProducts.map((prod) => (
                                     <TableRow key={prod.id}>
-                                        <TableCell className="font-medium flex items-center gap-3">
-                                            <Image src={prod.url_imagen_producto} alt={prod.nombre_producto} width={40} height={40} className="rounded-md" />
+                                        <TableCell className="font-medium flex items-center gap-3 py-3">
+                                            {prod.url_imagen_producto ? (
+                                                <Image 
+                                                    src={prod.url_imagen_producto} 
+                                                    alt={prod.nombre_producto} 
+                                                    width={40} 
+                                                    height={40} 
+                                                    className="rounded-lg object-cover bg-muted" 
+                                                />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground border border-dashed">
+                                                    <Package className="h-5 w-5 opacity-40" />
+                                                </div>
+                                            )}
                                             {prod.nombre_producto}
                                         </TableCell>
                                         <TableCell>
@@ -797,9 +809,15 @@ export default function ProductosPage() {
                                                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent>
-                                                        <DropdownMenuItem onClick={() => handleOpenDialog(prod)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenDialog(prod)}>
+                                                            <Edit className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                            Editar
+                                                        </DropdownMenuItem>
                                                         <AlertDialogTrigger asChild>
-                                                            <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                                Eliminar
+                                                            </DropdownMenuItem>
                                                         </AlertDialogTrigger>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>

@@ -97,7 +97,7 @@ export default function KdsPage() {
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Configuración del KDS</DialogTitle>
+            <DialogTitle icon={Settings}>Configuración del KDS</DialogTitle>
             <DialogDescription>
               Configura el ambiente, categorías y opciones de visualización para la pantalla de cocina.
             </DialogDescription>

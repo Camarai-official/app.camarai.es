@@ -2,15 +2,13 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Bell, Calendar, ClipboardList, Archive, AlertCircle, Mail, Smartphone, MessageSquare, ArrowLeft } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Calendar, ClipboardList, Archive, AlertCircle, Mail, Smartphone, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/layout/page-header';
+import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 
 type NotificationChannel = 'email' | 'push' | 'whatsapp';
 type NotificationCategory = 'reservations' | 'orders' | 'inventory' | 'system';
@@ -32,22 +30,26 @@ const categoryInfo = {
     reservations: {
         icon: Calendar,
         title: "Reservas",
-        description: "Alertas sobre nuevas reservas, cancelaciones o modificaciones.",
+        description: "Nuevas reservas, cancelaciones o modificaciones.",
+        color: "#6366f1", // Indigo
     },
     orders: {
         icon: ClipboardList,
         title: "Pedidos",
-        description: "Notificaciones de nuevos pedidos, solicitudes de cuenta o ayuda.",
+        description: "Nuevos pedidos, solicitudes de cuenta o ayuda.",
+        color: "#10b981", // Emerald
     },
     inventory: {
         icon: Archive,
         title: "Inventario",
-        description: "Avisos de stock bajo y confirmaciones de recepción de pedidos.",
+        description: "Avisos de stock bajo y confirmaciones.",
+        color: "#f59e0b", // Amber
     },
     system: {
         icon: AlertCircle,
         title: "Sistema",
-        description: "Actualizaciones importantes, noticias y alertas de mantenimiento.",
+        description: "Actualizaciones importantes y mantenimiento.",
+        color: "#ef4444", // Red
     }
 }
 
@@ -94,40 +96,47 @@ export default function NotificationsPage() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                {Object.entries(categoryInfo).map(([key, info], index) => {
-                    const categoryKey = key as NotificationCategory;
-                    const Icon = info.icon;
-                    return (
-                        <React.Fragment key={categoryKey}>
-                            {index > 0 && <Separator />}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
-                                <div className="md:col-span-1 space-y-1">
-                                    <h3 className="font-semibold flex items-center gap-2"><Icon className="h-5 w-5 text-primary"/>{info.title}</h3>
-                                    <p className="text-sm text-muted-foreground">{info.description}</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {Object.entries(categoryInfo).map(([key, info]) => {
+                        const categoryKey = key as NotificationCategory;
+                        const Icon = info.icon;
+                        return (
+                            <div key={categoryKey} className="space-y-4">
+                                <div className="flex items-center gap-3 px-1 mb-2">
+                                    <div 
+                                        className="p-2 rounded-xl bg-primary/10"
+                                        style={{ backgroundColor: `${info.color}15`, color: info.color }}
+                                    >
+                                        <Icon className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold text-foreground">{info.title}</h3>
+                                        <p className="text-[11px] text-muted-foreground">{info.description}</p>
+                                    </div>
                                 </div>
-                                <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-lg border p-4 bg-background/50">
+                                <div className="space-y-2">
                                     {Object.entries(channelInfo).map(([channelKey, channel]) => {
                                         const channelId = `${categoryKey}-${channelKey}`;
-                                        const ChannelIcon = channel.icon;
+                                        const cKey = channelKey as NotificationChannel;
                                         return (
-                                             <div key={channelKey} className="flex items-center justify-between space-x-2">
-                                                <Label htmlFor={channelId} className="flex items-center gap-2 cursor-pointer">
-                                                    <ChannelIcon className="h-4 w-4 text-muted-foreground" />
-                                                    {channel.label}
-                                                </Label>
-                                                <Switch
-                                                    id={channelId}
-                                                    checked={settings[categoryKey][channelKey as NotificationChannel]}
-                                                    onCheckedChange={(checked) => handleSettingChange(categoryKey, channelKey as NotificationChannel, checked)}
-                                                />
-                                            </div>
+                                            <ConfigToggle
+                                                key={channelId}
+                                                id={channelId}
+                                                icon={channel.icon}
+                                                label={channel.label}
+                                                description={`Recibir alertas por ${channel.label.toLowerCase()}`}
+                                                checked={settings[categoryKey][cKey]}
+                                                onCheckedChange={(checked) => handleSettingChange(categoryKey, cKey, checked)}
+                                                className="bg-muted/30 border-none hover:bg-muted/50"
+                                                iconContainerClassName="bg-primary/10 shadow-sm border border-border/50"
+                                            />
                                         )
                                     })}
                                 </div>
                             </div>
-                        </React.Fragment>
-                    )
-                })}
+                        )
+                    })}
+                </div>
             </CardContent>
         </Card>
       </main>

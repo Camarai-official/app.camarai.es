@@ -92,7 +92,7 @@ export default function PosPage() {
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Configuración del POS</DialogTitle>
+            <DialogTitle icon={Settings}>Configuración del POS</DialogTitle>
             <DialogDescription>
               Configura el terminal, impresora y opciones de operación para el punto de venta.
             </DialogDescription>

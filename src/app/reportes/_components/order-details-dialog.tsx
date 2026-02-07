@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { FileText } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -27,7 +28,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Detalles de la Comanda #{order.order}</DialogTitle>
+                    <DialogTitle icon={FileText}>Detalles de la Comanda #{order.order}</DialogTitle>
                     <DialogDescription>
                         Realizada a las {order.time} para {order.name}.
                     </DialogDescription>

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MoreVertical, Pencil, Trash2, Plus, Building2, Phone, Mail, MapPin, FileText } from 'lucide-react';
+import { MoreVertical, Pencil, Trash, Plus, Building2, Phone, Mail, MapPin, FileText } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent as InnerTabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ConfigItem } from '@/components/ui/config-item';
 
 // Provider type definition
 interface Provider {
@@ -175,14 +176,27 @@ export function ProvidersTab() {
                         </div>
                     ) : (
                         providers.map(provider => (
-                            <div key={provider.id} className="p-4 border rounded-lg space-y-4">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <h3 className="font-semibold">{provider.name}</h3>
-                                            <Badge variant="secondary">{getCategoryLabel(provider.category)}</Badge>
+                            <ConfigItem
+                                key={provider.id}
+                                icon={Building2}
+                                label={
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold">{provider.name}</span>
+                                        <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{getCategoryLabel(provider.category)}</Badge>
+                                    </div>
+                                }
+                                description={`Contacto: ${provider.contactName}`}
+                            >
+                                <div className="flex items-center gap-4 mr-4">
+                                    <div className="hidden md:flex flex-col items-end gap-1">
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <Mail className="h-3 w-3" />
+                                            <span>{provider.email}</span>
                                         </div>
-                                        <p className="text-sm text-muted-foreground">Contacto: {provider.contactName}</p>
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                            <Phone className="h-3 w-3" />
+                                            <span>{provider.phone}</span>
+                                        </div>
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -193,41 +207,17 @@ export function ProvidersTab() {
                                                 <Pencil className="mr-2 h-4 w-4" />Editar
                                             </DropdownMenuItem>
                                             <DropdownMenuItem 
-                                                className="text-destructive"
                                                 onSelect={() => {
                                                     setProviderToDelete(provider);
                                                     setIsDeleteDialogOpen(true);
                                                 }}
                                             >
-                                                <Trash2 className="mr-2 h-4 w-4" />Eliminar
+                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </div>
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <div className="space-y-1 flex items-center gap-2">
-                                        <Mail className="h-4 w-4 text-muted-foreground" />
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Email</Label>
-                                            <p className="text-sm">{provider.email}</p>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1 flex items-center gap-2">
-                                        <Phone className="h-4 w-4 text-muted-foreground" />
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">Teléfono</Label>
-                                            <p className="text-sm">{provider.phone}</p>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1 flex items-center gap-2">
-                                        <FileText className="h-4 w-4 text-muted-foreground" />
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground">NIF</Label>
-                                            <p className="text-sm">{provider.nif}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            </ConfigItem>
                         ))
                     )}
                 </CardContent>
@@ -237,7 +227,7 @@ export function ProvidersTab() {
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-xl">
                     <DialogHeader>
-                        <DialogTitle>
+                        <DialogTitle icon={Building2}>
                             {editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor'}
                         </DialogTitle>
                         <DialogDescription>

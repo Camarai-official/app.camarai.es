@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Bluetooth, Building2, Cable, Loader2, Monitor, MoreVertical, Pencil, PlusCircle, Printer, Trash2, Users, Wifi } from 'lucide-react';
+import { Bluetooth, Building2, Cable, Loader2, Monitor, MoreVertical, Pencil, PlusCircle, Printer, Trash, Users, Wifi } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { ConfigItem } from '@/components/ui/config-item';
 import type { Device, DeviceType, ConnectionMethod, DeviceRole } from '@/data/devices';
 
 type FoundDevice = { name: string; model: string; ipAddress?: string };
@@ -81,27 +82,23 @@ export function DevicesTab({
                                 </CardHeader>
                                 <CardContent className="flex-grow space-y-3">
                                     {filteredDevices.map(device => (
-                                        <div key={device.id} className="flex items-center justify-between p-3 border rounded-lg bg-background">
-                                            <div className="flex items-center gap-3">
-                                                <ConnectionIcon method={device.connectionMethod} />
-                                                <div>
-                                                    <p className="font-semibold">{device.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{device.model}</p>
-                                                </div>
-                                            </div>
-                                            <div className='flex items-center gap-1'>
-                                                <Switch checked={device.active} onCheckedChange={(checked) => updateDevice(device.id, { active: checked })} />
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        <DropdownMenuItem onClick={() => handleOpenDeviceDialog(type, device)}><Pencil className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive" onClick={() => removeDevice(device.id)}><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </div>
+                                        <ConfigItem
+                                            key={device.id}
+                                            icon={<ConnectionIcon method={device.connectionMethod} />}
+                                            label={device.name}
+                                            description={device.model}
+                                        >
+                                            <Switch checked={device.active} onCheckedChange={(checked) => updateDevice(device.id, { active: checked })} />
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => handleOpenDeviceDialog(type, device)}><Pencil className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => removeDevice(device.id)}><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </ConfigItem>
                                     ))}
                                 </CardContent>
                                 <CardFooter>
@@ -116,7 +113,7 @@ export function DevicesTab({
                 </div>
                 <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col">
                     <DialogHeader>
-                        <DialogTitle>{editingDevice?.id ? 'Editar' : 'Añadir'} {editingDevice?.type === 'printer' ? 'Impresora' : 'Dispositivo'}</DialogTitle>
+                        <DialogTitle icon={editingDevice?.type === 'printer' ? Printer : Monitor}>{editingDevice?.id ? 'Editar' : 'Añadir'} {editingDevice?.type === 'printer' ? 'Impresora' : 'Dispositivo'}</DialogTitle>
                         <DialogDescription>
                             Configura los detalles de tu nuevo dispositivo.
                         </DialogDescription>
@@ -241,7 +238,7 @@ export function DevicesTab({
                             </div>
                         )}
                     </div>
-                    <DialogFooter className="pt-4 border-t">
+                    <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="secondary">Cancelar</Button>
                         </DialogClose>

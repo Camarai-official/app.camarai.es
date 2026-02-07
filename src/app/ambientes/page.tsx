@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Printer, Trash2, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check } from 'lucide-react';
+import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Search, Filter, LayoutGrid, Maximize, FileType } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { mockEnvironments } from '@/data/mock-data';
 import type { Environment, EnvironmentStatus } from '@/data/mock-data';
@@ -35,6 +35,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
+import { ColorPicker } from '@/components/ui/color-picker';
 
 /**
  * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
@@ -54,7 +56,7 @@ const iconMap: { [key: string]: React.ElementType } = {
     Activity,
     PlusCircle,
     Printer,
-    Trash2,
+    Trash,
     Pencil,
     Percent
 };
@@ -341,9 +343,9 @@ export default function AmbientesPage() {
      */
     const getStatusVariant = (status: EnvironmentStatus) => {
         switch (status) {
-            case 'Abierto': return 'completed';
-            case 'Cerrado': return 'cancelled';
-            default: return 'secondary';
+            case 'Abierto': return 'success';
+            case 'Cerrado': return 'danger';
+            default: return 'neutral';
         }
     }
 
@@ -368,58 +370,72 @@ export default function AmbientesPage() {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Card className="group flex flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-1" style={{ borderLeft: `4px solid ${env.color}` }}>
-                                            <CardHeader className="flex flex-row items-start justify-between">
-                                                <div className="flex items-center gap-3 flex-grow">
+                                            <ConfigToggle
+                                                id={`status-switch-${env.id}`}
+                                                checked={env.status === 'Abierto'}
+                                                onCheckedChange={(checked) => handleStatusChange(env.id, checked)}
+                                                className="bg-muted/10 border-none border-b rounded-b-none hover:bg-muted/20 p-5 transition-all group/toggle"
+                                                color={env.color}
+                                                icon={
                                                     <AlertDialog>
                                                         <Popover>
                                                             <PopoverTrigger asChild>
-                                                                <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0 transition-all hover:ring-2" style={{ '--ring-color': env.color } as React.CSSProperties}>
-                                                                    <IconComponent name={env.icon} className="h-5 w-5" style={{ color: env.color }} />
-                                                                </Button>
+                                                                <button 
+                                                                    className="flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
+                                                                >
+                                                                    <IconComponent name={env.icon} className="h-5 w-5" />
+                                                                </button>
                                                             </PopoverTrigger>
-                                                            <PopoverContent className="w-auto">
+                                                            <PopoverContent className="w-80 p-4" align="start" sideOffset={8}>
                                                                 <div className="grid gap-4">
-                                                                    <div className="space-y-2">
-                                                                        <h4 className="font-medium leading-none">Icono</h4>
-                                                                        <div className="flex gap-2">
+                                                                    <div className="space-y-3">
+                                                                        <Label>Personalizar Icono</Label>
+                                                                        <div className="grid grid-cols-6 gap-2">
                                                                             {availableIcons.map(iconName => (
-                                                                                <Button key={iconName} variant={env.icon === iconName ? 'default' : 'outline'} size="icon" onClick={() => handleUpdateEnvironment(env.id, { icon: iconName })}>
+                                                                                <Button 
+                                                                                    key={iconName} 
+                                                                                    variant={env.icon === iconName ? 'default' : 'outline'} 
+                                                                                    size="icon" 
+                                                                                    className="h-9 w-9 rounded-lg" 
+                                                                                    onClick={() => handleUpdateEnvironment(env.id, { icon: iconName })}
+                                                                                >
                                                                                     <IconComponent name={iconName} className="h-4 w-4" />
                                                                                 </Button>
                                                                             ))}
                                                                         </div>
                                                                     </div>
-                                                                    <div className="space-y-2">
-                                                                        <h4 className="font-medium leading-none">Color</h4>
-                                                                        <div className="flex gap-2">
-                                                                            {availableColors.map(color => (
-                                                                                <Button key={color} variant="outline" size="icon" className={cn("h-8 w-8 rounded-full", env.color === color && "ring-2 ring-primary")} style={{ backgroundColor: color }} onClick={() => handleUpdateEnvironment(env.id, { color })} />
-                                                                            ))}
-                                                                        </div>
+                                                                    <ColorPicker
+                                                                        label="Color de Identidad"
+                                                                        value={env.color}
+                                                                        onChange={(color) => handleUpdateEnvironment(env.id, { color })}
+                                                                    />
+                                                                    <div className="pt-2 border-t">
+                                                                        <AlertDialogTrigger asChild>
+                                                                            <Button variant="ghost" size="sm" className="w-full justify-start px-2 hover:bg-destructive/10">
+                                                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                <span className="font-semibold">Eliminar este ambiente</span>
+                                                                            </Button>
+                                                                        </AlertDialogTrigger>
                                                                     </div>
-                                                                    <AlertDialogTrigger asChild>
-                                                                        <Button variant="outline" className="w-full text-destructive border-destructive hover:bg-destructive/10 hover:text-destructive">
-                                                                            <Trash2 className="mr-2 h-4 w-4" />
-                                                                            Eliminar ambiente
-                                                                        </Button>
-                                                                    </AlertDialogTrigger>
                                                                 </div>
                                                             </PopoverContent>
                                                         </Popover>
                                                         <AlertDialogContent>
                                                             <AlertDialogHeader>
-                                                                <AlertDialogTitle>¿Estás seguro que quieres eliminar este ambiente?</AlertDialogTitle>
+                                                                <AlertDialogTitle>¿Eliminar ambiente?</AlertDialogTitle>
                                                                 <AlertDialogDescription>
-                                                                    Esta acción no se puede deshacer. Esto eliminará permanentemente el ambiente y todas sus mesas.
+                                                                    Esta acción es irreversible. Se eliminará "{env.name}" y todas las mesas configuradas en él.
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                                <AlertDialogAction onClick={() => handleRemoveEnvironment(env.id, env.name)} className={buttonVariants({ variant: "destructive" })}>Eliminar</AlertDialogAction>
+                                                                <AlertDialogAction onClick={() => handleRemoveEnvironment(env.id, env.name)} className={buttonVariants({ variant: "destructive" })}>Confirmar Eliminación</AlertDialogAction>
                                                             </AlertDialogFooter>
                                                         </AlertDialogContent>
                                                     </AlertDialog>
-                                                    {editingEnvironmentId === env.id ? (
+                                                }
+                                                label={
+                                                    editingEnvironmentId === env.id ? (
                                                         <Input
                                                             type="text"
                                                             value={editingName}
@@ -427,27 +443,20 @@ export default function AmbientesPage() {
                                                             onBlur={() => handleUpdateName(env.id)}
                                                             onKeyDown={(e) => handleKeyDown(e, env.id)}
                                                             autoFocus
-                                                            className="text-base font-semibold leading-none tracking-tight h-9 p-0 border-0 shadow-none focus-visible:ring-0 bg-transparent flex-grow"
+                                                            className="text-base font-bold leading-none tracking-tight h-8 p-0 border-0 shadow-none focus-visible:ring-0 bg-transparent"
                                                         />
                                                     ) : (
-                                                        <div className="flex items-center gap-2 flex-grow" onDoubleClick={() => handleDoubleClick(env)}>
-                                                            <CardTitle className="text-base font-bold text-muted-foreground cursor-pointer">
+                                                        <div className="flex items-center gap-2 group/name" onDoubleClick={() => handleDoubleClick(env)}>
+                                                            <span className="text-base font-bold text-foreground cursor-pointer">
                                                                 {env.name}
-                                                            </CardTitle>
-                                                            <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDoubleClick(env)}>
-                                                                <Pencil className="h-4 w-4" />
+                                                            </span>
+                                                            <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover/name:opacity-100 transition-opacity" onClick={() => handleDoubleClick(env)}>
+                                                                <Pencil className="h-3 w-3" />
                                                             </Button>
                                                         </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Switch
-                                                        id={`status-switch-${env.id}`}
-                                                        checked={env.status === 'Abierto'}
-                                                        onCheckedChange={(checked) => handleStatusChange(env.id, checked)}
-                                                    />
-                                                </div>
-                                            </CardHeader>
+                                                    )
+                                                }
+                                            />
                                             <CardContent className="flex-grow">
                                                 <div className="space-y-3">
                                                     <div className="flex items-center justify-between text-muted-foreground">
@@ -455,21 +464,21 @@ export default function AmbientesPage() {
                                                             <Users className="h-5 w-5" />
                                                             <span>Aforo total:</span>
                                                         </div>
-                                                        <Badge variant="secondary">{calculateTotalCapacity(env)} personas</Badge>
+                                                        <Badge variant="neutral">{calculateTotalCapacity(env)} personas</Badge>
                                                     </div>
                                                     <div className="flex items-center justify-between text-muted-foreground">
                                                         <div className="flex items-center gap-2">
                                                             <Utensils className="h-5 w-5" />
                                                             <span>Mesas:</span>
                                                         </div>
-                                                        <Badge variant="secondary">{env.tables.length} mesas</Badge>
+                                                        <Badge variant="neutral">{env.tables.length} mesas</Badge>
                                                     </div>
                                                     <div className="flex items-center justify-between text-muted-foreground">
                                                         <div className="flex items-center gap-2">
                                                             <Activity className="h-5 w-5" />
                                                             <span>Mesas activas:</span>
                                                         </div>
-                                                        <Badge variant="secondary">{calculateActiveTables(env)} mesas</Badge>
+                                                        <Badge variant="neutral">{calculateActiveTables(env)} mesas</Badge>
                                                     </div>
                                                     <div className="flex items-center justify-between text-muted-foreground">
                                                         <div className="flex items-center gap-2">
@@ -484,7 +493,7 @@ export default function AmbientesPage() {
                                                                 <Percent className="h-5 w-5" />
                                                                 <span>Aforo Ocupado:</span>
                                                             </div>
-                                                            <Badge variant="secondary">{occupancyPercentage}%</Badge>
+                                                            <Badge variant="neutral">{occupancyPercentage}%</Badge>
                                                         </div>
                                                         <Progress value={occupancyPercentage} className="h-2" />
                                                     </div>
@@ -514,10 +523,9 @@ export default function AmbientesPage() {
 
             {/* QR Dialog */}
             <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
-                <DialogContent className="sm:max-w-3xl lg:max-w-5xl max-h-[90vh] overflow-hidden">
+                <DialogContent className="sm:max-w-3xl lg:max-w-5xl overflow-hidden border-none shadow-2xl p-6">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <QrCode className="h-5 w-5" />
+                        <DialogTitle icon={QrCode}>
                             Códigos QR - {selectedEnvForQR?.name}
                         </DialogTitle>
                         <DialogDescription>
@@ -527,33 +535,37 @@ export default function AmbientesPage() {
 
                     {selectedEnvForQR && (
                         <>
-                            <div className="space-y-3">
-                                {/* Row 1: Selection and Actions */}
-                                <div className="flex flex-wrap items-center justify-between gap-3 py-2 px-3 bg-muted/30 rounded-lg border border-border/50">
-                                    <div className="flex items-center gap-2">
-                                        <Checkbox
-                                            id="select-all"
-                                            checked={selectedEnvForQR.tables.length > 0 && selectedTables.size === selectedEnvForQR.tables.length}
-                                            onCheckedChange={toggleAllTables}
-                                        />
-                                        <Label htmlFor="select-all" className="text-sm font-medium cursor-pointer whitespace-nowrap">
-                                            {selectedTables.size === 0 ? "Seleccionar Todos" : `${selectedTables.size} Seleccionados`}
-                                        </Label>
+                            <div className="space-y-4 mb-4">
+                                {/* Toolbar: Actions and Selection */}
+                                <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-muted/30 rounded-2xl border border-border/50">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2 bg-background/50 p-2 rounded-xl border px-3">
+                                            <Checkbox
+                                                id="select-all"
+                                                checked={selectedEnvForQR.tables.length > 0 && selectedTables.size === selectedEnvForQR.tables.length}
+                                                onCheckedChange={toggleAllTables}
+                                            />
+                                            <Label htmlFor="select-all" className="cursor-pointer whitespace-nowrap">
+                                                {selectedTables.size === 0 ? "Seleccionar Todos" : `${selectedTables.size} Seleccionados`}
+                                            </Label>
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center gap-2">
                                         <Button
                                             variant="outline"
                                             size="sm"
+                                            className="rounded-xl h-9"
                                             onClick={regenerateQR}
                                             disabled={selectedTables.size === 0}
                                         >
                                             <Activity className="mr-2 h-4 w-4" />
-                                            Regenerar QR
+                                            Regenerar
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
+                                            className="rounded-xl h-9"
                                             onClick={downloadAllQRs}
                                             disabled={selectedTables.size === 0}
                                         >
@@ -562,21 +574,27 @@ export default function AmbientesPage() {
                                         </Button>
                                         <Button
                                             size="sm"
+                                            className="rounded-xl h-9 px-4"
                                             onClick={printQRs}
                                             disabled={selectedTables.size === 0}
+                                            variant="brand"
                                         >
                                             <Printer className="mr-2 h-4 w-4" />
-                                            Imprimir
+                                            Imprimir QRs
                                         </Button>
                                     </div>
                                 </div>
 
-                                {/* Row 2: Size and Format */}
-                                <div className="flex items-center gap-4 px-3">
-                                    <div className="flex items-center gap-2">
-                                        <Label htmlFor="qr-size" className="text-sm whitespace-nowrap">Tamaño:</Label>
+                                {/* Configuration and Search Row */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <ConfigItem
+                                        icon={Maximize}
+                                        label="Tamaño"
+                                        iconClassName="text-blue-500"
+                                        iconContainerClassName="bg-blue-500/10 group-hover:bg-blue-500/20"
+                                    >
                                         <Select value={qrSize} onValueChange={(v) => setQrSize(v as any)}>
-                                            <SelectTrigger id="qr-size" className="w-28 h-8">
+                                            <SelectTrigger className="w-[100px] h-8 border-none bg-muted/50 text-xs">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -585,11 +603,16 @@ export default function AmbientesPage() {
                                                 <SelectItem value="large">Grande</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Label htmlFor="qr-format" className="text-sm whitespace-nowrap">Formato:</Label>
+                                    </ConfigItem>
+
+                                    <ConfigItem
+                                        icon={FileType}
+                                        label="Formato"
+                                        iconClassName="text-amber-500"
+                                        iconContainerClassName="bg-amber-500/10 group-hover:bg-amber-500/20"
+                                    >
                                         <Select value={qrFormat} onValueChange={(v) => setQrFormat(v as any)}>
-                                            <SelectTrigger id="qr-format" className="w-20 h-8">
+                                            <SelectTrigger className="w-[80px] h-8 border-none bg-muted/50 text-xs">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -597,24 +620,27 @@ export default function AmbientesPage() {
                                                 <SelectItem value="svg">SVG</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                    </ConfigItem>
+
+                                    <div className="relative group">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                                            <Search className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <Input
+                                            placeholder="Buscar mesa..."
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                setCurrentQRPage(1);
+                                            }}
+                                            className="pl-12 h-full rounded-xl border-muted bg-card focus:bg-background transition-all"
+                                        />
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Search Bar */}
-                            <div className="px-3">
-                                <Input
-                                    placeholder="Buscar mesa por número..."
-                                    value={searchQuery}
-                                    onChange={(e) => {
-                                        setSearchQuery(e.target.value);
-                                        setCurrentQRPage(1); // Reset to first page
-                                    }}
-                                    className="max-w-sm"
-                                />
-                            </div>
-
-                            <ScrollArea className="h-[50vh]">
+                            <ScrollArea className="h-[45vh] -mx-6">
+                                <div className="px-6 py-4">
                                 {(() => {
                                     // Filter tables by search query
                                     const filteredTables = selectedEnvForQR.tables.filter(t =>
@@ -630,84 +656,106 @@ export default function AmbientesPage() {
 
                                     return paginatedTables.length > 0 ? (
                                         <>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-1">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                                 {paginatedTables.map(table => {
                                                     const tableNumber = String(table.number);
                                                     const tableId = String(table.id);
                                                     const menuUrl = getMenuUrl(selectedEnvForQR.id, tableNumber);
                                                     const qrUrl = generateQRUrl(tableId, menuUrl, qrSizeMap[qrSize]);
+                                                    const isSelected = selectedTables.has(tableId);
+                                                    
                                                     return (
-                                                        <Card key={tableId} className={cn("overflow-hidden transition-all", selectedTables.has(tableId) && "ring-2 ring-primary border-primary")}>
-                                                            <CardHeader className="py-2 px-3 bg-muted/50 border-b">
-                                                                <CardTitle className="text-sm flex items-center justify-between">
+                                                        <Card key={tableId} className={cn(
+                                                            "group overflow-hidden transition-all duration-300 rounded-2xl border-muted hover:border-primary/50 hover:shadow-lg", 
+                                                            isSelected && "ring-2 ring-primary bg-primary/5 border-primary/20"
+                                                        )}>
+                                                            <div className="p-3">
+                                                                <div className="flex items-center justify-between mb-3">
                                                                     <div className="flex items-center gap-2">
                                                                         <Checkbox
-                                                                            checked={selectedTables.has(tableId)}
+                                                                            checked={isSelected}
                                                                             onCheckedChange={() => toggleTableSelection(tableId)}
+                                                                            className="rounded-md"
                                                                         />
-                                                                        <span>Mesa {tableNumber}</span>
+                                                                        <span className="text-sm font-bold">Mesa {tableNumber}</span>
                                                                     </div>
-                                                                    <Badge variant="secondary" className="text-xs">
+                                                                    <Badge variant="outline" className="text-[10px] font-medium bg-muted/30">
                                                                         {table.capacity}p
                                                                     </Badge>
-                                                                </CardTitle>
-                                                            </CardHeader>
-                                                            <CardContent className="p-3 pt-0 flex flex-col items-center">
-                                                                <div className="bg-white p-2 rounded-lg border">
+                                                                </div>
+                                                                
+                                                                <div className="relative group/qr bg-white p-3 rounded-xl border shadow-sm transition-all hover:shadow-md mb-3 flex items-center justify-center aspect-square">
                                                                     <img
                                                                         src={qrUrl}
                                                                         alt={`QR Mesa ${tableNumber}`}
-                                                                        className="w-[100px] h-[100px]"
+                                                                        className="w-full h-full object-contain"
                                                                     />
+                                                                    <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover/qr:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px] rounded-xl">
+                                                                        <Button 
+                                                                            variant="secondary" 
+                                                                            size="icon" 
+                                                                            className="h-9 w-9 bg-white"
+                                                                            onClick={() => window.open(qrUrl, '_blank')}
+                                                                        >
+                                                                            <Maximize className="h-4 w-4 text-primary" />
+                                                                        </Button>
+                                                                    </div>
                                                                 </div>
-                                                                <div className="flex gap-1 mt-2 w-full">
+                                                                
+                                                                <div className="grid grid-cols-2 gap-2">
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        className="flex-1 h-7 text-xs"
+                                                                        className="h-8 text-[10px] font-semibold bg-muted/20 hover:bg-primary/10 hover:text-primary transition-colors"
                                                                         onClick={() => copyToClipboard(menuUrl, tableId)}
                                                                     >
                                                                         {copiedTable === tableId ? (
-                                                                            <><Check className="h-3 w-3 mr-1" />Copiado</>
+                                                                            <><Check className="h-3 w-3 mr-1" /> OK</>
                                                                         ) : (
-                                                                            <><Copy className="h-3 w-3 mr-1" />Copiar</>
+                                                                            <><Copy className="h-3 w-3 mr-1" /> Link</>
                                                                         )}
                                                                     </Button>
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="sm"
-                                                                        className="flex-1 h-7 text-xs"
+                                                                        className="h-8 text-[10px] font-semibold bg-muted/20 hover:bg-primary/10 hover:text-primary transition-colors"
                                                                         onClick={() => window.open(qrUrl, '_blank')}
                                                                     >
                                                                         <Download className="h-3 w-3 mr-1" />
-                                                                        Descargar
+                                                                        Img
                                                                     </Button>
                                                                 </div>
-                                                            </CardContent>
+                                                            </div>
                                                         </Card>
                                                     );
                                                 })}
                                             </div>
-
+                                            
                                             {/* Pagination Controls */}
                                             {totalPages > 1 && (
-                                                <div className="flex justify-center items-center gap-2 mt-4 pb-2">
+                                                <div className="flex justify-center items-center gap-4 mt-8 pb-4">
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
                                                         disabled={currentQRPage === 1}
                                                         onClick={() => setCurrentQRPage(p => p - 1)}
+                                                        className="rounded-xl h-9"
                                                     >
                                                         Anterior
                                                     </Button>
-                                                    <span className="text-sm text-muted-foreground">
-                                                        Página {currentQRPage} de {totalPages}
-                                                    </span>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-xs font-semibold">Página</span>
+                                                        <Badge variant="secondary" className="h-6 min-w-[24px] flex items-center justify-center font-bold">
+                                                            {currentQRPage}
+                                                        </Badge>
+                                                        <span className="text-xs text-muted-foreground font-medium">de {totalPages}</span>
+                                                    </div>
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
                                                         disabled={currentQRPage === totalPages}
                                                         onClick={() => setCurrentQRPage(p => p + 1)}
+                                                        className="rounded-xl h-9"
                                                     >
                                                         Siguiente
                                                     </Button>
@@ -715,27 +763,33 @@ export default function AmbientesPage() {
                                             )}
                                         </>
                                     ) : (
-                                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                                            <QrCode className="h-12 w-12 text-muted-foreground mb-4" />
-                                            <p className="text-muted-foreground">
-                                                {searchQuery ? 'No se encontraron mesas con ese número.' : 'No hay mesas en este ambiente.'}
+                                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                                            <div className="p-6 bg-muted/30 rounded-full mb-4">
+                                                <QrCode className="h-10 w-10 text-muted-foreground/50" />
+                                            </div>
+                                            <p className="text-muted-foreground font-medium">
+                                                {searchQuery ? 'No se encontraron mesas que coincidan' : 'No hay mesas configuradas aún.'}
                                             </p>
                                             {!searchQuery && (
-                                                <p className="text-sm text-muted-foreground">
-                                                    Añade mesas desde el Plano de Mesas para generar códigos QR.
+                                                <p className="text-sm text-muted-foreground/60 max-w-[250px] mt-1">
+                                                    Importa o crea mesas en el plano para generar sus códigos.
                                                 </p>
                                             )}
                                         </div>
                                     );
                                 })()}
+                                </div>
                             </ScrollArea>
                         </>
                     )}
 
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setQrDialogOpen(false)}>
-                            Cerrar
-                        </Button>
+                        <p className="text-xs text-muted-foreground">Selecciona varias mesas para acciones en lote.</p>
+                        <div>
+                            <Button variant="ghost" onClick={() => setQrDialogOpen(false)} className="rounded-xl">
+                                Cerrar
+                            </Button>
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

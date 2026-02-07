@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ConfigItem } from '@/components/ui/config-item';
+import { CheckCircle2 } from 'lucide-react';
 import type { User } from '@/data/mock-data';
 
 type ProfileTabProps = {
@@ -88,16 +90,23 @@ export function ProfileTab({
                                     <Label htmlFor="pin">PIN de seguridad</Label>
                                     <Input id="pin" type="password" maxLength={4} placeholder="••••" />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="status">Estado</Label>
+                                <ConfigItem
+                                    icon={CheckCircle2}
+                                    label="Estado de la Cuenta"
+                                    description="Estado actual de tu perfil de usuario."
+                                    iconClassName="text-green-500"
+                                    iconContainerClassName="bg-green-500/10"
+                                >
                                     <Select defaultValue="activo">
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectTrigger className="w-28 h-8 border-none bg-muted/50">
+                                            <SelectValue />
+                                        </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="activo">Activo</SelectItem>
                                             <SelectItem value="inactivo">Inactivo</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
+                                </ConfigItem>
                             </div>
                         </>
                     ) : (

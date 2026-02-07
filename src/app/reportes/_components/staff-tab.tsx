@@ -330,7 +330,10 @@ export function StaffTab({
                                                 <TableCell className="text-right">
                                                     {req.status === 'pending' ? (
                                                         <div className="flex gap-2 justify-end">
-                                                            <Button size="sm" variant="outline" className="text-destructive border-destructive hover:bg-destructive/10 hover:text-destructive" onClick={() => onUpdateRequest(req, 'rejected')}>Rechazar</Button>
+                                                            <Button size="sm" variant="outline" className="hover:bg-destructive/10" onClick={() => onUpdateRequest(req, 'rejected')}>
+                                                                <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                Rechazar
+                                                            </Button>
                                                             <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
                                                         </div>
                                                     ) : (
@@ -365,7 +368,10 @@ export function StaffTab({
                                                 <>
                                                     <Separator className="my-3" />
                                                     <div className="flex gap-2 justify-end">
-                                                        <Button size="sm" variant="outline" className="text-destructive border-destructive hover:bg-destructive/10 hover:text-destructive flex-1" onClick={() => onUpdateRequest(req, 'rejected')}>Rechazar</Button>
+                                                        <Button size="sm" variant="outline" className="hover:bg-destructive/10 flex-1" onClick={() => onUpdateRequest(req, 'rejected')}>
+                                                            <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Rechazar
+                                                        </Button>
                                                         <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white flex-1" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
                                                     </div>
                                                 </>

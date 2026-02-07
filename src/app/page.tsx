@@ -5,7 +5,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, ShoppingBag, Trophy, Star, Activity, LayoutGrid } from 'lucide-react';
+import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
+import { SettingItem } from '@/components/ui/settings-modal';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
@@ -437,9 +437,18 @@ export default function Home() {
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem>Exportar marcadas</DropdownMenuItem>
-                                                <DropdownMenuItem>Exportar todo</DropdownMenuItem>
-                                                <DropdownMenuItem disabled>Cambiar estado (Próximamente)</DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <Download className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    Exportar marcadas
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    Exportar todo
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem disabled>
+                                                    <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    Cambiar estado (Próximamente)
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -481,20 +490,41 @@ export default function Home() {
                                                                         <MoreHorizontal className="h-4 w-4" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
+                                                                 <DropdownMenuContent align="end">
                                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                                    <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                        Ver detalles
+                                                                    </DropdownMenuItem>
                                                                     <DropdownMenuSub>
-                                                                        <DropdownMenuSubTrigger>Cambiar Estado</DropdownMenuSubTrigger>
+                                                                        <DropdownMenuSubTrigger>
+                                                                            <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                            Cambiar Estado
+                                                                        </DropdownMenuSubTrigger>
                                                                         <DropdownMenuSubContent>
-                                                                            <DropdownMenuItem>En Progreso</DropdownMenuItem>
-                                                                            <DropdownMenuItem>Completado</DropdownMenuItem>
-                                                                            <DropdownMenuItem>Cancelado</DropdownMenuItem>
+                                                                            <DropdownMenuItem>
+                                                                                <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                En Progreso
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem>
+                                                                                <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                Completado
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem>
+                                                                                <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                Cancelado
+                                                                            </DropdownMenuItem>
                                                                         </DropdownMenuSubContent>
                                                                     </DropdownMenuSub>
-                                                                    <DropdownMenuItem>Reimprimir</DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <Printer className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                        Reimprimir
+                                                                    </DropdownMenuItem>
                                                                     <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem className="text-destructive">Anular comanda</DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                        Anular comanda
+                                                                    </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </TableCell>
@@ -588,10 +618,7 @@ export default function Home() {
                 <Dialog open={configOpen} onOpenChange={setConfigOpen}>
                     <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
                         <DialogHeader>
-                            <DialogTitle className="flex items-center gap-3">
-                                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                                    <Settings className="h-6 w-6 text-white" />
-                                </div>
+                            <DialogTitle icon={Settings}>
                                 Configurar Dashboard
                             </DialogTitle>
                             <DialogDescription>
@@ -599,52 +626,44 @@ export default function Home() {
                             </DialogDescription>
                         </DialogHeader>
                         
-                        <ScrollArea className="max-h-[60vh] pt-2">
-                            <div className="space-y-6 py-4">
+                        <ScrollArea className="max-h-[60vh] -mx-6">
+                            <div className="space-y-6 px-6 py-4">
                                 {/* Sección: Análisis de Ventas */}
                                 <div className="space-y-4">
                                     <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                                         <TrendingUp className="h-3 w-3" /> Análisis de Ventas
                                     </h4>
                                     <div className="grid gap-3">
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                                    <TrendingUp className="h-4 w-4 text-primary" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Métricas Principales</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Ingresos, ticket medio y variación temporal.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.metrics} onCheckedChange={() => handleConfigToggle('metrics')} />
-                                        </div>
+                                        <SettingItem
+                                            id="metrics"
+                                            icon={TrendingUp}
+                                            label="Métricas Principales"
+                                            description="Ingresos, ticket medio y variación temporal."
+                                            checked={dashboardConfig.metrics}
+                                            onCheckedChange={() => handleConfigToggle('metrics')}
+                                        />
 
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
-                                                    <LineChart className="h-4 w-4 text-blue-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Ventas por Hora</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Curva de demanda distribuida por franjas horarias.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.salesChart} onCheckedChange={() => handleConfigToggle('salesChart')} />
-                                        </div>
+                                        <SettingItem
+                                            id="salesChart"
+                                            icon={LineChart}
+                                            label="Ventas por Hora"
+                                            description="Curva de demanda distribuida por franjas horarias."
+                                            checked={dashboardConfig.salesChart}
+                                            onCheckedChange={() => handleConfigToggle('salesChart')}
+                                            iconClassName="text-blue-500"
+                                            className="[&_.icon-container]:bg-blue-500/10 [&_.icon-container]:group-hover:bg-blue-500/20"
+                                        />
 
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
-                                                    <BarChart className="h-4 w-4 text-green-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Gráfico de Ingresos</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Visualización comparativa de facturación bruta.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.revenueChart} onCheckedChange={() => handleConfigToggle('revenueChart')} />
-                                        </div>
+                                        <SettingItem
+                                            id="revenueChart"
+                                            icon={BarChart}
+                                            label="Gráfico de Ingresos"
+                                            description="Visualización comparativa de facturación bruta."
+                                            checked={dashboardConfig.revenueChart}
+                                            onCheckedChange={() => handleConfigToggle('revenueChart')}
+                                            iconClassName="text-green-500"
+                                            className="[&_.icon-container]:bg-green-500/10 [&_.icon-container]:group-hover:bg-green-500/20"
+                                        />
                                     </div>
                                 </div>
 
@@ -656,44 +675,38 @@ export default function Home() {
                                         <LayoutGrid className="h-3 w-3" /> Operaciones y Stock
                                     </h4>
                                     <div className="grid gap-3">
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
-                                                    <ShoppingBag className="h-4 w-4 text-orange-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Comandas Recientes</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Monitor en tiempo real de los últimos pedidos.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.recentOrders} onCheckedChange={() => handleConfigToggle('recentOrders')} />
-                                        </div>
+                                        <SettingItem
+                                            id="recentOrders"
+                                            icon={ShoppingBag}
+                                            label="Comandas Recientes"
+                                            description="Monitor en tiempo real de los últimos pedidos."
+                                            checked={dashboardConfig.recentOrders}
+                                            onCheckedChange={() => handleConfigToggle('recentOrders')}
+                                            iconClassName="text-orange-500"
+                                            className="[&_.icon-container]:bg-orange-500/10 [&_.icon-container]:group-hover:bg-orange-500/20"
+                                        />
 
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-red-500/10 rounded-lg group-hover:bg-red-500/20 transition-colors">
-                                                    <AlertTriangle className="h-4 w-4 text-red-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Alertas de Stock</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Aviso crítico de ingredientes bajo mínimos.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.stockAlerts} onCheckedChange={() => handleConfigToggle('stockAlerts')} />
-                                        </div>
+                                        <SettingItem
+                                            id="stockAlerts"
+                                            icon={AlertTriangle}
+                                            label="Alertas de Stock"
+                                            description="Aviso crítico de ingredientes bajo mínimos."
+                                            checked={dashboardConfig.stockAlerts}
+                                            onCheckedChange={() => handleConfigToggle('stockAlerts')}
+                                            iconClassName="text-red-500"
+                                            className="[&_.icon-container]:bg-red-500/10 [&_.icon-container]:group-hover:bg-red-500/20"
+                                        />
 
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
-                                                    <Users className="h-4 w-4 text-purple-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Distribución de Aforo</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Ocupación porcentual por salones y terrazas.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.occupancyChart} onCheckedChange={() => handleConfigToggle('occupancyChart')} />
-                                        </div>
+                                        <SettingItem
+                                            id="occupancyChart"
+                                            icon={Users}
+                                            label="Distribución de Aforo"
+                                            description="Ocupación porcentual por salones y terrazas."
+                                            checked={dashboardConfig.occupancyChart}
+                                            onCheckedChange={() => handleConfigToggle('occupancyChart')}
+                                            iconClassName="text-purple-500"
+                                            className="[&_.icon-container]:bg-purple-500/10 [&_.icon-container]:group-hover:bg-purple-500/20"
+                                        />
                                     </div>
                                 </div>
 
@@ -705,50 +718,44 @@ export default function Home() {
                                         <Trophy className="h-3 w-3" /> Rendimiento y Costes
                                     </h4>
                                     <div className="grid gap-3">
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-yellow-500/10 rounded-lg group-hover:bg-yellow-500/20 transition-colors">
-                                                    <Trophy className="h-4 w-4 text-yellow-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Ranking de Equipo</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Leaderboard de ventas y desempeño del personal.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.teamRanking} onCheckedChange={() => handleConfigToggle('teamRanking')} />
-                                        </div>
+                                        <SettingItem
+                                            id="teamRanking"
+                                            icon={Trophy}
+                                            label="Ranking de Equipo"
+                                            description="Leaderboard de ventas y desempeño del personal."
+                                            checked={dashboardConfig.teamRanking}
+                                            onCheckedChange={() => handleConfigToggle('teamRanking')}
+                                            iconClassName="text-yellow-500"
+                                            className="[&_.icon-container]:bg-yellow-500/10 [&_.icon-container]:group-hover:bg-yellow-500/20"
+                                        />
 
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-pink-500/10 rounded-lg group-hover:bg-pink-500/20 transition-colors">
-                                                    <Star className="h-4 w-4 text-pink-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Top Productos</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Análisis de los platos y bebidas más populares.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.topProducts} onCheckedChange={() => handleConfigToggle('topProducts')} />
-                                        </div>
+                                        <SettingItem
+                                            id="topProducts"
+                                            icon={Star}
+                                            label="Top Productos"
+                                            description="Análisis de los platos y bebidas más populares."
+                                            checked={dashboardConfig.topProducts}
+                                            onCheckedChange={() => handleConfigToggle('topProducts')}
+                                            iconClassName="text-pink-500"
+                                            className="[&_.icon-container]:bg-pink-500/10 [&_.icon-container]:group-hover:bg-pink-500/20"
+                                        />
 
-                                        <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-cyan-500/10 rounded-lg group-hover:bg-cyan-500/20 transition-colors">
-                                                    <Activity className="h-4 w-4 text-cyan-500" />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-sm font-semibold cursor-pointer">Desglose de Costes</Label>
-                                                    <p className="text-[11px] text-muted-foreground">Distribución de gastos fijos y variables.</p>
-                                                </div>
-                                            </div>
-                                            <Switch checked={dashboardConfig.costBreakdown} onCheckedChange={() => handleConfigToggle('costBreakdown')} />
-                                        </div>
+                                        <SettingItem
+                                            id="costBreakdown"
+                                            icon={Activity}
+                                            label="Desglose de Costes"
+                                            description="Distribución de gastos fijos y variables."
+                                            checked={dashboardConfig.costBreakdown}
+                                            onCheckedChange={() => handleConfigToggle('costBreakdown')}
+                                            iconClassName="text-cyan-500"
+                                            className="[&_.icon-container]:bg-cyan-500/10 [&_.icon-container]:group-hover:bg-cyan-500/20"
+                                        />
                                     </div>
                                 </div>
                             </div>
                         </ScrollArea>
                         
-                        <DialogFooter className="bg-muted/30 border-t -mx-6 -mb-6 p-6 flex items-center justify-between sm:justify-between">
+                        <DialogFooter>
                             <p className="text-xs text-muted-foreground">Los cambios se aplicarán instantáneamente.</p>
                             <div className="flex gap-3">
                                 <Button variant="ghost" onClick={() => setConfigOpen(false)}>Cerrar</Button>

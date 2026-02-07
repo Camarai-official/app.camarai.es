@@ -14,6 +14,14 @@ import {
     Settings,
     Pencil,
     Printer,
+    Eye,
+    Activity,
+    PlayCircle,
+    CheckCircle,
+    XCircle,
+    FileText,
+    CreditCard,
+    Ban,
 } from 'lucide-react';
 
 import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
@@ -307,23 +315,47 @@ export default function ComandasPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleViewDetails(order)}>Ver detalles</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleViewDetails(order)}>
+                                                        <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        Ver detalles
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => handleEditOrder(order)}>
-                                                        <Pencil className="mr-2 h-4 w-4" />
+                                                        <Pencil className="mr-2 h-4 w-4 text-muted-foreground" />
                                                         Editar comanda
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSub>
-                                                        <DropdownMenuSubTrigger>Cambiar Estado</DropdownMenuSubTrigger>
+                                                        <DropdownMenuSubTrigger>
+                                                            <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Cambiar Estado
+                                                        </DropdownMenuSubTrigger>
                                                         <DropdownMenuSubContent>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>En Progreso</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>Completado</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>Cancelado</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>
+                                                                <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                En Progreso
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>
+                                                                <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                Completado
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>
+                                                                <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                Cancelado
+                                                            </DropdownMenuItem>
                                                         </DropdownMenuSubContent>
                                                     </DropdownMenuSub>
-                                                    <DropdownMenuItem>Exportar a PDF</DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        Exportar a PDF
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem>Marcar como pagada</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive">Anular comanda</DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        Marcar como pagada
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem>
+                                                        <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        Anular comanda
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>

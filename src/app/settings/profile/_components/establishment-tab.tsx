@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { RefObject } from 'react';
-import { Camera, Trash2 } from 'lucide-react';
+import { Camera, Trash } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Establishment } from '@/data/establishments';
+import { ConfigToggle } from '@/components/ui/config-item';
+import { Store } from 'lucide-react';
 
 type EstablishmentTabProps = {
     activeEstablishment: Establishment | null;
@@ -130,14 +132,15 @@ export function EstablishmentTab({
                                 <Label htmlFor="hours">Horario</Label>
                                 <Textarea id="hours" value={localEstablishment.hours || ''} onChange={onEstablishmentInputChange} />
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <Switch
-                                    id="active"
-                                    checked={localEstablishment.active || false}
-                                    onCheckedChange={(checked) => onEstablishmentSwitchChange(checked, 'active')}
-                                />
-                                <Label htmlFor="active">Establecimiento Activo</Label>
-                            </div>
+                            <ConfigToggle
+                                id="active"
+                                icon={Store}
+                                label="Establecimiento Activo"
+                                description="Habilita o deshabilita este establecimiento en la plataforma."
+                                checked={localEstablishment.active || false}
+                                onCheckedChange={(checked) => onEstablishmentSwitchChange(checked, 'active')}
+                                className="md:col-span-2"
+                            />
                         </div>
                     </CardContent>
                     <CardFooter className="border-t px-6 py-4 flex justify-between">
@@ -145,7 +148,7 @@ export function EstablishmentTab({
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button variant="destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <Trash className="mr-2 h-4 w-4" />
                                     Eliminar Establecimiento
                                 </Button>
                             </AlertDialogTrigger>

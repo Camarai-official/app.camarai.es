@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Trash2, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -182,8 +182,8 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'down')} disabled={index === activeCarta.elementos_carta.length - 1}>
                                                 <ArrowDown className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveElement(el.id)}>
-                                                <Trash2 className="h-4 w-4" />
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10" onClick={() => handleRemoveElement(el.id)}>
+                                                <Trash className="h-4 w-4 text-muted-foreground" />
                                             </Button>
                                         </div>
                                     </div>

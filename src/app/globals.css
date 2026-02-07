@@ -58,15 +58,15 @@
     --brand-yellow: 41 93% 58%; /* #F7B731 */
     --brand-green: 122 39% 49%; /* #4CAF50 */
     --brand-whatsapp: 142 70% 49%; /* #25D366 */
-    --secondary: 215 28% 17%; /* #1f2937 */
+    --secondary: 215 24% 24%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 215 28% 17%; /* #1f2937 */
+    --muted: 215 24% 24%;
     --muted-foreground: 215 20% 65%;
     --accent: 215 28% 17%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 28% 17%; /* #1f2937 */
+    --border: 215 24% 24%;
     --input: 217 33% 22%; /* #2a3347 */
     --ring: 262 82% 67%;
     --chart-1: 217 79% 70%;
@@ -92,7 +92,13 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family:
+      var(--font-inter),
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      sans-serif;
   }
 }
 
@@ -100,12 +106,7 @@
   .brand-gradient-text {
     display: inline-block;
     width: fit-content;
-    background-image: linear-gradient(
-      90deg,
-      #78a3ed 0%,
-      #9b6efd 50%,
-      #f0768c 100%
-    );
+    background-image: linear-gradient(90deg, #78a3ed 0%, #9b6efd 50%, #f0768c 100%);
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -153,5 +154,15 @@
     /* IE and Edge */
     scrollbar-width: none;
     /* Firefox */
+  }
+  /* Hide spin buttons for number inputs */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
   }
 }

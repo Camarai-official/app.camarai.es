@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Search, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit } from 'lucide-react';
+import { PlusCircle, Search, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit, Shield, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -247,8 +247,7 @@ function EmployeeDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
+                    <DialogTitle icon={User}>
                         {employeeToEdit ? 'Editar' : 'Añadir'} Empleado
                     </DialogTitle>
                     <DialogDescription>
@@ -265,7 +264,8 @@ function EmployeeDialog({
                         <TabsTrigger value="documentos" className="text-xs"><FileText className="h-3 w-3 mr-1" />Docs</TabsTrigger>
                     </TabsList>
 
-                    <ScrollArea className="h-[45vh] mt-4 pr-4">
+                    <ScrollArea className="h-[45vh] -mx-6">
+                        <div className="px-6 py-4 space-y-4">
                         {/* Tab Datos Personales */}
                         <TabsContent value="datos" className="space-y-6 mt-0">
                             <div className="grid grid-cols-3 gap-6">
@@ -458,9 +458,17 @@ function EmployeeDialog({
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {permisosDisponibles.map(permiso => (
-                                            <div key={permiso.id} className="flex items-center space-x-2">
+                                            <div key={permiso.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                                                        <Shield className="h-4 w-4 text-primary" />
+                                                    </div>
+                                                    <Label htmlFor={`permiso-${permiso.id}`} className="text-sm font-semibold cursor-pointer">
+                                                        {permiso.label}
+                                                    </Label>
+                                                </div>
                                                 <Checkbox
                                                     id={`permiso-${permiso.id}`}
                                                     checked={employee.permisos?.includes(permiso.id)}
@@ -471,9 +479,6 @@ function EmployeeDialog({
                                                         handleTogglePermiso(permiso.id);
                                                     }}
                                                 />
-                                                <Label htmlFor={`permiso-${permiso.id}`} className="text-sm font-normal cursor-pointer">
-                                                    {permiso.label}
-                                                </Label>
                                             </div>
                                         ))}
                                     </div>
@@ -486,17 +491,22 @@ function EmployeeDialog({
                                     <CardDescription>En qué locales puede trabajar este empleado.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="space-y-2">
+                                    <div className="grid grid-cols-1 gap-3">
                                         {mockEstablecimientos.map(est => (
-                                            <div key={est.id} className="flex items-center space-x-2 p-2 border rounded-lg">
+                                            <div key={est.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
+                                                        <Building2 className="h-4 w-4 text-orange-500" />
+                                                    </div>
+                                                    <Label htmlFor={`est-${est.id}`} className="text-sm font-semibold cursor-pointer">
+                                                        {est.nombre}
+                                                    </Label>
+                                                </div>
                                                 <Checkbox
                                                     id={`est-${est.id}`}
                                                     checked={employee.establecimientos_asignados?.includes(est.id)}
                                                     onCheckedChange={() => handleToggleEstablecimiento(est.id)}
                                                 />
-                                                <Label htmlFor={`est-${est.id}`} className="text-sm font-normal cursor-pointer flex-1">
-                                                    {est.nombre}
-                                                </Label>
                                             </div>
                                         ))}
                                     </div>
@@ -515,11 +525,19 @@ function EmployeeDialog({
                                     <CardDescription>Selecciona cómo puede fichar este empleado.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {metodosFichaje.map(metodo => {
                                             const Icon = metodo.icon;
                                             return (
-                                                <div key={metodo.id} className="flex items-center space-x-2 p-2 border rounded-lg">
+                                                <div key={metodo.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                                                            <Icon className="h-4 w-4 text-blue-500" />
+                                                        </div>
+                                                        <Label htmlFor={`metodo-${metodo.id}`} className="text-sm font-semibold cursor-pointer">
+                                                            {metodo.label}
+                                                        </Label>
+                                                    </div>
                                                     <Checkbox
                                                         id={`metodo-${metodo.id}`}
                                                         checked={employee.metodos_fichaje_permitidos?.includes(metodo.id as 'app' | 'whatsapp' | 'qr' | 'web')}
@@ -533,10 +551,6 @@ function EmployeeDialog({
                                                             }));
                                                         }}
                                                     />
-                                                    <Icon className="h-4 w-4 text-muted-foreground" />
-                                                    <Label htmlFor={`metodo-${metodo.id}`} className="text-sm font-normal cursor-pointer flex-1">
-                                                        {metodo.label}
-                                                    </Label>
                                                 </div>
                                             );
                                         })}
@@ -637,14 +651,15 @@ function EmployeeDialog({
                                 </CardContent>
                             </Card>
                         </TabsContent>
+                        </div>
                     </ScrollArea>
                 </Tabs>
 
-                <DialogFooter className="border-t pt-4">
+                <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="secondary">Cancelar</Button>
                     </DialogClose>
-                    <Button onClick={handleSave}>Guardar Empleado</Button>
+                    <Button variant="brand" onClick={handleSave}>Guardar Empleado</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -894,7 +909,7 @@ export default function PersonalPage() {
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>Registrar Fichaje Manual</DialogTitle>
+                                        <DialogTitle icon={Clock}>Registrar Fichaje Manual</DialogTitle>
                                         <DialogDescription>Añadir un registro de tiempo manualmente.</DialogDescription>
                                     </DialogHeader>
                                     <form onSubmit={handleManualTimeLog} className="space-y-4 pt-4">
@@ -938,61 +953,58 @@ export default function PersonalPage() {
 
                     <TabsContent value="team" className="space-y-4">
                         {personalConfig.equipo && (
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <CardTitle>Miembros del Equipo</CardTitle>
-                                    <div className="relative w-64">
-                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Buscar empleado..."
-                                            className="pl-8"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
+                        <div className="space-y-4">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <h2 className="text-xl font-semibold tracking-tight">Mi Equipo</h2>
+                                <div className="relative w-full sm:w-64">
+                                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Buscar empleado..."
+                                        className="pl-8"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* Grid con StaffCardPro (Fase 8) */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredStaff.length === 0 && staffMembers.length === 0 ? (
+                                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+                                        <p className="text-muted-foreground mb-4">No hay empleados en el equipo.</p>
+                                        <CreateActionCard label="Añadir primer empleado" onClick={() => handleOpenEmployeeDialog()} />
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {/* Grid con StaffCardPro (Fase 8) */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {filteredStaff.length === 0 && staffMembers.length === 0 ? (
-                                        <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                                            <p className="text-muted-foreground mb-4">No hay empleados en el equipo.</p>
-                                            <CreateActionCard label="Añadir primer empleado" onClick={() => handleOpenEmployeeDialog()} />
-                                        </div>
-                                    ) : filteredStaff.length === 0 ? (
-                                        <div className="col-span-full py-16 text-center text-muted-foreground">
-                                            No se encontraron empleados con ese criterio de búsqueda.
-                                        </div>
-                                    ) : null}
-                                    {filteredStaff.map(staff => {
-                                        const status = getStaffMemberStatus(staff.id);
-                                        return (
-                                            <StaffCardPro
-                                                key={staff.id}
-                                                staff={{
-                                                    id: staff.id,
-                                                    nombre: staff.nombre,
-                                                    email: staff.email,
-                                                    telefono: staff.telefono,
-                                                    rol: staff.rol,
-                                                    estado: staff.estado,
-                                                    horasContratadas: staff.horasContratadas,
-                                                    horasTrabajadas: Math.floor(Math.random() * staff.horasContratadas), // Mock
-                                                    metodos_fichaje_permitidos: staff.metodos_fichaje_permitidos,
-                                                }}
-                                                status={status as StaffStatus}
-                                                onEdit={() => handleOpenEmployeeDialog(staff)}
-                                                onDelete={() => handleRemoveStaff(staff.id)}
-                                                onWhatsApp={() => window.open(`https://wa.me/${staff.telefono?.replace(/\D/g, '')}`, '_blank')}
-                                            />
-                                        );
-                                    })}
-                                    <CreateActionCard label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
-                                </div>
-                            </CardContent>
-                        </Card>
+                                ) : filteredStaff.length === 0 ? (
+                                    <div className="col-span-full py-16 text-center text-muted-foreground">
+                                        No se encontraron empleados con ese criterio de búsqueda.
+                                    </div>
+                                ) : null}
+                                {filteredStaff.map(staff => {
+                                    const status = getStaffMemberStatus(staff.id);
+                                    return (
+                                        <StaffCardPro
+                                            key={staff.id}
+                                            staff={{
+                                                id: staff.id,
+                                                nombre: staff.nombre,
+                                                email: staff.email,
+                                                telefono: staff.telefono,
+                                                rol: staff.rol,
+                                                estado: staff.estado,
+                                                horasContratadas: staff.horasContratadas,
+                                                horasTrabajadas: Math.floor(Math.random() * staff.horasContratadas), // Mock
+                                                metodos_fichaje_permitidos: staff.metodos_fichaje_permitidos,
+                                            }}
+                                            status={status as StaffStatus}
+                                            onEdit={() => handleOpenEmployeeDialog(staff)}
+                                            onDelete={() => handleRemoveStaff(staff.id)}
+                                            onWhatsApp={() => window.open(`https://wa.me/${staff.telefono?.replace(/\D/g, '')}`, '_blank')}
+                                        />
+                                    );
+                                })}
+                                <CreateActionCard label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
+                            </div>
+                        </div>
                         )}
                     </TabsContent>
 
@@ -1100,7 +1112,7 @@ export default function PersonalPage() {
                                     </DialogTrigger>
                                     <DialogContent>
                                         <DialogHeader>
-                                            <DialogTitle>Registrar Solicitud de Ausencia</DialogTitle>
+                                            <DialogTitle icon={Calendar}>Registrar Solicitud de Ausencia</DialogTitle>
                                         </DialogHeader>
                                         <form onSubmit={handleAbsenceRequest} className="space-y-4 pt-4">
                                             <div className="space-y-2">
@@ -1427,8 +1439,8 @@ export default function PersonalPage() {
                                                     <Button variant="outline" size="sm" className="flex-1" onClick={() => { setEditingDevice(device); setIsDeviceDialogOpen(true); }}>
                                                         Configurar
                                                     </Button>
-                                                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteDevice(device.id)}>
-                                                        <X className="h-4 w-4" />
+                                                    <Button variant="outline" size="sm" onClick={() => handleDeleteDevice(device.id)}>
+                                                        <X className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </div>
                                             </CardContent>
@@ -1499,7 +1511,7 @@ export default function PersonalPage() {
             <Dialog open={!!editingTimeLog} onOpenChange={(open) => !open && setEditingTimeLog(null)}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Editar Registro de Fichaje</DialogTitle>
+                        <DialogTitle icon={Edit}>Editar Registro de Fichaje</DialogTitle>
                         <DialogDescription>Modifica la fecha, hora o acción del registro.</DialogDescription>
                     </DialogHeader>
                     {editingTimeLog && (
@@ -1559,8 +1571,7 @@ export default function PersonalPage() {
             <Dialog open={configOpen} onOpenChange={setConfigOpen}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <Settings className="h-5 w-5" />
+                        <DialogTitle icon={Settings}>
                             Configurar Vista de Personal
                         </DialogTitle>
                         <DialogDescription>
@@ -1623,7 +1634,7 @@ export default function PersonalPage() {
             <Dialog open={isDeviceDialogOpen} onOpenChange={setIsDeviceDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>{editingDevice ? 'Editar' : 'Añadir'} Dispositivo</DialogTitle>
+                        <DialogTitle icon={Tablet}>{editingDevice ? 'Editar' : 'Añadir'} Dispositivo</DialogTitle>
                         <DialogDescription>Configura los parámetros del dispositivo de fichaje.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={(e) => {

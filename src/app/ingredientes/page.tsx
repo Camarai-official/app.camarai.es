@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash2, Beaker, AlertTriangle, ChevronLeft, ChevronRight, Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, Beaker, AlertTriangle, ChevronLeft, ChevronRight, Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -222,7 +222,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle>{ingredientToEdit ? 'Editar' : 'Crear'} Ingrediente</DialogTitle>
+                    <DialogTitle icon={Beaker}>{ingredientToEdit ? 'Editar' : 'Crear'} Ingrediente</DialogTitle>
                     <DialogDescription>Configura todos los detalles del ingrediente para tu inventario.</DialogDescription>
                 </DialogHeader>
 
@@ -410,8 +410,8 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                         {ingredient.conversiones.map(conv => (
                                             <div key={conv.id} className="flex items-center justify-between p-2 border rounded-md bg-background text-sm">
                                                 <span>1 {conv.unidad_origen} = {conv.factor} {conv.unidad_destino}</span>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleRemoveConversion(conv.id)}>
-                                                    <Trash2 className="h-4 w-4" />
+                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveConversion(conv.id)}>
+                                                    <Trash className="h-4 w-4 text-muted-foreground" />
                                                 </Button>
                                             </div>
                                         ))}
@@ -482,9 +482,9 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                     </ScrollArea>
                 </Tabs>
 
-                <DialogFooter className="border-t pt-4">
+                <DialogFooter>
                     <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button onClick={handleSaveClick}>Guardar Ingrediente</Button>
+                    <Button variant="brand" onClick={handleSaveClick}>Guardar Ingrediente</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -688,9 +688,9 @@ export default function IngredientesPage() {
                                                             <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
-                                                            <DropdownMenuItem onClick={() => handleOpenDialog(ing)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => handleOpenDialog(ing)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
                                                             <AlertDialogTrigger asChild>
-                                                                <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
                                                             </AlertDialogTrigger>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>

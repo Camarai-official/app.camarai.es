@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MoreVertical, Pencil, Trash2, CheckCircle2, XCircle, ExternalLink, RefreshCw, Zap } from 'lucide-react';
+import { MoreVertical, Pencil, Trash, CheckCircle2, XCircle, ExternalLink, RefreshCw, Zap, Settings } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { EvolutionAPIConfigForm, defaultEvolutionConfig, type EvolutionAPIConfig } from '@/components/features/evolution-api-config';
 import { Separator } from '@/components/ui/separator';
+import { ConfigItem } from '@/components/ui/config-item';
 
 // Integration type
 interface Integration {
@@ -167,32 +168,37 @@ export function IntegrationsTab() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {integrations.map(integration => (
-                        <div key={integration.id} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="flex items-center gap-4">
-                                {integration.icon}
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-semibold">{integration.name}</h3>
-                                        {integration.connected ? (
-                                            <Badge variant="secondary" className="text-green-600">
-                                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                Conectado
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="outline" className="text-muted-foreground">
-                                                <XCircle className="h-3 w-3 mr-1" />
-                                                No conectado
-                                            </Badge>
-                                        )}
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">{integration.description}</p>
+                        <ConfigItem
+                            key={integration.id}
+                            icon={integration.icon}
+                            noIconContainer
+                            label={
+                                <div className="flex items-center gap-2">
+                                    <span className="font-semibold">{integration.name}</span>
+                                    {integration.connected ? (
+                                        <Badge variant="secondary" className="text-green-600 h-5 px-1.5 text-[10px]">
+                                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                                            Conectado
+                                        </Badge>
+                                    ) : (
+                                        <Badge variant="outline" className="text-muted-foreground h-5 px-1.5 text-[10px]">
+                                            <XCircle className="h-3 w-3 mr-1" />
+                                            No conectado
+                                        </Badge>
+                                    )}
+                                </div>
+                            }
+                            description={
+                                <div className="space-y-0.5">
+                                    <p>{integration.description}</p>
                                     {integration.lastSync && (
-                                        <p className="text-xs text-muted-foreground mt-1">
+                                        <p className="text-[10px] text-muted-foreground">
                                             Última sincronización: {integration.lastSync}
                                         </p>
                                     )}
                                 </div>
-                            </div>
+                            }
+                        >
                             <div className="flex items-center gap-2">
                                 <Switch 
                                     checked={integration.enabled}
@@ -215,16 +221,15 @@ export function IntegrationsTab() {
                                         )}
                                         {integration.connected && (
                                             <DropdownMenuItem 
-                                                className="text-destructive"
                                                 onSelect={() => handleDisconnect(integration.id)}
                                             >
-                                                <Trash2 className="mr-2 h-4 w-4" />Desconectar
+                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground" />Desconectar
                                             </DropdownMenuItem>
                                         )}
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                        </div>
+                        </ConfigItem>
                     ))}
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
@@ -264,8 +269,7 @@ export function IntegrationsTab() {
             <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            {selectedIntegration?.icon}
+                        <DialogTitle icon={Settings}>
                             Configurar {selectedIntegration?.name}
                         </DialogTitle>
                         <DialogDescription>

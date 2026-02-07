@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Settings } from 'lucide-react';
+import { ConfigToggle } from '@/components/ui/config-item';
 
 export interface SettingsTab {
   id: string;
@@ -79,8 +80,7 @@ export function SettingsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={maxWidthClasses[maxWidth]}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
+          <DialogTitle icon={Settings}>
             {title}
           </DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
@@ -120,5 +120,36 @@ export function SettingsModal({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+/**
+ * SettingItem Component
+ * 
+ * A reusable component for displaying settings based on ConfigToggle.
+ */
+export function SettingItem({
+  id,
+  icon,
+  label,
+  description,
+  checked,
+  onCheckedChange,
+  className,
+  iconClassName,
+  disabled = false,
+}: any) {
+  return (
+    <ConfigToggle
+      id={id}
+      icon={icon}
+      label={label}
+      description={description}
+      checked={checked}
+      onCheckedChange={onCheckedChange}
+      disabled={disabled}
+      className={className}
+      iconClassName={iconClassName}
+    />
   );
 }

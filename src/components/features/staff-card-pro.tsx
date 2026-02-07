@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Phone, Mail, MoreVertical, Edit, Trash2, MessageSquare, Smartphone, QrCode, Globe, Clock, Coffee, Play } from 'lucide-react';
+import { Phone, Mail, MoreVertical, Edit, Trash, MessageSquare, Smartphone, QrCode, Globe, Clock, Coffee, Play } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -85,72 +85,73 @@ export function StaffCardPro({
     const horasRestantes = Math.max(staff.horasContratadas - horasTrabajadas, 0);
 
     return (
-        <Card className={cn("overflow-hidden group hover:shadow-md transition-all", className)}>
-            {/* Header con color de rol */}
-            <div className={cn("h-2", roleStyles.bg)} />
+        <Card className={cn("overflow-hidden group hover:shadow-xl transition-all duration-200 hover:-translate-y-1 relative", className)}>
+            {/* Left Border mimicking style={{ borderLeft: ... }} in environments */}
+            <div className={cn("absolute left-0 top-0 bottom-0 w-1", roleStyles.bg)} />
             
-            <CardContent className="p-4">
-                {/* Avatar + Info + Actions */}
-                <div className="flex items-start gap-3">
-                    {/* Avatar con iniciales coloreadas */}
-                    <div className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0",
-                        roleStyles.chipBg,
-                        roleStyles.text
-                    )}>
-                        {getInitials(staff.nombre)}
+            {/* Header Area imitating the ConfigToggle style */}
+            <div className="bg-muted/10 border-b p-5 flex items-start gap-3">
+                {/* Avatar con iniciales coloreadas */}
+                <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shrink-0",
+                    roleStyles.chipBg,
+                    roleStyles.text
+                )}>
+                    {getInitials(staff.nombre)}
+                </div>
+                
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                        <div>
+                            <h3 className="font-semibold truncate">{staff.nombre}</h3>
+                            <p className="text-sm text-muted-foreground">{formatRole(staff.rol)}</p>
+                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 -mr-2 -mt-2">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {onEdit && (
+                                    <DropdownMenuItem onClick={onEdit}>
+                                        <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        Editar
+                                    </DropdownMenuItem>
+                                )}
+                                {onWhatsApp && (
+                                    <DropdownMenuItem onClick={onWhatsApp}>
+                                        <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        WhatsApp
+                                    </DropdownMenuItem>
+                                )}
+                                {onDelete && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={onDelete}>
+                                            <Trash className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            Eliminar
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                     
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                            <div>
-                                <h3 className="font-semibold truncate">{staff.nombre}</h3>
-                                <p className="text-sm text-muted-foreground">{formatRole(staff.rol)}</p>
-                            </div>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {onEdit && (
-                                        <DropdownMenuItem onClick={onEdit}>
-                                            <Edit className="h-4 w-4 mr-2" />
-                                            Editar
-                                        </DropdownMenuItem>
-                                    )}
-                                    {onWhatsApp && (
-                                        <DropdownMenuItem onClick={onWhatsApp}>
-                                            <MessageSquare className="h-4 w-4 mr-2" />
-                                            WhatsApp
-                                        </DropdownMenuItem>
-                                    )}
-                                    {onDelete && (
-                                        <>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem onClick={onDelete} className="text-destructive">
-                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                Eliminar
-                                            </DropdownMenuItem>
-                                        </>
-                                    )}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        
-                        {/* Badge de estado actual */}
-                        <Badge variant={currentStatus.variant} className="mt-2 gap-1">
-                            <StatusIcon className="h-3 w-3" />
-                            {currentStatus.label}
-                        </Badge>
-                    </div>
+                    {/* Badge de estado actual */}
+                    <Badge variant={currentStatus.variant} className="mt-2 gap-1">
+                        <StatusIcon className="h-3 w-3" />
+                        {currentStatus.label}
+                    </Badge>
                 </div>
+            </div>
+
+            <CardContent className="p-4 pt-4">
 
                 {/* Métodos de fichaje permitidos */}
                 {staff.metodos_fichaje_permitidos && staff.metodos_fichaje_permitidos.length > 0 && (
-                    <div className="mt-4 pt-3 border-t">
+                    <div className="mb-4">
                         <p className="text-xs text-muted-foreground mb-2">Métodos de fichaje</p>
                         <div className="flex gap-1">
                             <TooltipProvider>
@@ -179,7 +180,7 @@ export function StaffCardPro({
                 )}
 
                 {/* Progreso de horas */}
-                <div className="mt-4 pt-3 border-t">
+                <div className="pt-3 border-t">
                     <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-muted-foreground">Horas esta semana</span>
                         <span className="font-medium">

@@ -9,7 +9,7 @@ import {
     FileDown,
     Edit,
     Copy,
-    Trash2,
+    Trash,
     Package,
     Layers,
     Users,
@@ -264,7 +264,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>{campaign ? 'Editar' : 'Crear Nueva'} Campaña de WhatsApp</DialogTitle>
+                    <DialogTitle icon={MessageSquare}>{campaign ? 'Editar' : 'Crear Nueva'} Campaña de WhatsApp</DialogTitle>
                     <DialogDescription>
                         Configura los detalles de tu nueva campaña. Se enviará únicamente a través de WhatsApp.
                     </DialogDescription>
@@ -462,7 +462,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                     </div>
                 </div>
                 
-                <DialogFooter className="pt-4 border-t gap-2">
+                <DialogFooter>
                     <DialogClose asChild>
                         <Button type="button" variant="secondary">
                             Cancelar
@@ -471,7 +471,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                     <Button type="button" variant="outline" onClick={() => handleSave(true)}>
                         Guardar Borrador
                     </Button>
-                    <Button type="button" onClick={() => handleSave(false)}>
+                    <Button variant="brand" type="button" onClick={() => handleSave(false)}>
                         <Send className="mr-2 h-4 w-4" />
                         {campaign ? 'Guardar y Reprogramar' : 'Guardar y Programar'}
                     </Button>
@@ -671,10 +671,10 @@ export default function PromocionesPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                                                <DropdownMenuItem><Copy className="mr-2 h-4 w-4" />Duplicar</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
+                                                <DropdownMenuItem><Copy className="mr-2 h-4 w-4 text-muted-foreground" />Duplicar</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -763,10 +763,10 @@ export default function PromocionesPage() {
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                                                        <DropdownMenuItem><Copy className="mr-2 h-4 w-4" />Duplicar</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
+                                                        <DropdownMenuItem><Copy className="mr-2 h-4 w-4 text-muted-foreground" />Duplicar</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                                        <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>

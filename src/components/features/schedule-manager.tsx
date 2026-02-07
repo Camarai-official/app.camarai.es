@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { format, startOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar, CalendarDays, Download, FileSpreadsheet, FileText, Plus, Edit2, Trash2, Copy, Save, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, CalendarDays, Download, FileSpreadsheet, FileText, Plus, Edit2, Trash, Copy, Save, X } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -135,7 +135,7 @@ function ShiftEditorDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{shift ? 'Editar Turno' : 'Nuevo Turno'}</DialogTitle>
+          <DialogTitle icon={shift ? Edit2 : Plus}>{shift ? 'Editar Turno' : 'Nuevo Turno'}</DialogTitle>
           <DialogDescription>
             {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
           </DialogDescription>
@@ -190,10 +190,10 @@ function ShiftEditorDialog({
           </div>
         </div>
 
-        <DialogFooter className="flex-col sm:flex-row gap-2">
+        <DialogFooter>
           {shift && onDelete && (
             <Button variant="destructive" onClick={onDelete} className="w-full sm:w-auto">
-              <Trash2 className="mr-2 h-4 w-4" />
+              <Trash className="mr-2 h-4 w-4" />
               Eliminar
             </Button>
           )}

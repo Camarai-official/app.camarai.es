@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, Download, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Download, MoreHorizontal, ChevronLeft, ChevronRight, FileSpreadsheet, FileText, Eye, Monitor, Receipt } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -120,9 +120,9 @@ export function BillingTab({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Exportar a CSV</DropdownMenuItem>
-                                <DropdownMenuItem>Exportar a PDF</DropdownMenuItem>
-                                <DropdownMenuItem>Exportar a Excel</DropdownMenuItem>
+                                <DropdownMenuItem><FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a CSV</DropdownMenuItem>
+                                <DropdownMenuItem><FileText className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a PDF</DropdownMenuItem>
+                                <DropdownMenuItem><FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a Excel</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -184,11 +184,11 @@ export function BillingTab({
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => onViewDetails(order.order)}>Ver detalles</DropdownMenuItem>
-                                                <DropdownMenuItem>Descargar PDF</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => onViewDetails(order.order)}><Eye className="mr-2 h-4 w-4 text-muted-foreground" />Ver detalles</DropdownMenuItem>
+                                                <DropdownMenuItem><Download className="mr-2 h-4 w-4 text-muted-foreground" />Descargar PDF</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem>Reabrir en TPV</DropdownMenuItem>
-                                                <DropdownMenuItem>Generar/Borrar factura</DropdownMenuItem>
+                                                <DropdownMenuItem><Monitor className="mr-2 h-4 w-4 text-muted-foreground" />Reabrir en TPV</DropdownMenuItem>
+                                                <DropdownMenuItem><Receipt className="mr-2 h-4 w-4 text-muted-foreground" />Generar/Borrar factura</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>

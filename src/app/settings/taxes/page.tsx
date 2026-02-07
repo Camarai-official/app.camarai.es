@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, ArrowLeft, Banknote } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -112,7 +112,7 @@ export default function TaxesPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingTax ? 'Editar' : 'Crear'} Impuesto</DialogTitle>
+                  <DialogTitle icon={Banknote}>{editingTax ? 'Editar' : 'Crear'} Impuesto</DialogTitle>
                   <DialogDescription>
                     Define un nuevo tipo impositivo para tus productos.
                   </DialogDescription>
@@ -129,7 +129,7 @@ export default function TaxesPage() {
                 </div>
                 <DialogFooter>
                   <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                  <Button onClick={handleSave}>Guardar Impuesto</Button>
+                  <Button variant="brand" onClick={handleSave}>Guardar Impuesto</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -157,7 +157,7 @@ export default function TaxesPage() {
                           <DropdownMenuContent>
                             <DropdownMenuItem onClick={() => handleOpenDialog(tax)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
                             <AlertDialogTrigger asChild>
-                              <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                              <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
                             </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>

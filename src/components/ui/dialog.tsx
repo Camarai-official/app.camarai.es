@@ -74,7 +74,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse sm:flex-row sm:justify-end gap-2",
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-2 bg-muted/30 border-t -mx-6 -mb-6 p-6 mt-4",
       className
     )}
     {...props}
@@ -84,16 +84,23 @@ DialogFooter.displayName = "DialogFooter"
 
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title> & { icon?: React.ElementType }
+>(({ className, icon: Icon, children, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-2xl font-bold tracking-tight",
+      "text-2xl font-bold tracking-tight flex items-center gap-3",
       className
     )}
     {...props}
-  />
+  >
+    {Icon && (
+      <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+        <Icon className="h-6 w-6 text-white" />
+      </div>
+    )}
+    {children}
+  </DialogPrimitive.Title>
 ))
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 

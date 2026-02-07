@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash2, Search, X, ChevronLeft, ChevronRight, Printer } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, Search, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -146,15 +146,7 @@ function CategoryDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {categoryData.icono && (
-              <div
-                className="h-8 w-8 rounded-md flex items-center justify-center"
-                style={{ backgroundColor: categoryData.color || '#9B6EFD' }}
-              >
-                <SelectedIcon className="h-4 w-4 text-white" />
-              </div>
-            )}
+          <DialogTitle icon={SelectedIcon}>
             {category ? 'Editar' : 'Crear'} Categoría
           </DialogTitle>
           <DialogDescription>
@@ -348,20 +340,39 @@ function CategoryDialog({
                     <CardTitle className='text-base'>Productos Asignados ({assignedProducts.length})</CardTitle>
                     <CardDescription>Productos que pertenecen a esta categoría.</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-52">
-                      <div className="space-y-2 pr-4">
-                        {assignedProducts.length > 0 ? assignedProducts.map(p => (
-                          <div key={p.id} className="flex items-center justify-between p-2 border rounded-lg bg-background text-sm">
-                            <div className='flex items-center gap-2'>
-                              <Image src={p.url_imagen_producto} alt={p.nombre_producto} width={32} height={32} className="rounded-sm" data-ai-hint="product image" />
-                              <span>{p.nombre_producto}</span>
+                    <CardContent className="p-0">
+                      <ScrollArea className="h-52">
+                        <div className="space-y-2 p-6">
+                          {assignedProducts.length > 0 ? assignedProducts.map(p => (
+                            <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                              <div className="flex items-center gap-3">
+                                <div className="relative h-10 w-10 overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
+                                  {p.url_imagen_producto ? (
+                                    <Image 
+                                      src={p.url_imagen_producto} 
+                                      alt={p.nombre_producto} 
+                                      fill 
+                                      className="object-cover" 
+                                    />
+                                  ) : (
+                                    <Package className="h-5 w-5 text-muted-foreground opacity-40" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold">{p.nombre_producto}</p>
+                                  <p className="text-[11px] text-muted-foreground">ID: {p.id}</p>
+                                </div>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 hover:bg-destructive/10 transition-colors" 
+                                onClick={() => handleRemoveProduct(p.id)}
+                              >
+                                <X className="h-4 w-4 text-muted-foreground" />
+                              </Button>
                             </div>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveProduct(p.id)}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )) : (
+                          )) : (
                           <div className="text-center text-sm text-muted-foreground py-10">
                             <p>Aún no hay productos en esta categoría.</p>
                             <p className="text-xs mt-1">Busca productos arriba para añadirlos.</p>
@@ -376,11 +387,11 @@ function CategoryDialog({
           </ScrollArea>
         </Tabs>
 
-        <DialogFooter className='pt-4 border-t'>
+        <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Cancelar</Button>
           </DialogClose>
-          <Button onClick={handleSaveClick}>Guardar Categoría</Button>
+          <Button variant="brand" onClick={handleSaveClick}>Guardar Categoría</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -548,9 +559,15 @@ export default function CategoriasPage() {
                             <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => handleOpenDialog(cat)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleOpenDialog(cat)}>
+                              <Edit className="mr-2 h-4 w-4 text-muted-foreground transition-colors" />
+                              Editar
+                            </DropdownMenuItem>
                             <AlertDialogTrigger asChild>
-                              <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Trash className="mr-2 h-4 w-4 text-muted-foreground transition-colors" />
+                                Eliminar
+                              </DropdownMenuItem>
                             </AlertDialogTrigger>
                           </DropdownMenuContent>
                         </DropdownMenu>

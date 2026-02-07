@@ -47,7 +47,7 @@ import {
   BarChart3,
   Archive,
   CalendarCheck,
-  Trash2,
+  Trash,
   Layers,
   Package,
   Beaker,
@@ -81,6 +81,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
+import { ConfigEntity, ConfigItem, ConfigToggle } from "@/components/ui/config-item"
 import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest, StaffMember } from "@/data/mock-data"
 
 const menuItems = [
@@ -197,34 +198,19 @@ export function SidebarNav() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="group flex items-center justify-between h-14 w-full rounded-lg p-2 bg-card border hover:bg-sidebar-primary hover:text-sidebar-primary-foreground data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground"
+                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-sidebar-primary hover:text-sidebar-primary-foreground data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground group"
               >
-                <div className="flex items-center gap-3 overflow-hidden">
-                  {activeEstablishment.id === 'camarai' ? (
-                    <div className="flex-shrink-0">
-                      <img
-                        src="https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png"
-                        alt={`${activeEstablishment.name} Logo`}
-                        className="h-8 w-auto object-contain"
-                      />
-                    </div>
-                  ) : (
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage
-                        src={activeEstablishment.image}
-                        alt={`${activeEstablishment.name} Logo`}
-                      />
-                      <AvatarFallback>{activeEstablishment.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div className="flex flex-col items-start truncate">
-                    <span className="font-semibold text-sm truncate">{activeEstablishment.name}</span>
-                    <span className="text-xs text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground">
-                      {activeEstablishment.type}
-                    </span>
-                  </div>
-                </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground" />
+                <ConfigEntity
+                  image={activeEstablishment.id === 'camarai' 
+                    ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" 
+                    : activeEstablishment.image}
+                  fallback={activeEstablishment.name.charAt(0)}
+                  label={activeEstablishment.name}
+                  description={activeEstablishment.type}
+                  className="w-full border-none bg-transparent hover:bg-transparent"
+                >
+                  <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground" />
+                </ConfigEntity>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -244,27 +230,25 @@ export function SidebarNav() {
               </DropdownMenuLabel>
               <DropdownMenuGroup>
                 {establishments.map(est => (
-                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage
-                          src={est.image}
-                          alt={`${est.name} Logo`}
-                        />
-                        <AvatarFallback>{est.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <span>{est.name}</span>
-                    </div>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                        onClick={(e) => handleDeleteClick(e, est)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
+                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} className="p-0 overflow-hidden">
+                    <ConfigEntity
+                      image={est.image}
+                      fallback={est.name.charAt(0)}
+                      label={est.name}
+                      className="w-full border-none bg-transparent hover:bg-transparent p-2"
+                      avatarClassName="h-6 w-6"
+                    >
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 hover:bg-destructive/10"
+                          onClick={(e) => handleDeleteClick(e, est)}
+                        >
+                          <Trash className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </AlertDialogTrigger>
+                    </ConfigEntity>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuGroup>
@@ -303,20 +287,19 @@ export function SidebarNav() {
       <SidebarFooter>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="group flex items-center justify-between h-auto w-full rounded-lg p-2 bg-card border hover:bg-sidebar-primary hover:text-sidebar-primary-foreground data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground">
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={user.avatar} alt="@user" data-ai-hint="profile user" />
-                  <AvatarFallback>{user.firstName?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col items-start">
-                  <span className="font-semibold text-sm">{user.firstName}</span>
-                  <span className="text-xs text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground">
-                    {user.email}
-                  </span>
-                </div>
-              </div>
-              <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground" />
+            <Button 
+                variant="ghost" 
+                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-sidebar-primary hover:text-sidebar-primary-foreground data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground group"
+            >
+              <ConfigEntity
+                image={user.avatar}
+                fallback={user.firstName?.charAt(0) || 'U'}
+                label={user.firstName || ''}
+                description={user.email}
+                className="w-full border-none bg-transparent hover:bg-transparent"
+              >
+                <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground" />
+              </ConfigEntity>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-[calc(var(--sidebar-width)-1rem)] mb-2 bg-card" side="top" align="start">
@@ -343,14 +326,18 @@ export function SidebarNav() {
                   pendingRequests.map(req => {
                     const employee = mockStaffMembers.find(s => s.id === req.staffId);
                     return (
-                      <div key={req.id} className="p-2 text-xs">
-                        <p className="font-semibold">{employee?.nombre}</p>
-                        <p className="text-muted-foreground">{req.type} para el {format(parseISO(req.startDate), 'dd/MM/yy')}</p>
-                        <div className="flex gap-2 mt-2 justify-end">
-                          <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-3 w-3 mr-1" />Rechazar</Button>
-                          <Button size="sm" className="h-7 text-xs" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-3 w-3 mr-1" />Aprobar</Button>
+                      <ConfigItem
+                        key={req.id}
+                        label={employee?.nombre || ''}
+                        description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
+                        className="border-none bg-transparent hover:bg-muted/30 p-2"
+                        noIconContainer
+                      >
+                        <div className="flex gap-1">
+                          <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
                         </div>
-                      </div>
+                      </ConfigItem>
                     )
                   })
                 ) : (
@@ -381,18 +368,19 @@ export function SidebarNav() {
               <span>Enviar comentarios</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center">
-                  {isDarkMode ? <Moon className="mr-2 h-4 w-4" /> : <Sun className="mr-2 h-4 w-4" />}
-                  <span>{isDarkMode ? 'Modo noche' : 'Modo claro'}</span>
-                </div>
-                <Switch checked={isDarkMode} onCheckedChange={setIsDarkMode} />
-              </div>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="p-0 overflow-hidden">
+              <ConfigToggle
+                id="dark-mode"
+                icon={isDarkMode ? Moon : Sun}
+                label={isDarkMode ? 'Modo noche' : 'Modo claro'}
+                checked={isDarkMode}
+                onCheckedChange={setIsDarkMode}
+                className="w-full border-none bg-transparent hover:bg-transparent p-2"
+                noIconContainer
+              />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-red-600 focus:text-red-600 focus:bg-destructive/20"
               onSelect={() => {
                 toast({
                   title: 'Cerrando sesión',
@@ -402,7 +390,7 @@ export function SidebarNav() {
                 // router.push('/login');
               }}
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
               <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

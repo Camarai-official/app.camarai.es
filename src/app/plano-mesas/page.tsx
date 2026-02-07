@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, QrCode, Trash2, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen } from 'lucide-react';
+import { PlusCircle, QrCode, Trash, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen, Globe, Activity, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { mockEnvironments, type Table, type TableStatus, type EnvironmentStatus, type Environment } from '@/data/mock-data';
@@ -21,6 +21,10 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { PageHeader } from '@/components/layout/page-header';
 import { useToast } from '@/hooks/use-toast';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator"
+import { Hash } from "lucide-react";
+import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 
 // Templates for quick floor plan setup
 const floorPlanTemplates = [
@@ -43,7 +47,7 @@ function QRConfigDialog({
     environmentName: string;
 }) {
     const { toast } = useToast();
-    const [qrKey, setQrKey] = React.useState(Date.now()); // Para forzar regeneración
+    const [qrKey, setQrKey] = React.useState(0); // Para forzar regeneración
     const [qrConfig, setQrConfig] = React.useState({
         baseUrl: 'https://mirestaurante.com',
         includeEnv: true,
@@ -83,88 +87,120 @@ function QRConfigDialog({
     
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
                 <DialogHeader>
-                    <DialogTitle>Configurar QR - Mesa {table.number}</DialogTitle>
+                    <DialogTitle icon={QrCode}>
+                        Configurar QR - Mesa {table.number}
+                    </DialogTitle>
                     <DialogDescription>
                         Configura el código QR para que los clientes accedan al menú vía WhatsApp.
                     </DialogDescription>
                 </DialogHeader>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                    {/* QR Preview Column */}
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="p-3 bg-white rounded-lg border">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img 
-                                src={qrImageUrl} 
-                                alt={`QR Mesa ${table.number}`} 
-                                width={160} 
-                                height={160}
-                                className="rounded"
-                            />
+                <ScrollArea className="max-h-[55vh] -mx-6">
+                    <div className="space-y-6 px-6 py-4">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                            {/* QR Preview Column */}
+                            <div className="md:col-span-2 flex flex-col items-center gap-4">
+                                <div className="p-4 bg-white rounded-2xl border shadow-sm group/qr relative overflow-hidden">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img 
+                                        src={qrImageUrl} 
+                                        alt={`QR Mesa ${table.number}`} 
+                                        width={180} 
+                                        height={180}
+                                        className="rounded-lg transition-transform group-hover/qr:scale-105 duration-300"
+                                    />
+                                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/qr:opacity-100 transition-opacity pointer-events-none" />
+                                </div>
+                                <Button variant="outline" size="sm" onClick={handleRegenerate} className="rounded-xl w-full">
+                                    <Activity className="mr-2 h-4 w-4" />
+                                    Regenerar Firma
+                                </Button>
+                            </div>
+                            
+                            {/* Config Column */}
+                            <div className="md:col-span-3 space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="url-base" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
+                                        URL de Acceso
+                                    </Label>
+                                    <div className="relative group">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-primary/10 rounded-lg group-focus-within:bg-primary/20 transition-colors">
+                                            <Globe className="h-3.5 w-3.5 text-primary" />
+                                        </div>
+                                        <Input 
+                                            id="url-base"
+                                            value={qrConfig.baseUrl}
+                                            onChange={(e) => setQrConfig(p => ({ ...p, baseUrl: e.target.value }))}
+                                            placeholder="https://mirestaurante.com"
+                                            className="pl-10 h-10 rounded-xl"
+                                        />
+                                    </div>
+                                </div>
+                                
+                                <ConfigToggle
+                                    id="include-env"
+                                    icon={MapPin}
+                                    label="Incluir ambiente"
+                                    description="Añade el ambiente a la URL del QR."
+                                    iconClassName="text-purple-500"
+                                    iconContainerClassName="bg-purple-500/10"
+                                    checked={qrConfig.includeEnv}
+                                    onCheckedChange={(v) => setQrConfig(p => ({ ...p, includeEnv: v }))}
+                                />
+                                
+                                <div className="space-y-2">
+                                    <Label htmlFor="mensaje" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
+                                        Mensaje de Bienvenida
+                                    </Label>
+                                    <Textarea
+                                        id="mensaje"
+                                        value={qrConfig.customMessage}
+                                        onChange={(e) => setQrConfig(p => ({ ...p, customMessage: e.target.value }))}
+                                        rows={3}
+                                        placeholder="¡Hola! Bienvenidos a Camarai..."
+                                        className="text-sm rounded-xl resize-none p-3"
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <Button variant="outline" size="sm" onClick={handleRegenerate}>
-                            <QrCode className="mr-2 h-4 w-4" />
-                            Regenerar QR
+                        
+                        {/* URL Preview */}
+                        <div className="p-4 bg-muted/30 rounded-2xl border border-dashed border-muted-foreground/20">
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="p-1 bg-primary/10 rounded-md">
+                                    <FileText className="h-3 w-3 text-primary" />
+                                </div>
+                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-tighter">URL Generada para el cliente</p>
+                            </div>
+                            <p className="text-xs font-mono break-all text-primary/80 leading-relaxed bg-background/50 p-2 rounded-lg border">
+                                {getQRUrl()}
+                            </p>
+                        </div>
+                    </div>
+                </ScrollArea>
+                
+                <DialogFooter>
+                    <div className="hidden sm:block">
+                        <p className="text-[10px] text-muted-foreground max-w-[150px] leading-tight">
+                            El QR se actualiza automáticamente al cambiar los parámetros.
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-end">
+                        <Button variant="ghost" size="sm" onClick={handleCopyLink} className="rounded-xl">
+                            <Copy className="mr-2 h-4 w-4" />
+                            Enlace
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleDownload} className="rounded-xl">
+                            <Download className="mr-2 h-4 w-4" />
+                            Imagen
+                        </Button>
+                        <Button variant="brand" size="sm" onClick={() => { handleDownload(); onOpenChange(false); }} className="rounded-xl px-6">
+                            <PrinterIcon className="mr-2 h-4 w-4" />
+                            Imprimir QR
                         </Button>
                     </div>
-                    
-                    {/* Config Column */}
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="url-base">URL Base</Label>
-                            <Input 
-                                id="url-base"
-                                value={qrConfig.baseUrl}
-                                onChange={(e) => setQrConfig(p => ({ ...p, baseUrl: e.target.value }))}
-                                placeholder="https://mirestaurante.com"
-                            />
-                        </div>
-                        
-                        <div className="flex items-center justify-between gap-2 p-3 border rounded-lg">
-                            <div className="space-y-0.5">
-                                <Label className="text-sm">Incluir ambiente</Label>
-                                <p className="text-xs text-muted-foreground">Añade el ambiente a la URL</p>
-                            </div>
-                            <Switch 
-                                checked={qrConfig.includeEnv}
-                                onCheckedChange={(v) => setQrConfig(p => ({ ...p, includeEnv: v }))}
-                            />
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <Label htmlFor="mensaje">Mensaje bienvenida</Label>
-                            <Textarea
-                                id="mensaje"
-                                value={qrConfig.customMessage}
-                                onChange={(e) => setQrConfig(p => ({ ...p, customMessage: e.target.value }))}
-                                rows={2}
-                                className="text-sm"
-                            />
-                        </div>
-                    </div>
-                </div>
-                
-                {/* URL Preview */}
-                <div className="p-3 bg-muted/50 rounded-lg">
-                    <p className="text-xs text-muted-foreground mb-1">URL generada:</p>
-                    <p className="text-sm font-mono break-all text-primary">{getQRUrl()}</p>
-                </div>
-                
-                <DialogFooter className="gap-2 sm:gap-0">
-                    <Button variant="outline" onClick={handleCopyLink}>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copiar Enlace
-                    </Button>
-                    <Button variant="outline" onClick={handleDownload}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Descargar QR
-                    </Button>
-                    <Button onClick={() => { handleDownload(); onOpenChange(false); }}>
-                        <PrinterIcon className="mr-2 h-4 w-4" />
-                        Imprimir
-                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -185,24 +221,22 @@ function TemplatesDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Plantillas de Plano</DialogTitle>
+                    <DialogTitle icon={FolderOpen}>Plantillas de Plano</DialogTitle>
                     <DialogDescription>Selecciona una plantilla para configurar rápidamente tu ambiente.</DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-3 py-4">
                     {floorPlanTemplates.map(template => (
-                        <div 
+                        <ConfigItem
                             key={template.id}
-                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                            icon={FolderOpen}
+                            label={template.name}
+                            description={`${template.description} (${template.tables} mesas)`}
                             onClick={() => onApplyTemplate(template.id)}
                         >
-                            <div>
-                                <p className="font-medium">{template.name}</p>
-                                <p className="text-sm text-muted-foreground">{template.description} ({template.tables} mesas)</p>
-                            </div>
                             <Button variant="ghost" size="sm">
                                 Aplicar
                             </Button>
-                        </div>
+                        </ConfigItem>
                     ))}
                 </div>
             </DialogContent>
@@ -210,6 +244,142 @@ function TemplatesDialog({
     );
 }
 
+
+
+// Reusable Edit Table Dialog Content Component
+function EditTableDialogContent({
+    editingTable,
+    setEditingTable,
+    handleSaveChanges,
+    openQRDialog,
+    config,
+}: {
+    editingTable: Partial<Table> | null;
+    setEditingTable: (table: Partial<Table> | null) => void;
+    handleSaveChanges: () => void;
+    openQRDialog: (table: Table) => void;
+    config: any;
+}) {
+    return (
+        <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
+            <DialogHeader>
+                <DialogTitle icon={Settings}>
+                    Editar Mesa {editingTable?.number}
+                </DialogTitle>
+                <DialogDescription>
+                    Ajusta los detalles físicos y el estado operativo de la mesa.
+                </DialogDescription>
+            </DialogHeader>
+
+            <ScrollArea className="max-h-[60vh] -mx-6">
+                <div className="space-y-6 px-6 py-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* QR Preview Section */}
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <QrCode className="h-3 w-3" /> Acceso Digital
+                            </h4>
+                            <div className="relative group/qr-container">
+                                <div className="p-8 bg-white rounded-3xl border shadow-sm flex flex-col items-center justify-center transition-all group-hover/qr-container:bg-slate-50">
+                                    <QrCode className="w-24 h-24 text-slate-800" />
+                                    <p className="mt-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest text-center">Digital Menu Ready</p>
+                                </div>
+                                <div className="absolute inset-0 bg-primary/0 group-hover/qr-container:bg-primary/5 rounded-3xl transition-colors pointer-events-none" />
+                            </div>
+                        </div>
+
+                        {/* Basic Config Section */}
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                <Settings className="h-3 w-3" /> Parámetros
+                            </h4>
+                            <div className="space-y-3">
+                                <div className="space-y-1.5 px-1">
+                                    <Label htmlFor="table-number" className="text-xs font-semibold">Número Identificador</Label>
+                                    <div className="relative">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                            <Hash className="h-4 w-4" />
+                                        </div>
+                                        <Input 
+                                            id="table-number" 
+                                            type="number"
+                                            value={editingTable?.number || ''} 
+                                            className="pl-9 h-10 rounded-xl bg-muted/50 focus:bg-background border-none ring-offset-background"
+                                            onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) || 0 })} 
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5 px-1">
+                                    <Label htmlFor="table-capacity" className="text-xs font-semibold">Capacidad (Comensales)</Label>
+                                    <div className="relative">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                            <Users className="h-4 w-4" />
+                                        </div>
+                                        <Input 
+                                            id="table-capacity" 
+                                            type="number" 
+                                            value={editingTable?.capacity || ''} 
+                                            className="pl-9 h-10 rounded-xl bg-muted/50 focus:bg-background border-none ring-offset-background"
+                                            onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) || 0 })} 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator className="opacity-50" />
+
+                    {/* Status Section */}
+                    <div className="space-y-4">
+                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                            <Activity className="h-3 w-3" /> Estado Operativo
+                        </h4>
+                        <div className="grid gap-3">
+                            <ConfigItem
+                                icon={config.icon}
+                                label="Situación Actual"
+                                description="Cambia manualmente el estado de la mesa."
+                                iconClassName={config.color.replace('dark:', '')}
+                                iconContainerClassName={cn(config.bgColor, "opacity-100 border-none")}
+                            >
+                                <Select value={editingTable?.status} onValueChange={(value: TableStatus) => setEditingTable({ ...editingTable, status: value })}>
+                                    <SelectTrigger className="w-32 h-9 rounded-lg border-none bg-muted/50 group-hover:bg-muted transition-colors">
+                                        <SelectValue placeholder="Estado" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-none shadow-xl">
+                                        <SelectItem value="Libre" className="rounded-lg">Libre</SelectItem>
+                                        <SelectItem value="Ocupada" className="rounded-lg">Ocupada</SelectItem>
+                                        <SelectItem value="Reservada" className="rounded-lg">Reservada</SelectItem>
+                                        <SelectItem value="Mantenimiento" className="rounded-lg">Mantenimiento</SelectItem>
+                                        <SelectItem value="Inactiva" className="rounded-lg">Inactiva</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </ConfigItem>
+                        </div>
+                    </div>
+                </div>
+            </ScrollArea>
+
+            <DialogFooter>
+                <div className="hidden sm:block">
+                    <p className="text-[10px] text-muted-foreground max-w-[150px] leading-tight text-left">
+                        Los cambios se guardarán permanentemente al confirmar.
+                    </p>
+                </div>
+                <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+                    <Button variant="ghost" className="flex-1 sm:flex-none rounded-xl" onClick={() => { if (editingTable) openQRDialog(editingTable as Table); }}>
+                        <QrCode className="mr-2 h-4 w-4" />
+                        Configurar QR
+                    </Button>
+                    <Button variant="brand" className="flex-1 sm:flex-none rounded-xl px-8" onClick={handleSaveChanges}>
+                        Guardar Cambios
+                    </Button>
+                </div>
+            </DialogFooter>
+        </DialogContent>
+    );
+}
 
 type DragItem = {
     id: number;
@@ -220,12 +390,12 @@ type DragItem = {
     initialHeight?: number;
 };
 
-const statusConfig: Record<TableStatus, { color: string; bgColor: string; icon: React.ElementType, badgeVariant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-    'Libre': { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100/50 border-green-400 dark:bg-green-900/30 dark:border-green-600', icon: CheckSquare, badgeVariant: 'outline' },
-    'Ocupada': { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-100/50 border-blue-400 dark:bg-blue-900/30 dark:border-blue-600', icon: Users, badgeVariant: 'default' },
-    'Reservada': { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-100/50 border-purple-400 dark:bg-purple-900/30 dark:border-purple-600', icon: Clock, badgeVariant: 'secondary' },
-    'Mantenimiento': { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100/50 border-red-400 dark:bg-red-900/30 dark:border-red-600', icon: AlertTriangle, badgeVariant: 'destructive' },
-    'Inactiva': { color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100/50 border-gray-300 opacity-60 dark:bg-gray-800/30 dark:border-gray-600', icon: XSquare, badgeVariant: 'secondary' },
+const statusConfig: Record<TableStatus, { color: string; bgColor: string; icon: React.ElementType, badgeVariant: any }> = {
+    'Libre': { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100/50 border-green-400 dark:bg-green-900/30 dark:border-green-600', icon: CheckSquare, badgeVariant: 'success' },
+    'Ocupada': { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-100/50 border-blue-400 dark:bg-blue-900/30 dark:border-blue-600', icon: Users, badgeVariant: 'info' },
+    'Reservada': { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-100/50 border-purple-400 dark:bg-purple-900/30 dark:border-purple-600', icon: Clock, badgeVariant: 'warning' },
+    'Mantenimiento': { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100/50 border-red-400 dark:bg-red-900/30 dark:border-red-600', icon: AlertTriangle, badgeVariant: 'danger' },
+    'Inactiva': { color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100/50 border-gray-300 opacity-60 dark:bg-gray-800/30 dark:border-gray-600', icon: XSquare, badgeVariant: 'neutral' },
 };
 
 // Helper para formatear diferencia de tiempo
@@ -288,6 +458,12 @@ export default function PlanoMesasPage() {
     const [editingTable, setEditingTable] = React.useState<Partial<Table> | null>(null);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [isInactiveTablesDialogOpen, setIsInactiveTablesDialogOpen] = React.useState(false);
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const [zoomLevels, setZoomLevels] = React.useState<Record<string, number>>({});
     const { isMobile, isTablet } = useIsMobile();
     
@@ -618,6 +794,8 @@ export default function PlanoMesasPage() {
     };
 
 
+    if (!isMounted) return null;
+
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Plano de Mesas" />
@@ -654,7 +832,7 @@ export default function PlanoMesasPage() {
                                                         checked={env.status === 'Abierto'}
                                                         onCheckedChange={(checked) => handleStatusChange(env.id, checked)}
                                                     />
-                                                    <Badge variant={env.status === 'Abierto' ? 'default' : 'secondary'}>{env.status}</Badge>
+                                                    <Badge variant={env.status === 'Abierto' ? 'completed' : 'neutral'}>{env.status}</Badge>
                                                 </div>
                                                 <div className="h-6 border-l mx-2 hidden md:block"></div>
                                                 <div className="flex gap-2 flex-wrap justify-center">
@@ -733,56 +911,39 @@ export default function PlanoMesasPage() {
                                                             }
                                                         }}>
                                                             <DialogTrigger asChild>
-                                                                <Card className="p-4" onClick={() => handleDoubleClick(table)}>
-                                                                    <div className="flex justify-between items-start">
-                                                                        <div>
-                                                                            <CardTitle className="text-lg">Mesa {table.number}</CardTitle>
-                                                                            <CardDescription className="flex items-center gap-1 mt-1"><Users className="h-4 w-4" /> {table.capacity} personas</CardDescription>
+                                                                <Card className="p-4 relative overflow-hidden group/mobile-card hover:shadow-lg transition-all duration-300 border shadow-sm hover:border-primary/50 bg-card active:scale-[0.98]" onClick={() => handleDoubleClick(table)}>
+                                                                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+                                                                    <div className="flex justify-between items-start relative z-10">
+                                                                        <div className="flex gap-3">
+                                                                            <div className={cn("p-3 rounded-2xl", config.bgColor, "border-none shadow-sm flex items-center justify-center")}>
+                                                                                <config.icon className={cn("h-5 w-5", config.color.replace('dark:', ''))} />
+                                                                            </div>
+                                                                            <div>
+                                                                                <CardTitle className="text-lg font-bold tracking-tight">Mesa {table.number}</CardTitle>
+                                                                                <CardDescription className="flex items-center gap-1.5 mt-0.5 font-medium text-muted-foreground/80">
+                                                                                    <Users className="h-3.5 w-3.5" /> {table.capacity} personas
+                                                                                </CardDescription>
+                                                                            </div>
                                                                         </div>
                                                                         <Badge variant={config.badgeVariant}>{table.status}</Badge>
                                                                     </div>
-                                                                    <div className="flex justify-end mt-2">
-                                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={(e) => removeTable(e, table.id)}>
-                                                                            <Trash2 className="h-4 w-4" />
+                                                                    <div className="flex justify-end mt-4 gap-2 relative z-10">
+                                                                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); openQRDialog(table); }}>
+                                                                            <QrCode className="h-4 w-4" />
+                                                                        </Button>
+                                                                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-destructive/10 transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); removeTable(e, table.id); }}>
+                                                                            <Trash className="h-4 w-4 text-muted-foreground" />
                                                                         </Button>
                                                                     </div>
                                                                 </Card>
                                                             </DialogTrigger>
-                                                            <DialogContent className="sm:max-w-md">
-                                                                <DialogHeader>
-                                                                    <DialogTitle>Editar Mesa {editingTable?.number}</DialogTitle>
-                                                                    <DialogDescription>Ajusta los detalles de la mesa.</DialogDescription>
-                                                                </DialogHeader>
-                                                                <div className="grid gap-6 py-4">
-                                                                    <div className="grid grid-cols-2 items-center gap-4">
-                                                                        <Label htmlFor="table-number" className="text-left">Número</Label>
-                                                                        <Input id="table-number" value={editingTable?.number || ''} onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) || 0 })} />
-                                                                    </div>
-                                                                    <div className="grid grid-cols-2 items-center gap-4">
-                                                                        <Label htmlFor="table-capacity" className="text-left">Capacidad</Label>
-                                                                        <Input id="table-capacity" type="number" value={editingTable?.capacity || ''} onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) || 0 })} />
-                                                                    </div>
-                                                                    <div className="grid grid-cols-2 items-center gap-4">
-                                                                        <Label htmlFor="table-status" className="text-left">Estado</Label>
-                                                                        <Select value={editingTable?.status} onValueChange={(value: TableStatus) => setEditingTable({ ...editingTable, status: value })}>
-                                                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                                                            <SelectContent>
-                                                                                <SelectItem value="Libre">Libre</SelectItem>
-                                                                                <SelectItem value="Ocupada">Ocupada</SelectItem>
-                                                                                <SelectItem value="Reservada">Reservada</SelectItem>
-                                                                                <SelectItem value="Mantenimiento">Mantenimiento</SelectItem>
-                                                                                <SelectItem value="Inactiva">Inactiva</SelectItem>
-                                                                            </SelectContent>
-                                                                        </Select>
-                                                                    </div>
-                                                                </div>
-                                                                <DialogFooter className="flex-col sm:flex-row gap-2">
-                                                                    <Button variant="outline" className="w-full sm:w-auto" onClick={() => { if (editingTable) openQRDialog(editingTable as Table); }}>
-                                                                        <QrCode className="mr-2 h-4 w-4" />Configurar QR
-                                                                    </Button>
-                                                                    <Button type="submit" onClick={handleSaveChanges} className="w-full sm:w-auto">Guardar Cambios</Button>
-                                                                </DialogFooter>
-                                                            </DialogContent>
+                                                            <EditTableDialogContent 
+                                                                editingTable={editingTable}
+                                                                setEditingTable={setEditingTable}
+                                                                handleSaveChanges={handleSaveChanges}
+                                                                openQRDialog={openQRDialog}
+                                                                config={config}
+                                                            />
                                                         </Dialog>
                                                     )
                                                 })}
@@ -814,11 +975,12 @@ export default function PlanoMesasPage() {
                                                                             onMouseDown={(e) => table.status !== 'Inactiva' && handleMouseDown(e, table.id, 'drag')}
                                                                             onDoubleClick={() => handleDoubleClick(table)}
                                                                             className={cn(
-                                                                                "absolute p-2 border-2 rounded-lg shadow-md flex flex-col items-center justify-center transition-all",
+                                                                                "absolute p-2 border-2 rounded-2xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 group/table",
                                                                                 config.bgColor,
-                                                                                table.status !== 'Inactiva' && 'cursor-grab active:cursor-grabbing',
-                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'drag' && "opacity-50 z-10",
-                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'resize' && "z-10"
+                                                                                "backdrop-blur-sm",
+                                                                                table.status !== 'Inactiva' && 'cursor-grab active:cursor-grabbing hover:shadow-xl hover:scale-[1.02]',
+                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'drag' && "opacity-50 z-50 scale-110",
+                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'resize' && "z-50"
                                                                             )}
                                                                             style={{
                                                                                 left: table.x,
@@ -827,110 +989,84 @@ export default function PlanoMesasPage() {
                                                                                 height: table.height
                                                                             }}
                                                                         >
-                                                                            <div className={cn("font-bold", config.color, isSmall ? 'text-sm' : 'text-xl')}>Mesa {table.number}</div>
-                                                                            <div className={cn("flex items-center mt-1", config.color, isSmall ? 'text-xs' : 'text-sm')}>
+                                                                            {/* Visual embellishment for better feel */}
+                                                                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
+                                                                            
+                                                                            <div className={cn("font-bold tracking-tight", config.color, isSmall ? 'text-sm' : 'text-xl')}>
+                                                                                Mesa {table.number}
+                                                                            </div>
+                                                                            <div className={cn("flex items-center mt-1 font-medium", config.color, isSmall ? 'text-[10px]' : 'text-sm')}>
                                                                                 <Users className={cn("mr-1", isSmall ? 'w-3 h-3' : 'w-4 h-4')} />
                                                                                 <span>{table.capacity}p</span>
                                                                             </div>
-                                                                            {/* Contador contextual o Badge según estado */}
+
+                                                                            {/* Contextual Info */}
                                                                             {(() => {
                                                                                 const info = getTableCenterInfo(table);
                                                                                 if (info && info.value) {
                                                                                     return (
-                                                                                        <div className={cn("absolute bottom-1 left-1 md:bottom-2 md:left-2", isSmall && "text-[10px]")}>
-                                                                                            <div className={cn("text-xs font-medium", config.color)}>{info.label}</div>
-                                                                                            <div className={cn("text-sm font-bold", config.color)}>{info.value}</div>
+                                                                                        <div className={cn("absolute bottom-2 left-2 right-2", isSmall && "bottom-1")}>
+                                                                                            <div className={cn("text-[10px] uppercase tracking-tighter opacity-70 leading-none", config.color)}>{info.label}</div>
+                                                                                            <div className={cn("text-xs font-bold leading-none mt-0.5", config.color)} suppressHydrationWarning>{info.value}</div>
                                                                                         </div>
                                                                                     );
                                                                                 }
                                                                                 return (
-                                                                                    <Badge variant={config.badgeVariant} className={cn("absolute bottom-1 left-1 md:bottom-2 md:left-2", isSmall && "text-[10px] px-1 py-0 h-4")}>{table.status}</Badge>
+                                                                                    <Badge 
+                                                                                        variant={config.badgeVariant} 
+                                                                                        size={isSmall ? "sm" : "default"}
+                                                                                        className="absolute bottom-2 left-2"
+                                                                                    >
+                                                                                        {table.status}
+                                                                                    </Badge>
                                                                                 );
                                                                             })()}
-                                                                            <div className="absolute top-1 right-1">
+
+                                                                            {/* Action Menu */}
+                                                                            <div className="absolute top-1 right-1 opacity-0 group-hover/table:opacity-100 transition-opacity">
                                                                                 <DropdownMenu>
                                                                                     <DropdownMenuTrigger asChild>
-                                                                                        <Button variant="ghost" size="icon" className={cn("h-6 w-6 text-muted-foreground", config.color)}>
-                                                                                            <MoreVertical className={cn(isSmall ? "h-3 w-3" : "h-4 w-4")} />
+                                                                                        <Button variant="ghost" size="icon" className={cn("h-7 w-7 rounded-full hover:bg-black/5 dark:hover:bg-white/5", config.color)}>
+                                                                                            <MoreVertical className={cn(isSmall ? "h-3.5 w-3.5" : "h-4 w-4")} />
                                                                                         </Button>
                                                                                     </DropdownMenuTrigger>
-                                                                                    <DropdownMenuContent onClick={e => e.stopPropagation()}>
-                                                                                        <DropdownMenuItem>
-                                                                                            <FileText className="mr-2 h-4 w-4" />
-                                                                                            Leer Comanda
+                                                                                    <DropdownMenuContent align="end" className="w-48 p-1">
+                                                                                        <DropdownMenuItem className="rounded-lg py-2">
+                                                                                            <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                            <span>Leer Comanda</span>
                                                                                         </DropdownMenuItem>
-                                                                                        <DropdownMenuItem>
-                                                                                            <PrinterIcon className="mr-2 h-4 w-4" />
-                                                                                            Reimprimir Comanda
+                                                                                        <DropdownMenuItem className="rounded-lg py-2">
+                                                                                            <PrinterIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                            <span>Reimprimir Comanda</span>
                                                                                         </DropdownMenuItem>
-                                                                                        <DropdownMenuItem onClick={() => openQRDialog(table)}>
-                                                                                            <QrCode className="mr-2 h-4 w-4" />
-                                                                                            Configurar QR
+                                                                                        <DropdownMenuItem onClick={() => openQRDialog(table)} className="rounded-lg py-2">
+                                                                                            <QrCode className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                            <span>Configurar QR</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuSeparator />
-                                                                                        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={(e) => removeTable(e, table.id)}>
-                                                                                            <Trash2 className="mr-2 h-4 w-4" />
-                                                                                            Eliminar Mesa
+                                                                                        <DropdownMenuItem className="rounded-lg py-2" onClick={(e) => removeTable(e, table.id)}>
+                                                                                            <Trash className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                            <span>Eliminar Mesa</span>
                                                                                         </DropdownMenuItem>
                                                                                     </DropdownMenuContent>
                                                                                 </DropdownMenu>
                                                                             </div>
+
+                                                                            {/* Resize Handle */}
                                                                             <div
                                                                                 onMouseDown={(e) => handleMouseDown(e, table.id, 'resize')}
-                                                                                className="resize-handle absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-primary/50 rounded-full border-2 border-background"
+                                                                                className="absolute bottom-1 right-1 w-3 h-3 cursor-se-resize bg-black/10 dark:bg-white/10 rounded-full opacity-0 group-hover/table:opacity-100 transition-all hover:bg-primary hover:scale-125"
                                                                             />
                                                                         </div>
                                                                     </DialogTrigger>
-                                                                    <DialogContent className="sm:max-w-md">
-                                                                        <DialogHeader>
-                                                                            <TooltipProvider>
-                                                                                <Tooltip>
-                                                                                    <TooltipTrigger asChild>
-                                                                                        <DialogTitle>Editar Mesa {editingTable?.number}</DialogTitle>
-                                                                                    </TooltipTrigger>
-                                                                                    <TooltipContent>
-                                                                                        <p>Ajusta los detalles de la mesa y gestiona su código QR.</p>
-                                                                                    </TooltipContent>
-                                                                                </Tooltip>
-                                                                            </TooltipProvider>
-                                                                        </DialogHeader>
-                                                                        <div className="grid gap-6 py-4">
-                                                                            <div className="flex justify-center items-center">
-                                                                                <div className="p-4 bg-white rounded-lg">
-                                                                                    <QrCode className="w-32 h-32 text-primary" />
-                                                                                </div>
-                                                                            </div>
-                                                                            <div className="grid grid-cols-2 items-center gap-4">
-                                                                                <Label htmlFor="table-number" className="text-left">Número</Label>
-                                                                                <Input id="table-number" value={editingTable?.number || ''} onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) || 0 })} />
-                                                                            </div>
-                                                                            <div className="grid grid-cols-2 items-center gap-4">
-                                                                                <Label htmlFor="table-capacity" className="text-left">Capacidad</Label>
-                                                                                <Input id="table-capacity" type="number" value={editingTable?.capacity || ''} onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) || 0 })} />
-                                                                            </div>
-                                                                            <div className="grid grid-cols-2 items-center gap-4">
-                                                                                <Label htmlFor="table-status" className="text-left">Estado</Label>
-                                                                                <Select value={editingTable?.status} onValueChange={(value: TableStatus) => setEditingTable({ ...editingTable, status: value })}>
-                                                                                    <SelectTrigger>
-                                                                                        <SelectValue placeholder="Selecciona un estado" />
-                                                                                    </SelectTrigger>
-                                                                                    <SelectContent>
-                                                                                        <SelectItem value="Libre">Libre</SelectItem>
-                                                                                        <SelectItem value="Ocupada">Ocupada</SelectItem>
-                                                                                        <SelectItem value="Reservada">Reservada</SelectItem>
-                                                                                        <SelectItem value="Mantenimiento">Mantenimiento</SelectItem>
-                                                                                        <SelectItem value="Inactiva">Inactiva</SelectItem>
-                                                                                    </SelectContent>
-                                                                                </Select>
-                                                                            </div>
-                                                                        </div>
-                                                                        <DialogFooter className="gap-2">
-                                                                            <Button type="button" variant="outline" onClick={() => { if (editingTable) openQRDialog(editingTable as Table); }}>
-                                                                                <QrCode className="mr-2 h-4 w-4" />Configurar QR
-                                                                            </Button>
-                                                                            <Button type="submit" onClick={handleSaveChanges}>Guardar Cambios</Button>
-                                                                        </DialogFooter>
-                                                                    </DialogContent>
+                                                                    
+                                                                    <EditTableDialogContent 
+                                                                        editingTable={editingTable}
+                                                                        setEditingTable={setEditingTable}
+                                                                        handleSaveChanges={handleSaveChanges}
+                                                                        openQRDialog={openQRDialog}
+                                                                        config={config}
+                                                                    />
                                                                 </Dialog>
                                                             )
                                                         })}
@@ -962,7 +1098,7 @@ export default function PlanoMesasPage() {
                                     <Dialog open={isInactiveTablesDialogOpen} onOpenChange={setIsInactiveTablesDialogOpen}>
                                         <DialogContent>
                                             <DialogHeader>
-                                                <DialogTitle>Mesas Inactivas en {env.name}</DialogTitle>
+                                                <DialogTitle icon={Settings}>Mesas Inactivas en {env.name}</DialogTitle>
                                                 <DialogDescription>
                                                     Estas mesas están ocultas del plano principal. Puedes reactivarlas aquí para que vuelvan al estado de &quot;Mantenimiento&quot;.
                                                 </DialogDescription>

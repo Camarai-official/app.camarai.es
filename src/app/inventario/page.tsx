@@ -121,7 +121,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Ajustar Stock de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
+          <DialogTitle icon={Package}>Ajustar Stock de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
           <DialogDescription>Stock actual: {item.stock_actual} {item.unidad_medida}. Selecciona una operación.</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-4 gap-2 pt-4">
@@ -162,7 +162,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
         </Card>
         <DialogFooter>
           <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-          <Button onClick={handleAdjust}>Ajustar Stock</Button>
+          <Button variant="brand" onClick={handleAdjust}>Ajustar Stock</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -183,7 +183,7 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Historial de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
+          <DialogTitle icon={History}>Historial de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="movements" className="w-full pt-4">
           <TabsList className="grid w-full grid-cols-3">
@@ -433,9 +433,11 @@ export default function InventarioPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                             <DropdownMenuItem onSelect={() => openStockDialog(item)}>
+                              <Package className="mr-2 h-4 w-4 text-muted-foreground" />
                               Ajustar Stock
                             </DropdownMenuItem>
                             <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
+                              <History className="mr-2 h-4 w-4 text-muted-foreground" />
                               Ver historial
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -507,8 +509,7 @@ export default function InventarioPage() {
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
+            <DialogTitle icon={Settings}>
               Configurar Inventario
             </DialogTitle>
             <DialogDescription>

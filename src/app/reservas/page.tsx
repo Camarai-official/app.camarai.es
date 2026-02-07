@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash2, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send } from 'lucide-react';
+import { MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair  } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -138,7 +138,7 @@ function ReservationDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{isEditing ? 'Editar Reserva' : 'Añadir Nueva Reserva'}</DialogTitle>
+                    <DialogTitle icon={Calendar}>{isEditing ? 'Editar Reserva' : 'Añadir Nueva Reserva'}</DialogTitle>
                     <DialogDescription>
                         {isEditing 
                             ? 'Modifica los datos de la reserva.' 
@@ -211,7 +211,7 @@ function ReservationDialog({
                 </div>
                 <DialogFooter>
                     <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button onClick={handleSave}>{isEditing ? 'Guardar Cambios' : 'Crear Reserva'}</Button>
+                    <Button variant="brand" onClick={handleSave}>{isEditing ? 'Guardar Cambios' : 'Crear Reserva'}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -256,8 +256,7 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5 text-brand-whatsapp" />
+                    <DialogTitle icon={MessageSquare}>
                         Notificaciones WhatsApp
                     </DialogTitle>
                     <DialogDescription>
@@ -273,50 +272,75 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
                     
                     <TabsContent value="config" className="space-y-4 mt-4">
                         <div className="space-y-4">
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                <div>
-                                    <Label className="font-medium">Confirmación de reserva</Label>
-                                    <p className="text-sm text-muted-foreground">Enviar mensaje cuando se confirma</p>
+                            <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
+                                        <Bell className="h-4 w-4 text-green-500" />
+                                    </div>
+                                    <div>
+                                        <Label className="cursor-pointer">Confirmación de reserva</Label>
+                                        <p className="text-[11px] text-muted-foreground">Enviar mensaje cuando se confirma.</p>
+                                    </div>
                                 </div>
                                 <Switch 
                                     checked={config.confirmationEnabled}
                                     onCheckedChange={(v) => setConfig(p => ({ ...p, confirmationEnabled: v }))}
                                 />
                             </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                <div>
-                                    <Label className="font-medium">Recordatorio 24h antes</Label>
-                                    <p className="text-sm text-muted-foreground">Enviar recordatorio un día antes</p>
+                            <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                                        <Clock className="h-4 w-4 text-blue-500" />
+                                    </div>
+                                    <div>
+                                        <Label className="cursor-pointer">Recordatorio 24h antes</Label>
+                                        <p className="text-[11px] text-muted-foreground">Enviar recordatorio un día antes.</p>
+                                    </div>
                                 </div>
                                 <Switch 
                                     checked={config.reminder24h}
                                     onCheckedChange={(v) => setConfig(p => ({ ...p, reminder24h: v }))}
                                 />
                             </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                <div>
-                                    <Label className="font-medium">Recordatorio 2h antes</Label>
-                                    <p className="text-sm text-muted-foreground">Enviar recordatorio dos horas antes</p>
+                            <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-amber-500/10 rounded-lg group-hover:bg-amber-500/20 transition-colors">
+                                        <Clock className="h-4 w-4 text-amber-500" />
+                                    </div>
+                                    <div>
+                                        <Label className="cursor-pointer">Recordatorio 2h antes</Label>
+                                        <p className="text-[11px] text-muted-foreground">Enviar recordatorio dos horas antes.</p>
+                                    </div>
                                 </div>
                                 <Switch 
                                     checked={config.reminder2h}
                                     onCheckedChange={(v) => setConfig(p => ({ ...p, reminder2h: v }))}
                                 />
                             </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                <div>
-                                    <Label className="font-medium">Notificación de cancelación</Label>
-                                    <p className="text-sm text-muted-foreground">Avisar si se cancela la reserva</p>
+                            <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-red-500/10 rounded-lg group-hover:bg-red-500/20 transition-colors">
+                                        <X className="h-4 w-4 text-red-500" />
+                                    </div>
+                                    <div>
+                                        <Label className="cursor-pointer">Notificación de cancelación</Label>
+                                        <p className="text-[11px] text-muted-foreground">Avisar si se cancela la reserva.</p>
+                                    </div>
                                 </div>
                                 <Switch 
                                     checked={config.cancellationEnabled}
                                     onCheckedChange={(v) => setConfig(p => ({ ...p, cancellationEnabled: v }))}
                                 />
                             </div>
-                            <div className="flex items-center justify-between p-3 border rounded-lg">
-                                <div>
-                                    <Label className="font-medium">Solicitar feedback</Label>
-                                    <p className="text-sm text-muted-foreground">Pedir valoración después de la visita</p>
+                            <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
+                                        <MessageSquare className="h-4 w-4 text-purple-500" />
+                                    </div>
+                                    <div>
+                                        <Label className="cursor-pointer">Solicitar feedback</Label>
+                                        <p className="text-[11px] text-muted-foreground">Pedir valoración después de la visita.</p>
+                                    </div>
                                 </div>
                                 <Switch 
                                     checked={config.feedbackEnabled}
@@ -369,7 +393,7 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
                     </TabsContent>
                 </Tabs>
                 
-                <DialogFooter className="mt-4">
+                <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
                     <Button onClick={handleSave}>Guardar Configuración</Button>
                 </DialogFooter>
@@ -539,7 +563,7 @@ export default function ReservasPage() {
                         row: 'grid grid-cols-7 w-full mt-2',
                         cell: 'w-full',
                         day: "h-14 w-full text-base",
-                        day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                        day_selected: "bg-background text-background-foreground hover:bg-background hover:text-background-foreground focus:bg-background focus:text-background-foreground",
                     }}
                     components={{
                         Caption: ({ ...props }) => {
@@ -567,7 +591,7 @@ export default function ReservasPage() {
                                 <div className="relative flex flex-col items-center justify-center h-full w-full">
                                     <span>{format(date, 'd')}</span>
                                     {dayReservationsCount > 0 && (
-                                        <Badge variant="secondary" className="mt-1 text-[10px] px-1 h-4">{dayReservationsCount} res.</Badge>
+                                        <Badge variant="default" className="mt-1 h-5 px-2 text-[10px] rounded-full">{dayReservationsCount}</Badge>
                                     )}
                                 </div>
                             )
@@ -624,21 +648,25 @@ export default function ReservasPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem onClick={() => handleEditReservation(res)}>
-                                                        <Edit className="mr-2 h-4 w-4" />
+                                                        <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
                                                         Editar reserva
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Confirmada')} disabled={res.status === 'Confirmada'}>Confirmar</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Confirmada')} disabled={res.status === 'Confirmada'}>
+                                                        <Check className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        Confirmar
+                                                    </DropdownMenuItem>
                                                      <DropdownMenuSub>
-                                                        <DropdownMenuSubTrigger>Asignar Mesa</DropdownMenuSubTrigger>
+                                                        <DropdownMenuSubTrigger><LayoutGrid className="mr-2 h-4 w-4 text-muted-foreground" />Asignar Mesa</DropdownMenuSubTrigger>
                                                         <DropdownMenuSubContent>
                                                             {availableEnvironments.map(env => (
                                                                 env.tables.length > 0 && (
                                                                     <DropdownMenuSub key={env.id}>
-                                                                        <DropdownMenuSubTrigger>{env.name}</DropdownMenuSubTrigger>
+                                                                        <DropdownMenuSubTrigger className='w-full'>{env.name}</DropdownMenuSubTrigger>
                                                                         <DropdownMenuSubContent>
                                                                             {env.tables.map(table => (
                                                                                 <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, table.id)}>
+                                                                                    <Armchair className="mr-2 h-4 w-4 text-muted-foreground" />
                                                                                     Mesa {table.number} (Cap: {table.capacity})
                                                                                 </DropdownMenuItem>
                                                                             ))}
@@ -649,7 +677,10 @@ export default function ReservasPage() {
                                                         </DropdownMenuSubContent>
                                                     </DropdownMenuSub>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Cancelada')} className="text-destructive">Cancelar</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Cancelada')}>
+                                                        <X className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        Cancelar
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>

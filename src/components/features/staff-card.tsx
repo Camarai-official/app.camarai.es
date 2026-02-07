@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Phone, Mail, Calendar, Clock, MoreVertical, Edit, Trash2, MessageSquare, UserCheck, UserX } from 'lucide-react';
+import { Phone, Mail, Calendar, Clock, MoreVertical, Edit, Trash, MessageSquare, UserCheck, UserX } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -115,13 +115,13 @@ export function StaffCard({
           <DropdownMenuContent align="end">
             {onEdit && (
               <DropdownMenuItem onClick={() => onEdit(staff)}>
-                <Edit className="h-4 w-4 mr-2" />
+                <Edit className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                 Editar
               </DropdownMenuItem>
             )}
             {onWhatsApp && (
               <DropdownMenuItem onClick={() => onWhatsApp(staff)}>
-                <MessageSquare className="h-4 w-4 mr-2" />
+                <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                 WhatsApp
               </DropdownMenuItem>
             )}
@@ -130,12 +130,12 @@ export function StaffCard({
                 <DropdownMenuSeparator />
                 {staff.estado === 'activo' ? (
                   <DropdownMenuItem onClick={() => onToggleStatus(staff.id, 'inactivo')}>
-                    <UserX className="h-4 w-4 mr-2" />
+                    <UserX className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                     Desactivar
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem onClick={() => onToggleStatus(staff.id, 'activo')}>
-                    <UserCheck className="h-4 w-4 mr-2" />
+                    <UserCheck className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                     Activar
                   </DropdownMenuItem>
                 )}
@@ -144,8 +144,8 @@ export function StaffCard({
             {onDelete && (
               <>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onDelete(staff.id)} className="text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
+                <DropdownMenuItem onClick={() => onDelete(staff.id)}>
+                  <Trash className="h-4 w-4 mr-2 text-muted-foreground group-hover:text-primary transition-colors" />
                   Eliminar
                 </DropdownMenuItem>
               </>
