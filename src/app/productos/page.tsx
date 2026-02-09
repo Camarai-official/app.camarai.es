@@ -11,7 +11,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search, ChevronLeft, ChevronRight, Package } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -73,6 +73,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 
 
 // Extended Product type with new fields
@@ -402,15 +403,11 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                 <CardContent className="space-y-4">
                                     <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
                                         <PopoverTrigger asChild>
-                                            <div className="relative">
-                                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                                <Input
-                                                    placeholder="Buscar ingrediente para añadir..."
-                                                    className="pl-8"
-                                                    value={ingredientSearch}
-                                                    onChange={(e) => setIngredientSearch(e.target.value)}
-                                                />
-                                            </div>
+                                            <SearchInput
+                                                placeholder="Buscar ingrediente para añadir..."
+                                                value={ingredientSearch}
+                                                onChange={(e) => setIngredientSearch(e.target.value)}
+                                            />
                                         </PopoverTrigger>
                                         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                             <Command>
@@ -745,10 +742,12 @@ export default function ProductosPage() {
             <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <Card className="min-h-[70vh]">
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="relative w-full md:w-1/3">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Buscar producto..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                        </div>
+                        <SearchInput 
+                            containerClassName="md:w-1/3"
+                            placeholder="Buscar producto..." 
+                            value={searchTerm} 
+                            onChange={e => setSearchTerm(e.target.value)} 
+                        />
                         <Button onClick={() => handleOpenDialog()} className="w-full md:w-auto">
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Crear Producto

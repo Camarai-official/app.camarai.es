@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash, Beaker, AlertTriangle, ChevronLeft, ChevronRight, Search, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, Beaker, AlertTriangle, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -47,6 +47,7 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -613,10 +614,12 @@ export default function IngredientesPage() {
             <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <Card className="min-h-[70vh]">
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="relative w-full md:w-1/3">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Buscar ingrediente..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                        </div>
+                        <SearchInput 
+                            containerClassName="md:w-1/3"
+                            placeholder="Buscar ingrediente..." 
+                            value={searchTerm} 
+                            onChange={e => setSearchTerm(e.target.value)} 
+                        />
                         <Button onClick={() => handleOpenDialog()} className="w-full md:w-auto">
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Crear Ingrediente

@@ -5,7 +5,6 @@ import * as React from 'react';
 import {
     MoreHorizontal,
     PlusCircle,
-    Search,
     FileDown,
     Edit,
     Copy,
@@ -75,6 +74,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { cn } from '@/lib/utils';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
@@ -335,16 +335,12 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                                 <Label htmlFor="product-search">Producto a promocionar</Label>
                                 <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
                                     <PopoverTrigger asChild>
-                                        <div className="relative">
-                                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                            <Input
-                                                id="product-search"
-                                                placeholder="Buscar producto..."
-                                                className="pl-8"
-                                                value={productSearch}
-                                                onChange={(e) => setProductSearch(e.target.value)}
-                                            />
-                                        </div>
+                                        <SearchInput
+                                            id="product-search"
+                                            placeholder="Buscar producto..."
+                                            value={productSearch}
+                                            onChange={(e) => setProductSearch(e.target.value)}
+                                        />
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                         <Command>
@@ -595,10 +591,7 @@ export default function PromocionesPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="relative">
-                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input placeholder="Buscar por nombre..." className="pl-8 w-full" />
-                                    </div>
+                                    <SearchInput placeholder="Buscar por nombre..." />
                                     <Select>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Filtrar por tipo" />

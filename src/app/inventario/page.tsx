@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { MoreHorizontal, Package, PlusCircle, Search, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
+import { MoreHorizontal, Package, PlusCircle, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
 import { ExportModal, type ExportField } from '@/components/features/export-modal';
 import { Switch } from '@/components/ui/switch';
 
@@ -57,6 +57,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -352,10 +353,12 @@ export default function InventarioPage() {
           <CardContent>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-3/4">
-                <div className="relative w-full sm:w-auto sm:flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Buscar por nombre..." className="pl-8 w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                </div>
+                <SearchInput 
+                  containerClassName="sm:flex-1"
+                  placeholder="Buscar por nombre..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                />
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full sm:w-auto sm:flex-1">
                     <SelectValue placeholder="Filtrar por categoría" />

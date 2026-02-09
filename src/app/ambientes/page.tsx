@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Search, Filter, LayoutGrid, Maximize, FileType } from 'lucide-react';
+import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Filter, LayoutGrid, Maximize, FileType } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { mockEnvironments } from '@/data/mock-data';
 import type { Environment, EnvironmentStatus } from '@/data/mock-data';
@@ -37,6 +37,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 import { ColorPicker } from '@/components/ui/color-picker';
+import { SearchInput } from '@/components/ui/search-input';
 
 /**
  * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
@@ -622,20 +623,14 @@ export default function AmbientesPage() {
                                         </Select>
                                     </ConfigItem>
 
-                                    <div className="relative group">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                            <Search className="h-4 w-4 text-primary" />
-                                        </div>
-                                        <Input
-                                            placeholder="Buscar mesa..."
-                                            value={searchQuery}
-                                            onChange={(e) => {
-                                                setSearchQuery(e.target.value);
-                                                setCurrentQRPage(1);
-                                            }}
-                                            className="pl-12 h-full rounded-xl border-muted bg-card focus:bg-background transition-all"
-                                        />
-                                    </div>
+                                    <SearchInput
+                                        placeholder="Buscar mesa..."
+                                        value={searchQuery}
+                                        onChange={(e) => {
+                                            setSearchQuery(e.target.value);
+                                            setCurrentQRPage(1);
+                                        }}
+                                    />
                                 </div>
                             </div>
 

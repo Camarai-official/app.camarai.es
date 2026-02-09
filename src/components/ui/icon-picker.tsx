@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { SearchInput } from '@/components/ui/search-input';
 import { cn } from '@/lib/utils';
 import {
   Home,
@@ -174,7 +175,7 @@ export function IconPicker({
         <PopoverContent className="w-72 p-3" align="start">
           <div className="grid gap-3">
             {/* Search */}
-            <Input
+            <SearchInput
               placeholder="Buscar icono..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

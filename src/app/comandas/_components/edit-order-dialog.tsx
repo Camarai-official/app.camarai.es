@@ -9,12 +9,12 @@ import {
   MessageSquare, 
   ShoppingBag, 
   User, 
-  LayoutGrid, 
-  Search, 
-  UtensilsCrossed, 
+  ChefHat,
+  LayoutGrid,
+  Search,
   CreditCard,
-  Receipt,
-  ChefHat
+  UtensilsCrossed,
+  Receipt
 } from 'lucide-react';
 
 import type { OrderDetails, OrderDetailItem } from '@/types/orders';
@@ -30,6 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { ConfigItem } from '@/components/ui/config-item';
 import { cn } from '@/lib/utils';
+import { SearchInput } from '@/components/ui/search-input';
 
 type EditOrderDialogProps = {
   order: OrderDetails | null;
@@ -137,11 +138,9 @@ export function EditOrderDialog({
                 <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <Search className="h-3 w-3" /> Añadir Item
                 </h4>
-                <div className="relative">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input 
+                  <SearchInput 
                     placeholder="Buscar plato o bebida..."
-                    className="pl-9 bg-muted/40 border-transparent focus:bg-background transition-all"
+                    className="bg-muted/40 border-transparent focus:bg-background transition-all"
                     value={searchProduct}
                     onChange={(e) => setSearchProduct(e.target.value)}
                   />
@@ -158,12 +157,11 @@ export function EditOrderDialog({
                             <span className="text-xs font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full">€{product.price.toFixed(2)}</span>
                           </div>
                         ))
-                      ) : (
+                       ) : (
                         <p className="text-xs text-center text-muted-foreground py-2">No se encontraron productos</p>
                       )}
-                    </div>
-                  )}
                 </div>
+              )}
               </div>
 
               <Separator className="opacity-50" />

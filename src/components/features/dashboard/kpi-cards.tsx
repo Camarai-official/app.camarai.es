@@ -43,7 +43,20 @@ export function TopProductsCard({ products }: TopProductsCardProps) {
             {topProducts.map(product => (
               <TableRow key={product.id}>
                 <TableCell className="flex items-center gap-3">
-                  <Image src={product.url_imagen_producto} alt={product.nombre_producto} width={32} height={32} className="rounded-sm" data-ai-hint="product image" />
+                  {product.url_imagen_producto ? (
+                    <Image 
+                      src={product.url_imagen_producto} 
+                      alt={product.nombre_producto} 
+                      width={32} 
+                      height={32} 
+                      className="rounded-sm object-cover" 
+                      data-ai-hint="product image" 
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-sm bg-muted flex items-center justify-center text-muted-foreground font-bold text-xs">
+                      {product.nombre_producto.charAt(0)}
+                    </div>
+                  )}
                   <span className="font-medium truncate">{product.nombre_producto}</span>
                 </TableCell>
                 <TableCell className="text-right font-semibold">€{product.revenue.toFixed(2)}</TableCell>

@@ -9,7 +9,6 @@ import {
     MoreHorizontal,
     ChevronLeft,
     ChevronRight,
-    Search,
     Download,
     Settings,
     Pencil,
@@ -45,6 +44,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
 import { ExportModal } from '@/components/features/export-modal';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
+import { SearchInput } from '@/components/ui/search-input';
 
 export default function ComandasPage() {
     const { toast } = useToast();
@@ -219,10 +219,12 @@ export default function ComandasPage() {
 
                 <Card>
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="relative w-full md:w-1/3">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Buscar por orden, mesa, cliente..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                        </div>
+                        <SearchInput
+                            containerClassName="md:w-1/3"
+                            placeholder="Buscar por orden, mesa, cliente..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
                             <CalendarDateRangePicker date={date} setDate={setDate} />
 

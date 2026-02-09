@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Search, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit, Shield, Building2 } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit, Shield, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,7 @@ import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 
 // Métodos de fichaje disponibles
 const metodosFichaje = [
@@ -965,15 +966,12 @@ export default function PersonalPage() {
                         <div className="space-y-4">
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <h2 className="text-xl font-semibold tracking-tight">Mi Equipo</h2>
-                                <div className="relative w-full sm:w-64">
-                                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        placeholder="Buscar empleado..."
-                                        className="pl-8"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
+                                <SearchInput
+                                    containerClassName="sm:w-64"
+                                    placeholder="Buscar empleado..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
                             </div>
                             
                             {/* Grid con StaffCardPro (Fase 8) */}

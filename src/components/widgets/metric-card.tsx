@@ -17,7 +17,7 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
   const isIncrease = changeType === 'increase';
 
   return (
-    <Card className={cn("border-none shadow-none rounded-lg p-4", className)}>
+    <Card className={cn(" shadow-none rounded-lg p-4", className)}>
       <CardHeader className="p-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       </CardHeader>

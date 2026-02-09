@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash, Search, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -298,19 +299,15 @@ function CategoryDialog({
               <div className="space-y-4">
                 <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Buscar productos para añadir..."
-                        className="pl-8"
-                        value={searchTerm}
-                        onChange={(e) => {
-                          setSearchTerm(e.target.value);
-                          if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
-                          else setIsSearchPopoverOpen(false);
-                        }}
-                      />
-                    </div>
+                    <SearchInput
+                      placeholder="Buscar productos para añadir..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
+                        else setIsSearchPopoverOpen(false);
+                      }}
+                    />
                   </PopoverTrigger>
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <Command>
@@ -512,10 +509,12 @@ export default function CategoriasPage() {
       <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <Card className="min-h-[70vh]">
           <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:w-1/3">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar categoría..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-            </div>
+            <SearchInput 
+              containerClassName="md:w-1/3"
+              placeholder="Buscar categoría..." 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+            />
             <Button onClick={() => handleOpenDialog()} className="w-full md:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" />
               Crear Nueva Categoría
