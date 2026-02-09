@@ -198,7 +198,7 @@ export function SidebarNav() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-sidebar-primary hover:text-sidebar-primary-foreground data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground group"
+                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-background hover:text-sidebar-primary-foreground data-[state=open]:bg-card data-[state=open]:text-sidebar-primary-foreground group"
               >
                 <ConfigEntity
                   image={activeEstablishment.id === 'camarai' 
@@ -289,7 +289,7 @@ export function SidebarNav() {
           <DropdownMenuTrigger asChild>
             <Button 
                 variant="ghost" 
-                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-sidebar-primary hover:text-sidebar-primary-foreground data-[state=open]:bg-sidebar-primary data-[state=open]:text-sidebar-primary-foreground group"
+                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-background hover:text-sidebar-primary-foreground data-[state=open]:bg-card data-[state=open]:text-sidebar-primary-foreground group"
             >
               <ConfigEntity
                 image={user.avatar}
@@ -302,7 +302,7 @@ export function SidebarNav() {
               </ConfigEntity>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[calc(var(--sidebar-width)-1rem)] mb-2 bg-card" side="top" align="start">
+          <DropdownMenuContent className="w-var(--sidebar-width) mb-2 bg-card" side="top" align="start">
             <DropdownMenuItem asChild>
               <Link href="/settings/profile">
                 <User className="mr-2 h-4 w-4" />
@@ -319,37 +319,52 @@ export function SidebarNav() {
                   {totalNotifications > 0 && <Badge variant="destructive" className="h-5 w-5 p-0 justify-center">{totalNotifications}</Badge>}
                 </div>
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="p-2">
-                <DropdownMenuLabel>Solicitudes de Ausencia</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {pendingRequests.length > 0 ? (
-                  pendingRequests.map(req => {
-                    const employee = mockStaffMembers.find(s => s.id === req.staffId);
-                    return (
-                      <ConfigItem
-                        key={req.id}
-                        label={employee?.nombre || ''}
-                        description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
-                        className="border-none bg-transparent hover:bg-muted/30 p-2"
-                        noIconContainer
-                      >
-                        <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
-                        </div>
-                      </ConfigItem>
-                    )
-                  })
-                ) : (
-                  <p className="p-2 text-sm text-muted-foreground">No hay solicitudes de ausencia.</p>
-                )}
-                <DropdownMenuLabel>Nuevas Reservas</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {pendingReservations > 0 ? (
-                  <p>...</p> // Placeholder
-                ) : (
-                  <p className="p-2 text-sm text-muted-foreground">No hay nuevas reservas.</p>
-                )}
+              <DropdownMenuSubContent className="p-2 w-80">
+                <div className="mb-4">
+                  <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
+                    <Users className="h-4 w-4" />
+                    Solicitudes de Ausencia
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="mb-2" />
+                  <div className="space-y-1 px-1">
+                    {pendingRequests.length > 0 ? (
+                      pendingRequests.map(req => {
+                        const employee = mockStaffMembers.find(s => s.id === req.staffId);
+                        return (
+                          <ConfigItem
+                            key={req.id}
+                            label={employee?.nombre || ''}
+                            description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
+                            className="border-none bg-accent/50 hover:bg-accent p-2 rounded-md"
+                            noIconContainer
+                          >
+                            <div className="flex gap-1">
+                              <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
+                              <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
+                            </div>
+                          </ConfigItem>
+                        )
+                      })
+                    ) : (
+                      <p className="p-2 text-xs text-muted-foreground italic">No hay solicitudes de ausencia pendiente.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t">
+                  <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
+                    <CalendarCheck className="h-4 w-4" />
+                    Nuevas Reservas
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="mb-2" />
+                  <div className="space-y-1 px-1">
+                    {pendingReservations > 0 ? (
+                      <p className="p-2 text-xs text-muted-foreground">...</p> // Placeholder
+                    ) : (
+                      <p className="p-2 text-xs text-muted-foreground italic">No hay nuevas reservas por revisar.</p>
+                    )}
+                  </div>
+                </div>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuItem asChild>

@@ -160,7 +160,7 @@ export function ConfigEntity({
             <img
               src={image}
               alt={typeof props.label === 'string' ? props.label : 'Entity logo'}
-              className={cn("h-8 w-auto object-contain", props.iconClassName)}
+              className={cn("h-8 w-auto object-contain rounded-sm", props.iconClassName)}
             />
           </div>
         );
