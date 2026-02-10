@@ -83,7 +83,7 @@ export function OccupancyChart({ data }: OccupancyChartProps) {
             label={renderCustomizedLabel}
             outerRadius="100%"
             innerRadius="70%"
-            fill="#8884d8"
+            fill="hsl(var(--primary))"
             dataKey="value"
             stroke="hsl(var(--card))"
             strokeWidth={4}

@@ -159,11 +159,19 @@ DropdownMenuLabel.displayName = DropdownMenuPrimitive.Label.displayName
 
 const DropdownMenuSeparator = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
-  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Separator> & {
+    variant?: "label" | "section"
+  }
+>(({ className, variant = "section", ...props }, ref) => (
   <DropdownMenuPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 my-1 h-px bg-primary/20", className)}
+    className={cn(
+      "-mx-1 h-px",
+      variant === "label"
+        ? "my-1 bg-primary/10"
+        : "my-1.5 bg-primary/20",
+      className
+    )}
     {...props}
   />
 ))

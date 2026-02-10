@@ -9,8 +9,8 @@ import { Badge } from '@/components/ui/badge';
 
 // --- Customer Loyalty Card ---
 const loyaltyData = [
-  { name: 'Clientes recurrentes', value: 72, color: '#9B6EFD' },
-  { name: 'Nuevos clientes', value: 28, color: '#78A3ED' },
+  { name: 'Clientes recurrentes', value: 72, color: 'hsl(var(--primary))' },
+  { name: 'Nuevos clientes', value: 28, color: 'hsl(var(--brand-blue))' },
 ];
 
 const LoyaltyChartTooltip = ({ active, payload }: any) => {
@@ -43,7 +43,7 @@ export function CustomerLoyaltyCard() {
                     labelLine={false}
                     outerRadius={70}
                     innerRadius={40}
-                    fill="#8884d8"
+                    fill="hsl(var(--primary))"
                     dataKey="value"
                     stroke="hsl(var(--card))"
                     strokeWidth={4}

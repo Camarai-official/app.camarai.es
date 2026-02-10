@@ -106,7 +106,12 @@
   .brand-gradient-text {
     display: inline-block;
     width: fit-content;
-    background-image: linear-gradient(90deg, #78a3ed 0%, #9b6efd 50%, #f0768c 100%);
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--brand-blue)) 0%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--brand-pink)) 100%
+    );
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -120,7 +125,12 @@
   }
 
   .bg-brand-gradient {
-    background: linear-gradient(135deg, #78a3ed 0%, #9b6efd 50%, #f0768c 100%);
+    background: linear-gradient(
+      135deg,
+      hsl(var(--brand-blue)) 0%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--brand-pink)) 100%
+    );
   }
 
   /* Custom scrollbar styles */

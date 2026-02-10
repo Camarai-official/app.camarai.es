@@ -436,7 +436,6 @@ export default function Home() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
                                                 <DropdownMenuItem>
                                                     <Download className="mr-2 h-4 w-4 text-muted-foreground" />
                                                     Exportar marcadas

@@ -325,7 +325,7 @@ export function SidebarNav() {
                     <Users className="h-4 w-4" />
                     Solicitudes de Ausencia
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="mb-2" />
+                  <DropdownMenuSeparator variant="label" />
                   <div className="space-y-1 px-1">
                     {pendingRequests.length > 0 ? (
                       pendingRequests.map(req => {
@@ -356,7 +356,7 @@ export function SidebarNav() {
                     <CalendarCheck className="h-4 w-4" />
                     Nuevas Reservas
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator className="mb-2" />
+                  <DropdownMenuSeparator variant="label" />
                   <div className="space-y-1 px-1">
                     {pendingReservations > 0 ? (
                       <p className="p-2 text-xs text-muted-foreground">...</p> // Placeholder

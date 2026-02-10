@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, QrCode, Trash, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen, Globe, Activity, MapPin } from 'lucide-react';
+import { PlusCircle, QrCode, Trash, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen, Globe, Activity, MapPin, GripHorizontal, MousePointer2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { mockEnvironments, type Table, type TableStatus, type EnvironmentStatus, type Environment } from '@/data/mock-data';
@@ -390,12 +390,12 @@ type DragItem = {
     initialHeight?: number;
 };
 
-const statusConfig: Record<TableStatus, { color: string; bgColor: string; icon: React.ElementType, badgeVariant: any }> = {
-    'Libre': { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100/50 border-green-400 dark:bg-green-900/30 dark:border-green-600', icon: CheckSquare, badgeVariant: 'success' },
-    'Ocupada': { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-100/50 border-blue-400 dark:bg-blue-900/30 dark:border-blue-600', icon: Users, badgeVariant: 'info' },
-    'Reservada': { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-100/50 border-purple-400 dark:bg-purple-900/30 dark:border-purple-600', icon: Clock, badgeVariant: 'warning' },
-    'Mantenimiento': { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100/50 border-red-400 dark:bg-red-900/30 dark:border-red-600', icon: AlertTriangle, badgeVariant: 'danger' },
-    'Inactiva': { color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100/50 border-gray-300 opacity-60 dark:bg-gray-800/30 dark:border-gray-600', icon: XSquare, badgeVariant: 'neutral' },
+const statusConfig: Record<TableStatus, { color: string; bgColor: string; borderColor: string; icon: React.ElementType, badgeVariant: any }> = {
+    'Libre': { color: 'text-green-600 dark:text-green-400', bgColor: 'bg-green-100/50 border-green-400 dark:bg-green-900/30 dark:border-green-600', borderColor: 'border-green-500 dark:border-green-400', icon: CheckSquare, badgeVariant: 'success' },
+    'Ocupada': { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-100/50 border-blue-400 dark:bg-blue-900/30 dark:border-blue-600', borderColor: 'border-blue-500 dark:border-blue-400', icon: Users, badgeVariant: 'info' },
+    'Reservada': { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-100/50 border-purple-400 dark:bg-purple-900/30 dark:border-purple-600', borderColor: 'border-purple-500 dark:border-purple-400', icon: Clock, badgeVariant: 'warning' },
+    'Mantenimiento': { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100/50 border-red-400 dark:bg-red-900/30 dark:border-red-600', borderColor: 'border-red-500 dark:border-red-400', icon: AlertTriangle, badgeVariant: 'danger' },
+    'Inactiva': { color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100/50 border-gray-300 opacity-60 dark:bg-gray-800/30 dark:border-gray-600', borderColor: 'border-gray-400 dark:border-gray-500', icon: XSquare, badgeVariant: 'neutral' },
 };
 
 // Helper para formatear diferencia de tiempo
@@ -693,6 +693,21 @@ export default function PlanoMesasPage() {
         }
     };
 
+    // Helper for collision detection
+    const checkCollision = (id: number, x: number, y: number, width: number, height: number, tables: Table[]) => {
+        return tables.some(t => {
+            if (t.id === id) return false;
+            if (t.status === 'Inactiva') return false;
+            // Add a small buffer (e.g., 2px) to allow sticking together without overlapping
+            const buffer = 0;
+            return (
+                x < t.x + t.width - buffer &&
+                x + width > t.x + buffer &&
+                y < t.y + t.height - buffer &&
+                y + height > t.y + buffer
+            );
+        });
+    };
 
     const handleMouseMove = React.useCallback((e: MouseEvent) => {
         if (!activeDragItem || !containerRef.current || !activeEnvironment) return;
@@ -708,13 +723,30 @@ export default function PlanoMesasPage() {
             const table = activeEnvironment.tables.find(t => t.id === activeDragItem.id);
             if (!table) return;
 
+            // Snap to grid (10px)
+            const gridSize = 10;
+            x = Math.round(x / gridSize) * gridSize;
+            y = Math.round(y / gridSize) * gridSize;
+
             const canvasWidth = containerRect.width / zoom;
             const canvasHeight = containerRect.height / zoom;
 
             x = Math.max(0, Math.min(x, canvasWidth - table.width));
             y = Math.max(0, Math.min(y, canvasHeight - table.height));
 
-            updateTable(activeEnvironment.id, activeDragItem.id, { x, y });
+            // Collision Slide Logic
+            if (!checkCollision(table.id, x, y, table.width, table.height, activeEnvironment.tables)) {
+                 updateTable(activeEnvironment.id, activeDragItem.id, { x, y });
+            } else {
+                // Try X only
+                if (!checkCollision(table.id, x, table.y, table.width, table.height, activeEnvironment.tables)) {
+                     updateTable(activeEnvironment.id, activeDragItem.id, { x });
+                }
+                // Try Y only
+                else if (!checkCollision(table.id, table.x, y, table.width, table.height, activeEnvironment.tables)) {
+                     updateTable(activeEnvironment.id, activeDragItem.id, { y });
+                }
+            }
 
         } else { // resize
             const { id, offsetX, offsetY, initialWidth, initialHeight } = activeDragItem;
@@ -726,13 +758,22 @@ export default function PlanoMesasPage() {
             let newWidth = initialWidth + dx;
             let newHeight = initialHeight + dy;
 
-            newWidth = Math.max(120, Math.min(newWidth, 400));
-            newHeight = Math.max(90, Math.min(newHeight, 200));
+            // Snap resize to grid
+            const gridSize = 10;
+            newWidth = Math.round(newWidth / gridSize) * gridSize;
+            newHeight = Math.round(newHeight / gridSize) * gridSize;
 
-            // Recalculate capacity based on new size
-            const newCapacity = calculateCapacity(newWidth, newHeight);
+            newWidth = Math.max(80, Math.min(newWidth, 500));
+            newHeight = Math.max(60, Math.min(newHeight, 300));
 
-            updateTable(activeEnvironment.id, id, { width: newWidth, height: newHeight, capacity: newCapacity });
+            // Check collision for resize
+            // We need current X, Y
+            const table = activeEnvironment.tables.find(t => t.id === id);
+            if (table && !checkCollision(id, table.x, table.y, newWidth, newHeight, activeEnvironment.tables)) {
+                 // Recalculate capacity based on new size
+                const newCapacity = calculateCapacity(newWidth, newHeight);
+                updateTable(activeEnvironment.id, id, { width: newWidth, height: newHeight, capacity: newCapacity });
+            }
         }
     }, [activeDragItem, activeEnvironment, zoomLevels, activeEnvironmentId]);
 
@@ -949,16 +990,26 @@ export default function PlanoMesasPage() {
                                                 })}
                                             </div>
                                         ) : (
-                                            <div className="w-full h-full relative overflow-hidden">
+                                            <div className="w-full h-full relative overflow-hidden bg-slate-50/50 dark:bg-slate-950/50 rounded-xl border shadow-inner">
                                                 <div
                                                     ref={containerRef}
-                                                    className="w-full h-full bg-background dark:bg-zinc-800/20 rounded-lg border border-dashed relative select-none"
+                                                    className="w-full h-full relative select-none"
+                                                    style={{
+                                                        backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)',
+                                                        backgroundSize: '20px 20px',
+                                                        opacity: 0.8
+                                                    }}
                                                 >
                                                     <div style={{ transform: `scale(${currentZoom})`, transformOrigin: 'top left', width: '100%', height: '100%' }}>
                                                         {activeTables.length === 0 && (
-                                                            <p className="text-center text-muted-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                                                                Añade tu primera mesa a este ambiente para empezar a organizarlo.
-                                                            </p>
+                                                            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center pointer-events-none">
+                                                                <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-800 mb-4 animate-in fade-in zoom-in duration-500">
+                                                                    <MousePointer2 className="w-8 h-8 text-muted-foreground/50" />
+                                                                </div>
+                                                                <p className="text-sm font-medium text-muted-foreground max-w-xs">
+                                                                    Este ambiente está vacío. Añade mesas usando el botón superior o aplica una plantilla.
+                                                                </p>
+                                                            </div>
                                                         )}
                                                         {activeTables.map((table) => {
                                                             const config = statusConfig[table.status];
@@ -973,13 +1024,15 @@ export default function PlanoMesasPage() {
                                                                     <DialogTrigger asChild>
                                                                         <div
                                                                             onMouseDown={(e) => table.status !== 'Inactiva' && handleMouseDown(e, table.id, 'drag')}
-                                                                            onDoubleClick={() => handleDoubleClick(table)}
+                                                                            onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClick(table); }}
                                                                             className={cn(
-                                                                                "absolute p-2 border-2 rounded-2xl shadow-lg flex flex-col items-center justify-center transition-all duration-300 group/table",
-                                                                                config.bgColor,
-                                                                                "backdrop-blur-sm",
-                                                                                table.status !== 'Inactiva' && 'cursor-grab active:cursor-grabbing hover:shadow-xl hover:scale-[1.02]',
-                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'drag' && "opacity-50 z-50 scale-110",
+                                                                                "absolute transition-all duration-200 group/table",
+                                                                                "bg-white dark:bg-zinc-900", // Solid opaque background
+                                                                                "border-[3px]", // Thicker solid border
+                                                                                config.borderColor, // Explicit border color
+                                                                                "rounded-[1.5rem] shadow-sm hover:shadow-xl",
+                                                                                table.status !== 'Inactiva' && 'cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:z-40',
+                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'drag' && "opacity-90 z-50 scale-105 shadow-2xl ring-4 ring-primary/20",
                                                                                 activeDragItem?.id === table.id && activeDragItem.type === 'resize' && "z-50"
                                                                             )}
                                                                             style={{
@@ -989,74 +1042,95 @@ export default function PlanoMesasPage() {
                                                                                 height: table.height
                                                                             }}
                                                                         >
-                                                                            {/* Visual embellishment for better feel */}
-                                                                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
-                                                                            
-                                                                            <div className={cn("font-bold tracking-tight", config.color, isSmall ? 'text-sm' : 'text-xl')}>
-                                                                                Mesa {table.number}
-                                                                            </div>
-                                                                            <div className={cn("flex items-center mt-1 font-medium", config.color, isSmall ? 'text-[10px]' : 'text-sm')}>
-                                                                                <Users className={cn("mr-1", isSmall ? 'w-3 h-3' : 'w-4 h-4')} />
-                                                                                <span>{table.capacity}p</span>
-                                                                            </div>
+                                                                            {/* 1. Top-Left: Status Dot (Hidden for Libre) */}
+                                                                            {table.status !== 'Libre' && (
+                                                                                <div className={cn("absolute top-3 left-3 w-3 h-3 rounded-full z-20", config.color.replace('text-', 'bg-').replace('dark:text-', 'dark:bg-').split(' ')[0])} />
+                                                                            )}
 
-                                                                            {/* Contextual Info */}
-                                                                            {(() => {
-                                                                                const info = getTableCenterInfo(table);
-                                                                                if (info && info.value) {
-                                                                                    return (
-                                                                                        <div className={cn("absolute bottom-2 left-2 right-2", isSmall && "bottom-1")}>
-                                                                                            <div className={cn("text-[10px] uppercase tracking-tighter opacity-70 leading-none", config.color)}>{info.label}</div>
-                                                                                            <div className={cn("text-xs font-bold leading-none mt-0.5", config.color)} suppressHydrationWarning>{info.value}</div>
-                                                                                        </div>
-                                                                                    );
-                                                                                }
-                                                                                return (
-                                                                                    <Badge 
-                                                                                        variant={config.badgeVariant} 
-                                                                                        size={isSmall ? "sm" : "default"}
-                                                                                        className="absolute bottom-2 left-2"
-                                                                                    >
-                                                                                        {table.status}
-                                                                                    </Badge>
-                                                                                );
-                                                                            })()}
-
-                                                                            {/* Action Menu */}
-                                                                            <div className="absolute top-1 right-1 opacity-0 group-hover/table:opacity-100 transition-opacity">
+                                                                            {/* 2. Top-Right: Context Menu (Hover/Touch) */}
+                                                                            <div className="absolute top-1 right-1 opacity-0 group-hover/table:opacity-100 transition-opacity z-40">
                                                                                 <DropdownMenu>
                                                                                     <DropdownMenuTrigger asChild>
-                                                                                        <Button variant="ghost" size="icon" className={cn("h-7 w-7 rounded-full hover:bg-black/5 dark:hover:bg-white/5", config.color)}>
-                                                                                            <MoreVertical className={cn(isSmall ? "h-3.5 w-3.5" : "h-4 w-4")} />
+                                                                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors" onMouseDown={(e) => e.stopPropagation()}>
+                                                                                            <MoreVertical className="h-5 w-5" />
                                                                                         </Button>
                                                                                     </DropdownMenuTrigger>
-                                                                                    <DropdownMenuContent align="end" className="w-48 p-1">
-                                                                                        <DropdownMenuItem className="rounded-lg py-2">
-                                                                                            <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                    <DropdownMenuContent align="end" className="w-48">
+                                                                                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Acciones</div>
+                                                                                        <DropdownMenuItem className="cursor-pointer">
+                                                                                            <FileText className="mr-2 h-4 w-4" />
                                                                                             <span>Leer Comanda</span>
                                                                                         </DropdownMenuItem>
-                                                                                        <DropdownMenuItem className="rounded-lg py-2">
-                                                                                            <PrinterIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                                            <span>Reimprimir Comanda</span>
-                                                                                        </DropdownMenuItem>
-                                                                                        <DropdownMenuItem onClick={() => openQRDialog(table)} className="rounded-lg py-2">
-                                                                                            <QrCode className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                                            <span>Configurar QR</span>
+                                                                                        <DropdownMenuItem className="cursor-pointer">
+                                                                                            <PrinterIcon className="mr-2 h-4 w-4" />
+                                                                                            <span>Reimprimir</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuSeparator />
-                                                                                        <DropdownMenuItem className="rounded-lg py-2" onClick={(e) => removeTable(e, table.id)}>
-                                                                                            <Trash className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                                            <span>Eliminar Mesa</span>
+                                                                                        <DropdownMenuItem className="cursor-pointer" onClick={() => handleDoubleClick(table)}>
+                                                                                            <Settings className="mr-2 h-4 w-4" />
+                                                                                            <span>Editar</span>
+                                                                                        </DropdownMenuItem>
+                                                                                        <DropdownMenuItem className="cursor-pointer" onClick={() => openQRDialog(table)}>
+                                                                                            <QrCode className="mr-2 h-4 w-4" />
+                                                                                            <span>QR</span>
+                                                                                        </DropdownMenuItem>
+                                                                                        <DropdownMenuSeparator />
+                                                                                        <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={(e) => removeTable(e, table.id)}>
+                                                                                            <Trash className="mr-2 h-4 w-4" />
+                                                                                            <span>Eliminar</span>
                                                                                         </DropdownMenuItem>
                                                                                     </DropdownMenuContent>
                                                                                 </DropdownMenu>
                                                                             </div>
 
-                                                                            {/* Resize Handle */}
+                                                                            {/* 3. Center: Number (Absolute Centered) */}
+                                                                            <div className={cn(
+                                                                                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 select-none text-foreground font-extrabold tracking-tight transition-all", 
+                                                                                (table.width < 75 || table.height < 75) ? 'text-xl' : 'text-4xl'
+                                                                            )}>
+                                                                                {table.number}
+                                                                            </div>
+
+                                                                            {/* 4. Bottom-Left: Capacity (New Position) */}
+                                                                            {table.width > 75 && table.height > 75 && (
+                                                                                <div className="absolute bottom-2.5 left-3 flex items-center gap-1 text-muted-foreground/60 z-20" title={`Capacidad: ${table.capacity}`}>
+                                                                                    <Users className="w-3.5 h-3.5" />
+                                                                                    <span className="text-[11px] font-bold">{table.capacity}</span>
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* 5. Bottom-Center: Contextual Info (Only if wide enough to not overlap capacity/resize) */}
+                                                                            {table.width > 130 && table.height > 80 && (
+                                                                                <div className="absolute bottom-2.5 left-0 right-0 flex justify-center z-10 pointer-events-none">
+                                                                                    {(() => {
+                                                                                        const info = getTableCenterInfo(table);
+                                                                                        if (info && info.value) {
+                                                                                            return (
+                                                                                                <div className="flex flex-col items-center bg-white/80 dark:bg-zinc-900/80 px-2 rounded-full backdrop-blur-[1px]">
+                                                                                                    <div className={cn("text-[10px] font-bold leading-none py-0.5", config.color)} suppressHydrationWarning>{info.value}</div>
+                                                                                                </div>
+                                                                                            );
+                                                                                        }
+                                                                                        // Status Text fallback
+                                                                                        if (table.status !== 'Libre') {
+                                                                                            return (
+                                                                                                <span className={cn("text-[9px] font-bold uppercase tracking-wider bg-white/50 dark:bg-black/20 px-1.5 py-0.5 rounded-sm", config.color)}>
+                                                                                                    {table.status}
+                                                                                                </span>
+                                                                                            );
+                                                                                        }
+                                                                                        return null;
+                                                                                    })()}
+                                                                                </div>
+                                                                            )}
+
+                                                                            {/* 6. Bottom-Right: Resize Handle */}
                                                                             <div
                                                                                 onMouseDown={(e) => handleMouseDown(e, table.id, 'resize')}
-                                                                                className="absolute bottom-1 right-1 w-3 h-3 cursor-se-resize bg-black/10 dark:bg-white/10 rounded-full opacity-0 group-hover/table:opacity-100 transition-all hover:bg-primary hover:scale-125"
-                                                                            />
+                                                                                className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize flex items-end justify-end p-1.5 opacity-0 group-hover/table:opacity-100 transition-all z-20"
+                                                                            >
+                                                                                <div className={cn("w-2 h-2 rounded-full", config.color.replace('text-', 'bg-').replace('dark:text-', 'dark:bg-').split(' ')[0])} />
+                                                                            </div>
                                                                         </div>
                                                                     </DialogTrigger>
                                                                     
@@ -1072,23 +1146,23 @@ export default function PlanoMesasPage() {
                                                         })}
                                                     </div>
                                                 </div>
-                                                <div className="absolute bottom-4 right-4 z-10 flex flex-col items-center gap-2">
-                                                    <Button size="icon" variant="outline" onClick={handleZoomIn}>
+                                                <div className="absolute bottom-4 right-4 z-10 flex flex-col items-center gap-2 bg-background/80 backdrop-blur rounded-2xl p-1.5 border shadow-lg">
+                                                    <Button size="icon" variant="ghost" onClick={handleZoomIn} className="h-8 w-8 rounded-xl">
                                                         <Plus className="h-4 w-4" />
                                                     </Button>
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button size="sm" variant="outline" onClick={resetZoom} className="w-12">
+                                                                <Button size="sm" variant="ghost" onClick={resetZoom} className="w-10 h-6 text-xs font-mono rounded-lg">
                                                                     {Math.round(currentZoom * 100)}%
                                                                 </Button>
                                                             </TooltipTrigger>
-                                                            <TooltipContent>
+                                                            <TooltipContent side="left">
                                                                 <p>Restablecer zoom</p>
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
-                                                    <Button size="icon" variant="outline" onClick={handleZoomOut}>
+                                                    <Button size="icon" variant="ghost" onClick={handleZoomOut} className="h-8 w-8 rounded-xl">
                                                         <Minus className="h-4 w-4" />
                                                     </Button>
                                                 </div>

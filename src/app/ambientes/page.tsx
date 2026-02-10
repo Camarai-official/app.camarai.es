@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Filter, LayoutGrid, Maximize, FileType } from 'lucide-react';
+import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Filter, LayoutGrid, Maximize, FileType, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { mockEnvironments } from '@/data/mock-data';
 import type { Environment, EnvironmentStatus } from '@/data/mock-data';
@@ -37,7 +37,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 import { ColorPicker } from '@/components/ui/color-picker';
-import { SearchInput } from '@/components/ui/search-input';
+
 
 /**
  * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
@@ -587,12 +587,13 @@ export default function AmbientesPage() {
                                 </div>
 
                                 {/* Configuration and Search Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="flex gap-3">
                                     <ConfigItem
                                         icon={Maximize}
                                         label="Tamaño"
                                         iconClassName="text-blue-500"
                                         iconContainerClassName="bg-blue-500/10 group-hover:bg-blue-500/20"
+                                        className="flex-1"
                                     >
                                         <Select value={qrSize} onValueChange={(v) => setQrSize(v as any)}>
                                             <SelectTrigger className="w-[100px] h-8 border-none bg-muted/50 text-xs">
@@ -611,6 +612,7 @@ export default function AmbientesPage() {
                                         label="Formato"
                                         iconClassName="text-amber-500"
                                         iconContainerClassName="bg-amber-500/10 group-hover:bg-amber-500/20"
+                                        className="flex-1"
                                     >
                                         <Select value={qrFormat} onValueChange={(v) => setQrFormat(v as any)}>
                                             <SelectTrigger className="w-[80px] h-8 border-none bg-muted/50 text-xs">
@@ -622,15 +624,24 @@ export default function AmbientesPage() {
                                             </SelectContent>
                                         </Select>
                                     </ConfigItem>
-
-                                    <SearchInput
-                                        placeholder="Buscar mesa..."
-                                        value={searchQuery}
-                                        onChange={(e) => {
-                                            setSearchQuery(e.target.value);
-                                            setCurrentQRPage(1);
-                                        }}
-                                    />
+                                    <ConfigItem
+                                        icon={Search}
+                                        label="Buscar"
+                                        iconClassName="text-purple-500"
+                                        iconContainerClassName="bg-purple-500/10 group-hover:bg-purple-500/20"
+                                        className="flex-1"
+                                    >
+                                        <Input
+                                            placeholder="Nº mesa..."
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                setCurrentQRPage(1);
+                                            }}
+                                            className="w-[120px] h-8 border-none bg-muted/50 text-xs px-2 focus-visible:ring-0 placeholder:text-muted-foreground/70"
+                                        />
+                                    </ConfigItem>
+                                    
                                 </div>
                             </div>
 
