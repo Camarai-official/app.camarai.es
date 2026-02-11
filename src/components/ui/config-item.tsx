@@ -59,28 +59,42 @@ export function ConfigItem({
     
     const isLucide = typeof Icon === 'function' || (typeof Icon === 'object' && 'render' in (Icon as any));
     
+    // Check if color is a tailwind color name (doesn't start with #)
+    const isTailwindColor = color && !color.startsWith('#');
+    
     // Default styles for the icon
-    const iconStyle = color ? { color } : undefined;
+    const iconStyle = color && !isTailwindColor ? { color } : undefined;
+    const iconTailwindClass = isTailwindColor ? `text-${color}` : '';
     
     const iconContent = isLucide
       ? React.createElement(Icon as React.ElementType, { 
-          className: cn("h-5 w-5 text-primary font-bold transition-all duration-300", iconClassName),
+          className: cn("h-5 w-5 text-primary font-bold transition-all duration-300", iconTailwindClass, iconClassName),
           style: iconStyle
         })
       : Icon;
 
     if (noIconContainer) return iconContent;
 
-    // Background style: if color is provided, use it with 10% opacity
-    const containerStyle = color ? { 
-      backgroundColor: `${color}1A`, // 1A is ~10% opacity in hex
-      color: color 
-    } : undefined;
+    // Background style: if color is provided, use it
+    let containerStyle = undefined;
+    let containerTailwindClass = '';
+
+    if (color) {
+      if (isTailwindColor) {
+        containerTailwindClass = `bg-${color}/10 text-${color}`;
+      } else {
+        containerStyle = { 
+          backgroundColor: `${color}1A`, // 1A is ~10% opacity in hex
+          color: color 
+        };
+      }
+    }
 
     return (
       <div 
         className={cn(
           "icon-container flex-shrink-0 p-2.5 bg-primary/10 rounded-xl transition-all duration-300", 
+          containerTailwindClass,
           iconContainerClassName
         )}
         style={containerStyle}

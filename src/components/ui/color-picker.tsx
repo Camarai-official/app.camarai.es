@@ -12,7 +12,7 @@ interface ColorPickerProps {
   className?: string;
 }
 
-const defaultColors = ['#78A3ED', '#9B6EFD', '#F0768C', '#F7B731', '#4CAF50', '#2196F3'];
+const defaultColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
 
 export function ColorPicker({
   value,
@@ -35,11 +35,12 @@ export function ColorPicker({
             type="button"
             className={cn(
               "h-8 w-8 rounded-full transition-all hover:scale-110",
+              color.startsWith('#') ? "" : `bg-${color}`,
               value === color
                 ? "ring-2 ring-primary ring-offset-2 scale-110"
                 : "opacity-80 hover:opacity-100"
             )}
-            style={{ backgroundColor: color }}
+            style={color.startsWith('#') ? { backgroundColor: color } : undefined}
             onClick={() => onChange(color)}
           />
         ))}

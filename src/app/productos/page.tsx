@@ -619,10 +619,10 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="impresora_destino">Impresora de Destino</Label>
-                                    <Select value={product.impresora_destino} onValueChange={(value) => setProduct(prev => ({ ...prev, impresora_destino: value }))}>
+                                    <Select value={product.impresora_destino || "none"} onValueChange={(value) => setProduct(prev => ({ ...prev, impresora_destino: value === "none" ? "" : value }))}>
                                         <SelectTrigger><SelectValue placeholder="Seleccionar impresora..." /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">Sin impresora específica</SelectItem>
+                                            <SelectItem value="none">Sin impresora específica</SelectItem>
                                             <SelectItem value="cocina">Cocina</SelectItem>
                                             <SelectItem value="barra">Barra</SelectItem>
                                             <SelectItem value="caja">Caja</SelectItem>

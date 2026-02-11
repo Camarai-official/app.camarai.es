@@ -63,7 +63,7 @@ const iconMap: { [key: string]: React.ElementType } = {
 };
 
 const availableIcons = ['Utensils', 'Wine', 'Coffee', 'Beer', 'Sun', 'Building'];
-const availableColors = ['#78A3ED', '#9B6EFD', '#F0768C', '#F7B731', '#4CAF50', '#2196F3'];
+const availableColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
 
 /**
  * Componente principal para la página de gestión de ambientes.
@@ -370,7 +370,13 @@ export default function AmbientesPage() {
                             <TooltipProvider key={env.id}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Card className="group flex flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-1" style={{ borderLeft: `4px solid ${env.color}` }}>
+                                        <Card 
+                                            className={cn(
+                                                "group flex flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-1",
+                                                env.color && !env.color.startsWith('#') && `border-l-4 border-l-${env.color}`
+                                            )} 
+                                            style={env.color && env.color.startsWith('#') ? { borderLeft: `4px solid ${env.color}` } : undefined}
+                                        >
                                             <ConfigToggle
                                                 id={`status-switch-${env.id}`}
                                                 checked={env.status === 'Abierto'}

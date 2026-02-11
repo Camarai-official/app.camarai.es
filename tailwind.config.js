@@ -4,6 +4,14 @@ const { fontFamily } = require("tailwindcss/defaultTheme");
 module.exports = {
   darkMode: ["class"],
   content: ["./src/**/*.{ts,tsx,mdx}"] ,
+  safelist: [
+    {
+      pattern: /(bg|text|border-l)-(blue-400|violet-500|rose-500|amber-500|green-500|blue-500|red-500)/,
+    },
+    {
+      pattern: /bg-(blue-400|violet-500|rose-500|amber-500|green-500|blue-500|red-500)\/10/,
+    },
+  ],
   theme: {
     extend: {
       colors: {

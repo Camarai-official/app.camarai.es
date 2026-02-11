@@ -369,6 +369,7 @@ function EmployeeDialog({
                                         type="date"
                                         value={employee.fecha_alta || ''}
                                         onChange={(e) => handleInputChange('fecha_alta', e.target.value)}
+                                        className="dark:[color-scheme:dark]"
                                     />
                                 </div>
                             </div>

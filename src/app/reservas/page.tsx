@@ -164,11 +164,13 @@ function ReservationDialog({
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="startTime">Hora de Inicio</Label>
-                            <Input id="startTime" type="time" value={reservation.startTime} onChange={e => setReservation(p => ({...p, startTime: e.target.value}))}/>
+                            <Input id="startTime" type="time" value={reservation.startTime} onChange={e => setReservation(p => ({...p, startTime: e.target.value}))}
+                            className="dark:[color-scheme:dark]" />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="endTime">Hora de Fin</Label>
-                            <Input id="endTime" type="time" value={reservation.endTime} onChange={e => setReservation(p => ({...p, endTime: e.target.value}))}/>
+                            <Input id="endTime" type="time" value={reservation.endTime} onChange={e => setReservation(p => ({...p, endTime: e.target.value}))}
+                            className="dark:[color-scheme:dark]" />
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">

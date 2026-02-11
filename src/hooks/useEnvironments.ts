@@ -34,7 +34,7 @@ export const useEnvironments = () => {
             tables: [],
             status: 'Abierto',
             icon: 'Utensils',
-            color: '#9B6EFD'
+            color: 'violet-500'
         }
         setEnvironments(prev => [...prev, newEnvironment]);
         return newEnvId;

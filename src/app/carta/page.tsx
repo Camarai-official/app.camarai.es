@@ -38,7 +38,7 @@ const icons = {
     BookOpen, Utensils, Wine, Coffee, IceCream, Pizza, Beer
 };
 
-const availableColors = ['#78A3ED', '#9B6EFD', '#F0768C', '#F7B731', '#4CAF50', '#2196F3'];
+const availableColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
 
 
 export default function CartaPage() {
@@ -94,7 +94,7 @@ export default function CartaPage() {
             activa: false,
             elementos_carta: [],
             icon: 'BookOpen',
-            color: '#78A3ED'
+            color: 'blue-400'
         };
         setCartas(prev => [...prev, newCarta]);
         setEditingCarta(newCarta);
@@ -121,7 +121,7 @@ export default function CartaPage() {
             elementos_menu: [],
             active: false,
             icon: 'Utensils',
-            color: '#F0768C'
+            color: 'rose-500'
         };
         setMenuCombos(prev => [...prev, newMenu]);
         setEditingMenu(newMenu);
@@ -198,7 +198,13 @@ export default function CartaPage() {
                                 const Icon = (allIcons[carta.icon] || icons[carta.icon as keyof typeof icons] || BookOpen) as LucideIcon;
                                 return (
                                     <Card key={carta.id} className="relative overflow-hidden group">
-                                        <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: carta.color }} />
+                                        <div 
+                                            className={cn(
+                                                "absolute top-0 left-0 w-1 h-full",
+                                                carta.color && !carta.color.startsWith('#') && `bg-${carta.color}`
+                                            )} 
+                                            style={carta.color && carta.color.startsWith('#') ? { backgroundColor: carta.color } : undefined} 
+                                        />
                                         <ConfigItem
                                             icon={<Icon className="h-5 w-5" />}
                                             color={carta.color}

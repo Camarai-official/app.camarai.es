@@ -21,7 +21,7 @@ export const initialEnvironments: Environment[] = [
     ],
     status: 'Abierto',
     icon: 'Utensils',
-    color: '#78A3ED',
+    color: 'blue-400',
   },
   {
     id: 'terrace',
@@ -32,7 +32,7 @@ export const initialEnvironments: Environment[] = [
     ],
     status: 'Cerrado',
     icon: 'Sun',
-    color: '#F7B731',
+    color: 'amber-500',
   },
   {
     id: 'bar',
@@ -43,7 +43,7 @@ export const initialEnvironments: Environment[] = [
     ],
     status: 'Abierto',
     icon: 'Beer',
-    color: '#F0768C',
+    color: 'rose-500',
   },
 ];
 

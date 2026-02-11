@@ -626,7 +626,7 @@ export default function PlanoMesasPage() {
             tables: [],
             status: 'Abierto',
             icon: 'Utensils',
-            color: '#78A3ED' // Default blue
+            color: 'blue-400' // Default blue
         };
         setEnvironments(prev => [...prev, newEnv]);
         return newId;
