@@ -343,34 +343,36 @@ export default function ReportesPage() {
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Cliente</TableHead>
-                                            <TableHead>Tipo</TableHead>
-                                            <TableHead>Fecha</TableHead>
-                                            <TableHead>Estado</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {mockWhatsAppMetrics.conversaciones.map((conv) => (
-                                            <TableRow key={conv.id}>
-                                                <TableCell className="font-medium">{conv.cliente}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
-                                                        {conv.tipo}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
-                                                        {conv.estado}
-                                                    </Badge>
-                                                </TableCell>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Cliente</TableHead>
+                                                <TableHead>Tipo</TableHead>
+                                                <TableHead>Fecha</TableHead>
+                                                <TableHead>Estado</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {mockWhatsAppMetrics.conversaciones.map((conv) => (
+                                                <TableRow key={conv.id}>
+                                                    <TableCell className="font-medium">{conv.cliente}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
+                                                            {conv.tipo}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
+                                                            {conv.estado}
+                                                        </Badge>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>

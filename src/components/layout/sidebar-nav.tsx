@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import {
   ChevronDown,
@@ -104,6 +105,8 @@ const menuItems = [
 ];
 
 export function SidebarNav() {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -192,25 +195,39 @@ export function SidebarNav() {
 
   return (
     <AlertDialog open={!!establishmentToDelete} onOpenChange={(open) => !open && setEstablishmentToDelete(null)}>
-      <SidebarHeader className="p-2 pt-4">
+      <SidebarHeader>
         {activeEstablishment ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-background hover:text-sidebar-primary-foreground data-[state=open]:bg-card data-[state=open]:text-sidebar-primary-foreground group"
+                className={cn(
+                  "w-full bg-card hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent px-2 py-2 flex items-center transition-all duration-200 h-14",
+                  isCollapsed ? "justify-center" : "justify-start gap-3"
+                )}
               >
-                <ConfigEntity
-                  image={activeEstablishment.id === 'camarai' 
-                    ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" 
-                    : activeEstablishment.image}
-                  fallback={activeEstablishment.name.charAt(0)}
-                  label={activeEstablishment.name}
-                  description={activeEstablishment.type}
-                  className="w-full border-none bg-transparent hover:bg-transparent"
-                >
-                  <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground" />
-                </ConfigEntity>
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <img
+                    src={activeEstablishment.id === 'camarai' 
+                      ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" 
+                      : activeEstablishment.image}
+                    alt={activeEstablishment.name}
+                    className="h-6 w-auto object-contain"
+                  />
+                </div>
+                {!isCollapsed && (
+                  <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
+                    <span className="truncate font-bold text-sm text-foreground">
+                      {activeEstablishment.name}
+                    </span>
+                    <span className="truncate text-[11px] text-muted-foreground">
+                      {activeEstablishment.type}
+                    </span>
+                  </div>
+                )}
+                {!isCollapsed && (
+                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -289,20 +306,33 @@ export function SidebarNav() {
           <DropdownMenuTrigger asChild>
             <Button 
                 variant="ghost" 
-                className="h-14 w-full p-0 overflow-hidden border bg-card hover:bg-background hover:text-sidebar-primary-foreground data-[state=open]:bg-card data-[state=open]:text-sidebar-primary-foreground group"
+                className={cn(
+                  "w-full bg-card hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent px-2 py-2 flex items-center transition-all duration-200 h-14",
+                  isCollapsed ? "justify-center" : "justify-start gap-3"
+                )}
             >
-              <ConfigEntity
-                image={user.avatar}
-                fallback={user.firstName?.charAt(0) || 'U'}
-                label={user.firstName || ''}
-                description={user.email}
-                className="w-full border-none bg-transparent hover:bg-transparent"
-              >
-                <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground group-hover:text-sidebar-primary-foreground data-[state=open]:text-sidebar-primary-foreground" />
-              </ConfigEntity>
+              <Avatar className="h-9 w-9 shrink-0 rounded-lg">
+                <AvatarImage src={user.avatar} alt={user.firstName} />
+                <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">
+                  {user.firstName?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              {!isCollapsed && (
+                <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
+                  <span className="truncate font-bold text-sm text-foreground">
+                    {user.firstName}
+                  </span>
+                  <span className="truncate text-[11px] text-muted-foreground">
+                    {user.email}
+                  </span>
+                </div>
+              )}
+              {!isCollapsed && (
+                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+              )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-var(--sidebar-width) mb-2 bg-card" side="top" align="start">
+          <DropdownMenuContent className="w-[var(--sidebar-width)] max-w-[calc(100vw-1.5rem)] mb-2 bg-card" side="top" align="start">
             <DropdownMenuItem asChild>
               <Link href="/settings/profile">
                 <User className="mr-2 h-4 w-4" />
@@ -319,7 +349,7 @@ export function SidebarNav() {
                   {totalNotifications > 0 && <Badge variant="destructive" className="h-5 w-5 p-0 justify-center">{totalNotifications}</Badge>}
                 </div>
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="p-2 w-80">
+              <DropdownMenuSubContent className="p-2 w-64 sm:w-80">
                 <div className="mb-4">
                   <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
                     <Users className="h-4 w-4" />

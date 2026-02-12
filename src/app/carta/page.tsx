@@ -187,7 +187,7 @@ export default function CartaPage() {
 
             <main className="flex-grow p-4 md:p-6 pt-2 md:pt-3 space-y-6">
                 <Tabs defaultValue="cartas" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-4">
+                    <TabsList className="grid w-full grid-cols-2 max-w-full sm:max-w-[400px] mb-4">
                         <TabsTrigger value="cartas">Cartas Digitales</TabsTrigger>
                         <TabsTrigger value="menus">Menús y Combos</TabsTrigger>
                     </TabsList>

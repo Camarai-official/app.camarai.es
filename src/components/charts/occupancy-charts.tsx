@@ -65,18 +65,54 @@ const CustomLegend = (props: any) => {
 };
 
 
+const tailwindColorMap: { [key: string]: string } = {
+  // Standard Tailwind colors
+  'blue-400': '#60a5fa',
+  'blue-500': '#3b82f6',
+  'violet-500': '#8b5cf6',
+  'rose-500': '#f43f5e',
+  'amber-500': '#f59e0b',
+  'green-500': '#22c55e',
+  'emerald-500': '#10b981',
+  'slate-400': '#94a3b8',
+  'slate-500': '#64748b',
+  
+  // Brand colors defined in globals.css
+  'brand-blue': 'hsl(var(--brand-blue))',
+  'brand-pink': 'hsl(var(--brand-pink))',
+  'brand-yellow': 'hsl(var(--brand-yellow))',
+  'brand-green': 'hsl(var(--brand-green))',
+  'primary': 'hsl(var(--primary))',
+};
+
+const getColor = (color: string) => {
+  if (!color) return 'hsl(var(--primary))';
+  
+  if (color.startsWith('#') || color.startsWith('hsl') || color.startsWith('rgb')) {
+    return color;
+  }
+  
+  return tailwindColorMap[color] || color;
+};
+
 export function OccupancyChart({ data }: OccupancyChartProps) {
   if (!data || data.length === 0) {
     return <p className="text-muted-foreground text-center">No hay datos de aforo disponibles.</p>;
   }
+
+  // Pre-process data to ensure valid colors
+  const processedData = data.map(item => ({
+    ...item,
+    color: getColor(item.color)
+  }));
   
   return (
-    <div className="w-full h-[200px] flex items-center justify-center">
+    <div className="w-full h-48 sm:h-56 flex items-center justify-center">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Tooltip content={<CustomTooltip />} />
           <Pie
-            data={data}
+            data={processedData}
             cx="50%"
             cy="50%"
             labelLine={false}
@@ -88,7 +124,7 @@ export function OccupancyChart({ data }: OccupancyChartProps) {
             stroke="hsl(var(--card))"
             strokeWidth={4}
           >
-            {data.map((entry, index) => (
+            {processedData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>

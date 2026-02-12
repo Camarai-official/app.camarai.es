@@ -198,31 +198,33 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
                 <CardTitle>Historial de Movimientos</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Cantidad</TableHead>
-                      <TableHead>Usuario</TableHead>
-                      <TableHead>Motivo</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockHistoryData.map((h, i) => (
-                      <TableRow key={i}>
-                        <TableCell>{h.date}</TableCell>
-                        <TableCell>
-                          {/* Adjusted Badge variant to standard ones */}
-                          <Badge variant={h.type === 'Entrada' ? 'default' : h.type === 'Merma' ? 'destructive' : 'secondary'}>{h.type}</Badge>
-                        </TableCell>
-                        <TableCell className={cn(h.quantity > 0 ? 'text-green-500' : 'text-red-500')}>{h.quantity > 0 ? `+${h.quantity}` : h.quantity} {item.unidad_medida}</TableCell>
-                        <TableCell>{h.user}</TableCell>
-                        <TableCell>{h.reason}</TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Fecha</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Cantidad</TableHead>
+                        <TableHead>Usuario</TableHead>
+                        <TableHead>Motivo</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {mockHistoryData.map((h, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{h.date}</TableCell>
+                          <TableCell>
+                            {/* Adjusted Badge variant to standard ones */}
+                            <Badge variant={h.type === 'Entrada' ? 'default' : h.type === 'Merma' ? 'destructive' : 'secondary'}>{h.type}</Badge>
+                          </TableCell>
+                          <TableCell className={cn(h.quantity > 0 ? 'text-green-500' : 'text-red-500')}>{h.quantity > 0 ? `+${h.quantity}` : h.quantity} {item.unidad_medida}</TableCell>
+                          <TableCell>{h.user}</TableCell>
+                          <TableCell>{h.reason}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -400,64 +402,64 @@ export default function InventarioPage() {
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Componente</TableHead>
-                    <TableHead>Categoría</TableHead>
-                    <TableHead className="text-right">Stock Actual</TableHead>
-                    <TableHead><span className="sr-only">Acciones</span></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody
-                  key={currentPage}
-                  className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
-                >
-                  {currentItems.map(item => {
-                    const stockStatus = getStockStatus(item.stock_actual, item.stock_minimo_alerta);
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.nombre_ingrediente}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{getIngredientCategoryName(item.id_categoria_ingrediente)}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {/* Mapped badge variants to standard ones */}
-                          <Badge variant={stockStatus === 'low' ? 'destructive' : stockStatus === 'warning' ? 'destructive' : 'secondary'}>
-                            {item.stock_actual} {item.unidad_medida}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button aria-haspopup="true" size="icon" variant="ghost">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Menú de acciones</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                              <DropdownMenuItem onSelect={() => openStockDialog(item)}>
-                                <Package className="mr-2 h-4 w-4 text-muted-foreground" />
-                                Ajustar Stock
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
-                                <History className="mr-2 h-4 w-4 text-muted-foreground" />
-                                Ver historial
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Componente</TableHead>
+                      <TableHead>Categoría</TableHead>
+                      <TableHead className="text-right">Stock Actual</TableHead>
+                      <TableHead><span className="sr-only">Acciones</span></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody
+                    key={currentPage}
+                    className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
+                  >
+                    {currentItems.map(item => {
+                      const stockStatus = getStockStatus(item.stock_actual, item.stock_minimo_alerta);
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.nombre_ingrediente}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{getIngredientCategoryName(item.id_categoria_ingrediente)}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {/* Mapped badge variants to standard ones */}
+                            <Badge variant={stockStatus === 'low' ? 'destructive' : stockStatus === 'warning' ? 'destructive' : 'secondary'}>
+                              {item.stock_actual} {item.unidad_medida}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Menú de acciones</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                <DropdownMenuItem onSelect={() => openStockDialog(item)}>
+                                  <Package className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  Ajustar Stock
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
+                                  <History className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  Ver historial
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {filteredItems.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                          No se encontraron componentes en el inventario con los filtros seleccionados.
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-                  {filteredItems.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
-                        No se encontraron componentes en el inventario con los filtros seleccionados.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
+                    )}
+                  </TableBody>
               </Table>
             </div>
           </CardContent>

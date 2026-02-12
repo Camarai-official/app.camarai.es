@@ -243,7 +243,7 @@ export default function Home() {
             <PageHeader
                 title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
                 actions={
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
                         <CalendarDateRangePicker date={date} setDate={setDate} />
 
                         <Button
@@ -413,7 +413,7 @@ export default function Home() {
                         {/* Tabla de Comandas Recientes */}
                         {dashboardConfig.recentOrders && (
                             <Card className={cn("flex flex-col", dashboardConfig.stockAlerts ? "lg:col-span-2" : "lg:col-span-3")}>
-                                <CardHeader className="flex flex-row items-center justify-between px-6 pt-6 pb-2">
+                                <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-6 pt-6 pb-2">
                                     <div>
                                         <CardTitle className="text-base font-bold text-muted-foreground">Comandas Recientes</CardTitle>
                                     </div>
