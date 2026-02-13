@@ -243,7 +243,7 @@ export default function Home() {
             <PageHeader
                 title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
                 actions={
-                    <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:items-center">
+                    <div className="flex items-stretch gap-2 flex-row sm:items-center">
                         <CalendarDateRangePicker date={date} setDate={setDate} />
 
                         <Button
