@@ -54,7 +54,7 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
     }
 
     return (
-        <Card className={cn("overflow-hidden", className)}>
+        <Card className={cn("h-full", className)}>
             <CardHeader 
                 title="Comandas Recientes" 
                 icon={ShoppingBag}
@@ -160,7 +160,7 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                     </Table>
                 </div>
             </CardContent>
-            <CardFooter className="flex justify-end items-center gap-2">
+            <CardFooter className="justify-end gap-2">
                 <Button variant="outline" size="md" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                     <ChevronLeft />
                 </Button>

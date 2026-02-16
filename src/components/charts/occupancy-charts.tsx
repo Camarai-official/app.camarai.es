@@ -58,7 +58,7 @@ export function OccupancyChart({ data, className }: OccupancyChartProps) {
   }, [processedData]);
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={className}>
       <CardHeader 
         title="Aforo Ambientes" 
         icon={Users} 

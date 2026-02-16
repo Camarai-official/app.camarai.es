@@ -98,7 +98,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card>
       <CardHeader
         title="Ventas Totales"
         icon={LineChart}

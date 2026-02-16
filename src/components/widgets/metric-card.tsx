@@ -18,7 +18,7 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
 
   return (
     <Card className={cn(
-      "relative overflow-hidden",
+      "relative",
       className
     )}>
       <CardHeader 

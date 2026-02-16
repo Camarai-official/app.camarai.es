@@ -55,7 +55,7 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
   };
 
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={className}>
       <CardHeader 
         title="Número de Reservas" 
         icon={CalendarIcon}

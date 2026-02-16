@@ -20,7 +20,7 @@ export function LowStockAlerts({ ingredients }: LowStockAlertsProps) {
   }, [ingredients]);
 
   return (
-    <Card className="h-full w-full overflow-hidden">
+    <Card className="h-full w-full">
       <CardHeader 
         title="Alertas de Stock Bajo" 
         icon={AlertTriangle} 
@@ -42,7 +42,7 @@ export function LowStockAlerts({ ingredients }: LowStockAlertsProps) {
                   title={ing.nombre_ingrediente}
                   subtitle={`${ing.stock_actual} / ${ing.stock_minimo_alerta} ${ing.unidad_medida}`}
                   suffix={
-                    <Button variant="outline" size="md">
+                    <Button variant="ghost" size="md">
                       <RefreshCcw />
                     </Button>
                   }

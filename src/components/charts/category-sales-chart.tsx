@@ -32,7 +32,7 @@ export function CategorySalesChart({ products, getCategoryName, date }: Category
   }, [products, getCategoryName, date]);
 
   return (
-    <Card className="h-full overflow-hidden">
+    <Card className="h-full">
       <CardHeader 
         title="Top Productos" 
         icon={Star}

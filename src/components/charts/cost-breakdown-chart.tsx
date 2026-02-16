@@ -18,7 +18,7 @@ export function CostBreakdownChart({ date }: { date?: DateRange }) {
   }, [date]);
 
   return (
-    <Card className="h-full overflow-hidden">
+    <Card className="h-full">
       <CardHeader 
         title="Desglose de Costes" 
         icon={Activity} 

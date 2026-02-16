@@ -34,7 +34,7 @@ export function TeamLeaderboard({ staff, date }: TeamLeaderboardProps) {
     }, [staff, date]);
 
     return (
-        <Card className="h-full overflow-hidden">
+        <Card className="h-full">
             <CardHeader 
                 title="Ranking Equipo" 
                 icon={Trophy} 
