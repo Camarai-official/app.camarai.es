@@ -1,8 +1,9 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useEnvironments } from '@/hooks/useEnvironments';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Environment } from '@/data/environments';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
@@ -51,8 +53,7 @@ const initialReservations: { [key: string]: Reservation[] } = {
     { id: 'res-4', customerName: 'Javier López', phone: '600234567', guests: 2, startTime: '20:30', endTime: '21:45', status: 'Pendiente' },
     { id: 'res-5', customerName: 'Elena Gómez', phone: '600345678', guests: 8, startTime: '22:00', endTime: '00:30', status: 'Confirmada', notes: 'Celebración de cumpleaños.' },
     { id: 'res-6', customerName: 'David Moreno', phone: '600456789', guests: 3, startTime: '21:00', endTime: '22:30', status: 'Cancelada' },
-  ],
-};
+  ] };
 
 
 function ReservationDialog({ 
@@ -80,8 +81,7 @@ function ReservationDialog({
         endTime: '22:00',
         notes: '',
         environmentId: undefined,
-        tableId: undefined,
-    });
+        tableId: undefined });
 
     const [selectedEnvId, setSelectedEnvId] = React.useState<string | undefined>(undefined);
 
@@ -96,8 +96,7 @@ function ReservationDialog({
                 endTime: editingReservation.endTime,
                 notes: editingReservation.notes || '',
                 environmentId: editingReservation.environmentId,
-                tableId: editingReservation.tableId,
-            });
+                tableId: editingReservation.tableId });
             setSelectedEnvId(editingReservation.environmentId);
         } else {
             setReservation({
@@ -108,8 +107,7 @@ function ReservationDialog({
                 endTime: '22:00',
                 notes: '',
                 environmentId: undefined,
-                tableId: undefined,
-            });
+                tableId: undefined });
             setSelectedEnvId(undefined);
         }
     }, [editingReservation, open]);
@@ -228,14 +226,12 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
         reminder24h: true,
         reminder2h: true,
         cancellationEnabled: true,
-        feedbackEnabled: false,
-    });
+        feedbackEnabled: false });
     
     const [templates, setTemplates] = React.useState({
         confirmation: '¡Hola {nombre}! Tu reserva para {comensales} personas el {fecha} a las {hora} ha sido confirmada. ¡Te esperamos!',
         reminder: '¡Hola {nombre}! Te recordamos tu reserva para hoy a las {hora}. ¡Te esperamos!',
-        cancellation: 'Hola {nombre}, tu reserva para el {fecha} ha sido cancelada. Si tienes dudas, contáctanos.',
-    });
+        cancellation: 'Hola {nombre}, tu reserva para el {fecha} ha sido cancelada. Si tienes dudas, contáctanos.' });
     
     const previewMessages = [
         createWhatsAppMessage.text(templates.confirmation
@@ -249,8 +245,7 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
     const handleSave = () => {
         toast({
             title: 'Configuración guardada',
-            description: 'Las notificaciones de WhatsApp han sido actualizadas.',
-        });
+            description: 'Las notificaciones de WhatsApp han sido actualizadas.' });
         onOpenChange(false);
     };
     
@@ -544,7 +539,7 @@ export default function ReservasPage() {
   return (
     <div className="flex flex-1 flex-col h-full">
       <PageHeader title="Gestión de Reservas" />
-      <main className="flex-grow flex flex-col lg:flex-row gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+      <PageContent className="lg:flex-row">
         <Card className="w-full lg:w-auto flex-grow flex justify-center items-start p-2 md:p-4">
             <div className="w-full">
                 <UICalendar
@@ -565,24 +560,19 @@ export default function ReservasPage() {
                         row: 'grid grid-cols-7 w-full mt-2',
                         cell: 'w-full',
                         day: "h-14 w-full text-base",
-                        day_selected: "bg-background text-background-foreground hover:bg-background hover:text-background-foreground focus:bg-background focus:text-background-foreground",
-                    }}
+                        day_selected: "bg-background text-background-foreground hover:bg-background hover:text-background-foreground focus:bg-background focus:text-background-foreground" }}
                     components={{
                         Caption: ({ ...props }) => {
                              return (
                                 <div className="flex justify-between items-center px-1 mb-2">
                                     {props.displayIndex === 0 && (
-                                        <Button onClick={handlePrevMonth} variant="outline" size="icon" className="h-7 w-7">
-                                            <ChevronLeft className="h-4 w-4" />
-                                        </Button>
+                                        <Button onClick={handlePrevMonth} variant="outline" size="md"><ChevronLeft/></Button>
                                     )}
                                      <h2 className="text-sm font-medium text-center flex-1">
                                         {format(props.displayMonth, 'LLLL yyyy', { locale: es })}
                                     </h2>
                                     {props.displayIndex === 0 && (
-                                         <Button onClick={handleNextMonth} variant="outline" size="icon" className="h-7 w-7">
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Button>
+                                         <Button onClick={handleNextMonth} variant="outline" size="md"><ChevronRight/></Button>
                                     )}
                                 </div>
                             )
@@ -597,8 +587,7 @@ export default function ReservasPage() {
                                     )}
                                 </div>
                             )
-                        },
-                    }}
+                        } }}
                 />
             </div>
         </Card>
@@ -606,9 +595,9 @@ export default function ReservasPage() {
             <Card className="flex-grow flex flex-col">
                 <CardHeader>
                     <div>
-                        <CardTitle className="text-lg font-bold">
+                        <H3 className="text-lg font-bold">
                             {format(selectedDate, "PPP", { locale: es })}
-                        </CardTitle>
+                        </H3>
                         <CardDescription>{dayReservations.length} reservas</CardDescription>
                     </div>
                      <div className="mt-4 flex gap-2">
@@ -646,20 +635,20 @@ export default function ReservasPage() {
                                             </div>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 -mr-2 -mt-2"><MoreVertical className="h-4 w-4"/></Button>
+                                                    <Button variant="ghost" size="md"><MoreVertical/></Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem onClick={() => handleEditReservation(res)}>
-                                                        <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        <Edit />
                                                         Editar reserva
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Confirmada')} disabled={res.status === 'Confirmada'}>
-                                                        <Check className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        <Check />
                                                         Confirmar
                                                     </DropdownMenuItem>
                                                      <DropdownMenuSub>
-                                                        <DropdownMenuSubTrigger><LayoutGrid className="mr-2 h-4 w-4 text-muted-foreground" />Asignar Mesa</DropdownMenuSubTrigger>
+                                                        <DropdownMenuSubTrigger><LayoutGrid />Asignar Mesa</DropdownMenuSubTrigger>
                                                         <DropdownMenuSubContent>
                                                             {availableEnvironments.map(env => (
                                                                 env.tables.length > 0 && (
@@ -668,7 +657,7 @@ export default function ReservasPage() {
                                                                         <DropdownMenuSubContent>
                                                                             {env.tables.map(table => (
                                                                                 <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, table.id)}>
-                                                                                    <Armchair className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                    <Armchair />
                                                                                     Mesa {table.number} (Cap: {table.capacity})
                                                                                 </DropdownMenuItem>
                                                                             ))}
@@ -680,7 +669,7 @@ export default function ReservasPage() {
                                                     </DropdownMenuSub>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Cancelada')}>
-                                                        <X className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        <X />
                                                         Cancelar
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
@@ -718,7 +707,8 @@ export default function ReservasPage() {
             open={isWhatsAppConfigOpen}
             onOpenChange={setIsWhatsAppConfigOpen}
         />
-      </main>
+      </PageContent>
     </div>
   );
 }
+

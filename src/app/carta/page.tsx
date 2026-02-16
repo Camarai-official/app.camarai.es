@@ -1,9 +1,10 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash, Utensils, Wine, Coffee, IceCream, Pizza, Beer, ArrowUp, ArrowDown, MessageSquare, Mic, Clock, BookOpen, CheckCircle, type LucideIcon } from 'lucide-react';
+import { PlusCircle, Edit, Trash, Utensils, Wine, Coffee, IceCream, Pizza, Beer, ArrowUp, ArrowDown, MessageSquare, Mic, Clock, BookOpen, CheckCircle, Save, X, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { mockCartas, mockMenuCombos, mockCategories, mockProducts, type Carta, type MenuCombo, type ElementoCarta, type ElementoMenuCombo } from '@/data/mock-data';
@@ -17,7 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { cn } from '@/lib/utils';
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 import { IconPicker, iconMap as allIcons } from '@/components/ui/icon-picker';
@@ -60,8 +62,7 @@ export default function CartaPage() {
         permitirVoz: true,
         mensajeBienvenida: '¡Hola! Bienvenido a nuestro restaurante. ¿Qué te gustaría pedir hoy?',
         horarioInicio: '12:00',
-        horarioFin: '23:00',
-    });
+        horarioFin: '23:00' });
     
     // Generate WhatsApp preview messages
     const getWhatsAppPreviewMessages = () => {
@@ -179,13 +180,13 @@ export default function CartaPage() {
 
 
     return (
-        <div className="flex flex-1 flex-col h-full bg-muted/10">
+        <div className="flex flex-1 flex-col h-full">
             <PageHeader
                 title="Gestión de Cartas y Menús"
                 subtitle="Diseña y organiza las cartas digitales y menús combinados."
             />
 
-            <main className="flex-grow p-4 md:p-6 pt-2 md:pt-3 space-y-6">
+            <PageContent className="space-y-6">
                 <Tabs defaultValue="cartas" className="w-full">
                     <TabsList className="grid w-full grid-cols-2 max-w-full sm:max-w-[400px] mb-4">
                         <TabsTrigger value="cartas">Cartas Digitales</TabsTrigger>
@@ -227,7 +228,7 @@ export default function CartaPage() {
                                                 <div className="flex items-center gap-1 rounded-lg">
                                                     <Button 
                                                         variant="ghost" 
-                                                        size="icon" 
+                                                        size="md" 
                                                         className="h-7 w-7 text-foreground bg-background transition-all rounded-md"
                                                         onClick={(e) => { e.stopPropagation(); setEditingCarta(carta); setIsCartaDialogOpen(true); }}
                                                     >
@@ -235,7 +236,7 @@ export default function CartaPage() {
                                                     </Button>
                                                     <Button 
                                                         variant="ghost" 
-                                                        size="icon" 
+                                                        size="md" 
                                                         className="h-7 w-7 text-foreground bg-background transition-all rounded-md"
                                                         onClick={(e) => { e.stopPropagation(); removeCarta(carta.id); }}
                                                     >
@@ -269,7 +270,7 @@ export default function CartaPage() {
                                                                         <Badge variant="outline" className="text-[10px] h-5 px-1">{el.tipo === 'categoria' ? 'CAT' : 'MEN'}</Badge>
                                                                         <span className="truncate max-w-[120px]">{name}</span>
                                                                     </div>
-                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10" onClick={() => removeElementFromCarta(carta.id, el.id)}>
+                                                                    <Button variant="ghost" size="md" className="h-6 w-6 opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10" onClick={() => removeElementFromCarta(carta.id, el.id)}>
                                                                         <Trash className="h-3 w-3 text-muted-foreground" />
                                                                     </Button>
                                                                 </div>
@@ -296,7 +297,7 @@ export default function CartaPage() {
                                     <CardHeader>
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <CardTitle>{menu.nombre_carta}</CardTitle>
+                                                <H3>{menu.nombre_carta}</H3>
                                                 <CardDescription className="line-clamp-1">{menu.descripcion}</CardDescription>
                                             </div>
                                             <Badge variant={menu.active ? 'default' : 'secondary'}>{menu.precio_carta.toFixed(2)}€</Badge>
@@ -464,8 +465,8 @@ export default function CartaPage() {
                         <DialogFooter>
                             <p className="text-xs text-muted-foreground">Los cambios se guardarán en la configuración de esta carta.</p>
                             <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setIsCartaDialogOpen(false)} className="rounded-xl">Cancelar</Button>
-                                <Button variant="brand" onClick={handleSaveCarta} className="rounded-xl px-6">Guardar Carta</Button>
+                                <Button variant="ghost" onClick={() => setIsCartaDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
+                                <Button variant="brand" onClick={handleSaveCarta} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Carta</Button>
                             </div>
                         </DialogFooter>
                     </DialogContent>
@@ -529,8 +530,8 @@ export default function CartaPage() {
                         <DialogFooter>
                             <p className="text-xs text-muted-foreground">Añadirás este elemento al final de la carta actual.</p>
                             <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setIsElementDialogOpen(false)} className="rounded-xl">Cancelar</Button>
-                                <Button variant="brand" onClick={addElementToCarta} disabled={!newElementData.id_elemento} className="rounded-xl px-6">
+                                <Button variant="ghost" onClick={() => setIsElementDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
+                                <Button variant="brand" onClick={addElementToCarta} disabled={!newElementData.id_elemento} className="rounded-xl px-6" startIcon={<PlusCircle className="h-4 w-4" />}>
                                     Añadir Contenido
                                 </Button>
                             </div>
@@ -592,14 +593,15 @@ export default function CartaPage() {
                         <DialogFooter>
                             <p className="text-xs text-muted-foreground">Configura los elementos de este menú desde la edición detallada.</p>
                             <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setIsMenuDialogOpen(false)} className="rounded-xl">Cancelar</Button>
-                                <Button variant="brand" onClick={handleSaveMenu} className="rounded-xl px-6">Guardar Menú</Button>
+                                <Button variant="ghost" onClick={() => setIsMenuDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
+                                <Button variant="brand" onClick={handleSaveMenu} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Menú</Button>
                             </div>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
 
-            </main>
+            </PageContent>
         </div>
     );
 }
+

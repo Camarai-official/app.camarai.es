@@ -1,10 +1,11 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { format, startOfWeek, addDays, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, addWeeks, subWeeks, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ChevronLeft, ChevronRight, Calendar, CalendarDays, Download, FileSpreadsheet, FileText, Plus, Edit2, Trash, Copy, Save, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -51,8 +52,7 @@ const roleColors: Record<string, string> = {
   'Encargado': 'bg-purple-100 border-purple-300 text-purple-800',
   'Cocinero': 'bg-orange-100 border-orange-300 text-orange-800',
   'Bartender': 'bg-green-100 border-green-300 text-green-800',
-  'default': 'bg-gray-100 border-gray-300 text-gray-800',
-};
+  'default': 'bg-gray-100 border-gray-300 text-gray-800' };
 
 // Schedule templates
 const scheduleTemplates = [
@@ -70,8 +70,7 @@ function ShiftEditorDialog({
   staff,
   selectedDate,
   onSave,
-  onDelete,
-}: {
+  onDelete }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   shift: Shift | null;
@@ -84,8 +83,7 @@ function ShiftEditorDialog({
     staffId: '',
     startTime: '09:00',
     endTime: '17:00',
-    notes: '',
-  });
+    notes: '' });
 
   React.useEffect(() => {
     if (shift) {
@@ -93,15 +91,13 @@ function ShiftEditorDialog({
         staffId: shift.staffId,
         startTime: shift.startTime,
         endTime: shift.endTime,
-        notes: shift.notes || '',
-      });
+        notes: shift.notes || '' });
     } else {
       setFormData({
         staffId: staff[0]?.id || '',
         startTime: '09:00',
         endTime: '17:00',
-        notes: '',
-      });
+        notes: '' });
     }
   }, [shift, staff, open]);
 
@@ -118,15 +114,13 @@ function ShiftEditorDialog({
         ...formData,
         staffName: staffMember?.name || '',
         role: staffMember?.role || '',
-        date: selectedDate,
-      });
+        date: selectedDate });
     } else {
       onSave({
         ...formData,
         staffName: staffMember?.name || '',
         role: staffMember?.role || '',
-        date: selectedDate,
-      });
+        date: selectedDate });
     }
     onOpenChange(false);
   };
@@ -216,8 +210,7 @@ export function ScheduleManager({
   onShiftAdd,
   onShiftUpdate,
   onShiftDelete,
-  onExport,
-}: ScheduleManagerProps) {
+  onExport }: ScheduleManagerProps) {
   const { toast } = useToast();
   const [view, setView] = React.useState<'week' | 'month'>('week');
   const [currentDate, setCurrentDate] = React.useState(new Date());
@@ -310,16 +303,14 @@ export function ScheduleManager({
     
     toast({
       title: 'Exportando...',
-      description: `Descargando horario en formato ${formatType.toUpperCase()}.`,
-    });
+      description: `Descargando horario en formato ${formatType.toUpperCase()}.` });
   };
 
   // Apply template
   const applyTemplate = (templateId: string) => {
     toast({
       title: 'Plantilla aplicada',
-      description: 'Los turnos de la plantilla han sido añadidos.',
-    });
+      description: 'Los turnos de la plantilla han sido añadidos.' });
   };
 
   return (
@@ -327,7 +318,7 @@ export function ScheduleManager({
       <CardHeader className="pb-3">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <CardTitle className="text-lg">Gestión de Horarios</CardTitle>
+            <H3 className="text-lg">Gestión de Horarios</H3>
             <Tabs value={view} onValueChange={(v) => setView(v as 'week' | 'month')}>
               <TabsList>
                 <TabsTrigger value="week">
@@ -345,13 +336,13 @@ export function ScheduleManager({
           <div className="flex items-center gap-2">
             {/* Navigation */}
             <div className="flex items-center gap-1">
-              <Button variant="outline" size="icon" onClick={goBack}>
+              <Button variant="outline" size="md" onClick={goBack}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="sm" onClick={goToToday}>
                 Hoy
               </Button>
-              <Button variant="outline" size="icon" onClick={goForward}>
+              <Button variant="outline" size="md" onClick={goForward}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
@@ -560,3 +551,4 @@ export function ScheduleManager({
     </Card>
   );
 }
+

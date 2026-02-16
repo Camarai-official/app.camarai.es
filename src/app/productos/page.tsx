@@ -1,5 +1,6 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import {
@@ -7,9 +8,7 @@ import {
     CardContent,
     CardDescription,
     CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+    CardHeader } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import {
@@ -19,8 +18,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogClose,
-} from '@/components/ui/dialog';
+    DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -44,14 +42,12 @@ import {
     TableCell,
     TableHead,
     TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+    TableRow } from '@/components/ui/table';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+    DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -61,8 +57,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+    AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { Switch } from '@/components/ui/switch';
@@ -72,8 +67,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContent } from '@/components/layout/page-content';
 
 
 // Extended Product type with new fields
@@ -110,8 +106,7 @@ const emptyExtendedProduct: ExtendedProduct = {
     horario_disponible: null,
     alergenos: [],
     stock_minimo: 0,
-    impresora_destino: '',
-};
+    impresora_destino: '' };
 
 const alergenosList = [
     'Gluten', 'Crustáceos', 'Huevos', 'Pescado', 'Cacahuetes', 'Soja',
@@ -160,8 +155,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                 horario_disponible: (productToEdit as any).horario_disponible || null,
                 alergenos: (productToEdit as any).alergenos || [],
                 stock_minimo: (productToEdit as any).stock_minimo || 0,
-                impresora_destino: (productToEdit as any).impresora_destino || '',
-            });
+                impresora_destino: (productToEdit as any).impresora_destino || '' });
         } else {
             // Set default category and tax if available
             const defaultCategoryId = categories.length > 0 ? categories[0].id : '';
@@ -210,8 +204,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
         const productToSave = {
             ...product,
             costo_escandallo_calculado: costEscandallo,
-            margen_beneficio: marginBeneficio,
-        };
+            margen_beneficio: marginBeneficio };
         if (productToEdit) {
             onSave({ ...productToSave, id: productToEdit.id } as Product);
         } else {
@@ -224,8 +217,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
         const newAssociatedIngredient: AssociatedIngredient = {
             id_ingrediente: ingredient.id,
             cantidad_requerida: 1, // Default quantity
-            unidad_medida: ingredient.unidad_medida,
-        };
+            unidad_medida: ingredient.unidad_medida };
 
         setProduct(prev => ({
             ...prev,
@@ -259,8 +251,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
             id: `var-${Date.now()}`,
             nombre: newVariantName,
             precio_extra: newVariantPrice,
-            disponible: true,
-        };
+            disponible: true };
         setProduct(prev => ({
             ...prev,
             variantes: [...prev.variantes, newVariant]
@@ -371,7 +362,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                             </div>
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Rentabilidad (Calculada)</CardTitle>
+                                    <H3 className="text-base">Rentabilidad (Calculada)</H3>
                                 </CardHeader>
                                 <CardContent className="space-y-3 text-sm">
                                     <div className="flex justify-between">
@@ -397,7 +388,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                         <TabsContent value="receta" className="space-y-6 mt-0">
                             <Card className="bg-muted/50">
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Receta / Escandallo</CardTitle>
+                                    <H3 className="text-base">Receta / Escandallo</H3>
                                     <CardDescription>Añade los ingredientes necesarios para preparar este producto.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -451,7 +442,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                                         <span className="text-xs text-muted-foreground w-10">{assocIng.unidad_medida}</span>
                                                         <span className="text-xs font-medium w-16 text-right">€{subtotal.toFixed(2)}</span>
                                                     </div>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveIngredient(assocIng.id_ingrediente)}>
+                                                    <Button variant="ghost" size="md" className="h-7 w-7" onClick={() => handleRemoveIngredient(assocIng.id_ingrediente)}>
                                                         <Trash className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </div>
@@ -475,7 +466,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                         <TabsContent value="variantes" className="space-y-6 mt-0">
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Variantes del Producto</CardTitle>
+                                    <H3 className="text-base">Variantes del Producto</H3>
                                     <CardDescription>Añade opciones como tamaños, extras o modificadores.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -513,7 +504,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                                     <Badge variant={variant.precio_extra > 0 ? 'default' : 'secondary'}>
                                                         {variant.precio_extra > 0 ? `+€${variant.precio_extra.toFixed(2)}` : 'Sin cargo'}
                                                     </Badge>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveVariant(variant.id)}>
+                                                    <Button variant="ghost" size="md" className="h-7 w-7" onClick={() => handleRemoveVariant(variant.id)}>
                                                         <Trash className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </div>
@@ -539,7 +530,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
 
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Horario de Disponibilidad</CardTitle>
+                                    <H3 className="text-base">Horario de Disponibilidad</H3>
                                     <CardDescription>Opcional: limitar el producto a ciertas horas.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -585,7 +576,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
 
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Alérgenos</CardTitle>
+                                    <H3 className="text-base">Alérgenos</H3>
                                     <CardDescription>Selecciona los alérgenos presentes en este producto.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -662,8 +653,7 @@ export default function ProductosPage() {
     const addProduct = (productData: Omit<Product, 'id'>) => {
         const newProduct: Product = {
             ...productData,
-            id: `prod-${Date.now()}`,
-        };
+            id: `prod-${Date.now()}` };
         setProducts(prev => [...prev, newProduct]);
     };
 
@@ -723,8 +713,7 @@ export default function ProductosPage() {
         }
         toast({
             title: `Producto ${isEditing ? 'Actualizado' : 'Creado'}`,
-            description: `El producto "${productData.nombre_producto}" ha sido guardado.`,
-        });
+            description: `El producto "${productData.nombre_producto}" ha sido guardado.` });
     };
 
     const handleRemove = (id: string, name: string) => {
@@ -732,14 +721,13 @@ export default function ProductosPage() {
         toast({
             variant: "destructive",
             title: "Producto Eliminado",
-            description: `El producto "${name}" ha sido eliminado.`,
-        });
+            description: `El producto "${name}" ha sido eliminado.` });
     }
 
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Librería de Productos" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Card className="min-h-[70vh]">
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <SearchInput 
@@ -760,12 +748,12 @@ export default function ProductosPage() {
                                     <TableRow>
                                         <TableHead>Producto</TableHead>
                                         <TableHead className="hidden md:table-cell">Categoría</TableHead>
-                                        <TableHead>Precio Venta</TableHead>
-                                        <TableHead className="hidden lg:table-cell">Costo Escandallo</TableHead>
-                                        <TableHead className="hidden lg:table-cell">Margen</TableHead>
-                                        <TableHead className="hidden xl:table-cell">Impuesto</TableHead>
-                                        <TableHead className="hidden md:table-cell">Disponible</TableHead>
-                                        <TableHead className="text-right">Acciones</TableHead>
+                                        <TableHead className="text-center">Precio Venta</TableHead>
+                                        <TableHead className="hidden lg:table-cell text-center">Costo Escandallo</TableHead>
+                                        <TableHead className="hidden lg:table-cell text-center">Margen</TableHead>
+                                        <TableHead className="hidden xl:table-cell text-center">Impuesto</TableHead>
+                                        <TableHead className="hidden md:table-cell text-center">Disponible</TableHead>
+                                        <TableHead className="text-center">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody
@@ -795,29 +783,29 @@ export default function ProductosPage() {
                                                     {getCategoryName(prod.id_categoria) || 'Sin categoría'}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="font-medium whitespace-nowrap">€{prod.precio_venta.toFixed(2)}</TableCell>
-                                            <TableCell className="hidden lg:table-cell">€{(prod.costo_escandallo_calculado || 0).toFixed(2)}</TableCell>
-                                            <TableCell className="hidden lg:table-cell">€{(prod.margen_beneficio || 0).toFixed(2)}</TableCell>
-                                            <TableCell className="hidden xl:table-cell">{getTaxName(prod.id_impuesto) || 'N/A'}</TableCell>
-                                            <TableCell className="hidden md:table-cell">
+                                            <TableCell className="text-center font-medium whitespace-nowrap">€{prod.precio_venta.toFixed(2)}</TableCell>
+                                            <TableCell className="hidden lg:table-cell text-center">€{(prod.costo_escandallo_calculado || 0).toFixed(2)}</TableCell>
+                                            <TableCell className="hidden lg:table-cell text-center">€{(prod.margen_beneficio || 0).toFixed(2)}</TableCell>
+                                            <TableCell className="hidden xl:table-cell text-center">{getTaxName(prod.id_impuesto) || 'N/A'}</TableCell>
+                                            <TableCell className="hidden md:table-cell text-center">
                                                 <Badge variant={prod.disponible ? 'default' : 'destructive'}>
                                                     {prod.disponible ? 'Sí' : 'No'}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-right">
+                                            <TableCell className="text-center">
                                                 <AlertDialog>
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                            <Button variant="ghost" size="md"><MoreHorizontal /></Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent>
                                                             <DropdownMenuItem onClick={() => handleOpenDialog(prod)}>
-                                                                <Edit className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                                <Edit />
                                                                 Editar
                                                             </DropdownMenuItem>
                                                             <AlertDialogTrigger asChild>
                                                                 <DropdownMenuItem>
-                                                                    <Trash className="mr-2 h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                                                                    <Trash />
                                                                     Eliminar
                                                                 </DropdownMenuItem>
                                                             </AlertDialogTrigger>
@@ -854,17 +842,16 @@ export default function ProductosPage() {
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredProducts.length)}-{Math.min(indexOfLastItem, filteredProducts.length)}</strong> de <strong>{filteredProducts.length}</strong> productos.
                         </div>
                         <div className="flex justify-center sm:justify-end items-center gap-2 order-1 sm:order-2">
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                                <ChevronLeft className="h-4 w-4" />
+                            <Button variant="outline" size="md" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                                <ChevronLeft />
                             </Button>
                             <div className="flex gap-1">
                                 {pageNumbers.map(number => (
                                     <Button
                                         key={number}
                                         variant={currentPage === number ? "default" : "outline"}
-                                        size="icon"
+                                        size="md"
                                         className={cn(
-                                            "h-8 w-8",
                                             // Hide most page numbers on small mobile
                                             number !== currentPage && number !== 1 && number !== totalPages && "hidden xs:flex"
                                         )}
@@ -874,15 +861,16 @@ export default function ProductosPage() {
                                     </Button>
                                 ))}
                             </div>
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                                <ChevronRight className="h-4 w-4" />
+                            <Button variant="outline" size="md" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                                <ChevronRight />
                             </Button>
                         </div>
                     </CardFooter>
                 </Card>
-            </main>
+            </PageContent>
             <ProductDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} productToEdit={editingProduct} onSave={handleSave} />
         </div>
     );
 }
+
 

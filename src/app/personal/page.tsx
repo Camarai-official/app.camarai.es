@@ -1,7 +1,8 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit, Shield, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -36,15 +37,15 @@ import {
     estadoDispositivoLabels,
     type IncidenciaFichaje,
     type DispositivoFichaje,
-    type EstadoIncidencia,
-} from '@/types/fichaje';
+    type EstadoIncidencia } from '@/types/fichaje';
 import { StaffCardPro, type StaffStatus } from '@/components/features/staff-card-pro';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContent } from '@/components/layout/page-content';
 
 // Métodos de fichaje disponibles
 const metodosFichaje = [
@@ -95,8 +96,7 @@ const emptyEmployee: ExtendedStaffMember = {
     horas_extra_habilitadas: false,
     documentos: [],
     metodos_fichaje_permitidos: ['app', 'qr'],
-    dispositivo_asignado: undefined,
-};
+    dispositivo_asignado: undefined };
 
 const permisosDisponibles = [
     { id: 'pos', label: 'Acceso a POS' },
@@ -187,14 +187,12 @@ function EmployeeDialog({
                 ...employeeToEdit,
                 permisos: employeeToEdit.permisos || [],
                 documentos: employeeToEdit.documentos || [],
-                establecimientos_asignados: employeeToEdit.establecimientos_asignados || [],
-            });
+                establecimientos_asignados: employeeToEdit.establecimientos_asignados || [] });
             setNivelAcceso(detectNivelAcceso(employeeToEdit.permisos || []));
         } else {
             setEmployee({
                 ...emptyEmployee,
-                pin: Math.floor(1000 + Math.random() * 9000).toString(),
-            });
+                pin: Math.floor(1000 + Math.random() * 9000).toString() });
             setNivelAcceso('camarero');
         }
         setActiveTab('datos');
@@ -238,8 +236,7 @@ function EmployeeDialog({
             ...employee,
             id: employee.id || `staff-${Date.now()}`,
             fotoUrl: employee.fotoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.nombre}`,
-            roles: employee.rol ? [employee.rol] : [],
-        };
+            roles: employee.rol ? [employee.rol] : [] };
         onSave(employeeToSave);
         onOpenChange(false);
     };
@@ -391,7 +388,7 @@ function EmployeeDialog({
                         <TabsContent value="acceso" className="space-y-6 mt-0">
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">PIN de Acceso</CardTitle>
+                                    <H3 className="text-base">PIN de Acceso</H3>
                                     <CardDescription>Código de 4 dígitos para fichar y acceder al sistema.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -403,7 +400,7 @@ function EmployeeDialog({
                                             maxLength={4}
                                             className="w-32 text-center text-2xl tracking-widest font-mono"
                                         />
-                                        <Button variant="ghost" size="icon" onClick={() => setShowPin(!showPin)}>
+                                        <Button variant="ghost" size="md" onClick={() => setShowPin(!showPin)}>
                                             {showPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </Button>
                                         <Button
@@ -419,7 +416,7 @@ function EmployeeDialog({
 
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Nivel de Acceso</CardTitle>
+                                    <H3 className="text-base">Nivel de Acceso</H3>
                                     <CardDescription>Selecciona el tipo de usuario para aplicar permisos predefinidos.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -455,7 +452,7 @@ function EmployeeDialog({
 
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Permisos del Sistema</CardTitle>
+                                    <H3 className="text-base">Permisos del Sistema</H3>
                                     <CardDescription>
                                         {nivelAcceso === 'personalizado' 
                                             ? 'Selecciona los permisos manualmente.' 
@@ -492,7 +489,7 @@ function EmployeeDialog({
 
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Establecimientos Asignados</CardTitle>
+                                    <H3 className="text-base">Establecimientos Asignados</H3>
                                     <CardDescription>En qué locales puede trabajar este empleado.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -526,7 +523,7 @@ function EmployeeDialog({
                             {/* Métodos de Fichaje Permitidos (Fase 7) */}
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Métodos de Fichaje Permitidos</CardTitle>
+                                    <H3 className="text-base">Métodos de Fichaje Permitidos</H3>
                                     <CardDescription>Selecciona cómo puede fichar este empleado.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -590,7 +587,7 @@ function EmployeeDialog({
 
                             <Card className="bg-muted/50">
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Estimación Mensual</CardTitle>
+                                    <H3 className="text-base">Estimación Mensual</H3>
                                 </CardHeader>
                                 <CardContent className="space-y-2">
                                     <div className="flex justify-between text-sm">
@@ -620,7 +617,7 @@ function EmployeeDialog({
                         <TabsContent value="documentos" className="space-y-6 mt-0">
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Documentos del Empleado</CardTitle>
+                                    <H3 className="text-base">Documentos del Empleado</H3>
                                     <CardDescription>Sube y gestiona documentos como DNI, contratos, certificados.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -689,8 +686,7 @@ export default function PersonalPage() {
     // Configuración de widgets (modal Settings)
     type PersonalConfig = { kpis: boolean; equipo: boolean; controlHorario: boolean; ausencias: boolean; incidencias: boolean; fichaje: boolean };
     const [personalConfig, setPersonalConfig] = React.useState<PersonalConfig>({
-        kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true,
-    });
+        kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true });
     const [configOpen, setConfigOpen] = React.useState(false);
     const handleConfigToggle = (key: keyof PersonalConfig) => setPersonalConfig(prev => ({ ...prev, [key]: !prev[key] }));
     
@@ -766,8 +762,7 @@ export default function PersonalPage() {
         const updatedLog: TimeLog = {
             ...editingTimeLog,
             timestamp: `${date}T${time}:00`,
-            action,
-        };
+            action };
         setTimeLogs(prev => prev.map(l => l.id === updatedLog.id ? updatedLog : l));
         setEditingTimeLog(null);
         toast({ title: "Registro actualizado", description: "El fichaje se ha modificado correctamente." });
@@ -857,41 +852,41 @@ export default function PersonalPage() {
             <PageHeader
                 title="Gestión de Personal"
                 actions={
-                    <Button variant="outline" size="icon" onClick={() => setConfigOpen(true)}>
+                    <Button variant="outline" size="md" onClick={() => setConfigOpen(true)}>
                         <Settings className="h-4 w-4" />
                     </Button>
                 }
             />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 {/* KPIs - Design System: sin iconos */}
                 {personalConfig.kpis && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
+                    <Card className="border-none shadow-none rounded-lg bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Total Empleados</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.total}</p>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
+                    <Card className="border-none shadow-none rounded-lg bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Activos</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.activos}</p>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30 col-span-2 sm:col-span-1">
+                    <Card className="border-none shadow-none rounded-lg bg-muted/30 col-span-2 sm:col-span-1">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Trabajando Ahora</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.trabajandoAhora}</p>
                             <Badge variant="completed" className="text-xs mt-1">En línea</Badge>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
+                    <Card className="border-none shadow-none rounded-lg bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">En Descanso</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.enDescanso}</p>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
+                    <Card className="border-none shadow-none rounded-lg bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Horas Hoy</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.horasHoy}h</p>
@@ -1001,8 +996,7 @@ export default function PersonalPage() {
                                                 estado: staff.estado,
                                                 horasContratadas: staff.horasContratadas,
                                                 horasTrabajadas: Math.floor(((staff.nombre.length * 7) % 100) / 100 * staff.horasContratadas), // Deterministic mock value
-                                                metodos_fichaje_permitidos: staff.metodos_fichaje_permitidos,
-                                            }}
+                                                metodos_fichaje_permitidos: staff.metodos_fichaje_permitidos }}
                                             status={status as StaffStatus}
                                             onEdit={() => handleOpenEmployeeDialog(staff)}
                                             onDelete={() => handleRemoveStaff(staff.id)}
@@ -1022,7 +1016,7 @@ export default function PersonalPage() {
                             <CardHeader>
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div>
-                                        <CardTitle>Registro de Actividad Reciente</CardTitle>
+                                        <H3>Registro de Actividad Reciente</H3>
                                         <CardDescription>Últimos fichajes y movimientos del personal.</CardDescription>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -1086,7 +1080,7 @@ export default function PersonalPage() {
                                                         </TableCell>
                                                         <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
                                                         <TableCell>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingTimeLog(log)} aria-label="Editar registro">
+                                                            <Button variant="ghost" size="md" className="h-8 w-8" onClick={() => setEditingTimeLog(log)} aria-label="Editar registro">
                                                                 <Edit className="h-4 w-4" />
                                                             </Button>
                                                         </TableCell>
@@ -1113,7 +1107,7 @@ export default function PersonalPage() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div>
-                                    <CardTitle>Solicitudes de Ausencia</CardTitle>
+                                    <H3>Solicitudes de Ausencia</H3>
                                     <CardDescription>Gestiona vacaciones y bajas del personal.</CardDescription>
                                 </div>
                                 <Dialog open={isAbsenceRequestOpen} onOpenChange={setIsAbsenceRequestOpen}>
@@ -1195,10 +1189,10 @@ export default function PersonalPage() {
                                                         <TableCell className="text-right">
                                                             {req.status === 'pending' && (
                                                                 <div className="flex justify-end gap-2">
-                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
+                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
                                                                         <Check className="h-4 w-4" />
                                                                     </Button>
-                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
+                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
                                                                         <X className="h-4 w-4" />
                                                                     </Button>
                                                                 </div>
@@ -1225,7 +1219,7 @@ export default function PersonalPage() {
                         {personalConfig.incidencias && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>Incidencias de Fichaje</CardTitle>
+                                <H3>Incidencias de Fichaje</H3>
                                 <CardDescription>Gestiona las incidencias reportadas por el sistema o los empleados.</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -1262,10 +1256,10 @@ export default function PersonalPage() {
                                                         <TableCell className="text-right">
                                                             {inc.estado === 'pendiente' && (
                                                                 <div className="flex justify-end gap-2">
-                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
+                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
                                                                         <Check className="h-4 w-4" />
                                                                     </Button>
-                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
+                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
                                                                         <X className="h-4 w-4" />
                                                                     </Button>
                                                                 </div>
@@ -1326,10 +1320,10 @@ export default function PersonalPage() {
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <CardTitle className="flex items-center gap-2">
+                                        <H3 className="flex items-center gap-2">
                                             <MessageSquare className="h-5 w-5 text-brand-whatsapp" />
                                             Fichaje por WhatsApp
-                                        </CardTitle>
+                                        </H3>
                                         <CardDescription>
                                             Permite que los empleados fichen enviando un mensaje al bot de WhatsApp.
                                         </CardDescription>
@@ -1404,7 +1398,7 @@ export default function PersonalPage() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div>
-                                    <CardTitle>Dispositivos de Fichaje</CardTitle>
+                                    <H3>Dispositivos de Fichaje</H3>
                                     <CardDescription>Gestiona tablets y terminales para el fichaje del personal.</CardDescription>
                                 </div>
                                 <Button onClick={() => { setEditingDevice(null); setIsDeviceDialogOpen(true); }}>
@@ -1472,7 +1466,7 @@ export default function PersonalPage() {
                         {/* Estadísticas de Fichajes */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Resumen de Fichajes por Método</CardTitle>
+                                <H3>Resumen de Fichajes por Método</H3>
                                 <CardDescription>Distribución de fichajes en los últimos 30 días</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -1512,7 +1506,7 @@ export default function PersonalPage() {
                         )}
                     </TabsContent>
                 </Tabs>
-            </main>
+            </PageContent>
 
             <EmployeeDialog
                 open={isEmployeeDialogOpen}
@@ -1661,8 +1655,7 @@ export default function PersonalPage() {
                             ubicacion: formData.get('ubicacion') as string,
                             intervalo_qr: parseInt(formData.get('intervalo_qr') as string) || 30,
                             modo_offline: formData.get('modo_offline') === 'on',
-                            estado: editingDevice?.estado || 'offline',
-                        });
+                            estado: editingDevice?.estado || 'offline' });
                     }} className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label htmlFor="nombre">Nombre del dispositivo</Label>
@@ -1715,3 +1708,4 @@ export default function PersonalPage() {
         </div>
     );
 }
+

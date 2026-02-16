@@ -1,7 +1,8 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { TopProductsCard, PeakHoursCard, SalesChannelCard } from '@/components/features/dashboard/kpi-cards';
 import type { Product } from '@/data/mock-data';
 import type { Order } from '@/data/reportes';
@@ -12,13 +13,11 @@ const ChartFallback = () => (
 
 const SalesChart = dynamic(() => import('@/components/charts/sales-chart').then((mod) => mod.SalesChart), {
     ssr: false,
-    loading: () => <ChartFallback />,
-});
+    loading: () => <ChartFallback /> });
 
 const CategorySalesChart = dynamic(() => import('@/components/charts/category-sales-chart').then((mod) => mod.CategorySalesChart), {
     ssr: false,
-    loading: () => <ChartFallback />,
-});
+    loading: () => <ChartFallback /> });
 
 type PerformanceTabProps = {
     products: Product[];
@@ -31,7 +30,7 @@ export function PerformanceTab({ products, orders, getCategoryName }: Performanc
         <TabsContent value="performance" className="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Ventas por hora</CardTitle>
+                    <H3>Ventas por hora</H3>
                     <CardDescription>Rendimiento de ventas de las comandas completadas o en progreso durante el día.</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -51,3 +50,4 @@ export function PerformanceTab({ products, orders, getCategoryName }: Performanc
         </TabsContent>
     );
 }
+

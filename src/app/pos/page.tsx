@@ -1,8 +1,10 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { PageHeader } from '@/components/layout/page-header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Monitor, Settings, ExternalLink } from 'lucide-react';
 import {
@@ -11,8 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -31,8 +32,7 @@ export default function PosPage() {
   const [paymentMethods, setPaymentMethods] = React.useState({
     cash: true,
     card: true,
-    mixed: true,
-  });
+    mixed: true });
 
   const terminals = devices.filter(d => d.type === 'pos' || d.type === 'cash_register');
   const printers = devices.filter(d => d.type === 'printer');
@@ -41,29 +41,27 @@ export default function PosPage() {
     // In a real app, this would redirect to the POS application
     toast({
       title: 'Iniciando POS',
-      description: 'Redirigiendo al sistema de punto de venta...',
-    });
+      description: 'Redirigiendo al sistema de punto de venta...' });
     // window.open('/pos-app', '_blank');
   };
 
   const handleSaveConfig = () => {
     toast({
       title: 'Configuración guardada',
-      description: 'Los ajustes del POS se han guardado correctamente.',
-    });
+      description: 'Los ajustes del POS se han guardado correctamente.' });
     setConfigOpen(false);
   };
 
   return (
     <div className="flex flex-1 flex-col h-full">
       <PageHeader title="Punto de Venta (POS)" />
-      <main className="flex flex-1 items-center justify-center p-4 pt-2 md:p-6 md:pt-3">
+      <PageContent className="items-center justify-center">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="pb-4">
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
               <Monitor className="h-10 w-10 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Punto de Venta</CardTitle>
+            <H3 className="text-2xl">Punto de Venta</H3>
             <CardDescription className="text-base">
               Accede al sistema de punto de venta para gestionar ventas, cobros y comandas en tiempo real.
             </CardDescription>
@@ -86,7 +84,7 @@ export default function PosPage() {
             </p>
           </CardFooter>
         </Card>
-      </main>
+      </PageContent>
 
       {/* Modal de Configuración POS */}
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
@@ -213,3 +211,4 @@ export default function PosPage() {
     </div>
   );
 }
+

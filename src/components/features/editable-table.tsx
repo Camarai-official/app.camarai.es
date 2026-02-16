@@ -413,7 +413,7 @@ export function EditableTable<T extends { id: string }>({
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-8 w-8 text-green-600"
                             onClick={() => handleSaveClick(row)}
                             disabled={isSaving}
@@ -422,7 +422,7 @@ export function EditableTable<T extends { id: string }>({
                           </Button>
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-8 w-8 hover:bg-destructive/10"
                             onClick={cancelEditing}
                             disabled={isSaving}
@@ -433,7 +433,7 @@ export function EditableTable<T extends { id: string }>({
                       ) : (
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="md"
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();

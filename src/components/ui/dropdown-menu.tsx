@@ -1,6 +1,4 @@
-
 "use client"
-
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
@@ -28,7 +26,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-md px-2 py-2 text-sm font-medium outline-none focus:bg-primary/20 focus:text-primary data-[state=open]:bg-primary/20 data-[state=open]:text-primary",
+      "flex cursor-default select-none items-center rounded-md px-2 py-2 text-sm font-medium outline-none focus:bg-primary/20 focus:text-primary data-[state=open]:bg-primary/20 data-[state=open]:text-primary [&>svg:first-child]:mr-2 [&>svg:first-child]:h-4 [&>svg:first-child]:w-4 [&>svg:first-child]:text-muted-foreground",
       inset && "pl-8",
       className
     )}
@@ -84,7 +82,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "group relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm font-medium outline-none transition-colors focus:bg-primary/20 focus:text-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-primary/20 hover:text-primary",
+      "group relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm font-medium outline-none transition-colors focus:bg-primary/20 focus:text-primary data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-primary/20 hover:text-primary [&>svg]:mr-2 [&>svg]:h-4 [&>svg]:w-4 [&>svg]:text-muted-foreground [&>svg]:shrink-0",
       inset && "pl-8",
       className
     )}

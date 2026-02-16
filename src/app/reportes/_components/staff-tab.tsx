@@ -1,9 +1,10 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { CalendarIcon, Download, CheckCircle, XCircle, Clock2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -56,8 +57,7 @@ export function StaffTab({
     selectedAbsenceStatus,
     onAbsenceStatusChange,
     filteredAbsenceRequests,
-    onUpdateRequest,
-}: StaffTabProps) {
+    onUpdateRequest }: StaffTabProps) {
     return (
         <TabsContent value="staff" className="space-y-6">
             <Tabs defaultValue="horas-trabajadas" className="w-full">
@@ -68,7 +68,7 @@ export function StaffTab({
                 <TabsContent value="horas-trabajadas" className="pt-6 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base font-bold text-muted-foreground">Filtros del Informe</CardTitle>
+                            <H3 className="text-base font-bold text-muted-foreground">Filtros del Informe</H3>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div className="space-y-2">
@@ -125,7 +125,7 @@ export function StaffTab({
                     {selectedStaffId === 'all' && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>Resumen por Empleado</CardTitle>
+                                <H3>Resumen por Empleado</H3>
                                 <CardDescription>Total de horas regulares y extra para el periodo seleccionado.</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -168,7 +168,7 @@ export function StaffTab({
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Detalle de Fichajes</CardTitle>
+                            <H3>Detalle de Fichajes</H3>
                             <CardDescription>Lista detallada de todos los registros de entrada y salida para el periodo seleccionado.</CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -234,7 +234,7 @@ export function StaffTab({
                 <TabsContent value="gestion-ausencias" className="pt-6 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-base font-bold text-muted-foreground">Filtros de Ausencias</CardTitle>
+                            <H3 className="text-base font-bold text-muted-foreground">Filtros de Ausencias</H3>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="space-y-2">
@@ -298,7 +298,7 @@ export function StaffTab({
                     </Card>
                     <Card>
                         <CardHeader>
-                            <CardTitle>Historial de Ausencias</CardTitle>
+                            <H3>Historial de Ausencias</H3>
                             <CardDescription>Busca y gestiona todas las solicitudes de ausencia de tu equipo.</CardDescription>
                         </CardHeader>
                         <CardContent>
@@ -390,3 +390,4 @@ export function StaffTab({
         </TabsContent>
     );
 }
+

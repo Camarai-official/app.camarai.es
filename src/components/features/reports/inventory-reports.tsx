@@ -1,9 +1,10 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { Ingredient, IngredientCategory } from '@/data/mock-data';
@@ -62,7 +63,7 @@ export function InventoryValuationCard({ ingredients, ingredientCategories }: In
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Valoración de Inventario</CardTitle>
+        <H3>Valoración de Inventario</H3>
         <CardDescription>Valor total del stock actual y desglose por categoría.</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -126,7 +127,7 @@ export function WasteReportCard() {
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <CardTitle>Informe de Mermas</CardTitle>
+            <H3>Informe de Mermas</H3>
             <CardDescription>Seguimiento de productos desechados o caducados en el período.</CardDescription>
           </div>
           <Button variant="outline"><Download className="mr-2 h-4 w-4" />Exportar</Button>
@@ -163,4 +164,5 @@ export function WasteReportCard() {
     </Card>
   );
 }
+
 

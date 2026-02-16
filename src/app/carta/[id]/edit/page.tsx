@@ -1,11 +1,12 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, PlusCircle, Trash, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,8 @@ import { Badge } from '@/components/ui/badge';
 import { mockCartas, mockCategories, mockMenuCombos, Carta, MenuCombo, Category, ElementoCarta } from '@/data/mock-data';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 
 function EditCartaContent({ cartaId }: { cartaId: string }) {
     const router = useRouter();
@@ -56,8 +58,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
             }
             toast({
                 title: "Carta Guardada",
-                description: `La carta "${activeCarta.nombre_carta}" se ha guardado correctamente.`,
-            });
+                description: `La carta "${activeCarta.nombre_carta}" se ha guardado correctamente.` });
             router.push('/carta');
         }
     };
@@ -78,8 +79,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
         });
         toast({
             title: "Elemento Añadido",
-            description: `El elemento se ha añadido a la carta.`,
-        });
+            description: `El elemento se ha añadido a la carta.` });
     };
 
     const handleRemoveElement = (elementId: string) => {
@@ -93,8 +93,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
         toast({
             variant: "destructive",
             title: "Elemento Eliminado",
-            description: `El elemento se ha quitado de la carta.`,
-        });
+            description: `El elemento se ha quitado de la carta.` });
     }
 
     const handleReorderElement = (elementId: string, direction: 'up' | 'down') => {
@@ -133,15 +132,15 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title={<>Gestionar Carta: &quot;{activeCarta.nombre_carta}&quot;</>} />
-            <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3">
+            <PageContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                     {/* Bento Grid Layout */}
                     <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
 
                         {/* Carta Details - Large Card */}
-                        <Card className="md:col-span-2 flex flex-col">
+                        <Card className="md:col-span-2 flex-col">
                             <CardHeader>
-                                <CardTitle className="text-base font-bold text-muted-foreground">Detalles de la Carta</CardTitle>
+                                <H3 className="text-base font-bold text-muted-foreground">Detalles de la Carta</H3>
                                 <CardDescription>Información general de la carta. Haz clic en guardar en las acciones rápidas para conservar los cambios.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4 flex-grow">
@@ -163,9 +162,9 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                         </Card>
 
                         {/* Carta Content */}
-                        <Card className="flex flex-col">
+                        <Card className="flex-col">
                             <CardHeader>
-                                <CardTitle className="text-base font-bold text-muted-foreground">Contenido de la Carta</CardTitle>
+                                <H3 className="text-base font-bold text-muted-foreground">Contenido de la Carta</H3>
                                 <CardDescription>Organiza el orden de los elementos.</CardDescription>
                             </CardHeader>
                             <CardContent className="flex-grow space-y-3 min-h-[200px] max-h-80 overflow-y-auto custom-scrollbar pr-2 border rounded-lg p-4 bg-background/50">
@@ -176,13 +175,13 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                                             <p className="font-semibold">{getElementName(el)}</p>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'up')} disabled={index === 0}>
+                                            <Button variant="ghost" size="md" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'up')} disabled={index === 0}>
                                                 <ArrowUp className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'down')} disabled={index === activeCarta.elementos_carta.length - 1}>
+                                            <Button variant="ghost" size="md" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'down')} disabled={index === activeCarta.elementos_carta.length - 1}>
                                                 <ArrowDown className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10" onClick={() => handleRemoveElement(el.id)}>
+                                            <Button variant="ghost" size="md" className="h-8 w-8 hover:bg-destructive/10" onClick={() => handleRemoveElement(el.id)}>
                                                 <Trash className="h-4 w-4 text-muted-foreground" />
                                             </Button>
                                         </div>
@@ -197,9 +196,9 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                         </Card>
 
                         {/* Available Categories */}
-                        <Card className="flex flex-col">
+                        <Card className="flex-col">
                             <CardHeader>
-                                <CardTitle className="text-base font-bold text-muted-foreground">Categorías Disponibles</CardTitle>
+                                <H3 className="text-base font-bold text-muted-foreground">Categorías Disponibles</H3>
                                 <CardDescription>Arrastra o añade categorías a tu carta.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-2 flex-grow min-h-[200px] max-h-80 overflow-y-auto custom-scrollbar pr-2">
@@ -217,9 +216,9 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
 
                     </div>
                 </div>
-            </main>
+            </PageContent>
             <footer className="p-4 md:p-6 pt-0 sticky bottom-0">
-                <Card className="p-4 border-t bg-background/80 backdrop-blur-sm">
+                <Card className="border-t bg-background/80 backdrop-blur-sm">
                     <div className="flex justify-between items-center">
                         <Button variant="outline" onClick={() => router.push('/carta')}>
                             <ArrowLeft className="h-4 w-4 md:mr-2" />

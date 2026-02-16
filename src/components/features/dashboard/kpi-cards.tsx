@@ -1,9 +1,10 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import Image from 'next/image';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import type { Product } from '@/data/mock-data';
@@ -28,7 +29,7 @@ export function TopProductsCard({ products }: TopProductsCardProps) {
   return (
     <Card className="h-full flex flex-col">
       <CardHeader>
-        <CardTitle>Top 5 Productos Más Vendidos</CardTitle>
+        <H3>Top 5 Productos Más Vendidos</H3>
         <CardDescription>Productos que más ingresos han generado en el período.</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow">
@@ -129,7 +130,7 @@ export function PeakHoursCard({ orders }: PeakHoursCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-bold text-muted-foreground">Eficiencia y Horas Punta</CardTitle>
+        <H3 className="text-sm font-bold text-muted-foreground">Eficiencia y Horas Punta</H3>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
@@ -158,7 +159,7 @@ export function SalesChannelCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm font-bold text-muted-foreground">Rendimiento por Canal</CardTitle>
+        <H3 className="text-sm font-bold text-muted-foreground">Rendimiento por Canal</H3>
         <CardDescription className="text-xs">Comparativa de ventas automáticas vs. manuales.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 pt-2">
@@ -180,3 +181,4 @@ export function SalesChannelCard() {
     </Card>
   );
 }
+

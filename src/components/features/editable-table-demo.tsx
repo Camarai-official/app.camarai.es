@@ -1,4 +1,5 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 /**
  * Demo de EditableTable siguiendo el Design System
@@ -9,7 +10,7 @@
 
 import * as React from 'react';
 import { EditableTable, createColumn, type EditableColumn, type EditableChange } from './editable-table';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 // Ejemplo 1: Tabla de Horas Trabajadas (para Reportes/Staff)
@@ -76,8 +77,7 @@ const reservasColumns: EditableColumn<ReservaEditable>[] = [
     badgeVariants: {
       'Pendiente': 'secondary',
       'Confirmada': 'default',
-      'Cancelada': 'destructive',
-    }
+      'Cancelada': 'destructive' }
   }),
 ];
 
@@ -120,9 +120,9 @@ export function EditableTableDemo() {
       {/* Demo 1: Horas Trabajadas */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-bold text-muted-foreground">
+          <H3 className="text-base font-bold text-muted-foreground">
             Ejemplo: Horas Trabajadas Editables
-          </CardTitle>
+          </H3>
           <CardDescription>
             Doble clic en una celda para editar. Solo roles Encargado/Jefe pueden editar.
           </CardDescription>
@@ -142,9 +142,9 @@ export function EditableTableDemo() {
       {/* Demo 2: Reservas */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base font-bold text-muted-foreground">
+          <H3 className="text-base font-bold text-muted-foreground">
             Ejemplo: Reservas Editables
-          </CardTitle>
+          </H3>
           <CardDescription>
             Las celdas modificadas se marcan en amarillo hasta guardar.
           </CardDescription>
@@ -163,3 +163,4 @@ export function EditableTableDemo() {
     </div>
   );
 }
+

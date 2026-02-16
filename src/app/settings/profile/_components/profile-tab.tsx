@@ -1,8 +1,9 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
 import { Camera } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,8 +27,7 @@ export function ProfileTab({
     profileFileInputRef,
     onProfileImageChange,
     onUserInputChange,
-    onSaveUserChanges,
-}: ProfileTabProps) {
+    onSaveUserChanges }: ProfileTabProps) {
     return (
         <TabsContent value="profile">
             <Card>
@@ -35,7 +35,7 @@ export function ProfileTab({
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <CardTitle className="font-bold text-muted-foreground">Información del Perfil</CardTitle>
+                                <H3 className="font-bold text-muted-foreground">Información del Perfil</H3>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Gestiona los datos de tu cuenta de usuario.</p>
@@ -52,7 +52,7 @@ export function ProfileTab({
                                         <AvatarImage src={localUser.avatar} alt="@user" data-ai-hint="profile user" />
                                         <AvatarFallback>{localUser.firstName?.charAt(0)}</AvatarFallback>
                                     </Avatar>
-                                    <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8" onClick={() => profileFileInputRef.current?.click()}>
+                                    <Button size="md" className="absolute bottom-0 right-0 rounded-full h-8 w-8" onClick={() => profileFileInputRef.current?.click()}>
                                         <Camera className="h-4 w-4" />
                                         <span className="sr-only">Cambiar foto</span>
                                     </Button>
@@ -122,3 +122,4 @@ export function ProfileTab({
         </TabsContent>
     );
 }
+

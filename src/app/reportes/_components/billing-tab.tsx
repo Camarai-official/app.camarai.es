@@ -1,9 +1,10 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { CalendarIcon, Download, MoreHorizontal, ChevronLeft, ChevronRight, FileSpreadsheet, FileText, Eye, Monitor, Receipt } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,13 +48,12 @@ export function BillingTab({
     pageNumbers,
     isAnimating,
     onPaginate,
-    onViewDetails,
-}: BillingTabProps) {
+    onViewDetails }: BillingTabProps) {
     return (
         <TabsContent value="billing" className="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-base font-bold text-muted-foreground">Filtros del Informe</CardTitle>
+                    <H3 className="text-base font-bold text-muted-foreground">Filtros del Informe</H3>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <div className="space-y-2 lg:col-span-2">
@@ -120,9 +120,9 @@ export function BillingTab({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem><FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a CSV</DropdownMenuItem>
-                                <DropdownMenuItem><FileText className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a PDF</DropdownMenuItem>
-                                <DropdownMenuItem><FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a Excel</DropdownMenuItem>
+                                <DropdownMenuItem><FileSpreadsheet />Exportar a CSV</DropdownMenuItem>
+                                <DropdownMenuItem><FileText />Exportar a PDF</DropdownMenuItem>
+                                <DropdownMenuItem><FileSpreadsheet />Exportar a Excel</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -131,7 +131,7 @@ export function BillingTab({
             <Card>
                 <CardHeader className="flex flex-row items-center justify-between px-6 pt-6 pb-4">
                     <div>
-                        <CardTitle className="text-base font-bold text-muted-foreground">Reporte de Cuentas</CardTitle>
+                        <H3 className="text-base font-bold text-muted-foreground">Reporte de Cuentas</H3>
                     </div>
                 </CardHeader>
                 <CardContent className="px-6 pb-2">
@@ -185,11 +185,11 @@ export function BillingTab({
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => onViewDetails(order.order)}><Eye className="mr-2 h-4 w-4 text-muted-foreground" />Ver detalles</DropdownMenuItem>
-                                                    <DropdownMenuItem><Download className="mr-2 h-4 w-4 text-muted-foreground" />Descargar PDF</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onViewDetails(order.order)}><Eye />Ver detalles</DropdownMenuItem>
+                                                    <DropdownMenuItem><Download />Descargar PDF</DropdownMenuItem>
                                                     <DropdownMenuSeparator />
-                                                    <DropdownMenuItem><Monitor className="mr-2 h-4 w-4 text-muted-foreground" />Reabrir en TPV</DropdownMenuItem>
-                                                    <DropdownMenuItem><Receipt className="mr-2 h-4 w-4 text-muted-foreground" />Generar/Borrar factura</DropdownMenuItem>
+                                                    <DropdownMenuItem><Monitor />Reabrir en TPV</DropdownMenuItem>
+                                                    <DropdownMenuItem><Receipt />Generar/Borrar factura</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </TableCell>
@@ -200,21 +200,21 @@ export function BillingTab({
                     </div>
                 </CardContent>
                 <CardFooter className="flex justify-end items-center gap-2">
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onPaginate(currentPage - 1)} disabled={currentPage === 1}>
+                    <Button variant="outline" size="md" className="h-8 w-8" onClick={() => onPaginate(currentPage - 1)} disabled={currentPage === 1}>
                         <ChevronLeft className="h-4 w-4" />
                     </Button>
                     {pageNumbers.map(number => (
                         <Button
                             key={number}
                             variant={currentPage === number ? "default" : "outline"}
-                            size="icon"
+                            size="md"
                             className="h-8 w-8"
                             onClick={() => onPaginate(number)}
                         >
                             {number}
                         </Button>
                     ))}
-                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onPaginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                    <Button variant="outline" size="md" className="h-8 w-8" onClick={() => onPaginate(currentPage + 1)} disabled={currentPage === totalPages}>
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </CardFooter>
@@ -222,3 +222,4 @@ export function BillingTab({
         </TabsContent>
     );
 }
+

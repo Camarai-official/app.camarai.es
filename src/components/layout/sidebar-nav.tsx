@@ -237,7 +237,7 @@ export function SidebarNav() {
             >
               <DropdownMenuItem asChild>
                 <Link href="/settings/profile">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings />
                   <span>Ajustes</span>
                 </Link>
               </DropdownMenuItem>
@@ -258,11 +258,11 @@ export function SidebarNav() {
                       <AlertDialogTrigger asChild>
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="md"
                           className="h-6 w-6 hover:bg-destructive/10"
                           onClick={(e) => handleDeleteClick(e, est)}
                         >
-                          <Trash className="h-4 w-4 text-muted-foreground" />
+                          <Trash />
                         </Button>
                       </AlertDialogTrigger>
                     </ConfigEntity>
@@ -271,7 +271,7 @@ export function SidebarNav() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={handleAddEstablishment}>
-                <PlusCircle className="mr-2 h-4 w-4" />
+                <PlusCircle />
                 <span>Añadir nuevo establecimiento</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -335,7 +335,7 @@ export function SidebarNav() {
           <DropdownMenuContent className="w-[var(--sidebar-width)] max-w-[calc(100vw-1.5rem)] mb-2 bg-card" side="top" align="start">
             <DropdownMenuItem asChild>
               <Link href="/settings/profile">
-                <User className="mr-2 h-4 w-4" />
+                <User />
                 <span>Mi cuenta</span>
               </Link>
             </DropdownMenuItem>
@@ -343,7 +343,7 @@ export function SidebarNav() {
               <DropdownMenuSubTrigger>
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
-                    <Bell className="mr-2 h-4 w-4" />
+                    <Bell />
                     Notificaciones
                   </div>
                   {totalNotifications > 0 && <Badge variant="destructive" className="h-5 w-5 p-0 justify-center">{totalNotifications}</Badge>}
@@ -369,8 +369,8 @@ export function SidebarNav() {
                             noIconContainer
                           >
                             <div className="flex gap-1">
-                              <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
-                              <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
+                              <Button size="md" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
+                              <Button size="md" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
                             </div>
                           </ConfigItem>
                         )
@@ -399,7 +399,7 @@ export function SidebarNav() {
             </DropdownMenuSub>
             <DropdownMenuItem asChild>
               <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer">
-                <Shield className="mr-2 h-4 w-4" />
+                <Shield />
                 <span>Política de privacidad</span>
               </Link>
             </DropdownMenuItem>
@@ -409,7 +409,7 @@ export function SidebarNav() {
                 description: 'Puedes enviarnos tus comentarios a soporte@camarai.es',
               });
             }}>
-              <MessageSquareText className="mr-2 h-4 w-4" />
+              <MessageSquareText />
               <span>Enviar comentarios</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -435,7 +435,7 @@ export function SidebarNav() {
                 // router.push('/login');
               }}
             >
-              <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
+              <LogOut />
               <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

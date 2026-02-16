@@ -1,7 +1,8 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { MoreVertical, Pencil, Trash, Plus, Building2, Phone, Mail, MapPin, FileText } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -41,8 +42,7 @@ const initialProviders: Provider[] = [
         nif: 'B12345678',
         category: 'carnes',
         notes: 'Entregas los martes y viernes',
-        paymentTerms: '30',
-    },
+        paymentTerms: '30' },
     {
         id: '2',
         name: 'Vinos y Licores El Celler',
@@ -53,8 +53,7 @@ const initialProviders: Provider[] = [
         nif: 'B87654321',
         category: 'bebidas',
         notes: 'Pedido mínimo 500€',
-        paymentTerms: '60',
-    },
+        paymentTerms: '60' },
 ];
 
 const emptyProvider: Provider = {
@@ -67,8 +66,7 @@ const emptyProvider: Provider = {
     nif: '',
     category: 'otros',
     notes: '',
-    paymentTerms: '30',
-};
+    paymentTerms: '30' };
 
 const providerCategories = [
     { value: 'carnes', label: 'Carnes' },
@@ -110,8 +108,7 @@ export function ProvidersTab() {
             toast({
                 variant: 'destructive',
                 title: 'Campos requeridos',
-                description: 'Por favor, completa el nombre y email del proveedor.',
-            });
+                description: 'Por favor, completa el nombre y email del proveedor.' });
             return;
         }
         
@@ -119,14 +116,12 @@ export function ProvidersTab() {
             setProviders(prev => prev.map(p => p.id === formData.id ? formData : p));
             toast({
                 title: 'Proveedor actualizado',
-                description: `${formData.name} ha sido actualizado correctamente.`,
-            });
+                description: `${formData.name} ha sido actualizado correctamente.` });
         } else {
             setProviders(prev => [...prev, formData]);
             toast({
                 title: 'Proveedor añadido',
-                description: `${formData.name} ha sido añadido a la lista.`,
-            });
+                description: `${formData.name} ha sido añadido a la lista.` });
         }
         handleCloseDialog();
     };
@@ -137,8 +132,7 @@ export function ProvidersTab() {
             toast({
                 variant: 'destructive',
                 title: 'Proveedor eliminado',
-                description: `${providerToDelete.name} ha sido eliminado.`,
-            });
+                description: `${providerToDelete.name} ha sido eliminado.` });
             setProviderToDelete(null);
             setIsDeleteDialogOpen(false);
         }
@@ -155,7 +149,7 @@ export function ProvidersTab() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <CardTitle className="font-bold text-muted-foreground">Proveedores</CardTitle>
+                                <H3 className="font-bold text-muted-foreground">Proveedores</H3>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Gestiona tus proveedores principales.</p>
@@ -200,11 +194,11 @@ export function ProvidersTab() {
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="md" className="h-8 w-8"><MoreVertical /></Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onSelect={() => handleOpenDialog(provider)}>
-                                                <Pencil className="mr-2 h-4 w-4" />Editar
+                                                <Pencil />Editar
                                             </DropdownMenuItem>
                                             <DropdownMenuItem 
                                                 onSelect={() => {
@@ -212,7 +206,7 @@ export function ProvidersTab() {
                                                     setIsDeleteDialogOpen(true);
                                                 }}
                                             >
-                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar
+                                                <Trash />Eliminar
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
@@ -383,3 +377,4 @@ export function ProvidersTab() {
         </TabsContent>
     );
 }
+

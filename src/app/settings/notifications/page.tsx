@@ -1,13 +1,15 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Calendar, ClipboardList, Archive, AlertCircle, Mail, Smartphone, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 
 type NotificationChannel = 'email' | 'push' | 'whatsapp';
@@ -23,8 +25,7 @@ const initialSettings: NotificationSettings = {
   reservations: { email: true, push: true, whatsapp: false },
   orders: { email: false, push: true, whatsapp: true },
   inventory: { email: true, push: false, whatsapp: false },
-  system: { email: true, push: true, whatsapp: false },
-};
+  system: { email: true, push: true, whatsapp: false } };
 
 const categoryInfo = {
     reservations: {
@@ -56,8 +57,7 @@ const categoryInfo = {
 const channelInfo = {
     email: { icon: Mail, label: 'Email' },
     push: { icon: Smartphone, label: 'Push' },
-    whatsapp: { icon: MessageSquare, label: 'WhatsApp' },
-}
+    whatsapp: { icon: MessageSquare, label: 'WhatsApp' } }
 
 export default function NotificationsPage() {
   const [settings, setSettings] = React.useState(initialSettings);
@@ -73,24 +73,22 @@ export default function NotificationsPage() {
         ...settings,
         [category]: {
             ...settings[category],
-            [channel]: checked,
-        }
+            [channel]: checked }
     };
     setSettings(newSettings);
     
     toast({
         title: "Ajustes Guardados",
-        description: `Notificaciones de ${categoryInfo[category].title} por ${channelInfo[channel].label} ${checked ? 'activadas' : 'desactivadas'}.`,
-    });
+        description: `Notificaciones de ${categoryInfo[category].title} por ${channelInfo[channel].label} ${checked ? 'activadas' : 'desactivadas'}.` });
   };
 
   return (
     <div className="flex flex-1 flex-col h-full">
       <PageHeader title="Gestión de Notificaciones" />
-      <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3 pb-24">
+      <PageContent className="pb-24">
         <Card>
             <CardHeader>
-                <CardTitle>Configuración de Alertas</CardTitle>
+                <H3>Configuración de Alertas</H3>
                 <CardDescription>
                     Elige cómo y dónde quieres recibir notificaciones. Los cambios se guardan automáticamente.
                 </CardDescription>
@@ -139,7 +137,7 @@ export default function NotificationsPage() {
                 </div>
             </CardContent>
         </Card>
-      </main>
+      </PageContent>
       <footer className="p-4 md:p-6 pt-0 sticky bottom-0 z-10 sm:relative sm:sticky-0">
           <Card className="p-4 border shadow-lg sm:shadow-none bg-background/90 backdrop-blur-sm sm:bg-transparent sm:border-none">
             <div className="flex justify-center sm:justify-start items-center">
@@ -153,3 +151,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+

@@ -1,7 +1,8 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { Bluetooth, Building2, Cable, Loader2, Monitor, MoreVertical, Pencil, PlusCircle, Printer, Trash, Users, Wifi } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -61,8 +62,7 @@ export function DevicesTab({
     isSearching,
     foundDevices,
     setFoundDevices,
-    handleSelectFoundDevice,
-}: DevicesTabProps) {
+    handleSelectFoundDevice }: DevicesTabProps) {
     return (
         <TabsContent value="devices">
             <Dialog open={isDeviceDialogOpen} onOpenChange={setIsDeviceDialogOpen}>
@@ -75,7 +75,7 @@ export function DevicesTab({
                                     <div className="flex items-center gap-4">
                                         <Icon className="h-8 w-8 text-primary" />
                                         <div>
-                                            <CardTitle className="font-bold text-muted-foreground">{title}</CardTitle>
+                                            <H3 className="font-bold text-muted-foreground">{title}</H3>
                                             <CardDescription>{description}</CardDescription>
                                         </div>
                                     </div>
@@ -91,11 +91,11 @@ export function DevicesTab({
                                             <Switch checked={device.active} onCheckedChange={(checked) => updateDevice(device.id, { active: checked })} />
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
+                                                    <Button variant="ghost" size="md" className="h-8 w-8"><MoreVertical /></Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => handleOpenDeviceDialog(type, device)}><Pencil className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => removeDevice(device.id)}><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => handleOpenDeviceDialog(type, device)}><Pencil />Editar</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => removeDevice(device.id)}><Trash />Eliminar</DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </ConfigItem>
@@ -249,3 +249,4 @@ export function DevicesTab({
         </TabsContent>
     );
 }
+

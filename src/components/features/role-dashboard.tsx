@@ -1,8 +1,9 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { Clock, CheckCircle2, AlertTriangle, Bell, Calendar, Users, Package, CreditCard, MessageSquare, ClipboardList, BarChart3, Settings } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -58,8 +59,7 @@ const roleConfig: Record<UserRole, {
       { label: 'Mesas asignadas', value: 6 },
       { label: 'Pedidos hoy', value: 23 },
       { label: 'Propinas', value: '45€' },
-    ],
-  },
+    ] },
   bartender: {
     title: 'Panel del Bartender',
     quickActions: [
@@ -72,8 +72,7 @@ const roleConfig: Record<UserRole, {
       { label: 'Bebidas servidas', value: 45 },
       { label: 'Pedidos cola', value: 3 },
       { label: 'Stock bajo', value: 2 },
-    ],
-  },
+    ] },
   cocinero: {
     title: 'Panel del Cocinero',
     quickActions: [
@@ -86,8 +85,7 @@ const roleConfig: Record<UserRole, {
       { label: 'Pedidos en cola', value: 8 },
       { label: 'Tiempo medio', value: '12 min' },
       { label: 'Completados hoy', value: 67 },
-    ],
-  },
+    ] },
   encargado: {
     title: 'Panel del Encargado',
     quickActions: [
@@ -100,8 +98,7 @@ const roleConfig: Record<UserRole, {
       { label: 'Ventas hoy', value: '2,450€' },
       { label: 'Staff activo', value: 8 },
       { label: 'Reservas', value: 12 },
-    ],
-  },
+    ] },
   jefe: {
     title: 'Panel de Administración',
     quickActions: [
@@ -114,16 +111,13 @@ const roleConfig: Record<UserRole, {
       { label: 'Ventas mes', value: '45,230€' },
       { label: 'Empleados', value: 15 },
       { label: 'Rentabilidad', value: '+12%' },
-    ],
-  },
-};
+    ] } };
 
 // Priority badge variants
 const priorityVariants: Record<string, any> = {
   high: 'danger',
   medium: 'warning',
-  low: 'success',
-};
+  low: 'success' };
 
 // Default tasks by role
 const getDefaultTasks = (role: UserRole): Task[] => {
@@ -152,8 +146,7 @@ const getDefaultTasks = (role: UserRole): Task[] => {
       { id: '1', title: 'Revisar P&L mensual', priority: 'high', status: 'pending' },
       { id: '2', title: 'Reunión equipo', priority: 'medium', status: 'pending', dueTime: '18:00' },
       { id: '3', title: 'Aprobar vacaciones', priority: 'low', status: 'pending' },
-    ],
-  };
+    ] };
   return baseTasks[role] || [];
 };
 
@@ -172,8 +165,7 @@ export function RoleDashboard({
   notifications,
   onTaskClick,
   onNotificationClick,
-  stats,
-}: RoleDashboardProps) {
+  stats }: RoleDashboardProps) {
   const config = roleConfig[role];
   const roleStyles = getRoleColors(role);
   const displayTasks = tasks || getDefaultTasks(role);
@@ -237,7 +229,7 @@ export function RoleDashboard({
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Mis Tareas</CardTitle>
+              <H3 className="text-base">Mis Tareas</H3>
               <Badge variant="neutral">{pendingTasks} pendientes</Badge>
             </div>
             <div className="space-y-1">
@@ -290,7 +282,7 @@ export function RoleDashboard({
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Notificaciones</CardTitle>
+              <H3 className="text-base">Notificaciones</H3>
               <Badge variant="neutral">
                 {displayNotifications.filter(n => !n.read).length} nuevas
               </Badge>
@@ -339,3 +331,4 @@ export function RoleDashboard({
     </div>
   );
 }
+

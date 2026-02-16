@@ -1,5 +1,6 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import {
@@ -26,7 +27,6 @@ import {
     Card,
     CardContent,
     CardHeader,
-    CardTitle,
     CardFooter,
     CardDescription
 } from '@/components/ui/card';
@@ -36,24 +36,21 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+    DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import {
     Table,
     TableBody,
     TableCell,
     TableHead,
     TableHeader,
-    TableRow,
-} from '@/components/ui/table';
+    TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+    SelectValue } from '@/components/ui/select';
 import {
     Dialog,
     DialogContent,
@@ -61,8 +58,7 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogClose,
-} from '@/components/ui/dialog';
+    DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -73,7 +69,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { cn } from '@/lib/utils';
@@ -119,8 +116,7 @@ const initialCampaigns: Campaign[] = [
         launchDate: '2024-07-15',
         launchTime: '10:00',
         endDate: '2024-07-17',
-        audience: 42,
-    },
+        audience: 42 },
     {
         id: 'camp-2',
         name: '2x1 en Postres',
@@ -129,8 +125,7 @@ const initialCampaigns: Campaign[] = [
         launchDate: '2024-07-01',
         launchTime: '12:00',
         endDate: '2024-07-07',
-        audience: 153,
-    },
+        audience: 153 },
     {
         id: 'camp-3',
         name: 'Menú del Día Especial',
@@ -139,8 +134,7 @@ const initialCampaigns: Campaign[] = [
         launchDate: '2024-07-20',
         launchTime: '11:00',
         endDate: '2024-07-25',
-        audience: 0,
-    },
+        audience: 0 },
     {
         id: 'camp-4',
         name: 'Cena Gratis para Cumpleañeros',
@@ -149,8 +143,7 @@ const initialCampaigns: Campaign[] = [
         launchDate: '2024-01-01',
         launchTime: '09:00',
         endDate: '2024-12-31',
-        audience: 28,
-    }
+        audience: 28 }
 ]
 
 function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: boolean; onOpenChange: (open: boolean) => void; campaign: Campaign | null; onSave: (campaign: Campaign) => void }) {
@@ -168,8 +161,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
         endDate: '',
         audienceBehavior: 'recent-90',
         maxAudience: '',
-        categoryId: '',
-    });
+        categoryId: '' });
     
     const [offerType, setOfferType] = React.useState<'category' | 'product'>('category');
     const [productSearch, setProductSearch] = React.useState('');
@@ -188,8 +180,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                 endDate: campaign.endDate,
                 audienceBehavior: 'recent-90',
                 maxAudience: '',
-                categoryId: '',
-            });
+                categoryId: '' });
         } else {
             setFormData({
                 name: '',
@@ -200,8 +191,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                 endDate: '',
                 audienceBehavior: 'recent-90',
                 maxAudience: '',
-                categoryId: '',
-            });
+                categoryId: '' });
         }
     }, [campaign, open]);
     
@@ -235,13 +225,11 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
             launchDate: formData.launchDate,
             launchTime: formData.launchTime,
             endDate: formData.endDate,
-            audience: parseInt(formData.maxAudience) || 42,
-        };
+            audience: parseInt(formData.maxAudience) || 42 };
         onSave(newCampaign);
         toast({
             title: asDraft ? 'Borrador guardado' : 'Campaña programada',
-            description: asDraft ? 'La campaña se guardó como borrador.' : 'La campaña ha sido programada exitosamente.',
-        });
+            description: asDraft ? 'La campaña se guardó como borrador.' : 'La campaña ha sido programada exitosamente.' });
         onOpenChange(false);
     };
 
@@ -494,8 +482,7 @@ export default function PromocionesPage() {
             totalAudience,
             tasaApertura: 78, // Mock
             conversion: 12.5, // Mock
-            finalizadas,
-        };
+            finalizadas };
     }, [campaigns]);
     
     const handleSaveCampaign = (campaign: Campaign) => {
@@ -548,7 +535,7 @@ export default function PromocionesPage() {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Gestión de Promociones y Campañas" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 {/* Stats KPIs - design system: sin iconos */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatsCard 
@@ -587,7 +574,7 @@ export default function PromocionesPage() {
                         {/* Filters */}
                         <Card>
                             <CardHeader className="py-3">
-                                <CardTitle className="text-base font-bold text-muted-foreground">Filtros</CardTitle>
+                                <H3 className="text-base font-bold text-muted-foreground">Filtros</H3>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -622,7 +609,7 @@ export default function PromocionesPage() {
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <CardTitle className="text-base font-bold text-muted-foreground">Campañas</CardTitle>
+                                    <H3 className="text-base font-bold text-muted-foreground">Campañas</H3>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p>Aquí puedes ver y gestionar todas tus campañas de WhatsApp.</p>
@@ -657,17 +644,17 @@ export default function PromocionesPage() {
                                         </div>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button aria-haspopup="true" size="icon" variant="ghost" className="h-8 w-8 -mt-2 -mr-2 flex-shrink-0">
+                                                <Button aria-haspopup="true" size="md" variant="ghost" className="h-8 w-8 -mt-2 -mr-2 flex-shrink-0">
                                                     <MoreHorizontal className="h-4 w-4" />
                                                     <span className="sr-only">Menú de acciones</span>
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
-                                                <DropdownMenuItem><Copy className="mr-2 h-4 w-4 text-muted-foreground" />Duplicar</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit />Editar</DropdownMenuItem>
+                                                <DropdownMenuItem><Copy />Duplicar</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                                <DropdownMenuItem><Trash />Eliminar</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -749,17 +736,17 @@ export default function PromocionesPage() {
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                        <Button aria-haspopup="true" size="md" variant="ghost">
                                                             <MoreHorizontal className="h-4 w-4" />
                                                             <span className="sr-only">Menú de acciones</span>
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
-                                                        <DropdownMenuItem><Copy className="mr-2 h-4 w-4 text-muted-foreground" />Duplicar</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit />Editar</DropdownMenuItem>
+                                                        <DropdownMenuItem><Copy />Duplicar</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                                        <DropdownMenuItem><Trash />Eliminar</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
@@ -782,7 +769,7 @@ export default function PromocionesPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-base">Rendimiento por Campaña</CardTitle>
+                                    <H3 className="text-base">Rendimiento por Campaña</H3>
                                     <CardDescription>Métricas de las últimas campañas</CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -811,7 +798,7 @@ export default function PromocionesPage() {
                             
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-base">Métricas WhatsApp</CardTitle>
+                                    <H3 className="text-base">Métricas WhatsApp</H3>
                                     <CardDescription>Estadísticas del canal</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -855,8 +842,9 @@ export default function PromocionesPage() {
                     campaign={editingCampaign}
                     onSave={handleSaveCampaign}
                 />
-            </main>
+            </PageContent>
         </div>
     );
 }
+
 

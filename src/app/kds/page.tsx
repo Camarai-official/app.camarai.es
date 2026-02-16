@@ -1,8 +1,10 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { PageHeader } from '@/components/layout/page-header';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MonitorPlay, Settings, ExternalLink, Volume2 } from 'lucide-react';
 import {
@@ -11,8 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -38,16 +39,14 @@ export default function KdsPage() {
     // In a real app, this would redirect to the KDS application
     toast({
       title: 'Iniciando KDS',
-      description: 'Redirigiendo al sistema de visualización de cocina...',
-    });
+      description: 'Redirigiendo al sistema de visualización de cocina...' });
     // window.open('/kds-app', '_blank');
   };
 
   const handleSaveConfig = () => {
     toast({
       title: 'Configuración guardada',
-      description: 'Los ajustes del KDS se han guardado correctamente.',
-    });
+      description: 'Los ajustes del KDS se han guardado correctamente.' });
     setConfigOpen(false);
   };
 
@@ -62,13 +61,13 @@ export default function KdsPage() {
   return (
     <div className="flex flex-1 flex-col h-full">
       <PageHeader title="Kitchen Display System (KDS)" />
-      <main className="flex flex-1 items-center justify-center p-4 pt-2 md:p-6 md:pt-3">
+      <PageContent className="items-center justify-center">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="pb-4">
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
               <MonitorPlay className="h-10 w-10 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Kitchen Display System</CardTitle>
+            <H3 className="text-2xl">Kitchen Display System</H3>
             <CardDescription className="text-base">
               Sistema de visualización de comandas para la cocina. Gestiona pedidos y tiempos de preparación en tiempo real.
             </CardDescription>
@@ -91,7 +90,7 @@ export default function KdsPage() {
             </p>
           </CardFooter>
         </Card>
-      </main>
+      </PageContent>
 
       {/* Modal de Configuración KDS */}
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
@@ -214,3 +213,4 @@ export default function KdsPage() {
     </div>
   );
 }
+

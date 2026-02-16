@@ -47,7 +47,7 @@
   .dark {
     --background: 225 39% 11%; /* #111827 */
     --foreground: 210 40% 98%;
-    --card: 215 28% 17%; /* #1f2937 */
+    --card: 219 31% 15%; /* #1A2231 */
     --card-foreground: 210 40% 98%;
     --popover: 215 28% 17%; /* #1f2937 */
     --popover-foreground: 210 40% 98%;
@@ -94,6 +94,7 @@
   body {
     @apply bg-background text-foreground overflow-x-hidden;
     max-width: 100vw;
+    scrollbar-gutter: stable;
     font-family:
       var(--font-inter),
       ui-sans-serif,
@@ -177,4 +178,9 @@
     -moz-appearance: textfield;
     appearance: textfield;
   }
+}
+
+/* Fix layout shift when modals/dropdowns open by compensating scrollbar width */
+body[style*="overflow: hidden"] {
+  padding-right: var(--removed-body-scroll-bar-size, 0px) !important;
 }

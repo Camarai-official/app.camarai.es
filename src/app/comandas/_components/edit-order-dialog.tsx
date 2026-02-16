@@ -192,7 +192,7 @@ export function EditOrderDialog({
                         <div className="flex items-center gap-3 bg-background rounded-lg border p-1 shadow-sm">
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-6 w-6 hover:bg-destructive/10 transition-colors rounded-md"
                             onClick={() => handleRemoveItem(index)}
                           >
@@ -201,7 +201,7 @@ export function EditOrderDialog({
                           <div className="w-px h-4 bg-border" />
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-6 w-6 rounded-md"
                             onClick={() => handleQuantityChange(index, -1)}
                           >
@@ -210,7 +210,7 @@ export function EditOrderDialog({
                           <span className="w-6 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-6 w-6 rounded-md hover:bg-primary/10 hover:text-primary"
                             onClick={() => handleQuantityChange(index, 1)}
                           >

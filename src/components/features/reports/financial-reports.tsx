@@ -1,8 +1,9 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { Product, Tax } from '@/data/mock-data';
@@ -14,9 +15,9 @@ export function AverageTicketCard() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2">
+                <H3 className="text-sm font-bold text-muted-foreground flex items-center gap-2">
                     <DollarSign className="h-5 w-5" /> Ticket Medio
-                </CardTitle>
+                </H3>
             </CardHeader>
             <CardContent>
                 <p className="text-3xl font-bold text-primary">€38.50</p>
@@ -33,9 +34,9 @@ export function TableTurnoverCard() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2">
+                <H3 className="text-sm font-bold text-muted-foreground flex items-center gap-2">
                     <Users className="h-5 w-5" /> Rotación de Mesas
-                </CardTitle>
+                </H3>
             </CardHeader>
             <CardContent>
                 <p className="text-3xl font-bold text-primary">2.8</p>
@@ -52,9 +53,9 @@ export function RevenuePerHourCard() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="text-sm font-bold text-muted-foreground flex items-center gap-2">
+                <H3 className="text-sm font-bold text-muted-foreground flex items-center gap-2">
                     <Clock className="h-5 w-5" /> Ingresos por Hora
-                </CardTitle>
+                </H3>
             </CardHeader>
             <CardContent>
                 <p className="text-3xl font-bold text-primary">€150.75</p>
@@ -104,7 +105,7 @@ export function TaxReportCard({ products, taxes, getTaxName }: TaxReportCardProp
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Informe de Impuestos</CardTitle>
+                <H3>Informe de Impuestos</H3>
                 <CardDescription>Desglose de los impuestos recaudados.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -172,7 +173,7 @@ export function ProfitAndLossCard({ products }: ProfitAndLossCardProps) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Pérdidas y Ganancias (P&L)</CardTitle>
+                <H3>Pérdidas y Ganancias (P&L)</H3>
                 <CardDescription>Resumen de rentabilidad del período.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
@@ -203,3 +204,4 @@ export function ProfitAndLossCard({ products }: ProfitAndLossCardProps) {
         </Card>
     );
 }
+

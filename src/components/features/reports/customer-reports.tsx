@@ -1,9 +1,10 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 
@@ -28,7 +29,7 @@ export function CustomerLoyaltyCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Análisis de Lealtad de Clientes</CardTitle>
+        <H3>Análisis de Lealtad de Clientes</H3>
         <CardDescription>Frecuencia de visitas y clientes más recurrentes.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -86,7 +87,7 @@ export function CampaignPerformanceCard() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Rendimiento de Campañas</CardTitle>
+                <H3>Rendimiento de Campañas</H3>
                 <CardDescription>Eficacia de las promociones enviadas por WhatsApp.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -123,3 +124,4 @@ export function CampaignPerformanceCard() {
         </Card>
     )
 }
+

@@ -1,5 +1,6 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { addDays, format, isWithinInterval, parse } from 'date-fns';
@@ -20,8 +21,7 @@ import {
     XCircle,
     FileText,
     CreditCard,
-    Ban,
-} from 'lucide-react';
+    Ban } from 'lucide-react';
 
 import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
 import { mockOrderDetails, mockOrderProducts, mockOrderTables, mockOrders } from '@/data/orders';
@@ -30,7 +30,7 @@ import { EditOrderDialog } from '@/app/comandas/_components/edit-order-dialog';
 import { OrderDetailsDialog } from '@/app/comandas/_components/order-details-dialog';
 import { ViewConfigDialog } from '@/app/comandas/_components/view-config-dialog';
 
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -41,10 +41,11 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLab
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
 import { ExportModal } from '@/components/features/export-modal';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContent } from '@/components/layout/page-content';
 
 export default function ComandasPage() {
     const { toast } = useToast();
@@ -56,8 +57,7 @@ export default function ComandasPage() {
     // Estados para los filtros y la paginación.
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -7),
-        to: new Date(),
-    });
+        to: new Date() });
     const [searchTerm, setSearchTerm] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage, setItemsPerPage] = React.useState(defaultViewConfig.itemsPerPage);
@@ -99,8 +99,7 @@ export default function ComandasPage() {
     const handleSaveConfig = () => {
         toast({
             title: 'Configuración guardada',
-            description: 'Los ajustes de visualización se han aplicado.',
-        });
+            description: 'Los ajustes de visualización se han aplicado.' });
         setIsConfigOpen(false);
     };
 
@@ -132,8 +131,7 @@ export default function ComandasPage() {
     const handlePrintSelected = () => {
         toast({
             title: "Imprimiendo tickets",
-            description: `Enviando ${selectedOrders.size} tickets a la impresora...`,
-        });
+            description: `Enviando ${selectedOrders.size} tickets a la impresora...` });
         // Aquí iría la lógica real de impresión
     };
 
@@ -164,8 +162,7 @@ export default function ComandasPage() {
 
         toast({
             title: "Comanda actualizada",
-            description: `La comanda #${updatedOrder.order} ha sido modificada correctamente.`,
-        });
+            description: `La comanda #${updatedOrder.order} ha sido modificada correctamente.` });
     };
 
     const handleStatusChange = (orderOrder: string, newStatus: OrderStatus) => {
@@ -175,8 +172,7 @@ export default function ComandasPage() {
 
         toast({
             title: "Estado Actualizado",
-            description: `La comanda #${orderOrder} ahora está ${newStatus}.`,
-        });
+            description: `La comanda #${orderOrder} ahora está ${newStatus}.` });
     };
 
     const filteredOrders = orders.filter(order => {
@@ -214,7 +210,7 @@ export default function ComandasPage() {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Historial de Pedidos" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
 
 
                 <Card>
@@ -235,7 +231,7 @@ export default function ComandasPage() {
                                 </Button>
                             )}
 
-                            <Button variant="outline" size="icon" onClick={() => setIsConfigOpen(true)}>
+                            <Button variant="outline" size="md" onClick={() => setIsConfigOpen(true)}>
                                 <Settings className="h-4 w-4" />
                             </Button>
                             <Button onClick={() => setIsExportOpen(true)}>
@@ -373,27 +369,27 @@ export default function ComandasPage() {
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredOrders.length)}-{Math.min(indexOfLastItem, filteredOrders.length)}</strong> de <strong>{filteredOrders.length}</strong> comandas.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                            <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
                             {pageNumbers.map(number => (
                                 <Button
                                     key={number}
                                     variant={currentPage === number ? "default" : "outline"}
-                                    size="icon"
+                                    size="md"
                                     className="h-8 w-8"
                                     onClick={() => paginate(number)}
                                 >
                                     {number}
                                 </Button>
                             ))}
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                            <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
                                 <ChevronRight className="h-4 w-4" />
                             </Button>
                         </div>
                     </CardFooter>
                 </Card>
-            </main>
+            </PageContent>
             <OrderDetailsDialog
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
@@ -405,8 +401,7 @@ export default function ComandasPage() {
                 onPrint={(order) => {
                     toast({
                         title: "Imprimiendo ticket",
-                        description: `Enviando ticket #${order.order} a la impresora...`,
-                    });
+                        description: `Enviando ticket #${order.order} a la impresora...` });
                 }}
             />
 
@@ -439,3 +434,4 @@ export default function ComandasPage() {
         </div>
     );
 }
+

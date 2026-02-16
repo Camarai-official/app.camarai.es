@@ -7,7 +7,8 @@ import { es } from 'date-fns/locale';
 import { DateRange } from "react-day-picker";
 import { Download, CalendarIcon } from 'lucide-react';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { H4 } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -122,33 +123,29 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   };
 
   return (
-    <Card className="col-span-1 lg:col-span-2 flex flex-col h-full shadow-md border-border/50 gap-4">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-        <div className="flex flex-col gap-4">
-          <CardTitle className="text-base font-bold text-muted-foreground flex items-center gap-2">
-            Ventas Totales
-            {isDetached && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-primary hover:text-primary/80"
-                onClick={handleReset}
-                title="Sincronizar con filtro global"
-              >
-                <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              </Button>
-            )}
-          </CardTitle>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <H4 className="text-base font-bold text-muted-foreground flex items-center gap-2">
+          Ventas Totales
+          {isDetached && (
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={handleReset}
+              title="Sincronizar con filtro global"
+            >
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            </Button>
+          )}
+        </H4>
 
         <div className="flex items-center gap-2">
-
           {/* Date Picker Range + Year Config */}
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  "justify-start text-left font-normal h-9",
                   !date && "text-muted-foreground"
                 )}
               >
@@ -174,7 +171,6 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
                 defaultMonth={date?.from}
                 selected={date}
                 onSelect={handleDateSelect}
-                className="rounded-md border"
                 numberOfMonths={1}
               />
             </PopoverContent>
@@ -184,7 +180,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
             value={viewMode}
             onValueChange={(v: ViewMode) => setViewMode(v)}
           >
-            <SelectTrigger className="w-[100px] h-9">
+            <SelectTrigger className="w-[100px]">
               <SelectValue placeholder="Vista" />
             </SelectTrigger>
             <SelectContent>
@@ -195,50 +191,69 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
             </SelectContent>
           </Select>
 
-          <Button variant="outline" size="icon" className="h-9 w-9" onClick={handleExport}>
-            <Download className="h-4 w-4" />
+          <Button variant="outline" size="md" onClick={handleExport}>
+            <Download/>
           </Button>
         </div>
-                </div>
       </CardHeader>
 
-      <CardContent className="flex-1 w-full min-h-[200px]">
-        <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <CardContent className="flex-1 w-full min-h-[300px] mt-4">
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
+                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
                 <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" opacity={0.3} />
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              vertical={false} 
+              stroke="hsl(var(--muted-foreground))" 
+              opacity={0.1} 
+            />
             <XAxis
               dataKey="label"
               stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
+              fontSize={11}
+              fontWeight={500}
               tickLine={false}
               axisLine={false}
               minTickGap={30}
+              dy={10}
             />
             <YAxis
               stroke="hsl(var(--muted-foreground))"
-              fontSize={12}
+              fontSize={11}
+              fontWeight={500}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => `€${value}`}
+              tickFormatter={(value) => `€${(value / 1000).toFixed(1)}k`}
+              dx={-10}
             />
             <Tooltip
+              cursor={{
+                stroke: 'hsl(var(--primary))',
+                strokeWidth: 2,
+                strokeDasharray: '4 4',
+              }}
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="rounded-lg border bg-background p-2 shadow-sm">
-                      <div className="grid grid-cols-1 gap-1">
-                        <span className="text-[0.70rem] uppercase text-muted-foreground">
-                          {label}
-                        </span>
-                        <span className="font-bold text-primary">
-                          €{Number(payload[0].value).toLocaleString()}
-                        </span>
+                    <div className="rounded-xl border-2 border-border p-2 shadow-2xl">
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center justify-between gap-8">
+                          <span className="text-xs text-muted-foreground">
+                            {label}
+                          </span>
+                          <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                        </div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl font-black text-foreground">
+                            €{Number(payload[0].value).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span className="text-xs font-bold text-muted-foreground">EUR</span>
+                        </div>
                       </div>
                     </div>
                   );
@@ -250,9 +265,17 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
               type="monotone"
               dataKey="value"
               stroke="hsl(var(--primary))"
+              strokeWidth={3}
               fillOpacity={1}
               fill="url(#colorSales)"
-              strokeWidth={2}
+              activeDot={{
+                r: 6,
+                fill: 'hsl(var(--background))',
+                stroke: 'hsl(var(--primary))',
+                strokeWidth: 3,
+                className: "shadow-xl"
+              }}
+              animationDuration={1500}
             />
           </AreaChart>
         </ResponsiveContainer>

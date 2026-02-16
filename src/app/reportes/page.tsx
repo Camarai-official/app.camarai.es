@@ -1,5 +1,6 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { addDays } from 'date-fns';
@@ -18,7 +19,8 @@ import {
 import type { AbsenceRequest } from '@/data/mock-data';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import {
     allOrders,
     mockReportOrderDetails as mockOrderDetails,
@@ -33,7 +35,7 @@ import { InventoryTab } from '@/app/reportes/_components/inventory-tab';
 import { CashClosingTab } from '@/app/reportes/_components/cash-closing-tab';
 import { OrderDetailsDialog } from '@/app/reportes/_components/order-details-dialog';
 import { MovementsDetailsDialog } from '@/app/reportes/_components/movements-details-dialog';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -53,8 +55,7 @@ const mockWhatsAppMetrics = {
         { id: 'conv-3', cliente: 'Luis P.', tipo: 'Consulta', fecha: '2024-01-29 12:00', estado: 'Pendiente' },
         { id: 'conv-4', cliente: 'María R.', tipo: 'Pedido', fecha: '2024-01-29 11:45', estado: 'En preparación' },
         { id: 'conv-5', cliente: 'Pedro S.', tipo: 'Pedido', fecha: '2024-01-29 10:30', estado: 'Completado' },
-    ],
-};
+    ] };
 
 export default function ReportesPage() {
     // Local state for absence requests to simulate updates
@@ -73,8 +74,7 @@ export default function ReportesPage() {
         taxes: mockTaxes,
         ingredients: mockIngredients,
         ingredientCategories: mockIngredientCategories,
-        absenceRequests: absenceRequests,
-    };
+        absenceRequests: absenceRequests };
 
     const updateAbsenceRequest = (id: string, data: Partial<AbsenceRequest>) => {
         setAbsenceRequests(prev => prev.map(req => req.id === id ? { ...req, ...data } : req));
@@ -86,8 +86,7 @@ export default function ReportesPage() {
     const [selectedStaffId, setSelectedStaffId] = React.useState<string>('all');
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
-        to: new Date(),
-    });
+        to: new Date() });
     const [reportType, setReportType] = React.useState<string>('accounts');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [ordersPerPage] = React.useState(11);
@@ -120,8 +119,7 @@ export default function ReportesPage() {
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'No se encontraron los detalles para esta comanda.',
-            })
+                description: 'No se encontraron los detalles para esta comanda.' })
         }
     }
 
@@ -175,8 +173,7 @@ export default function ReportesPage() {
         updateAbsenceRequest(req.id, { status: newStatus });
         toast({
             title: `Solicitud ${newStatus === 'approved' ? 'aprobada' : 'rechazada'}`,
-            description: `La solicitud de ${appData.staffMembers.find(s => s.id === req.staffId)?.nombre} ha sido actualizada.`,
-        });
+            description: `La solicitud de ${appData.staffMembers.find(s => s.id === req.staffId)?.nombre} ha sido actualizada.` });
     };
 
 
@@ -187,7 +184,7 @@ export default function ReportesPage() {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Panel de Reportes & Cierre de Caja" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Tabs defaultValue="billing">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
@@ -285,7 +282,7 @@ export default function ReportesPage() {
                             {/* Delivery Stats */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-base">Estadísticas de Entrega</CardTitle>
+                                    <H3 className="text-base">Estadísticas de Entrega</H3>
                                     <CardDescription>Rendimiento de mensajes del mes</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -316,7 +313,7 @@ export default function ReportesPage() {
                             {/* Conversions */}
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-base">Conversiones</CardTitle>
+                                    <H3 className="text-base">Conversiones</H3>
                                     <CardDescription>Acciones generadas vía WhatsApp</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -339,7 +336,7 @@ export default function ReportesPage() {
                         {/* Recent Conversations */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Conversaciones Recientes</CardTitle>
+                                <H3 className="text-base">Conversaciones Recientes</H3>
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -379,7 +376,8 @@ export default function ReportesPage() {
                 </Tabs>
                 <OrderDetailsDialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen} order={selectedOrder} />
                 <MovementsDetailsDialog open={isMovementsOpen} onOpenChange={setIsMovementsOpen} />
-            </main>
+            </PageContent>
         </div>
     );
 }
+

@@ -1,6 +1,4 @@
-
 "use client"
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
@@ -306,7 +304,7 @@ const SidebarTrigger = React.forwardRef<
       ref={ref}
       data-sidebar="trigger"
       variant="ghost"
-      size="icon"
+      size="md"
       className={cn("h-10 w-10", className)}
       onClick={(event) => {
         onClick?.(event)

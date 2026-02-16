@@ -108,7 +108,7 @@ export function StaffCard({
         </Badge>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="md" className="h-8 w-8">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -217,7 +217,7 @@ export function StaffCard({
               <TooltipTrigger asChild>
                 <Button 
                   variant="outline" 
-                  size="icon" 
+                  size="md" 
                   className="flex-1 h-9"
                   onClick={() => window.location.href = `tel:${staff.telefono}`}
                 >
@@ -233,7 +233,7 @@ export function StaffCard({
               <TooltipTrigger asChild>
                 <Button 
                   variant="outline" 
-                  size="icon" 
+                  size="md" 
                   className="flex-1 h-9"
                   onClick={() => window.location.href = `mailto:${staff.email}`}
                 >
@@ -250,7 +250,7 @@ export function StaffCard({
                 <TooltipTrigger asChild>
                   <Button 
                     variant="outline" 
-                    size="icon" 
+                    size="md" 
                     className="flex-1 h-9 text-brand-whatsapp hover:text-brand-whatsapp hover:bg-brand-whatsapp/10"
                     onClick={() => onWhatsApp(staff)}
                   >
@@ -268,7 +268,7 @@ export function StaffCard({
                 <TooltipTrigger asChild>
                   <Button 
                     variant="outline" 
-                    size="icon" 
+                    size="md" 
                     className="flex-1 h-9"
                     onClick={() => onEdit(staff)}
                   >

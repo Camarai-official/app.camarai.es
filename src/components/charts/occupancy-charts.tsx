@@ -1,9 +1,10 @@
-
 'use client';
 
 import * as React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { H4 } from '@/components/ui/typography';
+import { cn } from '@/lib/utils';
 
 type OccupancyData = {
   name: string;
@@ -12,61 +13,14 @@ type OccupancyData = {
   percentage: number;
 };
 
-type OccupancyChartProps = {
+interface OccupancyChartProps {
   data: OccupancyData[];
-};
+  className?: string;
+}
 
-const RADIAN = Math.PI / 180;
-const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, payload }: any) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    if (payload.percentage < 5) return null;
-
-    return (
-        <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" className="text-xs font-bold">
-            {`${(percent * 100).toFixed(0)}%`}
-        </text>
-    );
-};
-
-const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-        const data = payload[0].payload;
-        return (
-            <div className="rounded-lg border bg-background p-2 shadow-sm">
-                <div className="flex flex-col">
-                    <span className="font-bold text-foreground">{data.name}</span>
-                    <span className="text-sm" style={{ color: data.color }}>
-                        Aforo: {data.value} ({data.percentage.toFixed(1)}%)
-                    </span>
-                </div>
-            </div>
-        );
-    }
-    return null;
-};
-
-
-const CustomLegend = (props: any) => {
-    const { payload } = props;
-    return (
-        <ul className="w-1/2 space-y-2">
-            {payload.map((entry: any, index: number) => (
-                 <li key={`item-${index}`} className="flex items-center text-sm">
-                  <div className="w-3 h-3 rounded-full mr-2" style={{ backgroundColor: entry.color }} />
-                  <span className="text-muted-foreground truncate flex-1">{entry.value}</span>
-                  <span className="font-semibold text-foreground ml-2">{entry.payload.payload.percentage.toFixed(1)}%</span>
-                </li>
-            ))}
-        </ul>
-    );
-};
 
 
 const tailwindColorMap: { [key: string]: string } = {
-  // Standard Tailwind colors
   'blue-400': '#60a5fa',
   'blue-500': '#3b82f6',
   'violet-500': '#8b5cf6',
@@ -76,60 +30,90 @@ const tailwindColorMap: { [key: string]: string } = {
   'emerald-500': '#10b981',
   'slate-400': '#94a3b8',
   'slate-500': '#64748b',
-  
-  // Brand colors defined in globals.css
   'brand-blue': 'hsl(var(--brand-blue))',
   'brand-pink': 'hsl(var(--brand-pink))',
   'brand-yellow': 'hsl(var(--brand-yellow))',
   'brand-green': 'hsl(var(--brand-green))',
-  'primary': 'hsl(var(--primary))',
+  'primary': 'hsl(var(--primary))' 
 };
 
 const getColor = (color: string) => {
   if (!color) return 'hsl(var(--primary))';
-  
   if (color.startsWith('#') || color.startsWith('hsl') || color.startsWith('rgb')) {
     return color;
   }
-  
   return tailwindColorMap[color] || color;
 };
 
-export function OccupancyChart({ data }: OccupancyChartProps) {
-  if (!data || data.length === 0) {
-    return <p className="text-muted-foreground text-center">No hay datos de aforo disponibles.</p>;
-  }
+export function OccupancyChart({ data, className }: OccupancyChartProps) {
+  const processedData = React.useMemo(() => {
+    if (!data) return [];
+    return data.map(item => ({
+      ...item,
+      color: getColor(item.color)
+    }));
+  }, [data]);
 
-  // Pre-process data to ensure valid colors
-  const processedData = data.map(item => ({
-    ...item,
-    color: getColor(item.color)
-  }));
-  
+  const total = React.useMemo(() => {
+    return processedData.reduce((acc, curr) => acc + curr.value, 0);
+  }, [processedData]);
+
   return (
-    <div className="w-full h-48 sm:h-56 flex items-center justify-center">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Tooltip content={<CustomTooltip />} />
-          <Pie
-            data={processedData}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={renderCustomizedLabel}
-            outerRadius="100%"
-            innerRadius="70%"
-            fill="hsl(var(--primary))"
-            dataKey="value"
-            stroke="hsl(var(--card))"
-            strokeWidth={4}
-          >
-            {processedData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    <Card className={cn("", className)}>
+      <CardHeader className="flex-row ">
+        <H4 className="text-muted-foreground">Aforo Ambientes</H4>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        {!data || data.length === 0 ? (
+          <div className="flex items-center justify-center min-h-[200px]">
+            <p className="text-muted-foreground text-xs text-center">No hay datos disponibles.</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center gap-8 py-6">
+            <div className="relative w-48 h-48 shrink-0">
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Total</span>
+                  <span className="text-3xl font-black">{total}</span>
+              </div>
+
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={processedData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="75%"
+                    outerRadius="100%"
+                    paddingAngle={2}
+                    dataKey="value"
+                    stroke="none"
+                    animationDuration={0}
+                  >
+                    {processedData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="flex flex-col gap-3 w-full max-w-[240px]">
+              {processedData.map((item) => (
+                <div key={item.name} className="flex items-center justify-between text-xs border-b border-border/40 pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-muted-foreground font-medium truncate max-w-[150px]">{item.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-muted-foreground">{item.value}</span>
+                    <span className="font-bold text-foreground">{item.percentage.toFixed(1)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

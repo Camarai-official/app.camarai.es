@@ -1,7 +1,8 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { MoreVertical, Pencil, Trash, CheckCircle2, XCircle, ExternalLink, RefreshCw, Zap, Settings } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -50,8 +51,7 @@ const initialIntegrations: Integration[] = [
         enabled: true,
         connected: true,
         config: { phone: '+34612345678', notifyReservations: true, notifyOrders: true },
-        lastSync: '2024-01-29 10:30',
-    },
+        lastSync: '2024-01-29 10:30' },
     {
         id: 'google',
         name: 'Reservas de Google',
@@ -59,8 +59,7 @@ const initialIntegrations: Integration[] = [
         icon: <GoogleIcon />,
         enabled: false,
         connected: false,
-        config: { calendarId: '', autoSync: false },
-    },
+        config: { calendarId: '', autoSync: false } },
 ];
 
 export function IntegrationsTab() {
@@ -76,8 +75,7 @@ export function IntegrationsTab() {
     const handleEvolutionSave = () => {
         toast({
             title: 'Evolution API configurada',
-            description: 'La configuración de WhatsApp se ha guardado correctamente.',
-        });
+            description: 'La configuración de WhatsApp se ha guardado correctamente.' });
     };
     
     const handleToggle = (id: string, enabled: boolean) => {
@@ -85,8 +83,7 @@ export function IntegrationsTab() {
             setIntegrations(prev => prev.map(i => i.id === id ? { ...i, enabled: false } : i));
             toast({
                 title: 'Integración desactivada',
-                description: 'La integración ha sido desactivada.',
-            });
+                description: 'La integración ha sido desactivada.' });
         } else {
             const integration = integrations.find(i => i.id === id);
             if (integration && !integration.connected) {
@@ -95,8 +92,7 @@ export function IntegrationsTab() {
                 setIntegrations(prev => prev.map(i => i.id === id ? { ...i, enabled: true } : i));
                 toast({
                     title: 'Integración activada',
-                    description: 'La integración está ahora activa.',
-                });
+                    description: 'La integración está ahora activa.' });
             }
         }
     };
@@ -118,8 +114,7 @@ export function IntegrationsTab() {
         
         toast({
             title: 'Configuración guardada',
-            description: `${selectedIntegration.name} ha sido configurado correctamente.`,
-        });
+            description: `${selectedIntegration.name} ha sido configurado correctamente.` });
         setConfigDialogOpen(false);
     };
     
@@ -130,15 +125,13 @@ export function IntegrationsTab() {
         toast({
             variant: 'destructive',
             title: 'Integración desconectada',
-            description: 'La integración ha sido eliminada.',
-        });
+            description: 'La integración ha sido eliminada.' });
     };
     
     const handleSync = (integration: Integration) => {
         toast({
             title: 'Sincronizando...',
-            description: `Sincronizando ${integration.name}.`,
-        });
+            description: `Sincronizando ${integration.name}.` });
         // Simulate sync
         setTimeout(() => {
             setIntegrations(prev => prev.map(i => 
@@ -146,8 +139,7 @@ export function IntegrationsTab() {
             ));
             toast({
                 title: 'Sincronización completada',
-                description: `${integration.name} actualizado.`,
-            });
+                description: `${integration.name} actualizado.` });
         }, 1500);
     };
     
@@ -158,7 +150,7 @@ export function IntegrationsTab() {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <CardTitle className="font-bold text-muted-foreground">Integraciones</CardTitle>
+                                <H3 className="font-bold text-muted-foreground">Integraciones</H3>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Conecta con tus herramientas favoritas para potenciar tu restaurante.</p>
@@ -206,24 +198,22 @@ export function IntegrationsTab() {
                                 />
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                                            <MoreVertical className="h-4 w-4" />
-                                        </Button>
+                                        <Button variant="ghost" size="md" className="h-8 w-8"><MoreVertical /></Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onSelect={() => openConfigDialog(integration)}>
-                                            <Pencil className="mr-2 h-4 w-4" />Configurar
+                                            <Pencil />Configurar
                                         </DropdownMenuItem>
                                         {integration.connected && (
                                             <DropdownMenuItem onSelect={() => handleSync(integration)}>
-                                                <RefreshCw className="mr-2 h-4 w-4" />Sincronizar
+                                                <RefreshCw />Sincronizar
                                             </DropdownMenuItem>
                                         )}
                                         {integration.connected && (
                                             <DropdownMenuItem 
                                                 onSelect={() => handleDisconnect(integration.id)}
                                             >
-                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground" />Desconectar
+                                                <Trash />Desconectar
                                             </DropdownMenuItem>
                                         )}
                                     </DropdownMenuContent>
@@ -246,7 +236,7 @@ export function IntegrationsTab() {
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Zap className="h-5 w-5 text-brand-whatsapp" />
-                            <CardTitle className="font-bold text-muted-foreground">Evolution API - Camarero AI</CardTitle>
+                            <H3 className="font-bold text-muted-foreground">Evolution API - Camarero AI</H3>
                         </div>
                         <Badge variant="secondary" className="bg-brand-whatsapp/10 text-brand-whatsapp">
                             Integración Core
@@ -349,3 +339,4 @@ export function IntegrationsTab() {
         </TabsContent>
     );
 }
+

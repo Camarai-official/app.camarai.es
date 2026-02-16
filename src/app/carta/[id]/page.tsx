@@ -1,11 +1,12 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, PlusCircle, Trash, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, TrendingUp } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { mockMenuCombos, mockProducts, mockCategories, mockTaxes, MenuCombo, Product, Category, Tax, ElementoMenuCombo } from '@/data/mock-data';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 
 const emptyElement: Omit<ElementoMenuCombo, 'id' | 'tipo'> = {
     id_seleccion: '',
@@ -229,13 +231,13 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                     title={<>Gestionar Menú/Combo: &quot;{activeMenu.nombre_carta}&quot;</>}
                 />
             </Link>
-            <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3">
+            <PageContent>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     {/* Left Column: Menu Details & Profitability */}
                     <div className="lg:col-span-1 flex flex-col gap-8">
-                        <Card className="flex flex-col">
+                        <Card className="flex-col">
                             <CardHeader>
-                                <CardTitle className="text-base font-bold text-muted-foreground">Detalles del Menú</CardTitle>
+                                <H3 className="text-base font-bold text-muted-foreground">Detalles del Menú</H3>
                             </CardHeader>
                             <CardContent className="space-y-4 flex-grow overflow-y-auto custom-scrollbar pr-2">
                                 <div className="space-y-2">
@@ -280,10 +282,10 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                         </Card>
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-base font-bold text-muted-foreground">
+                                <H3 className="flex items-center gap-2 text-base font-bold text-muted-foreground">
                                     <TrendingUp className="h-5 w-5" />
                                     Rentabilidad del Menú (Calculada)
-                                </CardTitle>
+                                </H3>
                             </CardHeader>
                             <CardContent className="space-y-2 text-sm">
                                 <div className="flex justify-between">
@@ -303,9 +305,9 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                     </div>
 
                     {/* Right Column: Menu Elements */}
-                    <Card className="lg:col-span-2 flex flex-col">
+                    <Card className="lg:col-span-2 flex-col">
                         <CardHeader>
-                            <CardTitle className="text-base font-bold text-muted-foreground">Elementos del Menú</CardTitle>
+                            <H3 className="text-base font-bold text-muted-foreground">Elementos del Menú</H3>
                             <CardDescription>Añade productos individuales o categorías de las que el cliente podrá elegir.</CardDescription>
                         </CardHeader>
                         <CardContent className="flex-grow space-y-3 overflow-y-auto custom-scrollbar pr-2">
@@ -320,7 +322,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                                             </p>
                                         </div>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10" onClick={() => removeElementFromMenuCombo(menuId, el.id)}>
+                                    <Button variant="ghost" size="md" className="h-8 w-8 hover:bg-destructive/10" onClick={() => removeElementFromMenuCombo(menuId, el.id)}>
                                         <Trash className="h-4 w-4 text-muted-foreground" />
                                     </Button>
                                 </div>
@@ -337,9 +339,9 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                 </div>
                 <AddElementDialog menuId={menuId} type="producto" open={isAddProductOpen} onOpenChange={setIsAddProductOpen} onAdd={handleAddElement} />
                 <AddElementDialog menuId={menuId} type="categoria" open={isAddCategoryOpen} onOpenChange={setIsAddCategoryOpen} onAdd={handleAddElement} />
-            </main>
+            </PageContent>
             <footer className="p-4 md:p-6 pt-0 sticky bottom-0">
-                <Card className="p-4 border-t">
+                <Card className="border-t">
                     <div className="flex justify-end">
                         <Button onClick={handleSave} size="lg"><Save className="mr-2" />Guardar Cambios en el Menú</Button>
                     </div>

@@ -1,5 +1,6 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { MoreHorizontal, Package, PlusCircle, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
@@ -13,9 +14,7 @@ import {
   CardContent,
   CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  CardHeader } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,16 +32,14 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,7 +53,8 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -101,8 +99,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
 
     toast({
       title: "Stock Ajustado",
-      description: `El stock de "${item.nombre_ingrediente}" se ha ajustado a ${finalAmount} ${item.unidad_medida}.`,
-    });
+      description: `El stock de "${item.nombre_ingrediente}" se ha ajustado a ${finalAmount} ${item.unidad_medida}.` });
 
     onOpenChange(false);
   }
@@ -113,8 +110,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
     'add': { title: 'Entrada', description: 'Suma unidades al stock actual. Ideal para recepción de pedidos.', icon: ArrowDown },
     'subtract-sale': { title: 'Venta', description: 'Resta unidades por ventas no automatizadas.', icon: ArrowRight },
     'subtract-waste': { title: 'Merma', description: 'Resta unidades por productos caducados, rotos o en mal estado.', icon: X },
-    'set': { title: 'Fijar', description: 'Establece el número exacto de unidades tras un inventario físico.', icon: Check },
-  };
+    'set': { title: 'Fijar', description: 'Establece el número exacto de unidades tras un inventario físico.', icon: Check } };
 
   const currentConfig = adjustmentConfig[adjustmentType];
 
@@ -142,9 +138,9 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
             )
           })}
         </div>
-        <Card className="mt-4">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-medium"><currentConfig.icon className="h-5 w-5" />{currentConfig.title}</CardTitle>
+            <H3 className="flex items-center gap-2 text-base font-medium"><currentConfig.icon className="h-5 w-5" />{currentConfig.title}</H3>
             <CardDescription>{currentConfig.description}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -195,7 +191,7 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
           <TabsContent value="movements" className="pt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Historial de Movimientos</CardTitle>
+                <H3>Historial de Movimientos</H3>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
@@ -230,13 +226,13 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
           </TabsContent>
           <TabsContent value="waste" className="pt-4">
             <Card>
-              <CardHeader><CardTitle>Historial de Mermas</CardTitle></CardHeader>
+              <CardHeader><H3>Historial de Mermas</H3></CardHeader>
               <CardContent><p className="text-center text-muted-foreground p-4">No hay datos de mermas para este producto.</p></CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="purchases" className="pt-4">
             <Card>
-              <CardHeader><CardTitle>Historial de Compras</CardTitle></CardHeader>
+              <CardHeader><H3>Historial de Compras</H3></CardHeader>
               <CardContent><p className="text-center text-muted-foreground p-4">No hay datos de compras para este producto.</p></CardContent>
             </Card>
           </TabsContent>
@@ -347,10 +343,10 @@ export default function InventarioPage() {
   return (
     <div className="flex flex-1 flex-col h-full">
       <PageHeader title="Gestión de Inventario" />
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+      <PageContent>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-bold text-muted-foreground">Filtros</CardTitle>
+            <H3 className="text-base font-bold text-muted-foreground">Filtros</H3>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -384,7 +380,7 @@ export default function InventarioPage() {
                   />
                   <Label htmlFor="low-stock-filter" className="text-sm whitespace-nowrap">Solo stock bajo</Label>
                 </div>
-                <Button variant="outline" size="icon" onClick={() => setIsConfigOpen(true)}>
+                <Button variant="outline" size="md" onClick={() => setIsConfigOpen(true)}>
                   <Settings className="h-4 w-4" />
                 </Button>
                 <Button onClick={() => setIsExportOpen(true)}>
@@ -397,7 +393,7 @@ export default function InventarioPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-bold text-muted-foreground">Componentes en Inventario</CardTitle>
+            <H3 className="text-base font-bold text-muted-foreground">Componentes en Inventario</H3>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -431,7 +427,7 @@ export default function InventarioPage() {
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                <Button aria-haspopup="true" size="md" variant="ghost">
                                   <MoreHorizontal className="h-4 w-4" />
                                   <span className="sr-only">Menú de acciones</span>
                                 </Button>
@@ -468,27 +464,27 @@ export default function InventarioPage() {
               Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredItems.length)}-{Math.min(indexOfLastItem, filteredItems.length)}</strong> de <strong>{filteredItems.length}</strong> componentes.
             </div>
             <div className="flex justify-end items-center gap-2">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+              <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               {pageNumbers.map(number => (
                 <Button
                   key={number}
                   variant={currentPage === number ? "default" : "outline"}
-                  size="icon"
+                  size="md"
                   className="h-8 w-8"
                   onClick={() => paginate(number)}
                 >
                   {number}
                 </Button>
               ))}
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+              <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </CardFooter>
         </Card>
-      </main>
+      </PageContent>
       <StockAdjustmentDialog
         item={selectedItem}
         open={isStockDialogOpen}
@@ -569,3 +565,4 @@ export default function InventarioPage() {
     </div>
   );
 }
+

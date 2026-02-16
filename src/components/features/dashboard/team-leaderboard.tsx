@@ -1,8 +1,9 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import type { StaffMember } from '@/data/mock-data';
@@ -35,8 +36,7 @@ export function TeamLeaderboard({ staff, date }: TeamLeaderboardProps) {
                 const seed = (index + (dateFactor % 10)) * 1234;
                 return {
                     ...s,
-                    sales: 20000 - (index * 1500) + (seed % 2000),
-                };
+                    sales: 20000 - (index * 1500) + (seed % 2000) };
             });
 
         const maxSales = Math.max(...dataWithSales.map(s => s.sales), 0);
@@ -53,7 +53,7 @@ export function TeamLeaderboard({ staff, date }: TeamLeaderboardProps) {
     return (
         <Card className="bg-card h-full flex flex-col">
             <CardHeader>
-                <CardTitle className="text-base font-bold text-muted-foreground">Ranking Equipo</CardTitle>
+                <H3 className="text-base font-bold text-muted-foreground">Ranking Equipo</H3>
             </CardHeader>
             <CardContent className="flex-grow p-4 pt-0">
                 <ScrollArea className="h-[240px] pr-3">
@@ -80,3 +80,4 @@ export function TeamLeaderboard({ staff, date }: TeamLeaderboardProps) {
         </Card>
     );
 }
+

@@ -1,12 +1,11 @@
-
 'use client';
-
 import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, Trash, Edit, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban, ArrowRight, Share2, Link, ExternalLink, Sparkles } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
+import { H4 } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -25,7 +24,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { SettingItem } from '@/components/ui/settings-modal';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 
 // ✅ MOCK DATA - Importado directamente
 import { mockUser, mockOrders, mockIngredients, mockStaffMembers, mockEnvironments, mockProducts, getCategoryName } from '@/data/mock-data';
@@ -62,6 +62,11 @@ const CostBreakdownChart = dynamic(() => import('@/components/charts/cost-breakd
     loading: () => <ChartFallback />,
 });
 
+const RecentOrders = dynamic(() => import('@/components/features/dashboard/recent-orders').then((mod) => mod.RecentOrders), {
+    ssr: false,
+    loading: () => <ChartFallback />,
+});
+
 /**
  * @fileoverview Página principal del panel de administración (Dashboard).
  * Ofrece una vista general del rendimiento del restaurante utilizando datos de demostración.
@@ -70,13 +75,7 @@ const CostBreakdownChart = dynamic(() => import('@/components/charts/cost-breakd
  */
 
 
-// Datos de demostración para la tabla de comandas recientes.
 const allOrders = mockOrders;
-
-const months = [
-    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-];
 
 /**
  * Componente principal para la página del Dashboard.
@@ -102,6 +101,7 @@ interface DashboardConfig {
     teamRanking: boolean;
     topProducts: boolean;
     costBreakdown: boolean;
+    badgeTable: boolean;
 }
 
 const defaultDashboardConfig: DashboardConfig = {
@@ -114,6 +114,7 @@ const defaultDashboardConfig: DashboardConfig = {
     teamRanking: true,
     topProducts: true,
     costBreakdown: true,
+    badgeTable: true,
 };
 
 export default function Home() {
@@ -156,63 +157,23 @@ export default function Home() {
         setConfigOpen(false);
     };
 
-    // Estado para la paginación de la tabla de comandas.
-    const [currentPage, setCurrentPage] = React.useState(1);
-    const [ordersPerPage] = React.useState(8);
-    const [isAnimating, setIsAnimating] = React.useState(false);
-
-    // Estado para el selector de mes en los gráficos.
-    const [selectedMonth, setSelectedMonth] = React.useState<string>('Junio');
-
-    // ✅ Filtrar comandas y métricas basadas en la fecha global
-    const { currentOrders, metricsData } = React.useMemo(() => {
-        // Usamos una semilla basada en la fecha para que las métricas cambien, 
-        // pero sin depender de 'mounted' para evitar errores de hidratación.
+    // ✅ Calcular métricas basadas en la fecha global
+    const metricsData = React.useMemo(() => {
         const dateFrom = date?.from ? date.from.getTime() : new Date(2024, 0, 1).getTime();
         const dateTo = date?.to ? date.to.getTime() : dateFrom;
         const dateFactor = (dateFrom + dateTo) / 1000000;
 
-        // Simular que los datos cambian con la fecha
         const numberFormatter = new Intl.NumberFormat('es-ES');
-        const metrics = {
+        return {
             totalRevenue: `€${((2.6 + (dateFactor % 1))).toFixed(1)}M`,
             avgTicket: `€${(38.5 + (dateFactor % 2)).toFixed(2)}`,
             itemsPerOrder: (2.8 + (dateFactor % 0.5)).toFixed(1),
             conversion: `${(35 + (dateFactor % 15)).toFixed(0)}%`,
-            // Nuevas métricas operacionales
             serviceTime: `${(24 - (dateFactor % 8)).toFixed(0)} min`,
             totalOrders: numberFormatter.format(Math.floor(1248 + (dateFactor % 1000))),
             nps: (78 + (dateFactor % 12)).toFixed(0)
         };
-
-        // Simular filtrado de órdenes (en un caso real filtraríamos por o.time)
-        const filtered = allOrders.slice(0, 15);
-
-        return {
-            currentOrders: filtered.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage),
-            metricsData: metrics
-        };
-    }, [date, currentPage, ordersPerPage]);
-
-    const totalPages = Math.ceil(allOrders.length / ordersPerPage);
-
-    /**
-     * Cambia la página actual de la tabla de comandas.
-     * @param {number} pageNumber - El número de página al que se quiere navegar.
-     */
-    const paginate = (pageNumber: number) => {
-        if (pageNumber < 1 || pageNumber > totalPages) return;
-        setIsAnimating(true);
-        setTimeout(() => {
-            setCurrentPage(pageNumber);
-            setIsAnimating(false);
-        }, 300);
-    };
-
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-    }
+    }, [date]);
 
     /**
      * Prepara los datos para el gráfico de ocupación por ambiente.
@@ -248,8 +209,7 @@ export default function Home() {
 
                         <Button
                             variant="outline"
-                            size="icon"
-                            className="h-10 w-10"
+                            size="md"
                             title="Exportar Informe Global"
                             onClick={() => {
                                 const data = prepareDashboardExportData({}, allOrders, mockProducts);
@@ -259,43 +219,39 @@ export default function Home() {
                                     description: "El reporte global se está descargando."
                                 });
                             }}
-                        >
-                            <Download className="h-4 w-4" />
+                        >       
+                            <Download/>
                         </Button>
-                        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setConfigOpen(true)}>
-                            <Settings className="h-4 w-4" />
+                        <Button variant="outline" size="md" onClick={() => setConfigOpen(true)}>
+                            <Settings/>
                         </Button>
                     </div>
                 }
             />
-            <main className="flex flex-1 flex-col gap-6 p-4 pt-2 md:p-6 md:pt-3">
+            <PageContent>
 
                 {/* Sección de Métricas Principales */}
                 {dashboardConfig.metrics && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <MetricCard
-                                className="bg-card"
                                 title="Ingresos totales"
                                 value={metricsData.totalRevenue}
                                 change="+4.5% que la semana pasada"
                                 changeType="increase"
                             />
                             <MetricCard
-                                className="bg-card"
                                 title="Ticket Medio"
                                 value={metricsData.avgTicket}
                                 change="-1.2% que la semana pasada"
                                 changeType="decrease"
                             />
                             <MetricCard
-                                className="bg-card"
                                 title="Productos por Comanda"
                                 value={metricsData.itemsPerOrder}
                                 change="+0.5% que la semana pasada"
                                 changeType="increase"
                             />
                             <MetricCard
-                                className="bg-card"
                                 title="Tasa Conversión Upsell"
                                 value={metricsData.conversion}
                                 change="+3% que la semana pasada"
@@ -307,7 +263,7 @@ export default function Home() {
 
                 {/* Gráfico de Ventas por Hora */}
                 {dashboardConfig.salesChart && (
-                    <div className="w-full h-full">
+                    <div className="w-full">
                         <SalesChart globalDate={date} />
                     </div>
                 )}
@@ -318,66 +274,11 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Gráfico de Reservas */}
                         {dashboardConfig.revenueChart && (
-                            <Card className="lg:col-span-2 flex flex-col">
-                                <CardHeader>
-                                    <div className="flex flex-wrap items-center justify-between gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <CardTitle className="text-base font-bold text-muted-foreground">Número de Reservas</CardTitle>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button variant="outline" className="w-[120px] justify-between">
-                                                        <span>{selectedMonth}</span>
-                                                        <ChevronDown className="h-4 w-4" />
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent align="end" className="w-auto p-2">
-                                                    <div className="grid grid-cols-3 gap-1">
-                                                        {months.map(month => (
-                                                            <Button
-                                                                key={month}
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className={cn("justify-start", selectedMonth === month && "bg-primary text-primary-foreground hover:bg-primary")}
-                                                                onClick={() => setSelectedMonth(month)}
-                                                            >
-                                                                {month}
-                                                            </Button>
-                                                        ))}
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                            <Select defaultValue="2024">
-                                                <SelectTrigger className="w-[90px]">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="2024">2024</SelectItem>
-                                                    <SelectItem value="2023">2023</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                            <Button variant="outline" size="icon">
-                                                <Download className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-grow">
-                                    <RevenueChart date={date} />
-                                </CardContent>
-                            </Card>
+                            <RevenueChart date={date} className="lg:col-span-2" />
                         )}
                         {/* Gráfico de Aforo */}
                         {dashboardConfig.occupancyChart && (
-                            <Card className={cn("flex flex-col", dashboardConfig.revenueChart ? "lg:col-span-1" : "lg:col-span-3")}>
-                                <CardHeader>
-                                    <CardTitle className="text-base font-bold text-muted-foreground">Aforo Ambientes</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex-grow flex justify-center items-center">
-                                    <OccupancyChart data={occupancyChartData} />
-                                </CardContent>
-                            </Card>
+                            <OccupancyChart data={occupancyChartData} className={cn(dashboardConfig.revenueChart ? "lg:col-span-1" : "lg:col-span-3")} />
                         )}
                     </div>
                 )}
@@ -385,21 +286,18 @@ export default function Home() {
                 {/* Más Métricas - Operational & Satisfaction */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <MetricCard
-                        className="bg-card"
                         title="Tiempo Medio de Servicio"
                         value={metricsData.serviceTime}
                         change="-2.5%"
                         changeType="increase"
                     />
                     <MetricCard
-                        className="bg-card"
                         title="Total Comandas"
                         value={metricsData.totalOrders}
                         change="+12.4%"
                         changeType="increase"
                     />
                     <MetricCard
-                        className="bg-card"
                         title="NPS (Satisfacción)"
                         value={metricsData.nps}
                         change="+3pts"
@@ -412,147 +310,10 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Tabla de Comandas Recientes */}
                         {dashboardConfig.recentOrders && (
-                            <Card className={cn("flex flex-col", dashboardConfig.stockAlerts ? "lg:col-span-2" : "lg:col-span-3")}>
-                                <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-6 pt-6 pb-2">
-                                    <div>
-                                        <CardTitle className="text-base font-bold text-muted-foreground">Comandas Recientes</CardTitle>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Select defaultValue="csv">
-                                            <SelectTrigger id="export-format" className="w-[120px]">
-                                                <SelectValue placeholder="Exportar" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="csv">CSV</SelectItem>
-                                                <SelectItem value="pdf">PDF</SelectItem>
-                                                <SelectItem value="xlsx">XLSX</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="outline" size="icon">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem>
-                                                    <Download className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                    Exportar marcadas
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem>
-                                                    <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                    Exportar todo
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem disabled>
-                                                    <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                    Cambiar estado (Próximamente)
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-grow p-6 pt-2">
-                                    <div className="relative w-full overflow-auto">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead className="w-[40px] hidden md:table-cell"><Checkbox aria-label="Seleccionar todo" /></TableHead>
-                                                    <TableHead>Nº orden</TableHead>
-                                                    <TableHead>Hora</TableHead>
-                                                    <TableHead>Mesa</TableHead>
-                                                    <TableHead>Nombre</TableHead>
-                                                    <TableHead>Total</TableHead>
-                                                    <TableHead>Estado</TableHead>
-                                                    <TableHead className="w-[40px]"></TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}>
-                                                {currentOrders.map((order, index) => (
-                                                    <TableRow key={order.order}>
-                                                        <TableCell className="hidden md:table-cell"><Checkbox /></TableCell>
-                                                        <TableCell className="font-medium">{order.order}</TableCell>
-                                                        <TableCell>{order.time}</TableCell>
-                                                        <TableCell>{order.table}</TableCell>
-                                                        <TableCell>{order.name}</TableCell>
-                                                        <TableCell>{order.total}</TableCell>
-                                                        <TableCell>
-                                                            <Badge variant={order.status === 'Completado' ? 'completed' : order.status === 'En Progreso' ? 'in-progress' : 'cancelled'}>
-                                                                {order.status}
-                                                            </Badge>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild>
-                                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                                        <span className="sr-only">Abrir menú</span>
-                                                                        <MoreHorizontal className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                 <DropdownMenuContent align="end">
-                                                                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                                    <DropdownMenuItem>
-                                                                        <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                        Ver detalles
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSub>
-                                                                        <DropdownMenuSubTrigger>
-                                                                            <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                            Cambiar Estado
-                                                                        </DropdownMenuSubTrigger>
-                                                                        <DropdownMenuSubContent>
-                                                                            <DropdownMenuItem>
-                                                                                <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                                En Progreso
-                                                                            </DropdownMenuItem>
-                                                                            <DropdownMenuItem>
-                                                                                <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                                Completado
-                                                                            </DropdownMenuItem>
-                                                                            <DropdownMenuItem>
-                                                                                <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                                Cancelado
-                                                                            </DropdownMenuItem>
-                                                                        </DropdownMenuSubContent>
-                                                                    </DropdownMenuSub>
-                                                                    <DropdownMenuItem>
-                                                                        <Printer className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                        Reimprimir
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem>
-                                                                        <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
-                                                                        Anular comanda
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                </CardContent>
-                                <CardFooter className="flex justify-end items-center gap-2">
-                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                                        <ChevronLeft className="h-4 w-4" />
-                                    </Button>
-                                    {pageNumbers.map(number => (
-                                        <Button
-                                            key={number}
-                                            variant={currentPage === number ? "default" : "outline"}
-                                            size="icon"
-                                            className="h-8 w-8"
-                                            onClick={() => paginate(number)}
-                                        >
-                                            {number}
-                                        </Button>
-                                    ))}
-                                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                                        <ChevronRight className="h-4 w-4" />
-                                    </Button>
-                                </CardFooter>
-                            </Card>
+                            <RecentOrders 
+                                date={date} 
+                                className={cn(dashboardConfig.stockAlerts ? "lg:col-span-2" : "lg:col-span-3")}
+                            />
                         )}
 
                         {/* Alertas de Stock Bajo */}
@@ -577,39 +338,11 @@ export default function Home() {
                         )}
                         {/* Gráfico de Ventas por Categoría (Product Mix) */}
                         {dashboardConfig.topProducts && (
-                            <Card className="lg:col-span-1 flex flex-col">
-                                <CardHeader>
-                                    <div className="flex justify-between items-center mb-2">
-                                        <CardTitle className="text-base font-bold text-muted-foreground">Top Productos</CardTitle>
-                                        <Select defaultValue="meses">
-                                            <SelectTrigger className="w-[100px] h-8 text-xs">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="horas">Horas</SelectItem>
-                                                <SelectItem value="dias">Días</SelectItem>
-                                                <SelectItem value="meses">Meses</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-grow p-0 flex items-center justify-center">
-                                    <div className="h-[250px] w-full">
-                                        <CategorySalesChart products={mockProducts} getCategoryName={getCategoryName} date={date} />
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <CategorySalesChart products={mockProducts} getCategoryName={getCategoryName} date={date} className="lg:col-span-1" />
                         )}
                         {/* Gráfico de Desglose de Costes */}
                         {dashboardConfig.costBreakdown && (
-                            <Card className="flex flex-col">
-                                <CardHeader>
-                                    <CardTitle className="text-base font-bold text-muted-foreground">Desglose de Costes</CardTitle>
-                                </CardHeader>
-                                <CardContent className="flex-grow flex justify-center items-center">
-                                    <CostBreakdownChart date={date} />
-                                </CardContent>
-                            </Card>
+                            <CostBreakdownChart date={date} />
                         )}
                     </div>
                 )}
@@ -765,7 +498,7 @@ export default function Home() {
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </main>
+            </PageContent>
         </div>
     );
 }

@@ -1,8 +1,9 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { MessageSquare, Smartphone, QrCode, Check, ChevronRight, RefreshCw, Phone, User, Lock, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,8 +28,7 @@ export function WhatsAppLogin({
   onLoginSuccess,
   onLoginError,
   restaurantName = 'Mi Restaurante',
-  mode = 'employee',
-}: WhatsAppLoginProps) {
+  mode = 'employee' }: WhatsAppLoginProps) {
   const { toast } = useToast();
   const [step, setStep] = React.useState<LoginStep>('phone');
   const [phone, setPhone] = React.useState('');
@@ -65,8 +65,7 @@ export function WhatsAppLogin({
       toast({
         variant: 'destructive',
         title: 'Número inválido',
-        description: 'Por favor, introduce un número de teléfono válido.',
-      });
+        description: 'Por favor, introduce un número de teléfono válido.' });
       return;
     }
 
@@ -81,8 +80,7 @@ export function WhatsAppLogin({
     
     toast({
       title: 'Código enviado',
-      description: 'Escanea el QR o revisa tu WhatsApp.',
-    });
+      description: 'Escanea el QR o revisa tu WhatsApp.' });
   };
 
   // Handle QR scanned (simulated)
@@ -99,8 +97,7 @@ export function WhatsAppLogin({
       toast({
         variant: 'destructive',
         title: 'Código incorrecto',
-        description: 'El código debe tener 6 dígitos.',
-      });
+        description: 'El código debe tener 6 dígitos.' });
       return;
     }
 
@@ -114,13 +111,11 @@ export function WhatsAppLogin({
     onLoginSuccess?.({
       phone: phone,
       name: userName || 'Usuario',
-      verified: true,
-    });
+      verified: true });
     
     toast({
       title: '¡Bienvenido!',
-      description: 'Has iniciado sesión correctamente.',
-    });
+      description: 'Has iniciado sesión correctamente.' });
   };
 
   // Refresh QR
@@ -128,8 +123,7 @@ export function WhatsAppLogin({
     setQrExpiry(60);
     toast({
       title: 'QR actualizado',
-      description: 'Se ha generado un nuevo código QR.',
-    });
+      description: 'Se ha generado un nuevo código QR.' });
   };
 
   // Reset to start
@@ -157,7 +151,7 @@ export function WhatsAppLogin({
         <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-brand-whatsapp/10 flex items-center justify-center">
           <MessageSquare className="h-8 w-8 text-brand-whatsapp" />
         </div>
-        <CardTitle>Iniciar Sesión con WhatsApp</CardTitle>
+        <H3>Iniciar Sesión con WhatsApp</H3>
         <CardDescription>
           {mode === 'employee' 
             ? `Accede a tu cuenta de ${restaurantName}`
@@ -384,3 +378,4 @@ export function WhatsAppLogin({
     </Card>
   );
 }
+

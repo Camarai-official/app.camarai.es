@@ -1,8 +1,9 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Filter, LayoutGrid, Maximize, FileType, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -22,14 +23,14 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+    AlertDialogTrigger } from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { buttonVariants } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -111,8 +112,7 @@ export default function AmbientesPage() {
             toast({
                 variant: "destructive",
                 title: "Selección requerida",
-                description: "Debes seleccionar al menos una mesa para regenerar sus códigos QR.",
-            });
+                description: "Debes seleccionar al menos una mesa para regenerar sus códigos QR." });
             return;
         }
 
@@ -126,8 +126,7 @@ export default function AmbientesPage() {
 
         toast({
             title: "QRs Regenerados",
-            description: `Se han actualizado ${selectedTables.size} código${selectedTables.size > 1 ? 's' : ''} QR con una nueva firma de seguridad.`,
-        });
+            description: `Se han actualizado ${selectedTables.size} código${selectedTables.size > 1 ? 's' : ''} QR con una nueva firma de seguridad.` });
     };
 
     // --- Funciones para manipular el estado local (simulando hook) ---
@@ -165,8 +164,7 @@ export default function AmbientesPage() {
         addEnvironment();
         toast({
             title: "Ambiente Creado",
-            description: "Se ha creado un nuevo ambiente. ¡Personalízalo a tu gusto!",
-        });
+            description: "Se ha creado un nuevo ambiente. ¡Personalízalo a tu gusto!" });
     }
 
     /**
@@ -179,8 +177,7 @@ export default function AmbientesPage() {
         toast({
             variant: "destructive",
             title: "Ambiente Eliminado",
-            description: `El ambiente "${name}" ha sido eliminado correctamente.`,
-        });
+            description: `El ambiente "${name}" ha sido eliminado correctamente.` });
     }
 
     /**
@@ -267,8 +264,7 @@ export default function AmbientesPage() {
         setTimeout(() => setCopiedTable(null), 2000);
         toast({
             title: "Enlace copiado",
-            description: "El enlace del QR se ha copiado al portapapeles.",
-        });
+            description: "El enlace del QR se ha copiado al portapapeles." });
     };
 
     /**
@@ -278,8 +274,7 @@ export default function AmbientesPage() {
         if (!selectedEnvForQR) return;
         toast({
             title: "Descargando QRs",
-            description: `Preparando ${selectedEnvForQR.tables.length} códigos QR para descargar.`,
-        });
+            description: `Preparando ${selectedEnvForQR.tables.length} códigos QR para descargar.` });
         // In production, this would trigger actual downloads
     };
 
@@ -289,8 +284,7 @@ export default function AmbientesPage() {
     const printQRs = () => {
         toast({
             title: "Impresión iniciada",
-            description: "Se han enviado los códigos QR a la impresora.",
-        });
+            description: "Se han enviado los códigos QR a la impresora." });
         // In production, this would trigger actual printing
     };
 
@@ -298,8 +292,7 @@ export default function AmbientesPage() {
     const qrSizeMap = {
         small: 120,
         medium: 200,
-        large: 300,
-    };
+        large: 300 };
 
     // --- Manejadores de eventos para la edición del nombre ---
     const handleDoubleClick = (env: Environment) => {
@@ -362,7 +355,7 @@ export default function AmbientesPage() {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Gestión de Ambientes" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {environments.map(env => {
                         const occupancyPercentage = calculateOccupancyPercentage(env);
@@ -372,7 +365,7 @@ export default function AmbientesPage() {
                                     <TooltipTrigger asChild>
                                         <Card 
                                             className={cn(
-                                                "group flex flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-1",
+                                                "group flex-col transition-all duration-200 hover:shadow-xl hover:-translate-y-1",
                                                 env.color && !env.color.startsWith('#') && `border-l-4 border-l-${env.color}`
                                             )} 
                                             style={env.color && env.color.startsWith('#') ? { borderLeft: `4px solid ${env.color}` } : undefined}
@@ -402,7 +395,7 @@ export default function AmbientesPage() {
                                                                                 <Button 
                                                                                     key={iconName} 
                                                                                     variant={env.icon === iconName ? 'default' : 'outline'} 
-                                                                                    size="icon" 
+                                                                                    size="md" 
                                                                                     className="h-9 w-9 rounded-lg" 
                                                                                     onClick={() => handleUpdateEnvironment(env.id, { icon: iconName })}
                                                                                 >
@@ -457,7 +450,7 @@ export default function AmbientesPage() {
                                                             <span className="text-base font-bold text-foreground cursor-pointer">
                                                                 {env.name}
                                                             </span>
-                                                            <Button variant="ghost" size="icon" className="h-4 w-4 opacity-0 group-hover/name:opacity-100 transition-opacity" onClick={() => handleDoubleClick(env)}>
+                                                            <Button variant="ghost" size="md" className="h-4 w-4 opacity-0 group-hover/name:opacity-100 transition-opacity" onClick={() => handleDoubleClick(env)}>
                                                                 <Pencil className="h-3 w-3" />
                                                             </Button>
                                                         </div>
@@ -526,7 +519,7 @@ export default function AmbientesPage() {
                         onClick={handleAddEnvironment}
                     />
                 </div>
-            </main>
+            </PageContent>
 
             {/* QR Dialog */}
             <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
@@ -705,7 +698,7 @@ export default function AmbientesPage() {
                                                                     <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover/qr:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px] rounded-xl">
                                                                         <Button 
                                                                             variant="secondary" 
-                                                                            size="icon" 
+                                                                            size="md" 
                                                                             className="h-9 w-9 bg-white"
                                                                             onClick={() => window.open(qrUrl, '_blank')}
                                                                         >
@@ -808,3 +801,4 @@ export default function AmbientesPage() {
         </div >
     );
 }
+

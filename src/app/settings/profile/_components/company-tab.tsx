@@ -1,8 +1,9 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
 import { Camera, Check, AlertCircle, Loader2 } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -80,8 +81,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
         legalName: 'Camarai Hostelería S.L.',
         nif: 'B12345678',
         website: 'https://camarai.es',
-        address: 'Paseo de la Castellana, 1',
-    });
+        address: 'Paseo de la Castellana, 1' });
     
     // Validation state
     const [nifValidation, setNifValidation] = React.useState<{ valid: boolean; type: string } | null>(null);
@@ -105,8 +105,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
             toast({
                 variant: 'destructive',
                 title: 'NIF inválido',
-                description: 'Por favor, introduce un NIF/CIF válido.',
-            });
+                description: 'Por favor, introduce un NIF/CIF válido.' });
             return;
         }
         
@@ -118,8 +117,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
         
         toast({
             title: 'Cambios guardados',
-            description: 'La información de la empresa se ha actualizado correctamente.',
-        });
+            description: 'La información de la empresa se ha actualizado correctamente.' });
     };
     
     return (
@@ -129,7 +127,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <CardTitle className="font-bold text-muted-foreground">Información de la Empresa</CardTitle>
+                                <H3 className="font-bold text-muted-foreground">Información de la Empresa</H3>
                             </TooltipTrigger>
                             <TooltipContent>
                                 <p>Datos fiscales y de facturación.</p>
@@ -144,7 +142,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                                 <AvatarImage src="https://asset.brandfetch.io/idV4dC9a3V/idFr4rVlHR.svg" alt="Company Logo" data-ai-hint="company logo" />
                                 <AvatarFallback>C</AvatarFallback>
                             </Avatar>
-                            <Button type="button" size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background" onClick={() => companyFileInputRef.current?.click()}>
+                            <Button type="button" size="md" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background" onClick={() => companyFileInputRef.current?.click()}>
                                 <Camera className="h-4 w-4" />
                             </Button>
                             <Input ref={companyFileInputRef} type="file" accept="image/*" className="hidden" onChange={onCompanyImageChange} />
@@ -250,3 +248,4 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
         </TabsContent>
     );
 }
+

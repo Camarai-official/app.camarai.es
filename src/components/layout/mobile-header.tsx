@@ -1,6 +1,4 @@
-
 'use client';
-
 import * as React from 'react';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';

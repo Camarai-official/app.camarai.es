@@ -1,6 +1,4 @@
-
 'use client';
-
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Store, Building2, Users, Plug, Percent, Printer } from 'lucide-react';
@@ -10,7 +8,8 @@ import type { Establishment } from '@/data/establishments';
 import { mockUser, User } from '@/data/mock-data';
 import { useDevices } from '@/hooks/useDevices';
 import type { Device, DeviceType } from '@/data/devices';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { ProfileTab } from '@/app/settings/profile/_components/profile-tab';
 import { EstablishmentTab } from '@/app/settings/profile/_components/establishment-tab';
 import { DevicesTab } from '@/app/settings/profile/_components/devices-tab';
@@ -211,7 +210,7 @@ function ProfileSettingsPageContent() {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Ajustes Generales" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Tabs value={activeTab} onValueChange={(value) => router.push(`/settings/profile?tab=${value}`)} className="w-full">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
@@ -287,7 +286,7 @@ function ProfileSettingsPageContent() {
                     <IntegrationsTab />
                     <TaxesTab />
                 </Tabs>
-            </main>
+            </PageContent>
         </div>
     );
 }

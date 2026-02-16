@@ -1,8 +1,9 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, QrCode, Trash, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen, Globe, Activity, MapPin, GripHorizontal, MousePointer2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,12 +20,13 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { PageHeader } from '@/components/layout/page-header';
+import { PageHeader } from '@/components/ui/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator"
 import { Hash } from "lucide-react";
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
+import { PageContent } from '@/components/layout/page-content';
 
 // Templates for quick floor plan setup
 const floorPlanTemplates = [
@@ -51,8 +53,7 @@ function QRConfigDialog({
     const [qrConfig, setQrConfig] = React.useState({
         baseUrl: 'https://mirestaurante.com',
         includeEnv: true,
-        customMessage: '¡Bienvenido! Escanea para ver nuestro menú y hacer tu pedido.',
-    });
+        customMessage: '¡Bienvenido! Escanea para ver nuestro menú y hacer tu pedido.' });
     
     const getQRUrl = () => {
         if (!table) return '';
@@ -211,8 +212,7 @@ function QRConfigDialog({
 function TemplatesDialog({
     open,
     onOpenChange,
-    onApplyTemplate,
-}: {
+    onApplyTemplate }: {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onApplyTemplate: (templateId: string) => void;
@@ -252,8 +252,7 @@ function EditTableDialogContent({
     setEditingTable,
     handleSaveChanges,
     openQRDialog,
-    config,
-}: {
+    config }: {
     editingTable: Partial<Table> | null;
     setEditingTable: (table: Partial<Table> | null) => void;
     handleSaveChanges: () => void;
@@ -395,8 +394,7 @@ const statusConfig: Record<TableStatus, { color: string; bgColor: string; border
     'Ocupada': { color: 'text-blue-600 dark:text-blue-400', bgColor: 'bg-blue-100/50 border-blue-400 dark:bg-blue-900/30 dark:border-blue-600', borderColor: 'border-blue-500 dark:border-blue-400', icon: Users, badgeVariant: 'info' },
     'Reservada': { color: 'text-purple-600 dark:text-purple-400', bgColor: 'bg-purple-100/50 border-purple-400 dark:bg-purple-900/30 dark:border-purple-600', borderColor: 'border-purple-500 dark:border-purple-400', icon: Clock, badgeVariant: 'warning' },
     'Mantenimiento': { color: 'text-red-600 dark:text-red-400', bgColor: 'bg-red-100/50 border-red-400 dark:bg-red-900/30 dark:border-red-600', borderColor: 'border-red-500 dark:border-red-400', icon: AlertTriangle, badgeVariant: 'danger' },
-    'Inactiva': { color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100/50 border-gray-300 opacity-60 dark:bg-gray-800/30 dark:border-gray-600', borderColor: 'border-gray-400 dark:border-gray-500', icon: XSquare, badgeVariant: 'neutral' },
-};
+    'Inactiva': { color: 'text-gray-500 dark:text-gray-400', bgColor: 'bg-gray-100/50 border-gray-300 opacity-60 dark:bg-gray-800/30 dark:border-gray-600', borderColor: 'border-gray-400 dark:border-gray-500', icon: XSquare, badgeVariant: 'neutral' } };
 
 // Helper para formatear diferencia de tiempo
 function formatTimeDiff(isoTimestamp: string): string {
@@ -546,8 +544,7 @@ export default function PlanoMesasPage() {
                 width: 120,
                 height: 90,
                 capacity: 4,
-                status: 'Libre' as TableStatus,
-            });
+                status: 'Libre' as TableStatus });
         }
         
         setEnvironmentsWithHistory(prev => prev.map(env => 
@@ -592,8 +589,7 @@ export default function PlanoMesasPage() {
             ocupada: environment.tables.filter(t => t.status === 'Ocupada').length,
             reservada: environment.tables.filter(t => t.status === 'Reservada').length,
             mantenimiento: environment.tables.filter(t => t.status === 'Mantenimiento').length,
-            inactiva: environment.tables.filter(t => t.status === 'Inactiva').length,
-        };
+            inactiva: environment.tables.filter(t => t.status === 'Inactiva').length };
     };
 
     React.useEffect(() => {
@@ -679,8 +675,7 @@ export default function PlanoMesasPage() {
                 id,
                 type,
                 offsetX: (e.clientX - rect.left) / currentZoom,
-                offsetY: (e.clientY - rect.top) / currentZoom,
-            });
+                offsetY: (e.clientY - rect.top) / currentZoom });
         } else { // resize
             setActiveDragItem({
                 id,
@@ -688,8 +683,7 @@ export default function PlanoMesasPage() {
                 offsetX: initialX,
                 offsetY: initialY,
                 initialWidth: table.width,
-                initialHeight: table.height,
-            });
+                initialHeight: table.height });
         }
     };
 
@@ -840,7 +834,7 @@ export default function PlanoMesasPage() {
     return (
         <div className="flex flex-1 flex-col h-full">
             <PageHeader title="Plano de Mesas" />
-            <main className="flex-grow flex flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Tabs value={activeEnvironmentId} onValueChange={setActiveEnvironmentId} className="flex flex-col flex-grow">
                     <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
                         <TabsList className="inline-flex w-auto shrink-0">
@@ -848,9 +842,7 @@ export default function PlanoMesasPage() {
                                 <TabsTrigger key={env.id} value={env.id} className="whitespace-nowrap">{env.name}</TabsTrigger>
                             ))}
                         </TabsList>
-                        <Button size="icon" variant="outline" onClick={addEnvironment} className="shrink-0 h-9 w-9">
-                            <Plus className="h-4 w-4" />
-                        </Button>
+                        <Button size="md" variant="outline" onClick={addEnvironment} className="shrink-0 h-9 w-9"><Plus /></Button>
                     </div>
                     {environments.map(env => {
                         const stats = getTableStats(env.id);
@@ -905,9 +897,7 @@ export default function PlanoMesasPage() {
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button variant="ghost" size="icon" onClick={handleUndo} disabled={!canUndo} className="h-8 w-8">
-                                                                    <Undo2 className="h-4 w-4" />
-                                                                </Button>
+                                                                <Button variant="ghost" size="md" onClick={handleUndo} disabled={!canUndo} className="h-8 w-8"><Undo2 /></Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>Deshacer (Ctrl+Z)</TooltipContent>
                                                         </Tooltip>
@@ -915,9 +905,7 @@ export default function PlanoMesasPage() {
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button variant="ghost" size="icon" onClick={handleRedo} disabled={!canRedo} className="h-8 w-8">
-                                                                    <Redo2 className="h-4 w-4" />
-                                                                </Button>
+                                                                <Button variant="ghost" size="md" onClick={handleRedo} disabled={!canRedo} className="h-8 w-8"><Redo2 /></Button>
                                                             </TooltipTrigger>
                                                             <TooltipContent>Rehacer (Ctrl+Y)</TooltipContent>
                                                         </Tooltip>
@@ -960,7 +948,7 @@ export default function PlanoMesasPage() {
                                                                                 <config.icon className={cn("h-5 w-5", config.color.replace('dark:', ''))} />
                                                                             </div>
                                                                             <div>
-                                                                                <CardTitle className="text-lg font-bold tracking-tight">Mesa {table.number}</CardTitle>
+                                                                                <H3 className="text-lg font-bold tracking-tight">Mesa {table.number}</H3>
                                                                                 <CardDescription className="flex items-center gap-1.5 mt-0.5 font-medium text-muted-foreground/80">
                                                                                     <Users className="h-3.5 w-3.5" /> {table.capacity} personas
                                                                                 </CardDescription>
@@ -969,10 +957,10 @@ export default function PlanoMesasPage() {
                                                                         <Badge variant={config.badgeVariant}>{table.status}</Badge>
                                                                     </div>
                                                                     <div className="flex justify-end mt-4 gap-2 relative z-10">
-                                                                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); openQRDialog(table); }}>
+                                                                        <Button variant="ghost" size="md" className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); openQRDialog(table); }}>
                                                                             <QrCode className="h-4 w-4" />
                                                                         </Button>
-                                                                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-destructive/10 transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); removeTable(e, table.id); }}>
+                                                                        <Button variant="ghost" size="md" className="h-9 w-9 rounded-xl hover:bg-destructive/10 transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); removeTable(e, table.id); }}>
                                                                             <Trash className="h-4 w-4 text-muted-foreground" />
                                                                         </Button>
                                                                     </div>
@@ -1051,32 +1039,32 @@ export default function PlanoMesasPage() {
                                                                             <div className="absolute top-1 right-1 opacity-0 group-hover/table:opacity-100 transition-opacity z-40">
                                                                                 <DropdownMenu>
                                                                                     <DropdownMenuTrigger asChild>
-                                                                                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors" onMouseDown={(e) => e.stopPropagation()}>
+                                                                                        <Button variant="ghost" size="md" className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors" onMouseDown={(e) => e.stopPropagation()}>
                                                                                             <MoreVertical className="h-5 w-5" />
                                                                                         </Button>
                                                                                     </DropdownMenuTrigger>
                                                                                     <DropdownMenuContent align="end" className="w-48">
                                                                                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Acciones</div>
                                                                                         <DropdownMenuItem className="cursor-pointer">
-                                                                                            <FileText className="mr-2 h-4 w-4" />
+                                                                                            <FileText />
                                                                                             <span>Leer Comanda</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuItem className="cursor-pointer">
-                                                                                            <PrinterIcon className="mr-2 h-4 w-4" />
+                                                                                            <PrinterIcon />
                                                                                             <span>Reimprimir</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuSeparator />
                                                                                         <DropdownMenuItem className="cursor-pointer" onClick={() => handleDoubleClick(table)}>
-                                                                                            <Settings className="mr-2 h-4 w-4" />
+                                                                                            <Settings />
                                                                                             <span>Editar</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuItem className="cursor-pointer" onClick={() => openQRDialog(table)}>
-                                                                                            <QrCode className="mr-2 h-4 w-4" />
+                                                                                            <QrCode />
                                                                                             <span>QR</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuSeparator />
                                                                                         <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={(e) => removeTable(e, table.id)}>
-                                                                                            <Trash className="mr-2 h-4 w-4" />
+                                                                                            <Trash />
                                                                                             <span>Eliminar</span>
                                                                                         </DropdownMenuItem>
                                                                                     </DropdownMenuContent>
@@ -1147,9 +1135,7 @@ export default function PlanoMesasPage() {
                                                     </div>
                                                 </div>
                                                 <div className="absolute bottom-4 right-4 z-10 flex flex-col items-center gap-2 bg-background/80 backdrop-blur rounded-2xl p-1.5 border shadow-lg">
-                                                    <Button size="icon" variant="ghost" onClick={handleZoomIn} className="h-8 w-8 rounded-xl">
-                                                        <Plus className="h-4 w-4" />
-                                                    </Button>
+                                                    <Button size="md" variant="ghost" onClick={handleZoomIn} className="h-8 w-8 rounded-xl"><Plus /></Button>
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
@@ -1162,9 +1148,7 @@ export default function PlanoMesasPage() {
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
-                                                    <Button size="icon" variant="ghost" onClick={handleZoomOut} className="h-8 w-8 rounded-xl">
-                                                        <Minus className="h-4 w-4" />
-                                                    </Button>
+                                                    <Button size="md" variant="ghost" onClick={handleZoomOut} className="h-8 w-8 rounded-xl"><Minus /></Button>
                                                 </div>
                                             </div>
                                         )}
@@ -1224,7 +1208,8 @@ export default function PlanoMesasPage() {
                     onOpenChange={setIsTemplatesDialogOpen}
                     onApplyTemplate={applyTemplate}
                 />
-            </main>
+            </PageContent>
         </div>
     );
 }
+

@@ -41,11 +41,11 @@ export function CalendarDateRangePicker({
                         id="date"
                         variant={"outline"}
                         className={cn(
-                            "w-full justify-start text-left font-normal sm:w-[260px]",
+                            "font-normal",
                             !selectedDate && "text-muted-foreground"
                         )}
                     >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <CalendarIcon className="mr-3" />
                         {selectedDate?.from ? (
                             selectedDate.to ? (
                                 <>

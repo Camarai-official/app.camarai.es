@@ -1,8 +1,7 @@
-
 'use client';
-
+import { H4 } from '@/components/ui/typography';
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, Package } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -36,17 +35,16 @@ export function LowStockAlerts({ ingredients }: LowStockAlertsProps) {
   const handleRestock = (id: string, name: string) => {
     // In a real app, this would call an API mutation
     setRestockedIds(prev => [...prev, id]);
-    // Ideally use sonner/toast here, but we'll stick to visual removal for now
     console.log(`Restocking initiated for ${name}`);
   };
 
   return (
-    <Card className="bg-card h-full w-full flex flex-col">
+    <Card className="h-full w-full">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base font-bold text-muted-foreground">
-          <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+        <H4 className="flex gap-2 items-center text-muted-foreground">
+          <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           Alertas de Stock Bajo
-        </CardTitle>
+        </H4>
       </CardHeader>
       <CardContent className="flex-grow p-0 overflow-hidden">
         <ScrollArea className={cn("h-full", lowStockIngredients.length > 5 ? "max-h-[60vh]" : "max-h-none")}>
@@ -98,3 +96,4 @@ export function LowStockAlerts({ ingredients }: LowStockAlertsProps) {
     </Card>
   );
 }
+

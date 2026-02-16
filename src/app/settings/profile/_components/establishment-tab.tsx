@@ -1,8 +1,9 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
 import { Camera, Trash } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,14 +39,13 @@ export function EstablishmentTab({
     onEstablishmentSwitchChange,
     onSaveEstablishmentChanges,
     onDeleteEstablishment,
-    onCreateFirstEstablishment,
-}: EstablishmentTabProps) {
+    onCreateFirstEstablishment }: EstablishmentTabProps) {
     return (
         <TabsContent value="establishment">
             {!activeEstablishment && establishments.length === 0 ? (
                 <Card>
                     <CardHeader>
-                        <CardTitle>No hay establecimientos</CardTitle>
+                        <H3>No hay establecimientos</H3>
                         <CardDescription>
                             Parece que no tienes ningún establecimiento configurado. ¡Crea uno para empezar!
                         </CardDescription>
@@ -57,7 +57,7 @@ export function EstablishmentTab({
             ) : !localEstablishment ? (
                 <Card>
                     <CardHeader>
-                        <CardTitle>Cargando...</CardTitle>
+                        <H3>Cargando...</H3>
                     </CardHeader>
                 </Card>
             ) : (
@@ -66,7 +66,7 @@ export function EstablishmentTab({
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <CardTitle className="font-bold text-muted-foreground">Datos del Establecimiento</CardTitle>
+                                    <H3 className="font-bold text-muted-foreground">Datos del Establecimiento</H3>
                                 </TooltipTrigger>
                                 <TooltipContent>
                                     <p>Información del restaurante o local principal.</p>
@@ -81,7 +81,7 @@ export function EstablishmentTab({
                                     <AvatarImage src={localEstablishment.image} alt="Establishment Logo" data-ai-hint="restaurant logo" />
                                     <AvatarFallback>{localEstablishment.name?.charAt(0) || 'C'}</AvatarFallback>
                                 </Avatar>
-                                <Button type="button" size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background" onClick={() => establishmentFileInputRef.current?.click()}>
+                                <Button type="button" size="md" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background" onClick={() => establishmentFileInputRef.current?.click()}>
                                     <Camera className="h-4 w-4" />
                                 </Button>
                                 <Input ref={establishmentFileInputRef} type="file" accept="image/*" className="hidden" onChange={onEstablishmentImageChange} />
@@ -177,3 +177,4 @@ export function EstablishmentTab({
         </TabsContent>
     );
 }
+

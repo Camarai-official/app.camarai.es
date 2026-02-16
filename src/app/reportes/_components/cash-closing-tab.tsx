@@ -1,7 +1,8 @@
+import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { Eye } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -29,13 +30,12 @@ export function CashClosingTab({
     cardSales,
     theoreticalCash,
     cashDifference,
-    onOpenMovements,
-}: CashClosingTabProps) {
+    onOpenMovements }: CashClosingTabProps) {
     return (
         <TabsContent value="cash-closing" className="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Realizar Cierre de Caja</CardTitle>
+                    <H3>Realizar Cierre de Caja</H3>
                     <CardDescription>Finaliza el turno actual asegurando el cuadre de las operaciones financieras.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -110,3 +110,4 @@ export function CashClosingTab({
         </TabsContent>
     );
 }
+
