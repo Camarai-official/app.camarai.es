@@ -3,7 +3,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, Trash, Edit, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban, ArrowRight, Share2, Link, ExternalLink, Sparkles } from 'lucide-react';
+import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, Trash, Edit, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban, ArrowRight, Share2, Link, ExternalLink, Sparkles, Euro, Receipt, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { H4 } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
@@ -238,24 +238,28 @@ export default function Home() {
                                 value={metricsData.totalRevenue}
                                 change="+4.5% que la semana pasada"
                                 changeType="increase"
+                                icon={Euro}
                             />
                             <MetricCard
                                 title="Ticket Medio"
                                 value={metricsData.avgTicket}
                                 change="-1.2% que la semana pasada"
                                 changeType="decrease"
+                                icon={Receipt}
                             />
                             <MetricCard
                                 title="Productos por Comanda"
                                 value={metricsData.itemsPerOrder}
                                 change="+0.5% que la semana pasada"
                                 changeType="increase"
+                                icon={Package}
                             />
                             <MetricCard
                                 title="Tasa Conversión Upsell"
                                 value={metricsData.conversion}
                                 change="+3% que la semana pasada"
                                 changeType="increase"
+                                icon={Sparkles}
                             />
                         </div>
 
@@ -290,18 +294,21 @@ export default function Home() {
                         value={metricsData.serviceTime}
                         change="-2.5%"
                         changeType="increase"
+                        icon={Clock}
                     />
                     <MetricCard
                         title="Total Comandas"
                         value={metricsData.totalOrders}
                         change="+12.4%"
                         changeType="increase"
+                        icon={ShoppingBag}
                     />
                     <MetricCard
                         title="NPS (Satisfacción)"
                         value={metricsData.nps}
                         change="+3pts"
                         changeType="increase"
+                        icon={Star}
                     />
                 </div>
 

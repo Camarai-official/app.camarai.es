@@ -5,10 +5,9 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { format, addHours, startOfDay, subDays, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { DateRange } from "react-day-picker";
-import { Download, CalendarIcon } from 'lucide-react';
+import { Download, CalendarIcon, LineChart } from 'lucide-react';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { H4 } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -52,44 +51,28 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   // Smart Data Generation
   const chartData = React.useMemo(() => {
     const data: ChartDataPoint[] = [];
-    // Fallback to Today if date is undefined (deselected)
     const from = date?.from || new Date();
     const to = date?.to || from;
     const isRange = differenceInDays(to, from) > 0;
-
-    // Logic: If user picked a range > 1 day, force "Days" view logic, else respect viewMode or default to hours
     const effectiveMode = isRange ? 'days' : viewMode;
 
     if (effectiveMode === 'hours') {
-      // 24h for 'from' date
       const start = startOfDay(from);
       for (let i = 0; i < 24; i++) {
         const currentHour = addHours(start, i);
         let baseValue = Math.random() * 200 + 50;
         if (i >= 13 && i <= 15) baseValue += 400;
         if (i >= 20 && i <= 23) baseValue += 500;
-
-        data.push({
-          label: format(currentHour, 'HH:00'),
-          value: Math.floor(baseValue),
-          fullDate: currentHour
-        });
+        data.push({ label: format(currentHour, 'HH:00'), value: Math.floor(baseValue), fullDate: currentHour });
       }
     } else if (effectiveMode === 'days') {
-      // Generate days between 'from' and 'to', OR last 30 days if no range
       let current = isRange ? from : subDays(from, 29);
       const end = isRange ? to : from;
-
-      // Safety cap: max 365 days
       let iterations = 0;
       while (current <= end && iterations < 365) {
         const baseValue = Math.random() * 2000 + 1000;
-        data.push({
-          label: format(current, 'dd MMM', { locale: es }),
-          value: Math.floor(baseValue),
-          fullDate: current
-        });
-        current = addHours(current, 24); // Add 1 day
+        data.push({ label: format(current, 'dd MMM', { locale: es }), value: Math.floor(baseValue), fullDate: current });
+        current = addHours(current, 24);
         iterations++;
       }
     } else if (effectiveMode === 'months') {
@@ -97,22 +80,14 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
       for (let i = 0; i < 12; i++) {
         const monthDate = new Date(currentYear, i, 1);
         const baseValue = Math.random() * 50000 + 20000;
-        data.push({
-          label: format(monthDate, 'MMM', { locale: es }),
-          value: Math.floor(baseValue),
-          fullDate: monthDate
-        });
+        data.push({ label: format(monthDate, 'MMM', { locale: es }), value: Math.floor(baseValue), fullDate: monthDate });
       }
     } else if (effectiveMode === 'years') {
       const currentYear = from.getFullYear();
       for (let i = 4; i >= 0; i--) {
         const yearDate = new Date(currentYear - i, 0, 1);
         const baseValue = Math.random() * 500000 + 100000;
-        data.push({
-          label: format(yearDate, 'yyyy'),
-          value: Math.floor(baseValue),
-          fullDate: yearDate
-        });
+        data.push({ label: format(yearDate, 'yyyy'), value: Math.floor(baseValue), fullDate: yearDate });
       }
     }
     return data;
@@ -123,78 +98,73 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <H4 className="text-base font-bold text-muted-foreground flex items-center gap-2">
-          Ventas Totales
-          {isDetached && (
-            <Button
-              variant="ghost"
-              size="md"
-              onClick={handleReset}
-              title="Sincronizar con filtro global"
-            >
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            </Button>
-          )}
-        </H4>
-
-        <div className="flex items-center gap-2">
-          {/* Date Picker Range + Year Config */}
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date?.from ? (
-                  date.to ? (
-                    <>
-                      {format(date.from, "LLL dd", { locale: es })} -{" "}
-                      {format(date.to, "LLL dd, y", { locale: es })}
-                    </>
+    <Card className="overflow-hidden">
+      <CardHeader
+        title="Ventas Totales"
+        icon={LineChart}
+        actions={
+          <div className="flex items-center gap-2">
+            <Popover open={isOpen} onOpenChange={setIsOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="md" className={cn(!date && "text-muted-foreground")}>
+                  <CalendarIcon />
+                  {date?.from ? (
+                    date.to ? (
+                      <>
+                        {format(date.from, "LLL dd", { locale: es })} -{" "}
+                        {format(date.to, "LLL dd, y", { locale: es })}
+                      </>
+                    ) : (
+                      format(date.from, "PPP", { locale: es })
+                    )
                   ) : (
-                    format(date.from, "PPP", { locale: es })
-                  )
-                ) : (
-                  <span>Seleccionar fecha</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                initialFocus
-                mode="range"
-                defaultMonth={date?.from}
-                selected={date}
-                onSelect={handleDateSelect}
-                numberOfMonths={1}
-              />
-            </PopoverContent>
-          </Popover>
+                    <span>Seleccionar fecha</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={date?.from}
+                  selected={date}
+                  onSelect={(newDate) => {
+                    handleDateSelect(newDate);
+                    setIsOpen(false);
+                  }}
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
 
-          <Select
-            value={viewMode}
-            onValueChange={(v: ViewMode) => setViewMode(v)}
+            <Select value={viewMode} onValueChange={(v: ViewMode) => setViewMode(v)}>
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Vista" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="hours">Horas</SelectItem>
+                <SelectItem value="days">Días</SelectItem>
+                <SelectItem value="months">Meses</SelectItem>
+                <SelectItem value="years">Años</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button variant="outline" size="md" onClick={handleExport}>
+              <Download />
+            </Button>
+          </div>
+        }
+      >
+        {isDetached && (
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={handleReset}
+            title="Sincronizar con filtro global"
           >
-            <SelectTrigger className="w-[100px]">
-              <SelectValue placeholder="Vista" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="hours">Horas</SelectItem>
-              <SelectItem value="days">Días</SelectItem>
-              <SelectItem value="months">Meses</SelectItem>
-              <SelectItem value="years">Años</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button variant="outline" size="md" onClick={handleExport}>
-            <Download/>
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
           </Button>
-        </div>
+        )}
       </CardHeader>
 
       <CardContent className="flex-1 w-full min-h-[300px] mt-4">
@@ -206,47 +176,18 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
                 <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid 
-              strokeDasharray="3 3" 
-              vertical={false} 
-              stroke="hsl(var(--muted-foreground))" 
-              opacity={0.1} 
-            />
-            <XAxis
-              dataKey="label"
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={11}
-              fontWeight={500}
-              tickLine={false}
-              axisLine={false}
-              minTickGap={30}
-              dy={10}
-            />
-            <YAxis
-              stroke="hsl(var(--muted-foreground))"
-              fontSize={11}
-              fontWeight={500}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(value) => `€${(value / 1000).toFixed(1)}k`}
-              dx={-10}
-            />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
+            <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} minTickGap={30} dy={10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} tickFormatter={(value) => `€${(value / 1000).toFixed(1)}k`} dx={-10} />
             <Tooltip
-              cursor={{
-                stroke: 'hsl(var(--primary))',
-                strokeWidth: 2,
-                strokeDasharray: '4 4',
-              }}
+              cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="rounded-xl border-2 border-border p-2 shadow-2xl">
+                    <div className="rounded-xl border-2 border-border p-2 shadow-xl bg-background">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-8">
-                          <span className="text-xs text-muted-foreground">
-                            {label}
-                          </span>
-                          <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+                          <span className="text-xs text-muted-foreground">{label}</span>
                         </div>
                         <div className="flex items-baseline gap-1">
                           <span className="text-xl font-black text-foreground">
@@ -261,22 +202,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
                 return null;
               }}
             />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="hsl(var(--primary))"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#colorSales)"
-              activeDot={{
-                r: 6,
-                fill: 'hsl(var(--background))',
-                stroke: 'hsl(var(--primary))',
-                strokeWidth: 3,
-                className: "shadow-xl"
-              }}
-              animationDuration={1500}
-            />
+            <Area type="monotone" dataKey="value" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" activeDot={{ r: 6, fill: 'hsl(var(--background))', stroke: 'hsl(var(--primary))', strokeWidth: 3, className: "shadow-xl" }} animationDuration={1500} />
           </AreaChart>
         </ResponsiveContainer>
       </CardContent>

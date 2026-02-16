@@ -1,13 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { MoreHorizontal, Download, FileText, Activity, Eye, PlayCircle, CheckCircle, XCircle, Printer, Ban, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MoreHorizontal, Download, FileText, Activity, Eye, PlayCircle, CheckCircle, XCircle, Printer, Ban, ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { H4 } from '@/components/ui/typography';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -55,49 +54,32 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
     }
 
     return (
-        <Card className={cn(className)}>
-            <CardHeader className="gap-3 md:flex-row md:items-center md:justify-between">
-                <div>
-                    <H4 className="text-muted-foreground">Comandas Recientes</H4>
-                </div>
-                <div className="flex gap-2">
-                    <Select defaultValue="csv">
-                        <SelectTrigger id="export-format" className="w-[120px]">
-                            <SelectValue placeholder="Exportar" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="csv">CSV</SelectItem>
-                            <SelectItem value="pdf">PDF</SelectItem>
-                            <SelectItem value="xlsx">XLSX</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="md">
-                                <MoreHorizontal />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                                <Download />
-                                Exportar marcadas
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <FileText />
-                                Exportar todo
-                            </DropdownMenuItem>
-                            <DropdownMenuItem disabled>
-                                <Activity />
-                                Cambiar estado (Próximamente)
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </CardHeader>
+        <Card className={cn("overflow-hidden", className)}>
+            <CardHeader 
+                title="Comandas Recientes" 
+                icon={ShoppingBag}
+                actions={
+                    <div className="flex gap-2">
+                        <Select defaultValue="csv">
+                            <SelectTrigger className="w-[100px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="csv">CSV</SelectItem>
+                                <SelectItem value="xlsx">Excel</SelectItem>
+                                <SelectItem value="pdf">PDF</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <Button variant="outline" size="md">
+                            <Download/>
+                        </Button>
+                    </div>
+                }
+            />
             <CardContent className="flex-grow">
                 <div className="relative w-full overflow-auto">
                     <Table>
-                        <TableHeader className="text-md">
+                        <TableHeader>
                             <TableRow>
                                 <TableHead className="hidden md:table-cell text-center">
                                     <Checkbox aria-label="Seleccionar todo" />
@@ -111,7 +93,7 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                                 <TableHead className="w-[60px] text-center">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
-                        <TableBody className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}>
+                        <TableBody isAnimating={isAnimating}>
                             {currentOrders.map((order) => (
                                 <TableRow key={order.order}>
                                     <TableCell className="hidden md:table-cell text-center">

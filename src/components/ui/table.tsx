@@ -7,7 +7,7 @@ const Table = React.forwardRef<
   React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
   <div className="relative w-full overflow-hidden rounded-lg">
-    <div className="overflow-auto custom-scrollbar">
+    <div className="overflow-auto custom-scrollbar text-xs">
       <table
         ref={ref}
         className={cn("w-full caption-bottom", className)}
@@ -22,17 +22,21 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("border-b bg-muted", className)} {...props} />
+  <thead ref={ref} className={cn("border-b bg-muted/20 h-12 text-md", className)} {...props} />
 ))
 TableHeader.displayName = "TableHeader"
 
 const TableBody = React.forwardRef<
   HTMLTableSectionElement,
-  React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLTableSectionElement> & { isAnimating?: boolean }
+>(({ className, isAnimating, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("[&_tr:last-child]:border-0 text-xs", className)}
+    className={cn(
+      "[&_tr:last-child]:border-0 text-xs transition-opacity duration-300",
+      isAnimating ? "opacity-0" : "opacity-100",
+      className
+    )}
     {...props}
   />
 ))

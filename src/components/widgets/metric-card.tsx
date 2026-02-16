@@ -21,16 +21,10 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
       "relative overflow-hidden",
       className
     )}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <H5 className="text-muted-foreground">
-          {title}
-        </H5>
-        {Icon && (
-          <div className="p-2.5 rounded-xl bg-muted/50 text-muted-foreground shadow-sm border border-border/50">
-            <Icon className="h-4 w-4" />
-          </div>
-        )}
-      </CardHeader>
+      <CardHeader 
+        title={title} 
+        icon={Icon} 
+      />
       
       <CardContent>
         <div className="flex flex-col gap-1.5">
@@ -45,7 +39,7 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
               <Badge 
                 variant={isIncrease ? 'success' : 'danger'} 
               >
-                {isIncrease ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                {isIncrease ? <TrendingUp /> : <TrendingDown />}
                 {change}
               </Badge>
             </div>

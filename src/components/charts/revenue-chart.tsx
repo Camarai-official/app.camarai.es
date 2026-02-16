@@ -10,7 +10,7 @@ import { H4 } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronDown, Download } from 'lucide-react';
+import { ChevronDown, Download, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 
@@ -55,17 +55,17 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
   };
 
   return (
-    <Card className={cn("", className)}>
-      <CardHeader className="flex-row justify-between"> 
-          <div className="flex items-center gap-2">
-            <H4 className="text-muted-foreground">Número de Reservas</H4>
-          </div>
+    <Card className={cn("overflow-hidden", className)}>
+      <CardHeader 
+        title="Número de Reservas" 
+        icon={CalendarIcon}
+        actions={
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-[130px] justify-between">
+                <Button variant="outline" size="md" className="w-[130px] justify-between">
                   <span>{selectedMonth}</span>
-                  <ChevronDown/>
+                  <ChevronDown />
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-auto p-2">
@@ -93,11 +93,14 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
                 <SelectItem value="2023">2023</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="md"><Download/></Button>
+            <Button variant="outline" size="md">
+              <Download />
+            </Button>
           </div>
-      </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="w-full h-[300px]">
+        }
+      />
+      <CardContent className="flex-grow h-full">
+        <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
@@ -138,7 +141,7 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="rounded-xl border border-border bg-card p-3 shadow-2xl animate-in fade-in zoom-in duration-200">
+                      <div className="rounded-xl border border-border bg-background p-3 shadow-xl animate-in fade-in zoom-in duration-200">
                         <div className="flex flex-col gap-1.5">
                           <span className="text-xs text-muted-foreground">
                             Día {label}
