@@ -363,18 +363,18 @@ export default function ComandasPage() {
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredOrders.length)}-{Math.min(indexOfLastItem, filteredOrders.length)}</strong> de <strong>{filteredOrders.length}</strong> comandas.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="sm" startIcon={<ChevronLeft />} onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
+                            <Button variant="outline" size="md" startIcon={<ChevronLeft />} onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
                             {pageNumbers.map(number => (
                                 <Button
                                     key={number}
                                     variant={currentPage === number ? "default" : "outline"}
-                                    size="sm"
+                                    size="md"
                                     onClick={() => paginate(number)}
                                 >
                                     {number}
                                 </Button>
                             ))}
-                            <Button variant="outline" size="sm" startIcon={<ChevronRight />} onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
+                            <Button variant="outline" size="md" startIcon={<ChevronRight />} onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
                         </div>
                     </CardFooter>
                 </Card>
