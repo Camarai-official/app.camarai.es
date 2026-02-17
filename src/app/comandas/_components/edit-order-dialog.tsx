@@ -140,7 +140,7 @@ export function EditOrderDialog({
                 </h4>
                   <SearchInput 
                     placeholder="Buscar plato o bebida..."
-                    className="bg-muted/40 border-transparent focus:bg-background transition-all"
+                    className="bg-muted/40 border-transparent transition-all"
                     value={searchProduct}
                     onChange={(e) => setSearchProduct(e.target.value)}
                   />
@@ -259,7 +259,7 @@ export function EditOrderDialog({
                         id="edit-name"
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="h-10 bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm focus-visible:ring-1"
+                        className="h-10 bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm"
                         placeholder="Nombre del cliente"
                       />
                     </div>
@@ -275,7 +275,7 @@ export function EditOrderDialog({
                     placeholder="Instrucciones especiales para cocina..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="min-h-[100px] bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm resize-none focus-visible:ring-1"
+                    className="min-h-[100px] bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm resize-none"
                   />
                 </div>
               </div>
@@ -298,14 +298,14 @@ export function EditOrderDialog({
                   <div className="flex justify-between items-center text-sm">
                     <div className="flex items-center gap-2">
                        <span className="text-muted-foreground">Descuento</span>
-                       <div className="flex items-center bg-background border rounded h-6 px-1.5 transition-colors focus-within:border-primary shadow-sm">
+                       <div className="flex items-center bg-background border rounded h-6 px-1.5 transition-colors shadow-sm">
                           <Input 
                              type="number" 
                              min="0" 
                              max="100" 
                              value={discount} 
                              onChange={(e) => setDiscount(Number(e.target.value))}
-                             className="w-8 h-full border-none bg-transparent p-0 text-center text-xs focus-visible:ring-0 shadow-none py-0 h-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                             className="w-8 h-full border-none bg-transparent p-0 text-center text-xs shadow-none py-0 h-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                           />
                           <span className="text-xs text-muted-foreground">%</span>
                        </div>

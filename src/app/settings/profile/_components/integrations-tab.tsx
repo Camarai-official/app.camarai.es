@@ -198,7 +198,7 @@ export function IntegrationsTab() {
                                 />
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="md" className="h-8 w-8"><MoreVertical /></Button>
+                                        <Button variant="ghost" size="md" className="h-8 w-8" startIcon={<MoreVertical />} />
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onSelect={() => openConfigDialog(integration)}>

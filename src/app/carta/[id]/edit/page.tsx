@@ -224,7 +224,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                             <ArrowLeft className="h-4 w-4 md:mr-2" />
                             <span className="hidden md:inline">Volver a Gestión de Cartas</span>
                         </Button>
-                        <Button onClick={handleSave} size="lg"><Save className="mr-2 h-4 w-4" />Guardar Carta</Button>
+                        <Button onClick={handleSave} size="md" startIcon={<Save className="h-4 w-4" />}>Guardar Carta</Button>
                     </div>
                 </Card>
             </footer>

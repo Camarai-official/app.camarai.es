@@ -1052,7 +1052,7 @@ export default function PersonalPage() {
                                                 <TableHead>Empleado</TableHead>
                                                 <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                                                 <TableHead>Hora</TableHead>
-                                                <TableHead>Acción</TableHead>
+                                                <TableHead className="text-center">Acción</TableHead>
                                                 <TableHead className="hidden md:table-cell">Método</TableHead>
                                                 <TableHead className="w-[60px]"><span className="sr-only">Acciones</span></TableHead>
                                             </TableRow>
@@ -1071,7 +1071,7 @@ export default function PersonalPage() {
                                                         <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
                                                         <TableCell className="hidden sm:table-cell">{`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}</TableCell>
                                                         <TableCell>{`${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`}</TableCell>
-                                                        <TableCell>
+                                                        <TableCell className="text-center">
                                                             <Badge variant="outline">
                                                                 {log.action === 'clock-in' ? 'Entrada' :
                                                                     log.action === 'clock-out' ? 'Salida' :
@@ -1080,8 +1080,8 @@ export default function PersonalPage() {
                                                         </TableCell>
                                                         <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
                                                         <TableCell>
-                                                            <Button variant="ghost" size="md" className="h-8 w-8" onClick={() => setEditingTimeLog(log)} aria-label="Editar registro">
-                                                                <Edit className="h-4 w-4" />
+                                                            <Button variant="ghost" size="sm" onClick={() => setEditingTimeLog(log)} aria-label="Editar registro">
+                                                                <Edit />
                                                             </Button>
                                                         </TableCell>
                                                     </TableRow>
@@ -1112,7 +1112,7 @@ export default function PersonalPage() {
                                 </div>
                                 <Dialog open={isAbsenceRequestOpen} onOpenChange={setIsAbsenceRequestOpen}>
                                     <DialogTrigger asChild>
-                                        <Button><Calendar className="mr-2 h-4 w-4" />Nueva Solicitud</Button>
+                                        <Button startIcon={<Calendar className="h-4 w-4" />}>Nueva Solicitud</Button>
                                     </DialogTrigger>
                                     <DialogContent>
                                         <DialogHeader>
@@ -1169,7 +1169,7 @@ export default function PersonalPage() {
                                                 <TableHead>Empleado</TableHead>
                                                 <TableHead className="hidden sm:table-cell">Tipo</TableHead>
                                                 <TableHead>Fechas</TableHead>
-                                                <TableHead>Estado</TableHead>
+                                                <TableHead className="text-center">Estado</TableHead>
                                                 <TableHead className="text-right">Acciones</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -1181,7 +1181,7 @@ export default function PersonalPage() {
                                                         <TableCell className="font-medium">{staff?.nombre}</TableCell>
                                                         <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
                                                         <TableCell className="text-xs sm:text-sm">{req.startDate} - {req.endDate}</TableCell>
-                                                        <TableCell>
+                                                        <TableCell className="text-center">
                                                             <Badge variant={req.status === 'approved' ? 'default' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
                                                                 {req.status === 'approved' ? 'Aprobado' : req.status === 'rejected' ? 'Rechazado' : 'Pendiente'}
                                                             </Badge>
@@ -1189,10 +1189,10 @@ export default function PersonalPage() {
                                                         <TableCell className="text-right">
                                                             {req.status === 'pending' && (
                                                                 <div className="flex justify-end gap-2">
-                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
-                                                                        <Check className="h-4 w-4" />
+                                                                    <Button size="sm" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
+                                                                        <Check />
                                                                     </Button>
-                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
+                                                                    <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
                                                                         <X className="h-4 w-4" />
                                                                     </Button>
                                                                 </div>
@@ -1228,10 +1228,10 @@ export default function PersonalPage() {
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead>Empleado</TableHead>
-                                                <TableHead>Tipo</TableHead>
+                                                <TableHead className="text-center">Tipo</TableHead>
                                                 <TableHead>Fecha/Hora</TableHead>
                                                 <TableHead className="hidden md:table-cell">Motivo</TableHead>
-                                                <TableHead>Estado</TableHead>
+                                                <TableHead className="text-center">Estado</TableHead>
                                                 <TableHead className="text-right">Acciones</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -1241,14 +1241,14 @@ export default function PersonalPage() {
                                                 return (
                                                     <TableRow key={inc.id}>
                                                         <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
-                                                        <TableCell>
+                                                        <TableCell className="text-center">
                                                             <Badge variant="outline">
                                                                 {tipoIncidenciaLabels[inc.tipo]}
                                                             </Badge>
                                                         </TableCell>
                                                         <TableCell className="text-xs sm:text-sm">{inc.fecha} {inc.hora}</TableCell>
                                                         <TableCell className="hidden md:table-cell max-w-[200px] truncate">{inc.motivo || '-'}</TableCell>
-                                                        <TableCell>
+                                                        <TableCell className="text-center">
                                                             <Badge variant={inc.estado === 'aprobada' ? 'default' : inc.estado === 'rechazada' ? 'destructive' : 'secondary'}>
                                                                 {estadoIncidenciaLabels[inc.estado]}
                                                             </Badge>
@@ -1256,11 +1256,11 @@ export default function PersonalPage() {
                                                         <TableCell className="text-right">
                                                             {inc.estado === 'pendiente' && (
                                                                 <div className="flex justify-end gap-2">
-                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
-                                                                        <Check className="h-4 w-4" />
+                                                                    <Button size="sm" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
+                                                                        <Check />
                                                                     </Button>
-                                                                    <Button size="md" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
-                                                                        <X className="h-4 w-4" />
+                                                                    <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
+                                                                        <X />
                                                                     </Button>
                                                                 </div>
                                                             )}

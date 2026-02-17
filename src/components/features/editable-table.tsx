@@ -60,7 +60,7 @@ function EditableCell<T>({
 }) {
   const cellClass = cn(
     'transition-all',
-    isModified && 'ring-2 ring-yellow-400 ring-offset-1 rounded',
+    isModified && 'bg-yellow-50 dark:bg-yellow-900/20 rounded',
     column.align === 'center' && 'text-center',
     column.align === 'right' && 'text-right'
   );

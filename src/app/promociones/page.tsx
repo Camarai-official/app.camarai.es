@@ -645,8 +645,7 @@ export default function PromocionesPage() {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button aria-haspopup="true" size="md" variant="ghost" className="h-8 w-8 -mt-2 -mr-2 flex-shrink-0">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                    <span className="sr-only">Menú de acciones</span>
+                                                    <MoreHorizontal />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
@@ -694,10 +693,10 @@ export default function PromocionesPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className='w-[60px]'>Estado</TableHead>
+                                        <TableHead className='w-[60px] text-center'>Estado</TableHead>
                                         <TableHead>Nombre Campaña</TableHead>
                                         <TableHead>Tipo</TableHead>
-                                        <TableHead>Estado</TableHead>
+                                        <TableHead className="text-center">Estado</TableHead>
                                         <TableHead>Audiencia</TableHead>
                                         <TableHead>Lanzamiento</TableHead>
                                         <TableHead><span className="sr-only">Acciones</span></TableHead>
@@ -718,7 +717,7 @@ export default function PromocionesPage() {
                                         </TableRow>
                                     ) : campaigns.map((campaign) => (
                                         <TableRow key={campaign.id}>
-                                            <TableCell>
+                                            <TableCell className="text-center">
                                                 <Switch
                                                     id={`status-switch-${campaign.id}`}
                                                     checked={campaign.status === 'Activa'}
@@ -728,7 +727,7 @@ export default function PromocionesPage() {
                                             </TableCell>
                                             <TableCell className="font-medium">{campaign.name}</TableCell>
                                             <TableCell>{campaign.type}</TableCell>
-                                            <TableCell>
+                                            <TableCell className="text-center">
                                                 <Badge variant={getStatusVariant(campaign.status)}>{campaign.status}</Badge>
                                             </TableCell>
                                             <TableCell>{campaign.audience} clientes</TableCell>
@@ -737,8 +736,7 @@ export default function PromocionesPage() {
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button aria-haspopup="true" size="md" variant="ghost">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                            <span className="sr-only">Menú de acciones</span>
+                                                            <MoreHorizontal />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">

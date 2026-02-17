@@ -153,7 +153,7 @@ export default function TaxesPage() {
                         <AlertDialog>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="md"><MoreHorizontal /></Button>
+                              <Button variant="ghost" size="md" startIcon={<MoreHorizontal />} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <DropdownMenuItem onClick={() => handleOpenDialog(tax)}><Edit />Editar</DropdownMenuItem>

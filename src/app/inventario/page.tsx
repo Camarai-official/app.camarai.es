@@ -428,18 +428,17 @@ export default function InventarioPage() {
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button aria-haspopup="true" size="md" variant="ghost">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Menú de acciones</span>
+                                  <MoreHorizontal />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                 <DropdownMenuItem onSelect={() => openStockDialog(item)}>
-                                  <Package className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  <Package />
                                   Ajustar Stock
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
-                                  <History className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  <History />
                                   Ver historial
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -464,22 +463,21 @@ export default function InventarioPage() {
               Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredItems.length)}-{Math.min(indexOfLastItem, filteredItems.length)}</strong> de <strong>{filteredItems.length}</strong> componentes.
             </div>
             <div className="flex justify-end items-center gap-2">
-              <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                <ChevronLeft className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                <ChevronLeft />
               </Button>
               {pageNumbers.map(number => (
                 <Button
                   key={number}
                   variant={currentPage === number ? "default" : "outline"}
-                  size="md"
-                  className="h-8 w-8"
+                  size="sm"
                   onClick={() => paginate(number)}
                 >
                   {number}
                 </Button>
               ))}
-              <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                <ChevronRight className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                <ChevronRight />
               </Button>
             </div>
           </CardFooter>

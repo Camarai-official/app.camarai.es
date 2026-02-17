@@ -343,7 +343,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
             <footer className="p-4 md:p-6 pt-0 sticky bottom-0">
                 <Card className="border-t">
                     <div className="flex justify-end">
-                        <Button onClick={handleSave} size="lg"><Save className="mr-2" />Guardar Cambios en el Menú</Button>
+                        <Button onClick={handleSave} size="md" startIcon={<Save />}>Guardar Cambios en el Menú</Button>
                     </div>
                 </Card>
             </footer>

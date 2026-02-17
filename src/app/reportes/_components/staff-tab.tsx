@@ -308,7 +308,7 @@ export function StaffTab({
                                         <TableHead>Empleado</TableHead>
                                         <TableHead>Fecha</TableHead>
                                         <TableHead>Tipo</TableHead>
-                                        <TableHead>Estado</TableHead>
+                                        <TableHead className="text-center">Estado</TableHead>
                                         <TableHead className="text-right">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
@@ -321,7 +321,7 @@ export function StaffTab({
                                                 <TableCell className="font-medium">{employee?.nombre || 'Desconocido'}</TableCell>
                                                 <TableCell>{req.startDate}</TableCell>
                                                 <TableCell>{req.type}</TableCell>
-                                                <TableCell>
+                                                <TableCell className="text-center">
                                                     <Badge variant={statusProps.variant}>
                                                         <statusProps.icon className="mr-1 h-3 w-3" />
                                                         {req.status}
@@ -331,7 +331,7 @@ export function StaffTab({
                                                     {req.status === 'pending' ? (
                                                         <div className="flex gap-2 justify-end">
                                                             <Button size="sm" variant="outline" className="hover:bg-destructive/10" onClick={() => onUpdateRequest(req, 'rejected')}>
-                                                                <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                <XCircle />
                                                                 Rechazar
                                                             </Button>
                                                             <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
@@ -369,7 +369,7 @@ export function StaffTab({
                                                     <Separator className="my-3" />
                                                     <div className="flex gap-2 justify-end">
                                                         <Button size="sm" variant="outline" className="hover:bg-destructive/10 flex-1" onClick={() => onUpdateRequest(req, 'rejected')}>
-                                                            <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <XCircle />
                                                             Rechazar
                                                         </Button>
                                                         <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white flex-1" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>

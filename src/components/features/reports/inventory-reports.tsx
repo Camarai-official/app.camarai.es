@@ -130,7 +130,7 @@ export function WasteReportCard() {
             <H3>Informe de Mermas</H3>
             <CardDescription>Seguimiento de productos desechados o caducados en el período.</CardDescription>
           </div>
-          <Button variant="outline"><Download className="mr-2 h-4 w-4" />Exportar</Button>
+          <Button variant="outline" startIcon={<Download className="h-4 w-4" />}>Exportar</Button>
         </div>
       </CardHeader>
       <CardContent>

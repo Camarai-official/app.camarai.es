@@ -144,7 +144,7 @@ export function BillingTab({
                                     <TableHead>Mesa</TableHead>
                                     <TableHead>Nombre</TableHead>
                                     <TableHead>Total</TableHead>
-                                    <TableHead>Estado</TableHead>
+                                    <TableHead className="text-center">Estado</TableHead>
                                     <TableHead className="w-[40px]"></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -162,7 +162,7 @@ export function BillingTab({
                                         <TableCell>{order.table}</TableCell>
                                         <TableCell>{order.name}</TableCell>
                                         <TableCell>{order.total}</TableCell>
-                                        <TableCell>
+                                        <TableCell className="text-center">
                                             <Badge
                                                 variant={
                                                     order.status === 'Completado'
@@ -178,9 +178,8 @@ export function BillingTab({
                                         <TableCell>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Abrir menú</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    <Button variant="ghost" size='md'>
+                                                        <MoreHorizontal />
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
@@ -200,22 +199,21 @@ export function BillingTab({
                     </div>
                 </CardContent>
                 <CardFooter className="flex justify-end items-center gap-2">
-                    <Button variant="outline" size="md" className="h-8 w-8" onClick={() => onPaginate(currentPage - 1)} disabled={currentPage === 1}>
-                        <ChevronLeft className="h-4 w-4" />
+                    <Button variant="outline" size="sm" onClick={() => onPaginate(currentPage - 1)} disabled={currentPage === 1}>
+                        <ChevronLeft />
                     </Button>
                     {pageNumbers.map(number => (
                         <Button
                             key={number}
                             variant={currentPage === number ? "default" : "outline"}
-                            size="md"
-                            className="h-8 w-8"
+                            size="sm"
                             onClick={() => onPaginate(number)}
                         >
                             {number}
                         </Button>
                     ))}
-                    <Button variant="outline" size="md" className="h-8 w-8" onClick={() => onPaginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                        <ChevronRight className="h-4 w-4" />
+                    <Button variant="outline" size="sm" onClick={() => onPaginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                        <ChevronRight />
                     </Button>
                 </CardFooter>
             </Card>

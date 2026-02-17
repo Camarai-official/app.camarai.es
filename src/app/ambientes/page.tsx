@@ -412,7 +412,7 @@ export default function AmbientesPage() {
                                                                     <div className="pt-2 border-t">
                                                                         <AlertDialogTrigger asChild>
                                                                             <Button variant="ghost" size="sm" className="w-full justify-start px-2 hover:bg-destructive/10">
-                                                                                <Trash className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                <Trash />
                                                                                 <span className="font-semibold">Eliminar este ambiente</span>
                                                                             </Button>
                                                                         </AlertDialogTrigger>
@@ -443,7 +443,7 @@ export default function AmbientesPage() {
                                                             onBlur={() => handleUpdateName(env.id)}
                                                             onKeyDown={(e) => handleKeyDown(e, env.id)}
                                                             autoFocus
-                                                            className="text-base font-bold leading-none tracking-tight h-8 p-0 border-0 shadow-none focus-visible:ring-0 bg-transparent"
+                                                            className="text-base font-bold leading-none tracking-tight h-8 p-0 border-0 shadow-none bg-transparent"
                                                         />
                                                     ) : (
                                                         <div className="flex items-center gap-2 group/name" onDoubleClick={() => handleDoubleClick(env)}>
@@ -637,7 +637,7 @@ export default function AmbientesPage() {
                                                 setSearchQuery(e.target.value);
                                                 setCurrentQRPage(1);
                                             }}
-                                            className="w-[120px] h-8 border-none bg-muted/50 text-xs px-2 focus-visible:ring-0 placeholder:text-muted-foreground/70"
+                                            className="w-[120px] h-8 border-none bg-muted/50 text-xs px-2 placeholder:text-muted-foreground/70"
                                         />
                                     </ConfigItem>
                                     
@@ -671,8 +671,8 @@ export default function AmbientesPage() {
                                                     
                                                     return (
                                                         <Card key={tableId} className={cn(
-                                                            "group overflow-hidden transition-all duration-300 rounded-2xl border-muted hover:border-primary/50 hover:shadow-lg", 
-                                                            isSelected && "ring-2 ring-primary bg-primary/5 border-primary/20"
+                                                            "group overflow-hidden transition-all duration-300 rounded-2xl border-muted hover:border-primary/50 hover:shadow-lg border-2", 
+                                                            isSelected && "border-primary bg-primary/5"
                                                         )}>
                                                             <div className="p-3">
                                                                 <div className="flex items-center justify-between mb-3">

@@ -91,7 +91,7 @@ export function DevicesTab({
                                             <Switch checked={device.active} onCheckedChange={(checked) => updateDevice(device.id, { active: checked })} />
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="md" className="h-8 w-8"><MoreVertical /></Button>
+                                                    <Button variant="ghost" size="md" className="h-8 w-8" startIcon={<MoreVertical />} />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem onClick={() => handleOpenDeviceDialog(type, device)}><Pencil />Editar</DropdownMenuItem>

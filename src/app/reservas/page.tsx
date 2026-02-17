@@ -560,19 +560,19 @@ export default function ReservasPage() {
                         row: 'grid grid-cols-7 w-full mt-2',
                         cell: 'w-full',
                         day: "h-14 w-full text-base",
-                        day_selected: "bg-background text-background-foreground hover:bg-background hover:text-background-foreground focus:bg-background focus:text-background-foreground" }}
+                        day_selected: "bg-background text-background-foreground hover:bg-background hover:text-background-foreground" }}
                     components={{
                         Caption: ({ ...props }) => {
                              return (
                                 <div className="flex justify-between items-center px-1 mb-2">
                                     {props.displayIndex === 0 && (
-                                        <Button onClick={handlePrevMonth} variant="outline" size="md"><ChevronLeft/></Button>
+                                        <Button onClick={handlePrevMonth} variant="outline" size="md" startIcon={<ChevronLeft/>} />
                                     )}
                                      <h2 className="text-sm font-medium text-center flex-1">
                                         {format(props.displayMonth, 'LLLL yyyy', { locale: es })}
                                     </h2>
                                     {props.displayIndex === 0 && (
-                                         <Button onClick={handleNextMonth} variant="outline" size="md"><ChevronRight/></Button>
+                                         <Button onClick={handleNextMonth} variant="outline" size="md" startIcon={<ChevronRight/>} />
                                     )}
                                 </div>
                             )
@@ -635,7 +635,7 @@ export default function ReservasPage() {
                                             </div>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="md"><MoreVertical/></Button>
+                                                    <Button variant="ghost" size="md" startIcon={<MoreVertical/>} />
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuItem onClick={() => handleEditReservation(res)}>

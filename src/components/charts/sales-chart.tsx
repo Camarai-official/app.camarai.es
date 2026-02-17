@@ -9,8 +9,7 @@ import { Download, CalendarIcon, LineChart } from 'lucide-react';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -104,38 +103,12 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
         icon={LineChart}
         actions={
           <div className="flex items-center gap-2">
-            <Popover open={isOpen} onOpenChange={setIsOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="md" className={cn(!date && "text-muted-foreground")}>
-                  <CalendarIcon />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd", { locale: es })} -{" "}
-                        {format(date.to, "LLL dd, y", { locale: es })}
-                      </>
-                    ) : (
-                      format(date.from, "PPP", { locale: es })
-                    )
-                  ) : (
-                    <span>Seleccionar fecha</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="end">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={(newDate) => {
-                    handleDateSelect(newDate);
-                    setIsOpen(false);
-                  }}
-                  numberOfMonths={1}
-                />
-              </PopoverContent>
-            </Popover>
+            <CalendarDateRangePicker 
+              date={date} 
+              setDate={handleDateSelect} 
+              numberOfMonths={1}
+              closeOnSelect={true}
+            />
 
             <Select value={viewMode} onValueChange={(v: ViewMode) => setViewMode(v)}>
               <SelectTrigger className="w-[100px]">
@@ -167,7 +140,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
         )}
       </CardHeader>
 
-      <CardContent className="flex-1 w-full min-h-[300px] mt-4">
+      <CardContent className="flex-1 w-full min-h-[300px]">
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
             <defs>

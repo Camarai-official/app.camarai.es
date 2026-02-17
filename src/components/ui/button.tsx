@@ -10,13 +10,13 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground border border-transparent hover:bg-primary/80",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        brand: "bg-brand-gradient text-white border-none shadow-lg hover:opacity-90 transition-opacity",
+        brand: "bg-brand-gradient text-white border border-transparent shadow-lg hover:opacity-90 transition-opacity",
       },
       size: {
         sm: "min-w-8 h-8 px-2 [&_svg]:h-3.5 [&_svg]:w-3.5",
@@ -60,7 +60,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
       >
-        {startIcon && <span className="mr-2 inline-flex shrink-0">{startIcon}</span>}
+        {startIcon && <span className={cn(children && "mr-2", "inline-flex shrink-0")}>{startIcon}</span>}
         {children}
         {endIcon && <span className="ml-2 inline-flex shrink-0">{endIcon}</span>}
       </Comp>

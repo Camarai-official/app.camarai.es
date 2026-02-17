@@ -13,23 +13,21 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, subtitle, className, actions }: PageHeaderProps) {
   return (
-    <header className="m-6 py-4">
-        <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col items-start">
-            <div className="flex flex-col items-start gap-1">
-              <H1 className="text-transparent bg-clip-text brand-gradient-text">
-                {title}
-              </H1>
-              {subtitle ? (
-                <TextSM className="text-muted-foreground">{subtitle}</TextSM>
-              ) : null}
-            </div>
-          </div>
-          {actions ? (
-            <div className="flex flex-wrap items-center gap-2 self-stretch justify-end">
-              {actions}
-            </div>
-          ) : null}
+    <header className={cn("mx-6 py-8", className)}>
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                
+                <div className="space-y-1 px-6">
+                    <H1 className="text-3xl font-bold tracking-tight text-foreground">{title}</H1>
+                    {subtitle && (
+                        <TextSM className="text-muted-foreground font-medium">{subtitle}</TextSM>
+                    )}
+                </div>
+
+            {actions && (
+                <div className="flex flex-wrap items-center gap-3">
+                    {actions}
+                </div>
+            )}
         </div>
     </header>
   );

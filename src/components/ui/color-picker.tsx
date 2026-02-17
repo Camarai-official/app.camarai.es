@@ -37,7 +37,7 @@ export function ColorPicker({
               "h-8 w-8 rounded-full transition-all hover:scale-110",
               color.startsWith('#') ? "" : `bg-${color}`,
               value === color
-                ? "ring-2 ring-primary ring-offset-2 scale-110"
+                ? "border-2 border-primary scale-110"
                 : "opacity-80 hover:opacity-100"
             )}
             style={color.startsWith('#') ? { backgroundColor: color } : undefined}

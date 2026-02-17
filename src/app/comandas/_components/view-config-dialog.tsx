@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SettingItem } from '@/components/ui/settings-modal';
+import { ActionTile } from '@/components/ui/action-tile';
 import { ConfigItem } from '@/components/ui/config-item';
 
 type ViewConfigDialogProps = {
@@ -54,68 +54,69 @@ export function ViewConfigDialog({
                 <LayoutGrid className="h-3 w-3" /> Columnas Visibles
               </h4>
               <div className="grid gap-3">
-                <SettingItem
-                  id="showOrder"
+                <ActionTile
+                  switchId="showOrder"
                   icon={Hash}
-                  label="Número de Orden"
+                  title="Número de Orden"
                   description="ID único de identificación de la comanda."
-                  checked={viewConfig.showOrder}
-                  onCheckedChange={(value) => onConfigChange('showOrder', value)}
+                  rightContentType="switch"
+                  switchChecked={viewConfig.showOrder}
+                  onSwitchChange={(value) => onConfigChange('showOrder', value)}
                 />
 
-                <SettingItem
-                  id="showName"
+                <ActionTile
+                  switchId="showName"
                   icon={User}
-                  label="Cliente"
+                  title="Cliente"
                   description="Nombre o alias asignado al cliente."
-                  checked={viewConfig.showName}
-                  onCheckedChange={(value) => onConfigChange('showName', value)}
-                  iconClassName="text-blue-500"
-                  className="[&_.icon-container]:bg-blue-500/10 [&_.icon-container]:group-hover:bg-blue-500/20"
+                  rightContentType="switch"
+                  switchChecked={viewConfig.showName}
+                  onSwitchChange={(value) => onConfigChange('showName', value)}
+                  iconColor="blue-500"
                 />
 
-                <SettingItem
-                  id="showTable"
+                <ActionTile
+                  switchId="showTable"
                   icon={LayoutGrid}
-                  label="Mesa"
+                  title="Mesa"
                   description="Ubicación física en el plano de mesas."
-                  checked={viewConfig.showTable}
-                  onCheckedChange={(value) => onConfigChange('showTable', value)}
-                  iconClassName="text-green-500"
-                  className="[&_.icon-container]:bg-green-500/10 [&_.icon-container]:group-hover:bg-green-500/20"
+                  rightContentType="switch"
+                  switchChecked={viewConfig.showTable}
+                  onSwitchChange={(value) => onConfigChange('showTable', value)}
+                  iconColor="green-500"
                 />
 
-                <SettingItem
-                  id="showTime"
+                <ActionTile
+                  switchId="showTime"
                   icon={Clock}
-                  label="Hora"
+                  title="Hora"
                   description="Tiempo transcurrido desde la apertura."
-                  checked={viewConfig.showTime}
-                  onCheckedChange={(value) => onConfigChange('showTime', value)}
-                  iconClassName="text-amber-500"
-                  className="[&_.icon-container]:bg-amber-500/10 [&_.icon-container]:group-hover:bg-amber-500/20"
+                  rightContentType="switch"
+                  switchChecked={viewConfig.showTime}
+                  onSwitchChange={(value) => onConfigChange('showTime', value)}
+                  iconColor="amber-500"
                 />
 
-                <SettingItem
-                  id="showTotal"
+                <ActionTile
+                  switchId="showTotal"
                   icon={Wallet}
-                  label="Total"
+                  title="Total"
                   description="Importe acumulado de la comanda."
-                  checked={viewConfig.showTotal}
-                  onCheckedChange={(value) => onConfigChange('showTotal', value)}
-                  iconClassName="text-purple-500"
-                  className="[&_.icon-container]:bg-purple-500/10 [&_.icon-container]:group-hover:bg-purple-500/20"
+                  rightContentType="switch"
+                  switchChecked={viewConfig.showTotal}
+                  onSwitchChange={(value) => onConfigChange('showTotal', value)}
+                  iconColor="purple-500"
                 />
 
-                <SettingItem
-                  id="showStatus"
+                <ActionTile
+                  switchId="showStatus"
                   icon={Activity}
-                  label="Estado"
+                  title="Estado"
                   description="Situación actual (abierta, cobrada, etc.)."
-                  checked={viewConfig.showStatus}
-                  onCheckedChange={(value) => onConfigChange('showStatus', value)}
-                  iconClassName="text-red-500"
-                  className="[&_.icon-container]:bg-red-500/10 [&_.icon-container]:group-hover:bg-red-500/20"
+                  rightContentType="switch"
+                  switchChecked={viewConfig.showStatus}
+                  onSwitchChange={(value) => onConfigChange('showStatus', value)}
+                  iconColor="red-500"
                 />
               </div>
             </div>

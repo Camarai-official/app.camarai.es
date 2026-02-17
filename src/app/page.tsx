@@ -21,7 +21,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SettingItem } from '@/components/ui/settings-modal';
+import { ActionTile } from '@/components/ui/action-tile';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/ui/page-header';
@@ -278,7 +278,10 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Gráfico de Reservas */}
                         {dashboardConfig.revenueChart && (
-                            <RevenueChart date={date} className="lg:col-span-2" />
+                            <RevenueChart 
+                                date={date} 
+                                className={cn(dashboardConfig.occupancyChart ? "lg:col-span-2" : "lg:col-span-3")} 
+                            />
                         )}
                         {/* Gráfico de Aforo */}
                         {dashboardConfig.occupancyChart && (
@@ -373,35 +376,36 @@ export default function Home() {
                                         <TrendingUp className="h-3 w-3" /> Análisis de Ventas
                                     </h4>
                                     <div className="grid gap-3">
-                                        <SettingItem
-                                            id="metrics"
+                                        <ActionTile
+                                            switchId="metrics"
                                             icon={TrendingUp}
-                                            label="Métricas Principales"
+                                            title="Métricas Principales"
                                             description="Ingresos, ticket medio y variación temporal."
-                                            checked={dashboardConfig.metrics}
-                                            onCheckedChange={() => handleConfigToggle('metrics')}
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.metrics}
+                                            onSwitchChange={() => handleConfigToggle('metrics')}
                                         />
 
-                                        <SettingItem
-                                            id="salesChart"
+                                        <ActionTile
+                                            switchId="salesChart"
                                             icon={LineChart}
-                                            label="Ventas por Hora"
+                                            title="Ventas por Hora"
                                             description="Curva de demanda distribuida por franjas horarias."
-                                            checked={dashboardConfig.salesChart}
-                                            onCheckedChange={() => handleConfigToggle('salesChart')}
-                                            iconClassName="text-blue-500"
-                                            className="[&_.icon-container]:bg-blue-500/10 [&_.icon-container]:group-hover:bg-blue-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.salesChart}
+                                            onSwitchChange={() => handleConfigToggle('salesChart')}
+                                            iconColor="blue-500"
                                         />
 
-                                        <SettingItem
-                                            id="revenueChart"
+                                        <ActionTile
+                                            switchId="revenueChart"
                                             icon={BarChart}
-                                            label="Gráfico de Ingresos"
+                                            title="Gráfico de Ingresos"
                                             description="Visualización comparativa de facturación bruta."
-                                            checked={dashboardConfig.revenueChart}
-                                            onCheckedChange={() => handleConfigToggle('revenueChart')}
-                                            iconClassName="text-green-500"
-                                            className="[&_.icon-container]:bg-green-500/10 [&_.icon-container]:group-hover:bg-green-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.revenueChart}
+                                            onSwitchChange={() => handleConfigToggle('revenueChart')}
+                                            iconColor="green-500"
                                         />
                                     </div>
                                 </div>
@@ -414,37 +418,37 @@ export default function Home() {
                                         <LayoutGrid className="h-3 w-3" /> Operaciones y Stock
                                     </h4>
                                     <div className="grid gap-3">
-                                        <SettingItem
-                                            id="recentOrders"
+                                        <ActionTile
+                                            switchId="recentOrders"
                                             icon={ShoppingBag}
-                                            label="Comandas Recientes"
+                                            title="Comandas Recientes"
                                             description="Monitor en tiempo real de los últimos pedidos."
-                                            checked={dashboardConfig.recentOrders}
-                                            onCheckedChange={() => handleConfigToggle('recentOrders')}
-                                            iconClassName="text-orange-500"
-                                            className="[&_.icon-container]:bg-orange-500/10 [&_.icon-container]:group-hover:bg-orange-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.recentOrders}
+                                            onSwitchChange={() => handleConfigToggle('recentOrders')}
+                                            iconColor="orange-500"
                                         />
 
-                                        <SettingItem
-                                            id="stockAlerts"
+                                        <ActionTile
+                                            switchId="stockAlerts"
                                             icon={AlertTriangle}
-                                            label="Alertas de Stock"
+                                            title="Alertas de Stock"
                                             description="Aviso crítico de ingredientes bajo mínimos."
-                                            checked={dashboardConfig.stockAlerts}
-                                            onCheckedChange={() => handleConfigToggle('stockAlerts')}
-                                            iconClassName="text-red-500"
-                                            className="[&_.icon-container]:bg-red-500/10 [&_.icon-container]:group-hover:bg-red-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.stockAlerts}
+                                            onSwitchChange={() => handleConfigToggle('stockAlerts')}
+                                            iconColor="red-500"
                                         />
 
-                                        <SettingItem
-                                            id="occupancyChart"
+                                        <ActionTile
+                                            switchId="occupancyChart"
                                             icon={Users}
-                                            label="Distribución de Aforo"
+                                            title="Distribución de Aforo"
                                             description="Ocupación porcentual por salones y terrazas."
-                                            checked={dashboardConfig.occupancyChart}
-                                            onCheckedChange={() => handleConfigToggle('occupancyChart')}
-                                            iconClassName="text-purple-500"
-                                            className="[&_.icon-container]:bg-purple-500/10 [&_.icon-container]:group-hover:bg-purple-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.occupancyChart}
+                                            onSwitchChange={() => handleConfigToggle('occupancyChart')}
+                                            iconColor="purple-500"
                                         />
                                     </div>
                                 </div>
@@ -457,37 +461,37 @@ export default function Home() {
                                         <Trophy className="h-3 w-3" /> Rendimiento y Costes
                                     </h4>
                                     <div className="grid gap-3">
-                                        <SettingItem
-                                            id="teamRanking"
+                                        <ActionTile
+                                            switchId="teamRanking"
                                             icon={Trophy}
-                                            label="Ranking de Equipo"
+                                            title="Ranking de Equipo"
                                             description="Leaderboard de ventas y desempeño del personal."
-                                            checked={dashboardConfig.teamRanking}
-                                            onCheckedChange={() => handleConfigToggle('teamRanking')}
-                                            iconClassName="text-yellow-500"
-                                            className="[&_.icon-container]:bg-yellow-500/10 [&_.icon-container]:group-hover:bg-yellow-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.teamRanking}
+                                            onSwitchChange={() => handleConfigToggle('teamRanking')}
+                                            iconColor="yellow-500"
                                         />
 
-                                        <SettingItem
-                                            id="topProducts"
+                                        <ActionTile
+                                            switchId="topProducts"
                                             icon={Star}
-                                            label="Top Productos"
+                                            title="Top Productos"
                                             description="Análisis de los platos y bebidas más populares."
-                                            checked={dashboardConfig.topProducts}
-                                            onCheckedChange={() => handleConfigToggle('topProducts')}
-                                            iconClassName="text-pink-500"
-                                            className="[&_.icon-container]:bg-pink-500/10 [&_.icon-container]:group-hover:bg-pink-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.topProducts}
+                                            onSwitchChange={() => handleConfigToggle('topProducts')}
+                                            iconColor="pink-500"
                                         />
 
-                                        <SettingItem
-                                            id="costBreakdown"
+                                        <ActionTile
+                                            switchId="costBreakdown"
                                             icon={Activity}
-                                            label="Desglose de Costes"
+                                            title="Desglose de Costes"
                                             description="Distribución de gastos fijos y variables."
-                                            checked={dashboardConfig.costBreakdown}
-                                            onCheckedChange={() => handleConfigToggle('costBreakdown')}
-                                            iconClassName="text-cyan-500"
-                                            className="[&_.icon-container]:bg-cyan-500/10 [&_.icon-container]:group-hover:bg-cyan-500/20"
+                                            rightContentType="switch"
+                                            switchChecked={dashboardConfig.costBreakdown}
+                                            onSwitchChange={() => handleConfigToggle('costBreakdown')}
+                                            iconColor="cyan-500"
                                         />
                                     </div>
                                 </div>

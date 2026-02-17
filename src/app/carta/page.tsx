@@ -350,7 +350,7 @@ export default function CartaPage() {
                                             id="name" 
                                             value={editingCarta?.nombre_carta || ''} 
                                             onChange={(e) => setEditingCarta(prev => ({ ...prev, nombre_carta: e.target.value }))}
-                                            className="h-10 bg-muted/50 border-input/60 hover:bg-muted/80 hover:border-input transition-colors rounded-lg shadow-sm focus-visible:ring-1 text-center w-full"
+                                            className="h-10 bg-muted/50 border-input/60 hover:bg-muted/80 hover:border-input transition-colors rounded-lg shadow-sm text-center w-full"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -359,7 +359,7 @@ export default function CartaPage() {
                                             id="desc" 
                                             value={editingCarta?.descripcion_carta || ''} 
                                             onChange={(e) => setEditingCarta(prev => ({ ...prev, descripcion_carta: e.target.value }))}
-                                            className="min-h-[100px] bg-muted/50 border-input/60 hover:bg-muted/80 hover:border-input transition-colors rounded-lg shadow-sm resize-none focus-visible:ring-1 text-center"
+                                            className="min-h-[100px] bg-muted/50 border-input/60 hover:bg-muted/80 hover:border-input transition-colors rounded-lg shadow-sm resize-none text-center"
                                         />
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

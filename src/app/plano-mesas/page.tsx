@@ -127,7 +127,7 @@ function QRConfigDialog({
                                         URL de Acceso
                                     </Label>
                                     <div className="relative group">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-primary/10 rounded-lg group-focus-within:bg-primary/20 transition-colors">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
                                             <Globe className="h-3.5 w-3.5 text-primary" />
                                         </div>
                                         <Input 
@@ -303,7 +303,7 @@ function EditTableDialogContent({
                                             id="table-number" 
                                             type="number"
                                             value={editingTable?.number || ''} 
-                                            className="pl-9 h-10 rounded-xl bg-muted/50 focus:bg-background border-none ring-offset-background"
+                                            className="pl-9 h-10 rounded-xl bg-muted/50 border-none"
                                             onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) || 0 })} 
                                         />
                                     </div>
@@ -318,7 +318,7 @@ function EditTableDialogContent({
                                             id="table-capacity" 
                                             type="number" 
                                             value={editingTable?.capacity || ''} 
-                                            className="pl-9 h-10 rounded-xl bg-muted/50 focus:bg-background border-none ring-offset-background"
+                                            className="pl-9 h-10 rounded-xl bg-muted/50 border-none"
                                             onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) || 0 })} 
                                         />
                                     </div>
@@ -842,7 +842,7 @@ export default function PlanoMesasPage() {
                                 <TabsTrigger key={env.id} value={env.id} className="whitespace-nowrap">{env.name}</TabsTrigger>
                             ))}
                         </TabsList>
-                        <Button size="md" variant="outline" onClick={addEnvironment} className="shrink-0 h-9 w-9"><Plus /></Button>
+                        <Button size="sm" variant="outline" onClick={addEnvironment} className="shrink-0" startIcon={<Plus />} />
                     </div>
                     {environments.map(env => {
                         const stats = getTableStats(env.id);
@@ -897,7 +897,7 @@ export default function PlanoMesasPage() {
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button variant="ghost" size="md" onClick={handleUndo} disabled={!canUndo} className="h-8 w-8"><Undo2 /></Button>
+                                                                <Button variant="ghost" size="sm" onClick={handleUndo} disabled={!canUndo} startIcon={<Undo2 />} />
                                                             </TooltipTrigger>
                                                             <TooltipContent>Deshacer (Ctrl+Z)</TooltipContent>
                                                         </Tooltip>
@@ -905,7 +905,7 @@ export default function PlanoMesasPage() {
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
-                                                                <Button variant="ghost" size="md" onClick={handleRedo} disabled={!canRedo} className="h-8 w-8"><Redo2 /></Button>
+                                                                <Button variant="ghost" size="sm" onClick={handleRedo} disabled={!canRedo} startIcon={<Redo2 />} />
                                                             </TooltipTrigger>
                                                             <TooltipContent>Rehacer (Ctrl+Y)</TooltipContent>
                                                         </Tooltip>
@@ -957,11 +957,11 @@ export default function PlanoMesasPage() {
                                                                         <Badge variant={config.badgeVariant}>{table.status}</Badge>
                                                                     </div>
                                                                     <div className="flex justify-end mt-4 gap-2 relative z-10">
-                                                                        <Button variant="ghost" size="md" className="h-9 w-9 rounded-xl hover:bg-primary/10 hover:text-primary transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); openQRDialog(table); }}>
-                                                                            <QrCode className="h-4 w-4" />
+                                                                        <Button variant="ghost" size="md" className="rounded-xl hover:bg-primary/10 hover:text-primary transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); openQRDialog(table); }}>
+                                                                            <QrCode />
                                                                         </Button>
-                                                                        <Button variant="ghost" size="md" className="h-9 w-9 rounded-xl hover:bg-destructive/10 transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); removeTable(e, table.id); }}>
-                                                                            <Trash className="h-4 w-4 text-muted-foreground" />
+                                                                        <Button variant="ghost" size="md" className="rounded-xl hover:bg-destructive/10 transition-colors bg-muted/20" onClick={(e) => { e.stopPropagation(); removeTable(e, table.id); }}>
+                                                                            <Trash />
                                                                         </Button>
                                                                     </div>
                                                                 </Card>
@@ -1020,7 +1020,7 @@ export default function PlanoMesasPage() {
                                                                                 config.borderColor, // Explicit border color
                                                                                 "rounded-[1.5rem] shadow-sm hover:shadow-xl",
                                                                                 table.status !== 'Inactiva' && 'cursor-grab active:cursor-grabbing hover:scale-[1.02] hover:z-40',
-                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'drag' && "opacity-90 z-50 scale-105 shadow-2xl ring-4 ring-primary/20",
+                                                                                activeDragItem?.id === table.id && activeDragItem.type === 'drag' && "opacity-90 z-50 scale-105 shadow-2xl border-primary",
                                                                                 activeDragItem?.id === table.id && activeDragItem.type === 'resize' && "z-50"
                                                                             )}
                                                                             style={{
@@ -1039,8 +1039,8 @@ export default function PlanoMesasPage() {
                                                                             <div className="absolute top-1 right-1 opacity-0 group-hover/table:opacity-100 transition-opacity z-40">
                                                                                 <DropdownMenu>
                                                                                     <DropdownMenuTrigger asChild>
-                                                                                        <Button variant="ghost" size="md" className="h-8 w-8 rounded-full hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors" onMouseDown={(e) => e.stopPropagation()}>
-                                                                                            <MoreVertical className="h-5 w-5" />
+                                                                                        <Button variant="ghost" size="sm" className="rounded-full hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors" onMouseDown={(e) => e.stopPropagation()}>
+                                                                                            <MoreVertical />
                                                                                         </Button>
                                                                                     </DropdownMenuTrigger>
                                                                                     <DropdownMenuContent align="end" className="w-48">
@@ -1063,7 +1063,7 @@ export default function PlanoMesasPage() {
                                                                                             <span>QR</span>
                                                                                         </DropdownMenuItem>
                                                                                         <DropdownMenuSeparator />
-                                                                                        <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onClick={(e) => removeTable(e, table.id)}>
+                                                                                        <DropdownMenuItem className="text-destructive cursor-pointer" onClick={(e) => removeTable(e, table.id)}>
                                                                                             <Trash />
                                                                                             <span>Eliminar</span>
                                                                                         </DropdownMenuItem>
@@ -1135,7 +1135,7 @@ export default function PlanoMesasPage() {
                                                     </div>
                                                 </div>
                                                 <div className="absolute bottom-4 right-4 z-10 flex flex-col items-center gap-2 bg-background/80 backdrop-blur rounded-2xl p-1.5 border shadow-lg">
-                                                    <Button size="md" variant="ghost" onClick={handleZoomIn} className="h-8 w-8 rounded-xl"><Plus /></Button>
+                                                    <Button size="sm" variant="ghost" onClick={handleZoomIn} className="rounded-xl" startIcon={<Plus />} />
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger asChild>
@@ -1148,7 +1148,7 @@ export default function PlanoMesasPage() {
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
-                                                    <Button size="md" variant="ghost" onClick={handleZoomOut} className="h-8 w-8 rounded-xl"><Minus /></Button>
+                                                    <Button size="sm" variant="ghost" onClick={handleZoomOut} className="rounded-xl" startIcon={<Minus />} />
                                                 </div>
                                             </div>
                                         )}

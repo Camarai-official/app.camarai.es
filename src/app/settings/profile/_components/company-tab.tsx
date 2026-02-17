@@ -177,8 +177,8 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                                     value={formData.nif}
                                     onChange={(e) => handleInputChange('nif', e.target.value.toUpperCase())}
                                     className={cn(
-                                        nifValidation && !nifValidation.valid && 'border-destructive focus-visible:ring-destructive',
-                                        nifValidation && nifValidation.valid && 'border-green-500 focus-visible:ring-green-500'
+                                        nifValidation && !nifValidation.valid && 'border-destructive',
+                                        nifValidation && nifValidation.valid && 'border-green-500'
                                     )}
                                 />
                                 {nifValidation && (

@@ -214,31 +214,30 @@ export default function ComandasPage() {
 
 
                 <Card>
-                    <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <CardHeader
+                        actions={
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
+                                <CalendarDateRangePicker date={date} setDate={setDate} />
+
+                                {selectedOrders.size > 0 && (
+                                    <Button variant="secondary" startIcon={<Printer/>} onClick={handlePrintSelected}>
+                                        Imprimir ({selectedOrders.size})
+                                    </Button>
+                                )}
+
+                                <Button variant="outline" size="md" startIcon={<Settings/>} onClick={() => setIsConfigOpen(true)} />
+                                <Button variant='default' size='md' startIcon={<Download/>} onClick={() => setIsExportOpen(true)}>
+                                    Exportar
+                                </Button>
+                            </div>
+                        }
+                    >
                         <SearchInput
-                            containerClassName="md:w-1/3"
+                            containerClassName="md:w-[400px]"
                             placeholder="Buscar por orden, mesa, cliente..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
-                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
-                            <CalendarDateRangePicker date={date} setDate={setDate} />
-
-                            {selectedOrders.size > 0 && (
-                                <Button variant="secondary" onClick={handlePrintSelected}>
-                                    <Printer className="mr-2 h-4 w-4" />
-                                    Imprimir ({selectedOrders.size})
-                                </Button>
-                            )}
-
-                            <Button variant="outline" size="md" onClick={() => setIsConfigOpen(true)}>
-                                <Settings className="h-4 w-4" />
-                            </Button>
-                            <Button onClick={() => setIsExportOpen(true)}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Exportar
-                            </Button>
-                        </div>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
@@ -257,16 +256,12 @@ export default function ComandasPage() {
                                         {viewConfig.showTable && <TableHead>Mesa</TableHead>}
                                         {viewConfig.showName && <TableHead>Nombre</TableHead>}
                                         {viewConfig.showTotal && <TableHead>Total</TableHead>}
-                                        {viewConfig.showStatus && <TableHead>Estado</TableHead>}
+                                        {viewConfig.showStatus && <TableHead className="text-center">Estado</TableHead>}
                                         <TableHead><span className="sr-only">Acciones</span></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody
                                     key={currentPage}
-                                    className={cn(
-                                        'transition-opacity duration-300',
-                                        isAnimating ? 'opacity-0' : 'opacity-100'
-                                    )}
                                 >
                                     {false && (
                                         <TableRow>
@@ -291,7 +286,7 @@ export default function ComandasPage() {
                                             {viewConfig.showTable && <TableCell>{order.table}</TableCell>}
                                             {viewConfig.showName && <TableCell>{order.name}</TableCell>}
                                             {viewConfig.showTotal && <TableCell>{order.total}</TableCell>}
-                                            {viewConfig.showStatus && <TableCell>
+                                            {viewConfig.showStatus && <TableCell className="text-center">
                                                 <Badge
                                                     variant={
                                                         order.status === 'Completado'
@@ -307,52 +302,51 @@ export default function ComandasPage() {
                                             <TableCell>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <span className="sr-only">Abrir menú</span>
-                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        <Button variant="ghost" size='md'>
+                                                            <MoreHorizontal/>
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                         <DropdownMenuItem onClick={() => handleViewDetails(order)}>
-                                                            <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <Eye />
                                                             Ver detalles
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleEditOrder(order)}>
-                                                            <Pencil className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <Pencil />
                                                             Editar comanda
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSub>
                                                             <DropdownMenuSubTrigger>
-                                                                <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                <Activity />
                                                                 Cambiar Estado
                                                             </DropdownMenuSubTrigger>
                                                             <DropdownMenuSubContent>
                                                                 <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>
-                                                                    <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    <PlayCircle />
                                                                     En Progreso
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>
-                                                                    <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    <CheckCircle />
                                                                     Completado
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>
-                                                                    <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    <XCircle />
                                                                     Cancelado
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
                                                         <DropdownMenuItem>
-                                                            <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <FileText />
                                                             Exportar a PDF
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>
-                                                            <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <CreditCard />
                                                             Marcar como pagada
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem>
-                                                            <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <Ban />
                                                             Anular comanda
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -369,23 +363,18 @@ export default function ComandasPage() {
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredOrders.length)}-{Math.min(indexOfLastItem, filteredOrders.length)}</strong> de <strong>{filteredOrders.length}</strong> comandas.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
+                            <Button variant="outline" size="sm" startIcon={<ChevronLeft />} onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
                             {pageNumbers.map(number => (
                                 <Button
                                     key={number}
                                     variant={currentPage === number ? "default" : "outline"}
-                                    size="md"
-                                    className="h-8 w-8"
+                                    size="sm"
                                     onClick={() => paginate(number)}
                                 >
                                     {number}
                                 </Button>
                             ))}
-                            <Button variant="outline" size="md" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
+                            <Button variant="outline" size="sm" startIcon={<ChevronRight />} onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
                         </div>
                     </CardFooter>
                 </Card>

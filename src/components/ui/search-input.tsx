@@ -12,10 +12,10 @@ const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
   ({ className, containerClassName, ...props }, ref) => {
     return (
       <div className={cn("relative w-full", containerClassName)}>
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           ref={ref}
-          className={cn("pl-8", className)}
+          className={cn("pl-8 placeholder:truncate", className)}
           {...props}
         />
       </div>

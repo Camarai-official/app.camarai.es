@@ -51,13 +51,17 @@ export function CategorySalesChart({ products, getCategoryName, date }: Category
       />
       <CardContent className="pt-0">
         <DashboardList>
-          {categorySales.map((item) => (
-            <DashboardListItem
-              key={item.name}
-              title={item.name}
-              value={`€${item.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`}
-            />
-          ))}
+          {categorySales.map((item, index) => {
+             const colors = ["bg-emerald-500", "bg-blue-500", "bg-amber-500", "bg-rose-500", "bg-violet-500"];
+             return (
+              <DashboardListItem
+                key={item.name}
+                title={item.name}
+                icon={<div className={`h-2 w-2 rounded-full ${colors[index % colors.length]}`} />}
+                value={`€${item.value.toLocaleString('es-ES', { maximumFractionDigits: 0 })}`}
+              />
+            );
+          })}
         </DashboardList>
       </CardContent>
     </Card>

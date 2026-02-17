@@ -347,7 +347,7 @@ export default function ReportesPage() {
                                                 <TableHead>Cliente</TableHead>
                                                 <TableHead>Tipo</TableHead>
                                                 <TableHead>Fecha</TableHead>
-                                                <TableHead>Estado</TableHead>
+                                                <TableHead className="text-center">Estado</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -360,7 +360,7 @@ export default function ReportesPage() {
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="text-center">
                                                         <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
                                                             {conv.estado}
                                                         </Badge>
