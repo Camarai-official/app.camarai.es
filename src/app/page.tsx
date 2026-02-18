@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { ActionTile } from '@/components/ui/action-tile';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -200,7 +200,6 @@ export default function Home() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            {/* Header full width: título + acción */}
             <PageHeader
                 title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
                 actions={
@@ -359,22 +358,17 @@ export default function Home() {
 
                 <Dialog open={configOpen} onOpenChange={setConfigOpen}>
                     <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
-                        <DialogHeader>
-                            <DialogTitle icon={Settings}>
-                                Configurar Dashboard
-                            </DialogTitle>
-                            <DialogDescription>
-                                Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión.
-                            </DialogDescription>
-                        </DialogHeader>
+                        <DialogHeader
+                            icon={Settings}
+                            title="Configurar Dashboard"
+                            description="Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión."
+                        />
                         
                         <ScrollArea className="max-h-[60vh] -mx-6">
                             <div className="space-y-6 px-6 py-4">
                                 {/* Sección: Análisis de Ventas */}
                                 <div className="space-y-4">
-                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                        <TrendingUp className="h-3 w-3" /> Análisis de Ventas
-                                    </h4>
+                                    <Label icon={TrendingUp}>Análisis de Ventas</Label>
                                     <div className="grid gap-3">
                                         <ActionTile
                                             switchId="metrics"
@@ -414,9 +408,7 @@ export default function Home() {
 
                                 {/* Sección: Operaciones */}
                                 <div className="space-y-4">
-                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                        <LayoutGrid className="h-3 w-3" /> Operaciones y Stock
-                                    </h4>
+                                    <Label icon={LayoutGrid}>Operaciones y Stock</Label>
                                     <div className="grid gap-3">
                                         <ActionTile
                                             switchId="recentOrders"
@@ -457,9 +449,7 @@ export default function Home() {
 
                                 {/* Sección: Rendimiento */}
                                 <div className="space-y-4">
-                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                        <Trophy className="h-3 w-3" /> Rendimiento y Costes
-                                    </h4>
+                                    <Label icon={Trophy}>Rendimiento y Costes</Label>
                                     <div className="grid gap-3">
                                         <ActionTile
                                             switchId="teamRanking"
@@ -498,15 +488,10 @@ export default function Home() {
                             </div>
                         </ScrollArea>
                         
-                        <DialogFooter>
-                            <p className="text-xs text-muted-foreground">Los cambios se aplicarán instantáneamente.</p>
-                            <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setConfigOpen(false)}>Cerrar</Button>
-                                <Button onClick={handleSaveConfig} variant="brand">
-                                    Guardar Cambios
-                                </Button>
-                            </div>
-                        </DialogFooter>
+                        <DialogFooter
+                            onCancel={() => setConfigOpen(false)}
+                            onConfirm={handleSaveConfig}
+                        />
                     </DialogContent>
                 </Dialog>
             </PageContent>

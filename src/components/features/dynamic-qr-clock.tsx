@@ -155,7 +155,7 @@ export function DynamicQRClock({
                     {/* QR Code con countdown */}
                     <div className="flex justify-center">
                         <div className="relative inline-block">
-                            <div className="p-4 bg-white rounded-lg border shadow-sm">
+                            <div className="p-4 bg-foreground rounded-lg border shadow-sm">
                                 {qrUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img 

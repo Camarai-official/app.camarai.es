@@ -9,7 +9,7 @@ import { Calendar as UICalendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair  } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format, addMonths, startOfMonth, parse } from 'date-fns';
@@ -135,15 +135,11 @@ function ReservationDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle icon={Calendar}>{isEditing ? 'Editar Reserva' : 'Añadir Nueva Reserva'}</DialogTitle>
-                    <DialogDescription>
-                        {isEditing 
-                            ? 'Modifica los datos de la reserva.' 
-                            : 'Introduce los datos para crear una reserva manualmente.'
-                        }
-                    </DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={Calendar}
+                    title={isEditing ? 'Editar Reserva' : 'Añadir Nueva Reserva'}
+                    description={isEditing ? 'Modifica los datos de la reserva.' : 'Introduce los datos para crear una reserva manualmente.'}
+                />
                 <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -210,8 +206,8 @@ function ReservationDialog({
                     </div>
                 </div>
                 <DialogFooter>
-                    <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button variant="brand" onClick={handleSave}>{isEditing ? 'Guardar Cambios' : 'Crear Reserva'}</Button>
+                    <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+                    <Button variant="default" onClick={handleSave}>{isEditing ? 'Guardar Cambios' : 'Crear Reserva'}</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -252,14 +248,11 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle icon={MessageSquare}>
-                        Notificaciones WhatsApp
-                    </DialogTitle>
-                    <DialogDescription>
-                        Configura los mensajes automáticos para las reservas.
-                    </DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={MessageSquare}
+                    title="Notificaciones WhatsApp"
+                    description="Configura los mensajes automáticos para las reservas."
+                />
                 
                 <Tabs defaultValue="config" className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
@@ -391,7 +384,7 @@ function WhatsAppNotificationsDialog({ open, onOpenChange }: { open: boolean; on
                 </Tabs>
                 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                    <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
                     <Button onClick={handleSave}>Guardar Configuración</Button>
                 </DialogFooter>
             </DialogContent>

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -258,14 +258,11 @@ export function IntegrationsTab() {
             {/* Configuration Dialog */}
             <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
                 <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle icon={Settings}>
-                            Configurar {selectedIntegration?.name}
-                        </DialogTitle>
-                        <DialogDescription>
-                            Configura los ajustes de esta integración.
-                        </DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={Settings}
+                        title={`Configurar ${selectedIntegration?.name}`}
+                        description="Configura los ajustes de esta integración."
+                    />
                     
                     {selectedIntegration?.id === 'whatsapp' && (
                         <div className="space-y-4 py-4">
@@ -327,9 +324,7 @@ export function IntegrationsTab() {
                     )}
                     
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setConfigDialogOpen(false)}>
-                            Cancelar
-                        </Button>
+                        <Button variant="ghost" onClick={() => setConfigDialogOpen(false)}>Cancelar</Button>
                         <Button onClick={handleSaveConfig}>
                             Guardar configuración
                         </Button>

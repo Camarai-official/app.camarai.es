@@ -2,35 +2,34 @@
 
 import * as React from 'react';
 import { 
-  Minus, 
   Pencil, 
-  Plus, 
-  Trash, 
-  MessageSquare, 
   ShoppingBag, 
   User, 
-  ChefHat,
-  LayoutGrid,
   Search,
-  CreditCard,
   UtensilsCrossed,
-  Receipt
+  Receipt,
+  MessageSquare,
+  Plus,
+  CreditCard,
+  LayoutGrid,
+  ChevronRight
 } from 'lucide-react';
 
 import type { OrderDetails, OrderDetailItem } from '@/types/orders';
 import type { OrderProduct } from '@/data/orders';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogFooter } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { ConfigItem } from '@/components/ui/config-item';
-import { cn } from '@/lib/utils';
+import { ActionTile } from '@/components/ui/action-tile';
+import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
+import { DashboardList, DashboardListItem } from '@/components/ui/dashboard-list';
 
 type EditOrderDialogProps = {
   order: OrderDetails | null;
@@ -116,233 +115,183 @@ export function EditOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[850px] overflow-hidden border-none shadow-2xl p-6">
-        <DialogHeader>
-          <DialogTitle icon={Pencil} className="text-xl">
-            <span>Editar Comanda #{order.order}</span>
-          </DialogTitle>
-          <DialogDescription className="ml-14">
-            Personaliza los productos, cantidades y detalles de facturación.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[850px] sm:h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
+        {/* Header */}
+        <DialogHeader
+          flush
+          icon={Pencil}
+          title={`Editar Comanda #${order.order}`}
+          description="Gestiona los productos y detalles del servicio de forma eficiente."
+        />
 
-        <ScrollArea className="max-h-[60vh] -mx-6">
-          <div className="px-6 py-4">
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            
-            {/* Left Column: Search & Products */}
-            <div className="md:col-span-7 space-y-6">
-              
-              {/* Product Search */}
-              <div className="space-y-4">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                  <Search className="h-3 w-3" /> Añadir Item
-                </h4>
-                  <SearchInput 
-                    placeholder="Buscar plato o bebida..."
-                    className="bg-muted/40 border-transparent transition-all"
-                    value={searchProduct}
-                    onChange={(e) => setSearchProduct(e.target.value)}
-                  />
-                  {searchProduct && (
-                    <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-popover border rounded-xl shadow-xl z-50 max-h-[200px] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-                      {filteredProducts.length > 0 ? (
-                        filteredProducts.map((product) => (
-                          <div
-                            key={product.id}
-                            className="flex items-center justify-between p-2.5 rounded-lg hover:bg-accent cursor-pointer transition-colors"
-                            onClick={() => handleAddProduct(product)}
-                          >
-                            <span className="text-sm font-medium">{product.name}</span>
-                            <span className="text-xs font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-full">€{product.price.toFixed(2)}</span>
-                          </div>
-                        ))
-                       ) : (
-                        <p className="text-xs text-center text-muted-foreground py-2">No se encontraron productos</p>
-                      )}
-                </div>
-              )}
-              </div>
-
-              <Separator className="opacity-50" />
-
-              {/* Items Section */}
-              <div className="space-y-4">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                  <ShoppingBag className="h-3 w-3" /> Productos Seleccionados ({editedItems.length})
-                </h4>
+        {/* Main Body */}
+        <div className="flex-1 flex overflow-hidden">
+          
+          {/* Left Column (Items) */}
+          <div className="flex-[7] flex flex-col border-r bg-muted/20">
+            <div className="p-5 pb-2">
+              <div className="relative">
+                <SearchInput 
+                  placeholder="Buscar producto o plato..."
+                  value={searchProduct}
+                  onChange={(e) => setSearchProduct(e.target.value)}
+                />
                 
-                <div className="space-y-3">
-                  {editedItems.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center border-2 border-dashed rounded-xl border-muted">
-                      <ShoppingBag className="h-10 w-10 text-muted-foreground/30 mb-3" />
-                      <p className="text-sm font-medium text-muted-foreground">La comanda está vacía</p>
-                      <p className="text-xs text-muted-foreground mt-1">Busca y añade productos desde el panel derecho</p>
-                    </div>
-                  ) : (
-                    editedItems.map((item, index) => (
-                        <ConfigItem
-                          key={`${item.name}-${index}`}
-                          icon={UtensilsCrossed}
-                          label={item.name}
-                          description={`€${item.price.toFixed(2)} / unidad`}
-                          iconClassName="text-orange-600"
-                          iconContainerClassName="bg-orange-500/10"
-                        >
-                        <div className="flex items-center gap-3 bg-background rounded-lg border p-1 shadow-sm">
-                          <Button
-                            variant="ghost"
-                            size="md"
-                            className="h-6 w-6 hover:bg-destructive/10 transition-colors rounded-md"
-                            onClick={() => handleRemoveItem(index)}
-                          >
-                            <Trash className="h-3 w-3 text-muted-foreground" />
-                          </Button>
-                          <div className="w-px h-4 bg-border" />
-                          <Button
-                            variant="ghost"
-                            size="md"
-                            className="h-6 w-6 rounded-md"
-                            onClick={() => handleQuantityChange(index, -1)}
-                          >
-                            <Minus className="h-3 w-3" />
-                          </Button>
-                          <span className="w-6 text-center text-sm font-semibold tabular-nums">{item.quantity}</span>
-                          <Button
-                            variant="ghost"
-                            size="md"
-                            className="h-6 w-6 rounded-md hover:bg-primary/10 hover:text-primary"
-                            onClick={() => handleQuantityChange(index, 1)}
-                          >
-                            <Plus className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </ConfigItem>
-                    ))
-                  )}
-                </div>
+                {searchProduct && (
+                  <div className="absolute top-full left-0 right-0 mt-2 p-1 bg-popover border rounded-xl shadow-xl z-50 max-h-[300px] overflow-y-auto space-y-0.5">
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <ActionTile
+                          key={product.id}
+                          title={product.name}
+                          description={`€${product.price.toFixed(2)}`}
+                          onClick={() => handleAddProduct(product)}
+                          rightContentType="custom"
+                          customContent={
+                            <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-primary/10 text-primary">
+                              <Plus className="h-4 w-4" />
+                            </div>
+                          }
+                        />
+                      ))
+                    ) : (
+                      <p className="text-xs text-center text-muted-foreground py-4">Sin resultados</p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Right Column: Info, Notes & Summary */}
-            <div className="md:col-span-5 flex flex-col gap-6">
-              
-              <div className="flex-1 space-y-6">
-                {/* Details Section */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                    <User className="h-3 w-3" /> Detalles
-                  </h4>
-                  
-                  <div className="space-y-3">
-                    {/* Table Select */}
-                    <div className="space-y-1.5">
-                       <Label className="text-xs text-muted-foreground ml-1">Mesa / Ubicación</Label>
-                       <div className="relative">
-                          <Select value={editedTable} onValueChange={setEditedTable}>
-                            <SelectTrigger id="edit-table" className="h-10 pl-3 bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {tables.map((table) => (
-                                <SelectItem key={table} value={table}>{table}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                       </div>
-                    </div>
+            <ScrollArea className="flex-1 px-5 py-4">
+              <div className="space-y-3">
+                {editedItems.length === 0 ? (
+                  <EmptyState 
+                    icon={ShoppingBag}
+                    title="No hay productos aún"
+                    description="Utiliza el buscador para añadir ítems a la mesa."
+                    className="py-12 bg-background border-dashed"
+                  />
+                ) : (
+                  editedItems.map((item, index) => (
+                    <ActionTile
+                      key={`${item.name}-${index}`}
+                      icon={UtensilsCrossed}
+                      iconColor="orange-600"
+                      title={item.name}
+                      description={`Unitario: €${item.price.toFixed(2)}`}
+                      rightContentType="quantity"
+                      quantity={item.quantity}
+                      onIncrease={() => handleQuantityChange(index, 1)}
+                      onDecrease={() => handleQuantityChange(index, -1)}
+                      onRemove={() => handleRemoveItem(index)}
+                      className="bg-background shadow-sm border-none"
+                    />
+                  ))
+                )}
+                <div className="h-4" />
+              </div>
+            </ScrollArea>
+          </div>
 
-                    {/* Client Input */}
-                    <div className="space-y-1.5">
-                       <Label className="text-xs text-muted-foreground ml-1">Cliente</Label>
-                       <Input
-                        id="edit-name"
+          {/* Right Column (Details) */}
+          <div className="flex-[5] flex flex-col bg-background">
+            <ScrollArea className="flex-1">
+              <div className="p-5 space-y-6">
+                {/* Details Section */}
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label icon={LayoutGrid}>Ubicación</Label>
+                      <Select value={editedTable} onValueChange={setEditedTable}>
+                        <SelectTrigger className="h-10 rounded-xl bg-muted/30 border-none px-4">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {tables.map((table) => (
+                            <SelectItem key={table} value={table}>{table}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label icon={User}>Cliente</Label>
+                      <Input
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="h-10 bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm"
-                        placeholder="Nombre del cliente"
+                        className="h-10 rounded-xl bg-muted/30 border-none px-4"
+                        placeholder="Nombre..."
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Notes Section */}
-                <div className="space-y-3">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                    <MessageSquare className="h-3 w-3" /> Notas
-                  </h4>
-                  <Textarea
-                    placeholder="Instrucciones especiales para cocina..."
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    className="min-h-[100px] bg-card border-input/60 hover:bg-muted/50 hover:border-input transition-colors rounded-lg shadow-sm resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Summary Card */}
-              <div className="rounded-2xl border bg-muted/40 p-5 space-y-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
-                <div className="flex items-center justify-between border-b pb-3 border-border/50">
-                   <h4 className="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-foreground">
-                    <Receipt className="h-3.5 w-3.5" /> Totales
-                  </h4>
-                  <span className="text-[10px] text-muted-foreground bg-background px-2 py-0.5 rounded-full border">IVA Incluido</span>
-                </div>
-                
-                <div className="space-y-2.5">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <span className="font-medium">€{calculateSubtotal().toFixed(2)}</span>
+                  <div className="space-y-2">
+                    <Label icon={MessageSquare}>Notas de Cocina</Label>
+                    <Textarea
+                      placeholder="Instrucciones para la preparación..."
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      className="min-h-[100px] rounded-xl resize-none bg-muted/30 border-none text-sm p-4"
+                    />
                   </div>
+                </div>
+
+                <Separator className="opacity-50" />
+
+                {/* Totals Section */}
+                <div className="space-y-4">
+                  <Label icon={Receipt}>Resumen de Cuenta</Label>
                   
-                  <div className="flex justify-between items-center text-sm">
-                    <div className="flex items-center gap-2">
-                       <span className="text-muted-foreground">Descuento</span>
-                       <div className="flex items-center bg-background border rounded h-6 px-1.5 transition-colors shadow-sm">
-                          <Input 
-                             type="number" 
-                             min="0" 
-                             max="100" 
-                             value={discount} 
-                             onChange={(e) => setDiscount(Number(e.target.value))}
-                             className="w-8 h-full border-none bg-transparent p-0 text-center text-xs shadow-none py-0 h-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
-                          />
-                          <span className="text-xs text-muted-foreground">%</span>
-                       </div>
-                    </div>
-                    <span className="text-rose-500 font-medium text-xs">-€{calculateDiscountValue().toFixed(2)}</span>
-                  </div>
+                  <DashboardList className="divide-y-0 space-y-0 border-none bg-transparent">
+                    <DashboardListItem 
+                      title="Subtotal"
+                      value={`€${calculateSubtotal().toFixed(2)}`}
+                      className="h-10 py-0 border-none"
+                    />
+                    
+                    <DashboardListItem 
+                      title="Descuento"
+                      suffix={
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center bg-muted/40 hover:bg-muted/60 rounded px-2 h-6 transition-colors">
+                            <input 
+                              type="number" 
+                              value={discount} 
+                              onChange={(e) => setDiscount(Number(e.target.value))}
+                              className="w-8 border-none bg-transparent text-center text-[10px] focus:outline-none font-bold text-foreground" 
+                            />
+                            <span className="text-[9px] text-muted-foreground/60">%</span>
+                          </div>
+                          <span className="text-rose-500 text-sm font-bold">-€{calculateDiscountValue().toFixed(2)}</span>
+                        </div>
+                      }
+                      className="h-10 py-0 border-none"
+                    />
 
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">IVA (21%)</span>
-                    <span className="font-medium">€{calculateTax().toFixed(2)}</span>
-                  </div>
+                    <DashboardListItem 
+                      title="IVA (21%)"
+                      value={`€${calculateTax().toFixed(2)}`}
+                      className="h-10 py-0 border-none"
+                    />
+                  </DashboardList>
 
-                  <div className="pt-3 mt-3 border-t border-border/50 flex justify-between items-end">
-                    <span className="font-bold text-sm text-foreground/80">Total Final</span>
-                    <span className="font-black text-2xl text-primary leading-none tracking-tight">€{calculateTotal().toFixed(2)}</span>
+                  <div className="pt-4 mt-2 border-t border-border flex justify-between items-baseline">
+                    <span className="text-sm font-bold uppercase tracking-tight text-foreground">A Pagar</span>
+                    <span className="text-4xl font-black text-primary leading-none tracking-tighter tabular-nums">€{calculateTotal().toFixed(2)}</span>
                   </div>
                 </div>
               </div>
+            </ScrollArea>
+          </div>
+        </div>
 
-            </div>
-          </div>
-          </div>
-        </ScrollArea>
-
-        <DialogFooter>
-          <p className="text-xs text-muted-foreground hidden sm:block">
-            <span className="font-medium text-foreground">Tip:</span> Revisa los alérgenos antes de confirmar.
-          </p>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="ghost" onClick={() => onOpenChange(false)} className="flex-1 sm:flex-none">
-              Cancelar
-            </Button>
-            <Button variant="brand" onClick={handleSave} className="flex-1 sm:flex-none">
-              Guardar Comanda
-            </Button>
-          </div>
-        </DialogFooter>
+        {/* Footer */}
+        <DialogFooter
+          flush
+          onCancel={() => onOpenChange(false)}
+          cancelText="Cancelar"
+          onConfirm={handleSave}
+          confirmText="Guardar Cambios"
+        />
       </DialogContent>
     </Dialog>
   );

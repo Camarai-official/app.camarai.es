@@ -4,13 +4,14 @@ import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit, Shield, Building2 } from 'lucide-react';
+import { PlusCircle, Search, FileDown, MoreHorizontal, User, Calendar, Clock, MapPin, Phone, Mail, CreditCard, Shield, Settings, Activity, Trash2, Edit, CheckCircle2, AlertCircle, FileText, Download, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Building2, Briefcase, Key, Wallet, Eye, EyeOff, Upload, Check, X } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -244,14 +245,11 @@ function EmployeeDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh]">
-                <DialogHeader>
-                    <DialogTitle icon={User}>
-                        {employeeToEdit ? 'Editar' : 'Añadir'} Empleado
-                    </DialogTitle>
-                    <DialogDescription>
-                        Configura todos los datos del empleado organizados por secciones.
-                    </DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={User}
+                    title={`${employeeToEdit ? 'Editar' : 'Añadir'} Empleado`}
+                    description="Configura todos los datos del empleado organizados por secciones."
+                />
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
@@ -659,9 +657,9 @@ function EmployeeDialog({
 
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="secondary">Cancelar</Button>
+                        <Button variant="ghost">Cancelar</Button>
                     </DialogClose>
-                    <Button variant="brand" onClick={handleSave}>Guardar Empleado</Button>
+                    <Button variant="default" onClick={handleSave}>Guardar Empleado</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -914,10 +912,11 @@ export default function PersonalPage() {
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle icon={Clock}>Registrar Fichaje Manual</DialogTitle>
-                                        <DialogDescription>Añadir un registro de tiempo manualmente.</DialogDescription>
-                                    </DialogHeader>
+                                    <DialogHeader
+                                        icon={Clock}
+                                        title="Registrar Fichaje Manual"
+                                        description="Añadir un registro de tiempo manualmente."
+                                    />
                                     <form onSubmit={handleManualTimeLog} className="space-y-4 pt-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="staffId">Empleado</Label>
@@ -973,14 +972,20 @@ export default function PersonalPage() {
                             {/* Grid con StaffCardPro (Fase 8) */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {filteredStaff.length === 0 && staffMembers.length === 0 ? (
-                                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                                        <p className="text-muted-foreground mb-4">No hay empleados en el equipo.</p>
-                                        <CreateActionCard label="Añadir primer empleado" onClick={() => handleOpenEmployeeDialog()} />
-                                    </div>
+                                    <EmptyState 
+                                        icon={User}
+                                        title="Equipo vacío"
+                                        description="Añade empleados para gestionar turnos y asistencias"
+                                        action={<CreateActionCard label="Añadir primer empleado" onClick={() => handleOpenEmployeeDialog()} />}
+                                        className="col-span-full py-16 bg-muted/10 border-muted/50"
+                                    />
                                 ) : filteredStaff.length === 0 ? (
-                                    <div className="col-span-full py-16 text-center text-muted-foreground">
-                                        No se encontraron empleados con ese criterio de búsqueda.
-                                    </div>
+                                    <EmptyState 
+                                        icon={Search}
+                                        title="Sin resultados"
+                                        description="No se encontraron empleados con ese criterio de búsqueda"
+                                        className="col-span-full py-16 border-none bg-transparent"
+                                    />
                                 ) : null}
                                 {filteredStaff.map(staff => {
                                     const status = getStaffMemberStatus(staff.id);
@@ -1115,9 +1120,10 @@ export default function PersonalPage() {
                                         <Button startIcon={<Calendar className="h-4 w-4" />}>Nueva Solicitud</Button>
                                     </DialogTrigger>
                                     <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle icon={Calendar}>Registrar Solicitud de Ausencia</DialogTitle>
-                                        </DialogHeader>
+                                        <DialogHeader
+                                            icon={Calendar}
+                                            title="Registrar Solicitud de Ausencia"
+                                        />
                                         <form onSubmit={handleAbsenceRequest} className="space-y-4 pt-4">
                                             <div className="space-y-2">
                                                 <Label htmlFor="staffId">Empleado</Label>
@@ -1374,7 +1380,7 @@ export default function PersonalPage() {
                                     
                                     {/* QR para añadir el número */}
                                     <div className="flex flex-col items-center justify-center p-6 border rounded-lg">
-                                        <div className="p-3 bg-white rounded-lg border mb-4">
+                                        <div className="p-3 bg-foreground rounded-lg border mb-4">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img 
                                                 src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/34600000000?text=Fichar"
@@ -1518,10 +1524,11 @@ export default function PersonalPage() {
             {/* Modal Editar Registro de Fichaje */}
             <Dialog open={!!editingTimeLog} onOpenChange={(open) => !open && setEditingTimeLog(null)}>
                 <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle icon={Edit}>Editar Registro de Fichaje</DialogTitle>
-                        <DialogDescription>Modifica la fecha, hora o acción del registro.</DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={Edit}
+                        title="Editar Registro de Fichaje"
+                        description="Modifica la fecha, hora o acción del registro."
+                    />
                     {editingTimeLog && (
                         <form onSubmit={handleEditTimeLog} className="space-y-4 pt-4">
                             <div className="space-y-2">
@@ -1567,7 +1574,7 @@ export default function PersonalPage() {
                                 </Select>
                             </div>
                             <DialogFooter>
-                                <Button type="button" variant="outline" onClick={() => setEditingTimeLog(null)}>Cancelar</Button>
+                                <Button type="button" variant="ghost" onClick={() => setEditingTimeLog(null)}>Cancelar</Button>
                                 <Button type="submit">Guardar Cambios</Button>
                             </DialogFooter>
                         </form>
@@ -1578,14 +1585,11 @@ export default function PersonalPage() {
             {/* Modal Configurar Vista Personal */}
             <Dialog open={configOpen} onOpenChange={setConfigOpen}>
                 <DialogContent className="sm:max-w-[500px]">
-                    <DialogHeader>
-                        <DialogTitle icon={Settings}>
-                            Configurar Vista de Personal
-                        </DialogTitle>
-                        <DialogDescription>
-                            Activa o desactiva las secciones que quieres ver en esta página.
-                        </DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={Settings}
+                        title="Configurar Vista de Personal"
+                        description="Activa o desactiva las secciones que quieres ver en esta página."
+                    />
                     <div className="grid gap-4 py-4">
                         <div className="flex items-center justify-between">
                             <div>
@@ -1632,7 +1636,7 @@ export default function PersonalPage() {
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setConfigOpen(false)}>Cerrar</Button>
+                        <Button variant="ghost" onClick={() => setConfigOpen(false)}>Cerrar</Button>
                         <Button onClick={() => { toast({ title: 'Configuración guardada', description: 'Los cambios se han aplicado.' }); setConfigOpen(false); }}>Guardar</Button>
                     </DialogFooter>
                 </DialogContent>
@@ -1641,10 +1645,11 @@ export default function PersonalPage() {
             {/* Modal de Dispositivos (Fase 5) */}
             <Dialog open={isDeviceDialogOpen} onOpenChange={setIsDeviceDialogOpen}>
                 <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle icon={Tablet}>{editingDevice ? 'Editar' : 'Añadir'} Dispositivo</DialogTitle>
-                        <DialogDescription>Configura los parámetros del dispositivo de fichaje.</DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={Tablet}
+                        title={`${editingDevice ? 'Editar' : 'Añadir'} Dispositivo`}
+                        description="Configura los parámetros del dispositivo de fichaje."
+                    />
                     <form onSubmit={(e) => {
                         e.preventDefault();
                         const formData = new FormData(e.target as HTMLFormElement);

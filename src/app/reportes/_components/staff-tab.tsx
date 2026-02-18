@@ -334,7 +334,7 @@ export function StaffTab({
                                                                 <XCircle />
                                                                 Rechazar
                                                             </Button>
-                                                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
+                                                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-foreground" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
                                                         </div>
                                                     ) : (
                                                         <span className="text-xs text-muted-foreground">Gestionada</span>
@@ -372,7 +372,7 @@ export function StaffTab({
                                                             <XCircle />
                                                             Rechazar
                                                         </Button>
-                                                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white flex-1" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
+                                                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-foreground flex-1" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
                                                     </div>
                                                 </>
                                             )}

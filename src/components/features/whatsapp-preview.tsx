@@ -52,7 +52,7 @@ const MessageBubble = ({ message }: { message: WhatsAppMessage }) => {
         'max-w-[80%] rounded-lg p-2 shadow-sm',
         isOutgoing 
           ? 'bg-emerald-50 dark:bg-emerald-900 rounded-tr-none' 
-          : 'bg-white dark:bg-slate-800 rounded-tl-none'
+          : 'bg-foreground dark:bg-slate-800 rounded-tl-none'
       )}>
         {/* Image */}
         {message.type === 'image' && message.imageUrl && (
@@ -90,7 +90,7 @@ const MessageBubble = ({ message }: { message: WhatsAppMessage }) => {
             {message.listItems.map((item) => (
               <div 
                 key={item.id}
-                className="py-1.5 px-2 rounded hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                className="py-1.5 px-2 rounded hover:bg-black/5 dark:hover:bg-foreground/5 cursor-pointer"
               >
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {item.title}
@@ -138,12 +138,12 @@ export function WhatsAppPreview({
         <div className="bg-emerald-800 dark:bg-slate-800 px-4 py-3 flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={businessLogo} alt={businessName} />
-            <AvatarFallback className="bg-emerald-500 text-white">
+            <AvatarFallback className="bg-emerald-500 text-foreground">
               {businessName.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-white font-medium truncate">{businessName}</p>
+            <p className="text-foreground font-medium truncate">{businessName}</p>
             <p className="text-xs text-gray-300">en línea</p>
           </div>
         </div>
@@ -171,11 +171,11 @@ export function WhatsAppPreview({
       
       {/* Input Bar (Decorative) */}
       <div className="bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2">
-        <div className="flex-1 bg-white dark:bg-slate-700 rounded-full px-4 py-2">
+        <div className="flex-1 bg-foreground dark:bg-slate-700 rounded-full px-4 py-2">
           <p className="text-sm text-gray-400">Escribe un mensaje</p>
         </div>
         <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
-          <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-foreground" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 14.016l5.016-5.016 1.406 1.406-6.422 6.422-6.422-6.422 1.406-1.406z"/>
           </svg>
         </div>

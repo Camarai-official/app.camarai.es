@@ -14,11 +14,9 @@ import { PlusCircle, MoreHorizontal, Edit, Trash, ChevronLeft, ChevronRight, Pac
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
-    DialogClose } from '@/components/ui/dialog';
+    DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -288,10 +286,11 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh]">
-                <DialogHeader>
-                    <DialogTitle icon={PlusCircle}>{productToEdit ? 'Editar' : 'Crear'} Producto</DialogTitle>
-                    <DialogDescription>Rellena los detalles. Los productos se añadirán a tu librería global para usarlos en las cartas.</DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={PlusCircle}
+                    title={`${productToEdit ? 'Editar' : 'Crear'} Producto`}
+                    description="Rellena los detalles. Los productos se añadirán a tu librería global para usarlos en las cartas."
+                />
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
@@ -626,8 +625,8 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                 </Tabs>
 
                 <DialogFooter>
-                    <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button variant="brand" onClick={handleSaveClick}>Guardar Producto</Button>
+                    <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+                    <Button variant="default" onClick={handleSaveClick}>Guardar Producto</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

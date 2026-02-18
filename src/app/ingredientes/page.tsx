@@ -9,12 +9,10 @@ import { PlusCircle, MoreHorizontal, Edit, Trash, Beaker, AlertTriangle, Chevron
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
     DialogTrigger,
-    DialogClose } from '@/components/ui/dialog';
+    DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -218,10 +216,11 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh]">
-                <DialogHeader>
-                    <DialogTitle icon={Beaker}>{ingredientToEdit ? 'Editar' : 'Crear'} Ingrediente</DialogTitle>
-                    <DialogDescription>Configura todos los detalles del ingrediente para tu inventario.</DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={Beaker}
+                    title={`${ingredientToEdit ? 'Editar' : 'Crear'} Ingrediente`}
+                    description="Configura todos los detalles del ingrediente para tu inventario."
+                />
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-4">
@@ -480,8 +479,8 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                 </Tabs>
 
                 <DialogFooter>
-                    <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button variant="brand" onClick={handleSaveClick}>Guardar Ingrediente</Button>
+                    <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+                    <Button variant="default" onClick={handleSaveClick}>Guardar Ingrediente</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

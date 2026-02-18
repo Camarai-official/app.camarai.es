@@ -24,7 +24,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { buttonVariants } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -524,14 +524,11 @@ export default function AmbientesPage() {
             {/* QR Dialog */}
             <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
                 <DialogContent className="sm:max-w-3xl lg:max-w-5xl overflow-hidden border-none shadow-2xl p-6">
-                    <DialogHeader>
-                        <DialogTitle icon={QrCode}>
-                            Códigos QR - {selectedEnvForQR?.name}
-                        </DialogTitle>
-                        <DialogDescription>
-                            Genera y gestiona los códigos QR para las mesas de este ambiente.
-                        </DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={QrCode}
+                        title={`Códigos QR - ${selectedEnvForQR?.name}`}
+                        description="Genera y gestiona los códigos QR para las mesas de este ambiente."
+                    />
 
                     {selectedEnvForQR && (
                         <>
@@ -577,7 +574,7 @@ export default function AmbientesPage() {
                                             className="rounded-xl h-9 px-4"
                                             onClick={printQRs}
                                             disabled={selectedTables.size === 0}
-                                            variant="brand"
+                                            variant="default"
                                         >
                                             <Printer className="mr-2 h-4 w-4" />
                                             Imprimir QRs
@@ -689,7 +686,7 @@ export default function AmbientesPage() {
                                                                     </Badge>
                                                                 </div>
                                                                 
-                                                                <div className="relative group/qr bg-white p-3 rounded-xl border shadow-sm transition-all hover:shadow-md mb-3 flex items-center justify-center aspect-square">
+                                                                <div className="relative group/qr bg-foreground p-3 rounded-xl border shadow-sm transition-all hover:shadow-md mb-3 flex items-center justify-center aspect-square">
                                                                     <img
                                                                         src={qrUrl}
                                                                         alt={`QR Mesa ${tableNumber}`}
@@ -699,7 +696,7 @@ export default function AmbientesPage() {
                                                                         <Button 
                                                                             variant="secondary" 
                                                                             size="md" 
-                                                                            className="h-9 w-9 bg-white"
+                                                                            className="h-9 w-9 bg-foreground"
                                                                             onClick={() => window.open(qrUrl, '_blank')}
                                                                         >
                                                                             <Maximize className="h-4 w-4 text-primary" />

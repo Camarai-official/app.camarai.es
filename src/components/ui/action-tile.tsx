@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Trash, Minus, Plus } from 'lucide-react';
 
 /**
  * ActionTile Component
@@ -22,7 +23,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // TYPES
 // ============================================================================
 
-type RightContentType = 'switch' | 'badge' | 'select' | 'dropdown' | 'button' | 'custom' | 'empty';
+type RightContentType = 'switch' | 'badge' | 'select' | 'dropdown' | 'button' | 'quantity' | 'custom' | 'empty';
 
 interface BaseActionTileProps {
   /** Icon component from lucide-react or any React node */
@@ -107,13 +108,26 @@ interface CustomProps {
   customContent: React.ReactNode;
 }
 
+// Quantity variant props
+interface QuantityProps {
+  rightContentType: 'quantity';
+  /** Current quantity value */
+  quantity: number;
+  /** Handler for quantity increase */
+  onIncrease: () => void;
+  /** Handler for quantity decrease */
+  onDecrease: () => void;
+  /** Handler for item removal */
+  onRemove: () => void;
+}
+
 // Empty variant props
 interface EmptyProps {
   rightContentType?: 'empty';
 }
 
 // Union type for all variants
-export type ActionTileProps = BaseActionTileProps & (SwitchProps | BadgeProps | SelectProps | DropdownProps | ButtonProps | CustomProps | EmptyProps);
+export type ActionTileProps = BaseActionTileProps & (SwitchProps | BadgeProps | SelectProps | DropdownProps | ButtonProps | QuantityProps | CustomProps | EmptyProps);
 
 // ============================================================================
 // COMPONENT
@@ -268,6 +282,53 @@ export function ActionTile(props: ActionTileProps) {
           >
             {buttonProps.buttonText}
           </Button>
+        );
+      }
+
+      case 'quantity': {
+        const qProps = props as BaseActionTileProps & QuantityProps;
+        return (
+          <div className="flex items-center gap-3 bg-background rounded-lg border p-1 shadow-sm">
+            <Button
+              variant="ghost"
+              size="md"
+              className="h-6 w-6 hover:bg-destructive/10 transition-colors rounded-md group/remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                qProps.onRemove();
+              }}
+            >
+              <Trash className="h-3.5 w-3.5 text-muted-foreground group-hover/remove:text-destructive" />
+            </Button>
+            <div className="w-px h-4 bg-border" />
+            <div className="flex items-center gap-1.5 px-0.5">
+              <Button
+                variant="ghost"
+                size="md"
+                className="h-6 w-6 rounded-md hover:bg-muted"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  qProps.onDecrease();
+                }}
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              <span className="w-8 text-center text-[13px] font-bold tabular-nums">
+                {qProps.quantity}
+              </span>
+              <Button
+                variant="ghost"
+                size="md"
+                className="h-6 w-6 rounded-md hover:bg-primary/10 hover:text-primary transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  qProps.onIncrease();
+                }}
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
         );
       }
 

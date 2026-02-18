@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogClose } from '@/components/layout/dialog';
 import { ConfigItem } from '@/components/ui/config-item';
 import type { Device, DeviceType, ConnectionMethod, DeviceRole } from '@/data/devices';
 
@@ -112,12 +112,11 @@ export function DevicesTab({
                     })}
                 </div>
                 <DialogContent className="sm:max-w-lg max-h-[80vh] flex flex-col">
-                    <DialogHeader>
-                        <DialogTitle icon={editingDevice?.type === 'printer' ? Printer : Monitor}>{editingDevice?.id ? 'Editar' : 'Añadir'} {editingDevice?.type === 'printer' ? 'Impresora' : 'Dispositivo'}</DialogTitle>
-                        <DialogDescription>
-                            Configura los detalles de tu nuevo dispositivo.
-                        </DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={editingDevice?.type === 'printer' ? Printer : Monitor}
+                        title={`${editingDevice?.id ? 'Editar' : 'Añadir'} ${editingDevice?.type === 'printer' ? 'Impresora' : 'Dispositivo'}`}
+                        description="Configura los detalles de tu nuevo dispositivo."
+                    />
                     <div className="flex-grow overflow-y-auto pr-4 -mr-4 space-y-6 py-4">
                         <div className="space-y-4 p-4 border rounded-lg">
                             <h3 className="font-semibold text-muted-foreground">Información Básica</h3>
@@ -240,7 +239,7 @@ export function DevicesTab({
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button type="button" variant="secondary">Cancelar</Button>
+                            <Button type="button" variant="ghost">Cancelar</Button>
                         </DialogClose>
                         <Button type="button" onClick={handleSaveDevice}>Guardar Dispositivo</Button>
                     </DialogFooter>

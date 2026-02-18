@@ -259,7 +259,7 @@ export function WhatsAppLogin({
         {step === 'qr' && (
           <div className="space-y-4 text-center">
             <div className="relative mx-auto w-fit">
-              <div className="p-4 bg-white rounded-lg shadow-inner border">
+              <div className="p-4 bg-foreground rounded-lg shadow-inner border">
                 <Image
                   src={getQRUrl()}
                   alt="QR Code"

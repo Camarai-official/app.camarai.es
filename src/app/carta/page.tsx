@@ -8,7 +8,7 @@ import { PlusCircle, Edit, Trash, Utensils, Wine, Coffee, IceCream, Pizza, Beer,
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { mockCartas, mockMenuCombos, mockCategories, mockProducts, type Carta, type MenuCombo, type ElementoCarta, type ElementoMenuCombo } from '@/data/mock-data';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTrigger, DialogFooter, DialogClose } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -323,12 +323,11 @@ export default function CartaPage() {
                 {/* Dialog para Editar Carta */}
                 <Dialog open={isCartaDialogOpen} onOpenChange={(open) => { setIsCartaDialogOpen(open); if (!open) setDialogTab('general'); }}>
                     <DialogContent className="sm:max-w-4xl overflow-hidden border-none shadow-2xl p-6">
-                        <DialogHeader>
-                            <DialogTitle icon={BookOpen}>
-                                Editar Carta Digital
-                            </DialogTitle>
-                            <DialogDescription>Configura los detalles principales y la integración WhatsApp.</DialogDescription>
-                        </DialogHeader>
+                        <DialogHeader
+                            icon={BookOpen}
+                            title="Editar Carta Digital"
+                            description="Configura los detalles principales y la integración WhatsApp."
+                        />
                         
                         <ScrollArea className="max-h-[70vh] -mx-6 px-6">
                             <Tabs value={dialogTab} onValueChange={setDialogTab} className="w-full mt-2">
@@ -420,9 +419,7 @@ export default function CartaPage() {
                                             </div>
                                             
                                             <div className="space-y-2">
-                                                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1 flex items-center gap-2">
-                                                    <Clock className="h-3 w-3" /> Disponibilidad
-                                                </Label>
+                                                <Label icon={Clock} className="ml-1">Disponibilidad</Label>
                                                 <div className="grid grid-cols-2 gap-3">
                                                     <div>
                                                         <Label className="mb-1 block">Desde</Label>
@@ -466,7 +463,7 @@ export default function CartaPage() {
                             <p className="text-xs text-muted-foreground">Los cambios se guardarán en la configuración de esta carta.</p>
                             <div className="flex gap-3">
                                 <Button variant="ghost" onClick={() => setIsCartaDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
-                                <Button variant="brand" onClick={handleSaveCarta} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Carta</Button>
+                                <Button variant="default" onClick={handleSaveCarta} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Carta</Button>
                             </div>
                         </DialogFooter>
                     </DialogContent>
@@ -475,12 +472,11 @@ export default function CartaPage() {
                 {/* Dialog para Añadir Elemento a Carta */}
                 <Dialog open={isElementDialogOpen} onOpenChange={setIsElementDialogOpen}>
                     <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
-                        <DialogHeader>
-                            <DialogTitle icon={PlusCircle}>
-                                Añadir Contenido
-                            </DialogTitle>
-                            <DialogDescription>Selecciona una categoría de productos o un menú existente.</DialogDescription>
-                        </DialogHeader>
+                        <DialogHeader
+                            icon={PlusCircle}
+                            title="Añadir Contenido"
+                            description="Selecciona una categoría de productos o un menú existente."
+                        />
                         
                         <div className="py-4 space-y-4">
                             <Tabs value={newElementData.tipo} onValueChange={(val) => setNewElementData({ tipo: val as any, id_elemento: '' })} className="w-full">
@@ -531,7 +527,7 @@ export default function CartaPage() {
                             <p className="text-xs text-muted-foreground">Añadirás este elemento al final de la carta actual.</p>
                             <div className="flex gap-3">
                                 <Button variant="ghost" onClick={() => setIsElementDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
-                                <Button variant="brand" onClick={addElementToCarta} disabled={!newElementData.id_elemento} className="rounded-xl px-6" startIcon={<PlusCircle className="h-4 w-4" />}>
+                                <Button variant="default" onClick={addElementToCarta} disabled={!newElementData.id_elemento} className="rounded-xl px-6" startIcon={<PlusCircle className="h-4 w-4" />}>
                                     Añadir Contenido
                                 </Button>
                             </div>
@@ -542,12 +538,11 @@ export default function CartaPage() {
                 {/* Dialogo Básico para Editar Menú (Simulado) */}
                 <Dialog open={isMenuDialogOpen} onOpenChange={setIsMenuDialogOpen}>
                     <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
-                        <DialogHeader>
-                            <DialogTitle icon={Utensils}>
-                                Editar Menú
-                            </DialogTitle>
-                            <DialogDescription>Configura los detalles del menú o combo.</DialogDescription>
-                        </DialogHeader>
+                        <DialogHeader
+                            icon={Utensils}
+                            title="Editar Menú"
+                            description="Configura los detalles del menú o combo."
+                        />
                          <div className="space-y-4 py-4">
                             <ConfigItem
                                 icon={Edit}
@@ -594,7 +589,7 @@ export default function CartaPage() {
                             <p className="text-xs text-muted-foreground">Configura los elementos de este menú desde la edición detallada.</p>
                             <div className="flex gap-3">
                                 <Button variant="ghost" onClick={() => setIsMenuDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
-                                <Button variant="brand" onClick={handleSaveMenu} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Menú</Button>
+                                <Button variant="default" onClick={handleSaveMenu} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Menú</Button>
                             </div>
                         </DialogFooter>
                     </DialogContent>

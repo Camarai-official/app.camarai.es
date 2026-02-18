@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Calendar, CalendarDays, Download, FileSpread
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -128,12 +128,11 @@ function ShiftEditorDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle icon={shift ? Edit2 : Plus}>{shift ? 'Editar Turno' : 'Nuevo Turno'}</DialogTitle>
-          <DialogDescription>
-            {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeader
+          icon={shift ? Edit2 : Plus}
+          title={shift ? 'Editar Turno' : 'Nuevo Turno'}
+          description={format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
+        />
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">

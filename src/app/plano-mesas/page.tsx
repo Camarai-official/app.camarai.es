@@ -5,11 +5,12 @@ import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, QrCode, Trash, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen, Globe, Activity, MapPin, GripHorizontal, MousePointer2 } from 'lucide-react';
+import { PlusCircle, QrCode, Trash, Users, Plus, Square, CheckSquare, Clock, AlertTriangle, XSquare, Power, Minus, ZoomIn, MoreVertical, FileText, Printer as PrinterIcon, Undo2, Redo2, Copy, Download, MessageSquare, Settings, Save, FolderOpen, Globe, Activity, MapPin, GripHorizontal, MousePointer2, Search, FileDown, MoreHorizontal, LayoutGrid, Grid2X2, Sparkles, Wand2, ChevronRight, Settings2, Trash2 } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { mockEnvironments, type Table, type TableStatus, type EnvironmentStatus, type Environment } from '@/data/mock-data';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -89,21 +90,18 @@ function QRConfigDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
-                <DialogHeader>
-                    <DialogTitle icon={QrCode}>
-                        Configurar QR - Mesa {table.number}
-                    </DialogTitle>
-                    <DialogDescription>
-                        Configura el código QR para que los clientes accedan al menú vía WhatsApp.
-                    </DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={QrCode}
+                    title={`Configurar QR - Mesa ${table.number}`}
+                    description="Configura el código QR para que los clientes accedan al menú vía WhatsApp."
+                />
                 
                 <ScrollArea className="max-h-[55vh] -mx-6">
                     <div className="space-y-6 px-6 py-4">
                         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                             {/* QR Preview Column */}
                             <div className="md:col-span-2 flex flex-col items-center gap-4">
-                                <div className="p-4 bg-white rounded-2xl border shadow-sm group/qr relative overflow-hidden">
+                                <div className="p-4 bg-foreground rounded-2xl border shadow-sm group/qr relative overflow-hidden">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img 
                                         src={qrImageUrl} 
@@ -197,7 +195,7 @@ function QRConfigDialog({
                             <Download className="mr-2 h-4 w-4" />
                             Imagen
                         </Button>
-                        <Button variant="brand" size="sm" onClick={() => { handleDownload(); onOpenChange(false); }} className="rounded-xl px-6">
+                        <Button variant="default" size="sm" onClick={() => { handleDownload(); onOpenChange(false); }} className="rounded-xl px-6">
                             <PrinterIcon className="mr-2 h-4 w-4" />
                             Imprimir QR
                         </Button>
@@ -220,10 +218,11 @@ function TemplatesDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle icon={FolderOpen}>Plantillas de Plano</DialogTitle>
-                    <DialogDescription>Selecciona una plantilla para configurar rápidamente tu ambiente.</DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={FolderOpen}
+                    title="Plantillas de Plano"
+                    description="Selecciona una plantilla para configurar rápidamente tu ambiente."
+                />
                 <div className="grid gap-3 py-4">
                     {floorPlanTemplates.map(template => (
                         <ConfigItem
@@ -261,25 +260,20 @@ function EditTableDialogContent({
 }) {
     return (
         <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
-            <DialogHeader>
-                <DialogTitle icon={Settings}>
-                    Editar Mesa {editingTable?.number}
-                </DialogTitle>
-                <DialogDescription>
-                    Ajusta los detalles físicos y el estado operativo de la mesa.
-                </DialogDescription>
-            </DialogHeader>
+            <DialogHeader
+                icon={Settings}
+                title={`Editar Mesa ${editingTable?.number}`}
+                description="Ajusta los detalles físicos y el estado operativo de la mesa."
+            />
 
             <ScrollArea className="max-h-[60vh] -mx-6">
                 <div className="space-y-6 px-6 py-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* QR Preview Section */}
                         <div className="space-y-4">
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                <QrCode className="h-3 w-3" /> Acceso Digital
-                            </h4>
+                            <Label icon={QrCode}>Acceso Digital</Label>
                             <div className="relative group/qr-container">
-                                <div className="p-8 bg-white rounded-3xl border shadow-sm flex flex-col items-center justify-center transition-all group-hover/qr-container:bg-slate-50">
+                                <div className="p-8 bg-foreground rounded-3xl border shadow-sm flex flex-col items-center justify-center transition-all group-hover/qr-container:bg-slate-50">
                                     <QrCode className="w-24 h-24 text-slate-800" />
                                     <p className="mt-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest text-center">Digital Menu Ready</p>
                                 </div>
@@ -289,12 +283,10 @@ function EditTableDialogContent({
 
                         {/* Basic Config Section */}
                         <div className="space-y-4">
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                <Settings className="h-3 w-3" /> Parámetros
-                            </h4>
+                            <Label icon={Settings}>Parámetros</Label>
                             <div className="space-y-3">
                                 <div className="space-y-1.5 px-1">
-                                    <Label htmlFor="table-number" className="text-xs font-semibold">Número Identificador</Label>
+                                    <Label htmlFor="table-number">Número Identificador</Label>
                                     <div className="relative">
                                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                             <Hash className="h-4 w-4" />
@@ -309,7 +301,7 @@ function EditTableDialogContent({
                                     </div>
                                 </div>
                                 <div className="space-y-1.5 px-1">
-                                    <Label htmlFor="table-capacity" className="text-xs font-semibold">Capacidad (Comensales)</Label>
+                                    <Label htmlFor="table-capacity">Capacidad (Comensales)</Label>
                                     <div className="relative">
                                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                                             <Users className="h-4 w-4" />
@@ -331,9 +323,7 @@ function EditTableDialogContent({
 
                     {/* Status Section */}
                     <div className="space-y-4">
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                            <Activity className="h-3 w-3" /> Estado Operativo
-                        </h4>
+                        <Label icon={Activity}>Estado Operativo</Label>
                         <div className="grid gap-3">
                             <ConfigItem
                                 icon={config.icon}
@@ -371,7 +361,7 @@ function EditTableDialogContent({
                         <QrCode className="mr-2 h-4 w-4" />
                         Configurar QR
                     </Button>
-                    <Button variant="brand" className="flex-1 sm:flex-none rounded-xl px-8" onClick={handleSaveChanges}>
+                    <Button variant="default" className="flex-1 sm:flex-none rounded-xl px-8" onClick={handleSaveChanges}>
                         Guardar Cambios
                     </Button>
                 </div>
@@ -1015,7 +1005,7 @@ export default function PlanoMesasPage() {
                                                                             onDoubleClick={(e) => { e.stopPropagation(); handleDoubleClick(table); }}
                                                                             className={cn(
                                                                                 "absolute transition-all duration-200 group/table",
-                                                                                "bg-white dark:bg-zinc-900", // Solid opaque background
+                                                                                "bg-foreground dark:bg-zinc-900", // Solid opaque background
                                                                                 "border-[3px]", // Thicker solid border
                                                                                 config.borderColor, // Explicit border color
                                                                                 "rounded-[1.5rem] shadow-sm hover:shadow-xl",
@@ -1094,7 +1084,7 @@ export default function PlanoMesasPage() {
                                                                                         const info = getTableCenterInfo(table);
                                                                                         if (info && info.value) {
                                                                                             return (
-                                                                                                <div className="flex flex-col items-center bg-white/80 dark:bg-zinc-900/80 px-2 rounded-full backdrop-blur-[1px]">
+                                                                                                <div className="flex flex-col items-center bg-foreground/80 dark:bg-zinc-900/80 px-2 rounded-full backdrop-blur-[1px]">
                                                                                                     <div className={cn("text-[10px] font-bold leading-none py-0.5", config.color)} suppressHydrationWarning>{info.value}</div>
                                                                                                 </div>
                                                                                             );
@@ -1102,7 +1092,7 @@ export default function PlanoMesasPage() {
                                                                                         // Status Text fallback
                                                                                         if (table.status !== 'Libre') {
                                                                                             return (
-                                                                                                <span className={cn("text-[9px] font-bold uppercase tracking-wider bg-white/50 dark:bg-black/20 px-1.5 py-0.5 rounded-sm", config.color)}>
+                                                                                                <span className={cn("text-[9px] font-bold uppercase tracking-wider bg-foreground/50 dark:bg-black/20 px-1.5 py-0.5 rounded-sm", config.color)}>
                                                                                                     {table.status}
                                                                                                 </span>
                                                                                             );
@@ -1155,12 +1145,11 @@ export default function PlanoMesasPage() {
                                     </CardContent>
                                     <Dialog open={isInactiveTablesDialogOpen} onOpenChange={setIsInactiveTablesDialogOpen}>
                                         <DialogContent>
-                                            <DialogHeader>
-                                                <DialogTitle icon={Settings}>Mesas Inactivas en {env.name}</DialogTitle>
-                                                <DialogDescription>
-                                                    Estas mesas están ocultas del plano principal. Puedes reactivarlas aquí para que vuelvan al estado de &quot;Mantenimiento&quot;.
-                                                </DialogDescription>
-                                            </DialogHeader>
+                                            <DialogHeader
+                                                icon={Settings}
+                                                title={`Mesas Inactivas en ${env.name}`}
+                                                description="Estas mesas están ocultas del plano principal. Puedes reactivarlas aquí para que vuelvan al estado de &quot;Mantenimiento&quot;."
+                                            />
                                             <div className="max-h-80 overflow-y-auto p-1 space-y-2">
                                                 {inactiveTables.length > 0 ? (
                                                     inactiveTables.map(table => (
@@ -1178,7 +1167,7 @@ export default function PlanoMesasPage() {
                                             </div>
                                             <DialogFooter>
                                                 <DialogClose asChild>
-                                                    <Button variant="secondary">Cerrar</Button>
+                                                    <Button variant="ghost">Cerrar</Button>
                                                 </DialogClose>
                                             </DialogFooter>
                                         </DialogContent>
@@ -1188,9 +1177,12 @@ export default function PlanoMesasPage() {
                         )
                     })}
                     {environments.length === 0 && (
-                        <Card className="flex items-center justify-center h-48 border-dashed">
-                            <p className="text-muted-foreground">No hay ambientes creados. ¡Añade uno para empezar!</p>
-                        </Card>
+                        <EmptyState 
+                            icon={LayoutGrid}
+                            title="Sin ambientes"
+                            description="No hay ambientes creados. ¡Añade uno para empezar!"
+                            className="h-64 mt-4"
+                        />
                     )}
                 </Tabs>
                 

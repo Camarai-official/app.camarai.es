@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogClose, DialogFooter } from '@/components/layout/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,11 @@ export function MovementsDetailsDialog({ open, onOpenChange }: MovementsDetailsD
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
-                    <DialogTitle icon={ArrowLeftRight}>Movimientos Detallados del Turno</DialogTitle>
-                    <DialogDescription>Aquí se muestra un desglose de todas las transacciones del día.</DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={ArrowLeftRight}
+                    title="Movimientos Detallados del Turno"
+                    description="Aquí se muestra un desglose de todas las transacciones del día."
+                />
                 <div className="max-h-[60vh] overflow-y-auto">
                     <Table>
                         <TableHeader>
@@ -49,7 +50,7 @@ export function MovementsDetailsDialog({ open, onOpenChange }: MovementsDetailsD
                 </div>
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button variant="secondary">Cerrar</Button>
+                        <Button variant="ghost">Cerrar</Button>
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>

@@ -10,10 +10,8 @@ import { MonitorPlay, Settings, ExternalLink, Volume2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle } from '@/components/ui/dialog';
+  DialogHeader } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -95,12 +93,11 @@ export default function KdsPage() {
       {/* Modal de Configuración KDS */}
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle icon={Settings}>Configuración del KDS</DialogTitle>
-            <DialogDescription>
-              Configura el ambiente, categorías y opciones de visualización para la pantalla de cocina.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogHeader
+            icon={Settings}
+            title="Configuración del KDS"
+            description="Configura el ambiente, categorías y opciones de visualización para la pantalla de cocina."
+          />
           <div className="grid gap-6 py-4">
             {/* Environment Selection */}
             <div className="grid gap-2">

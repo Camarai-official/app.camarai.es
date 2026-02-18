@@ -6,7 +6,7 @@ import { Settings, Hash, User, LayoutGrid, Clock, Wallet, Activity, ListOrdered 
 import type { ViewConfig } from '@/app/comandas/_data/config';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
@@ -37,22 +37,17 @@ export function ViewConfigDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
-        <DialogHeader>
-          <DialogTitle icon={Settings}>
-            Configurar Vista
-          </DialogTitle>
-          <DialogDescription>
-            Personaliza las columnas visibles y opciones de visualización de las comandas.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeader
+          icon={Settings}
+          title="Configurar Vista"
+          description="Personaliza las columnas visibles y opciones de visualización de las comandas."
+        />
 
         <ScrollArea className="max-h-[60vh] -mx-6">
           <div className="space-y-6 px-6 py-4">
             {/* Sección: Columnas */}
             <div className="space-y-4">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <LayoutGrid className="h-3 w-3" /> Columnas Visibles
-              </h4>
+              <Label icon={LayoutGrid}>Columnas Visibles</Label>
               <div className="grid gap-3">
                 <ActionTile
                   switchId="showOrder"
@@ -125,9 +120,7 @@ export function ViewConfigDialog({
 
             {/* Sección: Paginación */}
             <div className="space-y-4">
-              <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <ListOrdered className="h-3 w-3" /> Paginación
-              </h4>
+              <Label icon={ListOrdered}>Paginación</Label>
               <ConfigItem
                 icon={ListOrdered}
                 label="Items por página"
@@ -155,7 +148,7 @@ export function ViewConfigDialog({
           <p className="text-xs text-muted-foreground">Los cambios se aplicarán instantáneamente.</p>
           <div className="flex gap-3">
             <Button variant="ghost" onClick={() => onOpenChange(false)}>Cerrar</Button>
-            <Button onClick={onSave} variant="brand">
+            <Button onClick={onSave} variant="default">
               Guardar Cambios
             </Button>
           </div>

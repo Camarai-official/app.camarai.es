@@ -23,6 +23,7 @@ import {
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
     Card,
     CardContent,
@@ -54,11 +55,9 @@ import {
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
-    DialogClose } from '@/components/ui/dialog';
+    DialogClose } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -251,12 +250,11 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
-                <DialogHeader>
-                    <DialogTitle icon={MessageSquare}>{campaign ? 'Editar' : 'Crear Nueva'} Campaña de WhatsApp</DialogTitle>
-                    <DialogDescription>
-                        Configura los detalles de tu nueva campaña. Se enviará únicamente a través de WhatsApp.
-                    </DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={MessageSquare}
+                    title={`${campaign ? 'Editar' : 'Crear Nueva'} Campaña de WhatsApp`}
+                    description="Configura los detalles de tu nueva campaña. Se enviará únicamente a través de WhatsApp."
+                />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-grow overflow-hidden">
                     {/* Form Column */}
@@ -448,14 +446,14 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                 
                 <DialogFooter>
                     <DialogClose asChild>
-                        <Button type="button" variant="secondary">
+                        <Button type="button" variant="ghost">
                             Cancelar
                         </Button>
                     </DialogClose>
                     <Button type="button" variant="outline" onClick={() => handleSave(true)}>
                         Guardar Borrador
                     </Button>
-                    <Button variant="brand" type="button" onClick={() => handleSave(false)}>
+                    <Button variant="default" type="button" onClick={() => handleSave(false)}>
                         <Send className="mr-2 h-4 w-4" />
                         {campaign ? 'Guardar y Reprogramar' : 'Guardar y Programar'}
                     </Button>
@@ -630,12 +628,15 @@ export default function PromocionesPage() {
                     <CardContent>
                         {/* Mobile View - Cards */}
                         <div className="grid grid-cols-1 gap-4 md:hidden">
-                            {campaigns.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-16 text-center">
-                                    <p className="text-muted-foreground mb-4">No hay campañas creadas.</p>
-                                    <CreateActionCard label="Crear primera campaña" onClick={() => handleOpenDialog()} />
-                                </div>
-                            ) : null}
+                                {campaigns.length === 0 ? (
+                                    <EmptyState 
+                                        icon={PlusCircle}
+                                        title="No hay campañas"
+                                        description="Crea tu primera campaña para empezar a atraer clientes"
+                                        action={<CreateActionCard label="Crear primera campaña" onClick={() => handleOpenDialog()} />}
+                                        className="py-16 col-span-full border-none bg-transparent"
+                                    />
+                                ) : null}
                             {campaigns.map((campaign) => (
                                 <Card key={campaign.id} className="p-4">
                                     <div className="flex justify-between items-start mb-2">

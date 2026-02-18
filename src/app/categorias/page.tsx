@@ -6,7 +6,7 @@ import * as React from 'react';
 import { Card, CardContent, CardHeader, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -145,14 +145,11 @@ function CategoryDialog({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle icon={SelectedIcon}>
-            {category ? 'Editar' : 'Crear'} Categoría
-          </DialogTitle>
-          <DialogDescription>
-            Configura los detalles de la categoría y gestiona los productos asignados.
-          </DialogDescription>
-        </DialogHeader>
+        <DialogHeader
+          icon={SelectedIcon}
+          title={`${category ? 'Editar' : 'Crear'} Categoría`}
+          description="Configura los detalles de la categoría y gestiona los productos asignados."
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-3">
@@ -282,7 +279,7 @@ function CategoryDialog({
                       className="h-10 w-10 rounded-md flex items-center justify-center shrink-0"
                       style={{ backgroundColor: categoryData.color || '#9B6EFD' }}
                     >
-                      <SelectedIcon className="h-5 w-5 text-white" />
+                      <SelectedIcon className="h-5 w-5 text-foreground" />
                     </div>
                     <div>
                       <p className="font-medium">{categoryData.nombre_categoria || 'Nombre de categoría'}</p>
@@ -385,9 +382,9 @@ function CategoryDialog({
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary">Cancelar</Button>
+            <Button variant="ghost">Cancelar</Button>
           </DialogClose>
-          <Button variant="brand" onClick={handleSaveClick}>Guardar Categoría</Button>
+          <Button variant="default" onClick={handleSaveClick}>Guardar Categoría</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -540,7 +537,7 @@ export default function CategoriasPage() {
                             className="h-8 w-8 rounded-md flex items-center justify-center shrink-0"
                             style={{ backgroundColor: cat.color || '#9B6EFD' }}
                           >
-                            <CatIcon className="h-4 w-4 text-white" />
+                            <CatIcon className="h-4 w-4 text-foreground" />
                           </div>
                           <span>{cat.nombre_categoria}</span>
                         </div>

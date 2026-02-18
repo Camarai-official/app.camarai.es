@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -220,14 +220,11 @@ export function ProvidersTab() {
             {/* Provider Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-xl">
-                    <DialogHeader>
-                        <DialogTitle icon={Building2}>
-                            {editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor'}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {editingProvider ? 'Modifica los datos del proveedor.' : 'Añade un nuevo proveedor a tu lista.'}
-                        </DialogDescription>
-                    </DialogHeader>
+                    <DialogHeader
+                        icon={Building2}
+                        title={editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor'}
+                        description={editingProvider ? 'Modifica los datos del proveedor.' : 'Añade un nuevo proveedor a tu lista.'}
+                    />
                     
                     <Tabs defaultValue="datos" className="w-full">
                         <TabsList className="grid w-full grid-cols-2">
@@ -349,7 +346,7 @@ export function ProvidersTab() {
                     </Tabs>
                     
                     <DialogFooter>
-                        <Button variant="outline" onClick={handleCloseDialog}>Cancelar</Button>
+                        <Button variant="ghost" onClick={handleCloseDialog}>Cancelar</Button>
                         <Button onClick={handleSave}>
                             {editingProvider ? 'Guardar Cambios' : 'Añadir Proveedor'}
                         </Button>

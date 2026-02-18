@@ -9,12 +9,10 @@ import { PlusCircle, MoreHorizontal, Edit, Trash, ArrowLeft, Banknote } from 'lu
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
-  DialogClose } from '@/components/ui/dialog';
+  DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -111,12 +109,11 @@ export default function TaxesPage() {
                 </Button>
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader>
-                  <DialogTitle icon={Banknote}>{editingTax ? 'Editar' : 'Crear'} Impuesto</DialogTitle>
-                  <DialogDescription>
-                    Define un nuevo tipo impositivo para tus productos.
-                  </DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                  icon={Banknote}
+                  title={`${editingTax ? 'Editar' : 'Crear'} Impuesto`}
+                  description="Define un nuevo tipo impositivo para tus productos."
+                />
                 <div className="py-4 space-y-4">
                   <div>
                     <Label htmlFor="tax-name">Nombre del Impuesto</Label>
@@ -128,8 +125,8 @@ export default function TaxesPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                  <Button variant="brand" onClick={handleSave}>Guardar Impuesto</Button>
+                  <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+                  <Button variant="default" onClick={handleSave}>Guardar Impuesto</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>

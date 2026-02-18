@@ -10,10 +10,8 @@ import { Monitor, Settings, ExternalLink } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
-  DialogHeader,
-  DialogTitle } from '@/components/ui/dialog';
+  DialogHeader } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -89,12 +87,11 @@ export default function PosPage() {
       {/* Modal de Configuración POS */}
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle icon={Settings}>Configuración del POS</DialogTitle>
-            <DialogDescription>
-              Configura el terminal, impresora y opciones de operación para el punto de venta.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogHeader
+            icon={Settings}
+            title="Configuración del POS"
+            description="Configura el terminal, impresora y opciones de operación para el punto de venta."
+          />
           <div className="grid gap-6 py-4">
             {/* Terminal Selection */}
             <div className="grid gap-2">
@@ -199,9 +196,7 @@ export default function PosPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfigOpen(false)}>
-              Cancelar
-            </Button>
+            <Button variant="ghost" onClick={() => setConfigOpen(false)}>Cancelar</Button>
             <Button onClick={handleSaveConfig}>
               Guardar Configuración
             </Button>

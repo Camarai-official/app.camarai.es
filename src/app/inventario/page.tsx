@@ -40,7 +40,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 // Removed useAppData
@@ -117,10 +117,11 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle icon={Package}>Ajustar Stock de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
-          <DialogDescription>Stock actual: {item.stock_actual} {item.unidad_medida}. Selecciona una operación.</DialogDescription>
-        </DialogHeader>
+        <DialogHeader
+          icon={Package}
+          title={`Ajustar Stock de "${item.nombre_ingrediente}"`}
+          description={`Stock actual: ${item.stock_actual} ${item.unidad_medida}. Selecciona una operación.`}
+        />
         <div className="grid grid-cols-4 gap-2 pt-4">
           {Object.entries(adjustmentConfig).map((key) => {
             const config = adjustmentConfig[key[1].title.toLowerCase().replace(/\s+/g, '-') as AdjustmentType] || adjustmentConfig[key[0] as AdjustmentType];
@@ -158,8 +159,8 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
           </CardContent>
         </Card>
         <DialogFooter>
-          <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-          <Button variant="brand" onClick={handleAdjust}>Ajustar Stock</Button>
+          <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+          <Button variant="default" onClick={handleAdjust}>Ajustar Stock</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -179,9 +180,10 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle icon={History}>Historial de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
-        </DialogHeader>
+        <DialogHeader
+          icon={History}
+          title={`Historial de "${item.nombre_ingrediente}"`}
+        />
         <Tabs defaultValue="movements" className="w-full pt-4">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="movements"><Repeat className="mr-2 h-4 w-4" />Movimientos</TabsTrigger>
@@ -238,7 +240,7 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
           </TabsContent>
         </Tabs>
         <DialogFooter>
-          <DialogClose asChild><Button variant="secondary">Cerrar</Button></DialogClose>
+          <DialogClose asChild><Button variant="ghost">Cerrar</Button></DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -509,14 +511,11 @@ export default function InventarioPage() {
       {/* Configuration Modal */}
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle icon={Settings}>
-              Configurar Inventario
-            </DialogTitle>
-            <DialogDescription>
-              Configura alertas y opciones de visualización del inventario.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogHeader
+            icon={Settings}
+            title="Configurar Inventario"
+            description="Configura alertas y opciones de visualización del inventario."
+          />
           <div className="grid gap-4 py-4">
             <div className="space-y-3">
               <Label className="text-sm font-medium">Umbrales de Alerta</Label>
@@ -552,7 +551,7 @@ export default function InventarioPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsConfigOpen(false)}>Cancelar</Button>
+            <Button variant="ghost" onClick={() => setIsConfigOpen(false)}>Cancelar</Button>
             <Button onClick={() => {
               toast({ title: 'Configuración guardada', description: 'Los ajustes del inventario se han aplicado.' });
               setIsConfigOpen(false);
