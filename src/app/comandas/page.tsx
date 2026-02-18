@@ -38,6 +38,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +88,10 @@ export default function ComandasPage() {
     const [isExportOpen, setIsExportOpen] = React.useState(false);
     const [isConfigOpen, setIsConfigOpen] = React.useState(false);
     const [viewConfig, setViewConfig] = React.useState<ViewConfig>(defaultViewConfig);
+
+    // Estado para el diálogo de confirmación de anulación
+    const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
+    const [orderToCancel, setOrderToCancel] = React.useState<Order | null>(null);
 
     type ExportOptions = { format: string; fields: string[]; dateRange?: DateRange };
 
@@ -173,6 +187,19 @@ export default function ComandasPage() {
         toast({
             title: "Estado Actualizado",
             description: `La comanda #${orderOrder} ahora está ${newStatus}.` });
+    };
+
+    const handleAnularComanda = (order: Order) => {
+        setOrderToCancel(order);
+        setIsCancelDialogOpen(true);
+    };
+
+    const confirmAnularComanda = () => {
+        if (orderToCancel) {
+            handleStatusChange(orderToCancel.order, 'Cancelado');
+            setIsCancelDialogOpen(false);
+            setOrderToCancel(null);
+        }
     };
 
     const filteredOrders = orders.filter(order => {
@@ -345,7 +372,7 @@ export default function ComandasPage() {
                                                             <CreditCard />
                                                             Marcar como pagada
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleAnularComanda(order)}>
                                                             <Ban />
                                                             Anular comanda
                                                         </DropdownMenuItem>
@@ -420,6 +447,26 @@ export default function ComandasPage() {
                 onConfigChange={handleConfigChange}
                 onSave={handleSaveConfig}
             />
+
+            <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción anulará la comanda #{orderToCancel?.order}. No podrás deshacer esta acción una vez confirmada.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Volver</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={confirmAnularComanda}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Anular Comanda
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }

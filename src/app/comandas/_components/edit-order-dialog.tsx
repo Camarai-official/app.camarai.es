@@ -75,7 +75,10 @@ export function EditOrderDialog({
   const handleQuantityChange = (index: number, delta: number) => {
     setEditedItems((prev) => {
       const newItems = [...prev];
-      newItems[index].quantity = Math.max(1, newItems[index].quantity + delta);
+      newItems[index] = {
+        ...newItems[index],
+        quantity: Math.max(1, newItems[index].quantity + delta),
+      };
       return newItems;
     });
   };
@@ -115,7 +118,7 @@ export function EditOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[850px] sm:h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent className="sm:max-w-[850px] sm:h-[90vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
         {/* Header */}
         <DialogHeader
           flush
@@ -128,7 +131,7 @@ export function EditOrderDialog({
         <div className="flex-1 flex overflow-hidden">
           
           {/* Left Column (Items) */}
-          <div className="flex-[7] flex flex-col border-r bg-muted/20">
+          <div className="flex-[7] flex flex-col border-r">
             <div className="p-5 pb-2">
               <div className="relative">
                 <SearchInput 
@@ -138,21 +141,20 @@ export function EditOrderDialog({
                 />
                 
                 {searchProduct && (
-                  <div className="absolute top-full left-0 right-0 mt-2 p-1 bg-popover border rounded-xl shadow-xl z-50 max-h-[300px] overflow-y-auto space-y-0.5">
+                  <div className="absolute top-full left-0 right-0 mt-2 p-1 bg-popover border rounded-xl shadow-xl z-50 max-h-[300px] overflow-y-auto">
                     {filteredProducts.length > 0 ? (
                       filteredProducts.map((product) => (
-                        <ActionTile
+                        <div
                           key={product.id}
-                          title={product.name}
-                          description={`€${product.price.toFixed(2)}`}
+                          className="flex items-center justify-between p-2.5 rounded-lg hover:bg-accent cursor-pointer transition-colors"
                           onClick={() => handleAddProduct(product)}
-                          rightContentType="custom"
-                          customContent={
-                            <div className="flex items-center justify-center h-7 w-7 rounded-lg bg-primary/10 text-primary">
-                              <Plus className="h-4 w-4" />
-                            </div>
-                          }
-                        />
+                        >
+                          <span className="text-sm font-medium">{product.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-primary">€{product.price.toFixed(2)}</span>
+                            <Plus className="h-4 w-4 text-primary" />
+                          </div>
+                        </div>
                       ))
                     ) : (
                       <p className="text-xs text-center text-muted-foreground py-4">Sin resultados</p>
@@ -176,7 +178,7 @@ export function EditOrderDialog({
                     <ActionTile
                       key={`${item.name}-${index}`}
                       icon={UtensilsCrossed}
-                      iconColor="orange-600"
+                      iconColor="#ea580c"
                       title={item.name}
                       description={`Unitario: €${item.price.toFixed(2)}`}
                       rightContentType="quantity"
@@ -184,7 +186,6 @@ export function EditOrderDialog({
                       onIncrease={() => handleQuantityChange(index, 1)}
                       onDecrease={() => handleQuantityChange(index, -1)}
                       onRemove={() => handleRemoveItem(index)}
-                      className="bg-background shadow-sm border-none"
                     />
                   ))
                 )}
@@ -196,14 +197,14 @@ export function EditOrderDialog({
           {/* Right Column (Details) */}
           <div className="flex-[5] flex flex-col bg-background">
             <ScrollArea className="flex-1">
-              <div className="p-5 space-y-6">
+              <div className="p-8 space-y-8 flex flex-col justify-center min-h-full">
                 {/* Details Section */}
                 <div className="space-y-5">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label icon={LayoutGrid}>Ubicación</Label>
                       <Select value={editedTable} onValueChange={setEditedTable}>
-                        <SelectTrigger className="h-10 rounded-xl bg-muted/30 border-none px-4">
+                        <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -218,7 +219,6 @@ export function EditOrderDialog({
                       <Input
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="h-10 rounded-xl bg-muted/30 border-none px-4"
                         placeholder="Nombre..."
                       />
                     </div>
@@ -230,7 +230,7 @@ export function EditOrderDialog({
                       placeholder="Instrucciones para la preparación..."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="min-h-[100px] rounded-xl resize-none bg-muted/30 border-none text-sm p-4"
+                      className="min-h-[100px] resize-none"
                     />
                   </div>
                 </div>
@@ -238,47 +238,40 @@ export function EditOrderDialog({
                 <Separator className="opacity-50" />
 
                 {/* Totals Section */}
-                <div className="space-y-4">
-                  <Label icon={Receipt}>Resumen de Cuenta</Label>
-                  
-                  <DashboardList className="divide-y-0 space-y-0 border-none bg-transparent">
-                    <DashboardListItem 
-                      title="Subtotal"
-                      value={`€${calculateSubtotal().toFixed(2)}`}
-                      className="h-10 py-0 border-none"
-                    />
-                    
-                    <DashboardListItem 
-                      title="Descuento"
-                      suffix={
-                        <div className="flex items-center gap-2">
-                          <div className="flex items-center bg-muted/40 hover:bg-muted/60 rounded px-2 h-6 transition-colors">
-                            <input 
-                              type="number" 
-                              value={discount} 
-                              onChange={(e) => setDiscount(Number(e.target.value))}
-                              className="w-8 border-none bg-transparent text-center text-[10px] focus:outline-none font-bold text-foreground" 
-                            />
-                            <span className="text-[9px] text-muted-foreground/60">%</span>
-                          </div>
-                          <span className="text-rose-500 text-sm font-bold">-€{calculateDiscountValue().toFixed(2)}</span>
+                  <div className="space-y-3 px-1">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="font-medium tabular-nums text-muted-foreground">€{calculateSubtotal().toFixed(2)}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm pt-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Descuento</span>
+                        <div className="flex items-center bg-background rounded-xl px-2 h-10 gap-0.5 border border-border focus-within:border-primary/20 transition-all">
+                          <Input 
+                            type="number" 
+                            value={discount} 
+                            onChange={(e) => setDiscount(Number(e.target.value))}
+                            className="h-full w-8 border-none bg-transparent p-0 text-center text-xs font-bold focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+                          />
+                          <span className="text-[10px] text-muted-foreground/60 font-bold">%</span>
                         </div>
-                      }
-                      className="h-10 py-0 border-none"
-                    />
+                      </div>
+                      <span className="font-bold text-rose-500/80 tabular-nums">-€{calculateDiscountValue().toFixed(2)}</span>
+                    </div>
 
-                    <DashboardListItem 
-                      title="IVA (21%)"
-                      value={`€${calculateTax().toFixed(2)}`}
-                      className="h-10 py-0 border-none"
-                    />
-                  </DashboardList>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-muted-foreground">IVA (21%)</span>
+                      <span className="font-medium tabular-nums text-muted-foreground">€{calculateTax().toFixed(2)}</span>
+                    </div>
 
-                  <div className="pt-4 mt-2 border-t border-border flex justify-between items-baseline">
-                    <span className="text-sm font-bold uppercase tracking-tight text-foreground">A Pagar</span>
-                    <span className="text-4xl font-black text-primary leading-none tracking-tighter tabular-nums">€{calculateTotal().toFixed(2)}</span>
+                    <div className="pt-5 mt-2 border-t flex justify-between items-center">
+                      <span className="text-base font-bold text-foreground">Total</span>
+                      <span className="font-bold text-foreground tabular-nums">
+                        €{calculateTotal().toFixed(2)}
+                      </span>
+                    </div>
                   </div>
-                </div>
               </div>
             </ScrollArea>
           </div>

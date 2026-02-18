@@ -9,15 +9,29 @@ import {
 } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Download, FileSpreadsheet, FileText, File } from 'lucide-react';
+import { 
+  CalendarIcon, 
+  Download, 
+  FileSpreadsheet, 
+  FileText, 
+  File, 
+  Table as TableIcon,
+  Check,
+  Calendar as CalendarDefault,
+  LayoutGrid,
+  FileBox,
+  ClipboardList
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { ActionTile } from '@/components/ui/action-tile';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 export type ExportFormat = 'csv' | 'pdf' | 'xlsx' | 'json';
 
@@ -42,26 +56,33 @@ interface ExportModalProps {
   }) => void;
 }
 
-const formatIcons: Record<ExportFormat, React.ReactNode> = {
-  csv: <FileText className="h-4 w-4" />,
-  pdf: <File className="h-4 w-4" />,
-  xlsx: <FileSpreadsheet className="h-4 w-4" />,
-  json: <FileText className="h-4 w-4" />,
+const formatIcons: Record<ExportFormat, any> = {
+  csv: FileText,
+  pdf: File,
+  xlsx: FileSpreadsheet,
+  json: FileText,
+};
+
+const formatColors: Record<ExportFormat, string> = {
+  csv: "#3b82f6", // Blue
+  pdf: "#ef4444", // Red
+  xlsx: "#10b981", // Green
+  json: "#f59e0b", // Amber
 };
 
 const formatLabels: Record<ExportFormat, string> = {
-  csv: 'CSV (Excel compatible)',
-  pdf: 'PDF (Documento)',
-  xlsx: 'Excel (XLSX)',
-  json: 'JSON (Datos)',
+  csv: 'CSV',
+  pdf: 'PDF',
+  xlsx: 'Excel',
+  json: 'JSON',
 };
 
 export function ExportModal({
   open,
   onOpenChange,
   title = 'Exportar Datos',
-  description = 'Selecciona el formato y los campos que deseas exportar.',
-  formats = ['csv', 'pdf', 'xlsx'],
+  description = 'Prepara tus archivos para informes o integración.',
+  formats = ['csv', 'pdf', 'xlsx', 'json'],
   fields = [],
   showDateRange = true,
   onExport,
@@ -94,8 +115,8 @@ export function ExportModal({
   const handleExport = async () => {
     if (fields.length > 0 && selectedFields.length === 0) {
       toast({
-        title: 'Selecciona al menos un campo',
-        description: 'Debes seleccionar al menos un campo para exportar.',
+        title: 'Selección vacía',
+        description: 'Debes seleccionar al menos un campo.',
         variant: 'destructive',
       });
       return;
@@ -109,14 +130,14 @@ export function ExportModal({
         dateRange: showDateRange ? dateRange : undefined,
       });
       toast({
-        title: 'Exportación completada',
-        description: `Los datos se han exportado en formato ${formatLabels[selectedFormat]}.`,
+        title: '¡Listo!',
+        description: `Archivo generado correctamente en formato ${selectedFormat.toUpperCase()}.`,
       });
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: 'Error al exportar',
-        description: 'Ha ocurrido un error al exportar los datos.',
+        title: 'Error',
+        description: 'No se pudo generar el archivo de exportación.',
         variant: 'destructive',
       });
     } finally {
@@ -126,133 +147,149 @@ export function ExportModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden border-none shadow-2xl">
         <DialogHeader
+          flush
           icon={Download}
           title={title}
           description={description}
         />
 
-        <div className="grid gap-6 py-4">
-          {/* Format Selection */}
-          <div className="grid gap-3">
-            <Label>Formato de exportación</Label>
-            <RadioGroup
-              value={selectedFormat}
-              onValueChange={(value) => setSelectedFormat(value as ExportFormat)}
-              className="grid grid-cols-2 gap-2"
-            >
-              {formats.map((format) => (
-                <div key={format} className="flex items-center space-x-2">
-                  <RadioGroupItem value={format} id={format} />
-                  <Label htmlFor={format} className="flex items-center gap-2 font-normal cursor-pointer">
-                    {formatIcons[format]}
-                    {formatLabels[format]}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-
-          {/* Date Range */}
-          {showDateRange && (
-            <div className="grid gap-3">
-              <Label>Rango de fechas</Label>
-              <div className="flex gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'flex-1 justify-start text-left font-normal',
-                        !dateRange.from && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange.from ? format(dateRange.from, 'dd/MM/yyyy', { locale: es }) : 'Desde'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateRange.from}
-                      onSelect={(date) => setDateRange((prev) => ({ ...prev, from: date }))}
-                      locale={es}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        'flex-1 justify-start text-left font-normal',
-                        !dateRange.to && 'text-muted-foreground'
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateRange.to ? format(dateRange.to, 'dd/MM/yyyy', { locale: es }) : 'Hasta'}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={dateRange.to}
-                      onSelect={(date) => setDateRange((prev) => ({ ...prev, to: date }))}
-                      locale={es}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Deja vacío para exportar todos los registros.
-              </p>
-            </div>
-          )}
-
-          {/* Fields Selection */}
-          {fields.length > 0 && (
-            <div className="grid gap-3">
-              <div className="flex items-center justify-between">
-                <Label>Campos a incluir</Label>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" onClick={selectAllFields}>
-                    Todos
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={deselectAllFields}>
-                    Ninguno
-                  </Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
-                {fields.map((field) => (
-                  <div key={field.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`field-${field.id}`}
-                      checked={selectedFields.includes(field.id)}
-                      onCheckedChange={() => toggleField(field.id)}
-                    />
-                    <Label htmlFor={`field-${field.id}`} className="text-sm font-normal cursor-pointer">
-                      {field.label}
-                    </Label>
-                  </div>
+        <ScrollArea className="max-h-[70vh]">
+          <div className="p-6 space-y-8">
+            {/* Format Selection */}
+            <div className="space-y-4">
+              <Label icon={LayoutGrid}>Formato de salida</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {formats.map((format) => (
+                  <ActionTile
+                    key={format}
+                    icon={formatIcons[format]}
+                    iconColor={formatColors[format]}
+                    title={formatLabels[format]}
+                    onClick={() => setSelectedFormat(format)}
+                    className={cn(
+                      "transition-all duration-300 p-2",
+                      selectedFormat === format 
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/20" 
+                        : "border-border/50 bg-muted/20"
+                    )}
+                  />
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {selectedFields.length} de {fields.length} campos seleccionados
-              </p>
             </div>
-          )}
-        </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
-          <Button onClick={handleExport} disabled={isExporting}>
-            {isExporting ? 'Exportando...' : 'Exportar'}
-          </Button>
-        </DialogFooter>
+            <Separator className="opacity-50" />
+
+            {/* Date Range Selection */}
+            {showDateRange && (
+              <div className="space-y-4">
+                <Label icon={CalendarDefault}>Periodo de tiempo</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left',
+                            !dateRange.from && 'text-muted-foreground'
+                          )}
+                        >
+                          <CalendarDefault className="mr-2 h-4 w-4 text-primary" />
+                          {dateRange.from ? format(dateRange.from, 'dd MMM yyyy', { locale: es }) : 'Desde'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateRange.from}
+                          onSelect={(date) => setDateRange((prev) => ({ ...prev, from: date }))}
+                          locale={es}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <div className="space-y-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            'w-full justify-start text-left',
+                            !dateRange.to && 'text-muted-foreground'
+                          )}
+                        >
+                          <CalendarDefault className="mr-2 h-4 w-4 text-primary" />
+                          {dateRange.to ? format(dateRange.to, 'dd MMM yyyy', { locale: es }) : 'Hasta'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 rounded-2xl shadow-2xl border-none" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={dateRange.to}
+                          onSelect={(date) => setDateRange((prev) => ({ ...prev, to: date }))}
+                          locale={es}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <Separator className="opacity-50" />
+
+            {/* Fields Selection */}
+            {fields.length > 0 && (
+              <div className="space-y-4">
+                <Label icon={ClipboardList}>Columnas a incluir</Label>
+                <div className="grid grid-cols-2 gap-3 p-1">
+                  {fields.map((field) => (
+                    <div 
+                      key={field.id} 
+                      onClick={() => toggleField(field.id)}
+                      className={cn(
+                        "flex h-10 items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group",
+                        selectedFields.includes(field.id) 
+                          ? "bg-primary/5 border-primary/20" 
+                          : "bg-background border-border hover:border-primary/20"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-5 w-5 rounded-md border flex items-center justify-center transition-all",
+                        selectedFields.includes(field.id)
+                          ? "bg-primary border-primary text-primary-foreground"
+                          : "bg-muted/50 border-input group-hover:border-primary/50"
+                      )}>
+                        {selectedFields.includes(field.id) && <Check className="h-3 w-3" />}
+                      </div>
+                      <span className={cn(
+                        "text-sm font-medium transition-colors",
+                        selectedFields.includes(field.id) ? "text-foreground" : "text-muted-foreground"
+                      )}>
+                        {field.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        <DialogFooter
+          flush
+          hint="La exportación puede tardar unos segundos."
+          onCancel={() => onOpenChange(false)}
+          cancelText="Cancelar"
+          onConfirm={handleExport}
+          confirmText={isExporting ? "Generando..." : "Comenzar Exportación"}
+          confirmDisabled={isExporting}
+        />
       </DialogContent>
     </Dialog>
   );

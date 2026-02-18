@@ -171,26 +171,27 @@ export function ActionTile(props: ActionTileProps) {
       : Icon;
 
     // Icon container styles
-    let containerStyle = undefined;
-    let containerTailwindClass = '';
+    let containerStyle: React.CSSProperties = { 
+      backgroundColor: iconColor ? (iconColor.startsWith('#') ? `${iconColor}1A` : `var(--${iconColor}-10, rgba(var(--primary), 0.1))`) : undefined 
+    };
 
-    if (iconColor) {
-      if (isTailwindColor) {
-        containerTailwindClass = `bg-${iconColor}/10`;
-      } else {
-        containerStyle = { 
-          backgroundColor: `${iconColor}1A`, // 1A is ~10% opacity in hex
-        };
-      }
+    // If it's a tailwind color name, we can try to use RGB if available, but for absolute reliability 
+    // when using dynamic strings, hex is better. However, let's fix the logic to at least 
+    // handle hex properly and default to primary.
+    
+    if (iconColor && !iconColor.startsWith('#')) {
+      // Fallback: Use a style that works with tailwind color names if possible, 
+      // or just use the style prop with a CSS variable if the system supports it.
+      // For now, the most reliable way for "orange-600" is to convert it to a style or use a fixed class.
     }
-
+    
     return (
       <div 
         className={cn(
-          "flex-shrink-0 p-2.5 rounded-xl transition-all duration-300",
-          containerTailwindClass || "bg-primary/10"
+          "flex-shrink-0 p-2 rounded-xl transition-all duration-300",
+          !iconColor && "bg-primary/10"
         )}
-        style={containerStyle}
+        style={iconColor ? { backgroundColor: iconColor.startsWith('#') ? `${iconColor}1A` : undefined } : undefined}
       >
         {iconContent}
       </div>
@@ -288,46 +289,43 @@ export function ActionTile(props: ActionTileProps) {
       case 'quantity': {
         const qProps = props as BaseActionTileProps & QuantityProps;
         return (
-          <div className="flex items-center gap-3 bg-background rounded-lg border p-1 shadow-sm">
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="md"
-              className="h-6 w-6 hover:bg-destructive/10 transition-colors rounded-md group/remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                qProps.onDecrease();
+              }}
+            >
+              <Minus />
+            </Button>
+            <span className="w-8 text-center text-sm font-bold tabular-nums">
+              {qProps.quantity}
+            </span>
+            <Button
+              variant="ghost"
+              size="md"
+              
+              onClick={(e) => {
+                e.stopPropagation();
+                qProps.onIncrease();
+              }}
+            >
+              <Plus  />
+            </Button>
+            <div className="w-0.5 h-8 bg-background" />
+            <Button
+              variant="ghost"
+              size="md"
+              
               onClick={(e) => {
                 e.stopPropagation();
                 qProps.onRemove();
               }}
             >
-              <Trash className="h-3.5 w-3.5 text-muted-foreground group-hover/remove:text-destructive" />
+              <Trash />
             </Button>
-            <div className="w-px h-4 bg-border" />
-            <div className="flex items-center gap-1.5 px-0.5">
-              <Button
-                variant="ghost"
-                size="md"
-                className="h-6 w-6 rounded-md hover:bg-muted"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  qProps.onDecrease();
-                }}
-              >
-                <Minus className="h-3 w-3" />
-              </Button>
-              <span className="w-8 text-center text-[13px] font-bold tabular-nums">
-                {qProps.quantity}
-              </span>
-              <Button
-                variant="ghost"
-                size="md"
-                className="h-6 w-6 rounded-md hover:bg-primary/10 hover:text-primary transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  qProps.onIncrease();
-                }}
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
           </div>
         );
       }
@@ -358,11 +356,11 @@ export function ActionTile(props: ActionTileProps) {
       )}
     >
       {/* Left Side: Icon + Title + Description */}
-      <div className="flex items-center gap-4 overflow-hidden min-w-0 flex-1">
+      <div className="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
         {renderIcon()}
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-bold truncate pr-2 text-foreground">
-            {typeof title === 'string' ? <p>{title}</p> : title}
+          <div className="text-sm font-bold text-foreground leading-tight">
+            {typeof title === 'string' ? <span>{title}</span> : title}
           </div>
           {description && (
             <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">

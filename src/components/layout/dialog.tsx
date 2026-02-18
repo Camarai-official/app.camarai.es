@@ -113,6 +113,8 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   onConfirm?: () => void;
   /** Label for the confirm button. Defaults to "Guardar Cambios". */
   confirmText?: string;
+  /** Whether the confirm button should be disabled */
+  confirmDisabled?: boolean;
   /**
    * Set to true when the parent DialogContent has p-0 (no padding).
    * Removes the negative margins that are normally used to "bleed" into the dialog padding.
@@ -128,6 +130,7 @@ const DialogFooter = ({
   cancelText = "Cerrar",
   onConfirm,
   confirmText = "Guardar Cambios",
+  confirmDisabled = false,
   flush = false,
   ...props
 }: DialogFooterProps) => {
@@ -154,7 +157,7 @@ const DialogFooter = ({
               </Button>
             )}
             {onConfirm && (
-              <Button variant="default" onClick={onConfirm}>
+              <Button variant="default" onClick={onConfirm} disabled={confirmDisabled}>
                 {confirmText}
               </Button>
             )}
