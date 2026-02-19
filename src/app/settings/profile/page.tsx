@@ -10,13 +10,13 @@ import { useDevices } from '@/hooks/useDevices';
 import type { Device, DeviceType } from '@/data/devices';
 import { PageHeader } from '@/components/ui/page-header';
 import { PageContent } from '@/components/layout/page-content';
-import { ProfileTab } from '@/app/settings/profile/_components/profile-tab';
-import { EstablishmentTab } from '@/app/settings/profile/_components/establishment-tab';
-import { DevicesTab } from '@/app/settings/profile/_components/devices-tab';
-import { CompanyTab } from '@/app/settings/profile/_components/company-tab';
-import { ProvidersTab } from '@/app/settings/profile/_components/providers-tab';
-import { IntegrationsTab } from '@/app/settings/profile/_components/integrations-tab';
-import { TaxesTab } from '@/app/settings/profile/_components/taxes-tab';
+import { ProfileTab } from '@/components/ui/profile-tab';
+import { EstablishmentTab } from '@/components/ui/establishment-tab';
+import { DevicesTab } from '@/components/ui/devices-tab';
+import { CompanyTab } from '@/components/ui/company-tab';
+import { ProvidersTab } from '@/components/ui/providers-tab';
+import { IntegrationsTab } from '@/components/ui/integrations-tab';
+import { TaxesTab } from '@/components/ui/taxes-tab';
 
 const VALID_TABS = new Set([
     'profile',

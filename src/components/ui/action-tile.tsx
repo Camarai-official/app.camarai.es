@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Trash, Minus, Plus } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 /**
  * ActionTile Component
@@ -23,7 +24,7 @@ import { Trash, Minus, Plus } from 'lucide-react';
 // TYPES
 // ============================================================================
 
-type RightContentType = 'switch' | 'badge' | 'select' | 'dropdown' | 'button' | 'quantity' | 'custom' | 'empty';
+type RightContentType = 'switch' | 'badge' | 'select' | 'dropdown' | 'button' | 'quantity' | 'progress' | 'custom' | 'empty';
 
 interface BaseActionTileProps {
   /** Icon component from lucide-react or any React node */
@@ -61,7 +62,7 @@ interface BadgeProps {
   /** Badge text */
   badgeText: string;
   /** Badge variant */
-  badgeVariant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'neutral' | 'completed' | 'in-progress' | 'cancelled';
+  badgeVariant?: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'completed' | 'in-progress' | 'cancelled';
 }
 
 // Select variant props
@@ -121,19 +122,34 @@ interface QuantityProps {
   onRemove: () => void;
 }
 
+// Progress variant props
+interface ProgressProps {
+  rightContentType: 'progress';
+  /** Current progress value (0-100) */
+  progressValue: number;
+  /** Custom class for the progress indicator */
+  progressIndicatorClassName?: string;
+  /** Custom class for the progress root */
+  progressClassName?: string;
+  /** Label to show next to the progress bar (default is percentage) */
+  progressLabel?: React.ReactNode;
+  /** Whether to show the progress label */
+  showProgressLabel?: boolean;
+}
+
 // Empty variant props
 interface EmptyProps {
   rightContentType?: 'empty';
 }
 
 // Union type for all variants
-export type ActionTileProps = BaseActionTileProps & (SwitchProps | BadgeProps | SelectProps | DropdownProps | ButtonProps | QuantityProps | CustomProps | EmptyProps);
+export type ActionTileProps = BaseActionTileProps & (SwitchProps | BadgeProps | SelectProps | DropdownProps | ButtonProps | QuantityProps | ProgressProps | CustomProps | EmptyProps);
 
 // ============================================================================
 // COMPONENT
 // ============================================================================
 
-export function ActionTile(props: ActionTileProps) {
+export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((props, ref) => {
   const {
     icon: Icon,
     iconColor,
@@ -155,43 +171,29 @@ export function ActionTile(props: ActionTileProps) {
     const isLucideComponent = (typeof Icon === 'function' || (typeof Icon === 'object' && Icon !== null)) && !React.isValidElement(Icon);
     const isTailwindColor = iconColor && !iconColor.startsWith('#');
     
-    // Icon styles
+    // Icon styles: Icon has the color, background is faded
     const iconStyle = iconColor && !isTailwindColor ? { color: iconColor } : undefined;
-    const iconTailwindClass = isTailwindColor ? `text-${iconColor}` : '';
+    const iconTailwindClass = isTailwindColor ? `text-${iconColor}` : 'text-primary';
     
     // Render the icon
     const iconContent = isLucideComponent
       ? React.createElement(Icon as React.ElementType, { 
           className: cn(
             "h-5 w-5 transition-all duration-300",
-            iconTailwindClass || "text-primary"
+            iconTailwindClass
           ),
           style: iconStyle
         })
       : Icon;
 
-    // Icon container styles
-    let containerStyle: React.CSSProperties = { 
-      backgroundColor: iconColor ? (iconColor.startsWith('#') ? `${iconColor}1A` : `var(--${iconColor}-10, rgba(var(--primary), 0.1))`) : undefined 
-    };
-
-    // If it's a tailwind color name, we can try to use RGB if available, but for absolute reliability 
-    // when using dynamic strings, hex is better. However, let's fix the logic to at least 
-    // handle hex properly and default to primary.
-    
-    if (iconColor && !iconColor.startsWith('#')) {
-      // Fallback: Use a style that works with tailwind color names if possible, 
-      // or just use the style prop with a CSS variable if the system supports it.
-      // For now, the most reliable way for "orange-600" is to convert it to a style or use a fixed class.
-    }
-    
     return (
       <div 
         className={cn(
           "flex-shrink-0 p-2 rounded-xl transition-all duration-300",
-          !iconColor && "bg-primary/10"
+          !iconColor && "bg-primary/10",
+          isTailwindColor && `bg-${iconColor}/20`
         )}
-        style={iconColor ? { backgroundColor: iconColor.startsWith('#') ? `${iconColor}1A` : undefined } : undefined}
+        style={iconColor && !isTailwindColor ? { backgroundColor: iconColor.startsWith('#') ? `${iconColor}33` : undefined } : undefined}
       >
         {iconContent}
       </div>
@@ -330,6 +332,24 @@ export function ActionTile(props: ActionTileProps) {
         );
       }
 
+      case 'progress': {
+        const pProps = props as BaseActionTileProps & ProgressProps;
+        return (
+          <div className="flex flex-col items-end gap-1.5 w-24 sm:w-32">
+            {pProps.showProgressLabel !== false && (
+              <span className="text-xs font-bold tabular-nums">
+                {pProps.progressLabel || `${pProps.progressValue}%`}
+              </span>
+            )}
+            <Progress 
+              value={pProps.progressValue} 
+              className={cn("h-1.5", pProps.progressClassName)}
+              indicatorClassName={pProps.progressIndicatorClassName}
+            />
+          </div>
+        );
+      }
+
       case 'custom': {
         const customProps = props as BaseActionTileProps & CustomProps;
         return customProps.customContent;
@@ -345,8 +365,53 @@ export function ActionTile(props: ActionTileProps) {
   // MAIN RENDER
   // ============================================================================
 
+  // Variant: Progress uses a special full-width vertical layout
+  if (rightContentType === 'progress') {
+    const pProps = props as BaseActionTileProps & ProgressProps;
+    return (
+      <div
+        ref={ref}
+        onClick={onClick}
+        className={cn(
+          "flex items-center p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
+          disabled && "opacity-50 cursor-not-allowed",
+          onClick && "cursor-pointer",
+          className
+        )}
+      >
+        {renderIcon()}
+        <div className="flex-1 flex flex-col gap-2 min-w-0">
+          <div className="flex items-baseline justify-between w-full gap-2">
+            <div className="flex items-baseline gap-2 min-w-0">
+              <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+                {typeof title === 'string' ? <span>{title}</span> : title}
+              </div>
+              {description && (
+                <div className="text-sm font-bold text-foreground leading-tight">
+                  {description}
+                </div>
+              )}
+            </div>
+            {pProps.showProgressLabel !== false && (
+              <div className="text-sm font-black text-foreground tabular-nums flex-shrink-0">
+                {pProps.progressLabel || `${pProps.progressValue}%`}
+              </div>
+            )}
+          </div>
+          <Progress 
+            value={pProps.progressValue} 
+            className={cn("h-1.5", pProps.progressClassName)}
+            indicatorClassName={pProps.progressIndicatorClassName}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Standard Layout: Left (Icon + Text) | Right (Interactive Content)
   return (
     <div
+      ref={ref}
       onClick={onClick}
       className={cn(
         "flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
@@ -376,4 +441,6 @@ export function ActionTile(props: ActionTileProps) {
       </div>
     </div>
   );
-}
+});
+
+ActionTile.displayName = 'ActionTile';

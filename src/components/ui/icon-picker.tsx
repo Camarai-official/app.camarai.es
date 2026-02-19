@@ -172,19 +172,11 @@ export function IconPicker({
             <span className="flex-1 text-left">{iconLabels[value] || value || placeholder}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-72 p-3" align="start">
-          <div className="grid gap-3">
-            {/* Search */}
-            <SearchInput
-              placeholder="Buscar icono..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-8"
-            />
-
-            {/* Icons Grid */}
-            <ScrollArea className="h-48">
-              <div className="grid grid-cols-5 gap-1.5">
+        <PopoverContent className="w-72 p-3 border-border" align="start">
+          <div className="grid gap-2">
+            
+            <ScrollArea>
+              <div className="grid grid-cols-5 gap-1">
                 {filteredIcons.map((iconName) => {
                   const Icon = iconMap[iconName];
                   return (
@@ -209,12 +201,6 @@ export function IconPicker({
                 </p>
               )}
             </ScrollArea>
-
-            {/* Selected Icon Info */}
-            <div className="flex items-center gap-2 pt-2 border-t text-sm text-muted-foreground">
-              <SelectedIcon className="h-4 w-4" />
-              <span>Seleccionado: {iconLabels[value] || value}</span>
-            </div>
           </div>
         </PopoverContent>
       </Popover>

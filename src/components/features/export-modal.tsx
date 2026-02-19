@@ -19,7 +19,6 @@ import {
   FileText, 
   File, 
   Table as TableIcon,
-  Check,
   Calendar as CalendarDefault,
   LayoutGrid,
   FileBox,
@@ -32,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ActionTile } from '@/components/ui/action-tile';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { SelectField } from '@/components/ui/select-field';
 
 export type ExportFormat = 'csv' | 'pdf' | 'xlsx' | 'json';
 
@@ -244,39 +244,13 @@ export function ExportModal({
 
             {/* Fields Selection */}
             {fields.length > 0 && (
-              <div className="space-y-4">
-                <Label icon={ClipboardList}>Columnas a incluir</Label>
-                <div className="grid grid-cols-2 gap-3 p-1">
-                  {fields.map((field) => (
-                    <div 
-                      key={field.id} 
-                      onClick={() => toggleField(field.id)}
-                      className={cn(
-                        "flex h-10 items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer group",
-                        selectedFields.includes(field.id) 
-                          ? "bg-primary/5 border-primary/20" 
-                          : "bg-background border-border hover:border-primary/20"
-                      )}
-                    >
-                      <div className={cn(
-                        "h-5 w-5 rounded-md border flex items-center justify-center transition-all",
-                        selectedFields.includes(field.id)
-                          ? "bg-primary border-primary text-primary-foreground"
-                          : "bg-muted/50 border-input group-hover:border-primary/50"
-                      )}>
-                        {selectedFields.includes(field.id) && <Check className="h-3 w-3" />}
-                      </div>
-                      <span className={cn(
-                        "text-sm font-medium transition-colors",
-                        selectedFields.includes(field.id) ? "text-foreground" : "text-muted-foreground"
-                      )}>
-                        {field.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-              </div>
+              <SelectField
+                label="Columnas a incluir"
+                icon={ClipboardList}
+                options={fields}
+                selectedValues={selectedFields}
+                onToggle={toggleField}
+              />
             )}
           </div>
         </ScrollArea>

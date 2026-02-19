@@ -28,13 +28,13 @@ import {
     mockTimeReportData
 } from '@/data/reportes';
 import type { OrderDetails } from '@/data/reportes';
-import { BillingTab } from '@/app/reportes/_components/billing-tab';
-import { PerformanceTab } from '@/app/reportes/_components/performance-tab';
-import { StaffTab } from '@/app/reportes/_components/staff-tab';
-import { InventoryTab } from '@/app/reportes/_components/inventory-tab';
-import { CashClosingTab } from '@/app/reportes/_components/cash-closing-tab';
-import { OrderDetailsDialog } from '@/app/reportes/_components/order-details-dialog';
-import { MovementsDetailsDialog } from '@/app/reportes/_components/movements-details-dialog';
+import { BillingTab } from '@/components/ui/billing-tab';
+import { PerformanceTab } from '@/components/ui/performance-tab';
+import { StaffTab } from '@/components/ui/staff-tab';
+import { InventoryTab } from '@/components/ui/inventory-tab';
+import { CashClosingTab } from '@/components/ui/cash-closing-tab';
+import { OrderDetailsDialog } from '@/components/ui/reportes-order-details-dialog';
+import { MovementsDetailsDialog } from '@/components/ui/movements-details-dialog';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';

@@ -26,9 +26,9 @@ import {
 import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
 import { mockOrderDetails, mockOrderProducts, mockOrderTables, mockOrders } from '@/data/orders';
 import { exportFields, defaultViewConfig, type ViewConfig } from '@/app/comandas/_data/config';
-import { EditOrderDialog } from '@/app/comandas/_components/edit-order-dialog';
-import { OrderDetailsDialog } from '@/app/comandas/_components/order-details-dialog';
-import { ViewConfigDialog } from '@/app/comandas/_components/view-config-dialog';
+import { EditOrderDialog } from '@/components/ui/edit-order-dialog';
+import { OrderDetailsDialog } from '@/components/ui/comandas-order-details-dialog';
+import { ViewConfigDialog } from '@/components/ui/view-config-dialog';
 
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

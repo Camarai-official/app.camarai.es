@@ -16,8 +16,8 @@ export function PageHeader({ title, subtitle, className, actions }: PageHeaderPr
     <header className={cn("mx-6 py-8", className)}>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
                 
-                <div className="space-y-1 px-6">
-                    <H1 className="text-3xl font-bold tracking-tight text-foreground">{title}</H1>
+                <div className="space-y-1">
+                    <H1 className="text-3xl font-bold text-foreground">{title}</H1>
                     {subtitle && (
                         <TextSM className="text-muted-foreground font-medium">{subtitle}</TextSM>
                     )}

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 
 interface ColorPickerProps {
   value?: string;
@@ -12,7 +13,7 @@ interface ColorPickerProps {
   className?: string;
 }
 
-const defaultColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
+const defaultColors = ['violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
 
 export function ColorPicker({
   value,
@@ -30,12 +31,13 @@ export function ColorPicker({
       )}
       <div className="flex flex-wrap gap-2">
         {availableColors.map((color) => (
-          <button
+          <Button
             key={color}
             type="button"
+            size="sm"
             className={cn(
-              "h-8 w-8 rounded-full transition-all hover:scale-110",
-              color.startsWith('#') ? "" : `bg-${color}`,
+              
+              color.startsWith('#') ? "" : `bg-${color} hover:bg-${color}`,
               value === color
                 ? "border-2 border-primary scale-110"
                 : "opacity-80 hover:opacity-100"
