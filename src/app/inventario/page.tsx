@@ -4,7 +4,7 @@ import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { MoreHorizontal, Package, PlusCircle, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
-import { ExportModal, type ExportField } from '@/components/features/export-modal';
+import { ExportModal, type ExportField } from '@/components/dialogs/comandas-export';
 import { Switch } from '@/components/ui/switch';
 
 import { Badge } from '@/components/ui/badge';
@@ -53,9 +53,10 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContainer } from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -343,7 +344,7 @@ export default function InventarioPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Gestión de Inventario" />
       <PageContent>
         <Card>
@@ -559,7 +560,7 @@ export default function InventarioPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </PageContainer>
+    );
 }
 

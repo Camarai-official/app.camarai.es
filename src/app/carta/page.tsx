@@ -18,9 +18,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { cn } from '@/lib/utils';
+import { PageContainer } from '@/components/layout/page-container';
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 import { IconPicker, iconMap as allIcons } from '@/components/ui/icon-picker';
 import { ColorPicker } from '@/components/ui/color-picker';
@@ -180,7 +181,7 @@ export default function CartaPage() {
 
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader
                 title="Gestión de Cartas y Menús"
                 subtitle="Diseña y organiza las cartas digitales y menús combinados."
@@ -596,7 +597,7 @@ export default function CartaPage() {
                 </Dialog>
 
             </PageContent>
-        </div>
+        </PageContainer>
     );
 }
 

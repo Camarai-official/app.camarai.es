@@ -26,7 +26,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger } from '@/components/ui/alert-dialog';
+    AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -43,9 +43,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContainer } from '@/components/layout/page-container';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -601,7 +602,7 @@ export default function IngredientesPage() {
     const isSomeOnPageSelected = numSelected > 0 && !isAllOnPageSelected;
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Librería de Ingredientes" />
             <PageContent>
                 <Card className="min-h-[70vh]">
@@ -743,7 +744,7 @@ export default function IngredientesPage() {
                 </Card>
             </PageContent>
             <IngredientDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} ingredientToEdit={editingIngredient} onSave={handleSave} />
-        </div>
+        </PageContainer>
     );
 }
 

@@ -68,8 +68,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import { SearchInput } from '@/components/ui/search-input';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { cn } from '@/lib/utils';
@@ -531,7 +532,7 @@ export default function PromocionesPage() {
     };
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Gestión de Promociones y Campañas" />
             <PageContent>
                 {/* Stats KPIs - design system: sin iconos */}
@@ -842,7 +843,7 @@ export default function PromocionesPage() {
                     onSave={handleSaveCampaign}
                 />
             </PageContent>
-        </div>
+        </PageContainer>
     );
 }
 

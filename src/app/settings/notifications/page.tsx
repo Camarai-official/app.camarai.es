@@ -2,14 +2,17 @@
 import { H3 } from '@/components/ui/typography';
 
 
+
+
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Calendar, ClipboardList, Archive, AlertCircle, Mail, Smartphone, MessageSquare, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 
 type NotificationChannel = 'email' | 'push' | 'whatsapp';
@@ -83,7 +86,8 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
+
       <PageHeader title="Gestión de Notificaciones" />
       <PageContent className="pb-24">
         <Card>
@@ -148,7 +152,6 @@ export default function NotificationsPage() {
             </div>
         </Card>
       </footer>
-    </div>
+    </PageContainer>
   );
 }
-

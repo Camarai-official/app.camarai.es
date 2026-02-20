@@ -8,8 +8,9 @@ import type { Establishment } from '@/data/establishments';
 import { mockUser, User } from '@/data/mock-data';
 import { useDevices } from '@/hooks/useDevices';
 import type { Device, DeviceType } from '@/data/devices';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import { ProfileTab } from '@/components/ui/profile-tab';
 import { EstablishmentTab } from '@/components/ui/establishment-tab';
 import { DevicesTab } from '@/components/ui/devices-tab';
@@ -208,7 +209,7 @@ function ProfileSettingsPageContent() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Ajustes Generales" />
             <PageContent>
                 <Tabs value={activeTab} onValueChange={(value) => router.push(`/settings/profile?tab=${value}`)} className="w-full">
@@ -287,7 +288,7 @@ function ProfileSettingsPageContent() {
                     <TaxesTab />
                 </Tabs>
             </PageContent>
-        </div>
+        </PageContainer>
     );
 }
 

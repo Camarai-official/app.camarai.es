@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { H1, TextSM } from "./typography";
+import { H1, TextSM } from "@/components/ui/typography";
 
 type PageHeaderProps = {
   title: React.ReactNode;
@@ -14,7 +14,7 @@ type PageHeaderProps = {
 export function PageHeader({ title, subtitle, className, actions }: PageHeaderProps) {
   return (
     <header className={cn("mx-6 py-8", className)}>
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col h-16 gap-6 sm:flex-row sm:items-center sm:justify-between">
                 
                 <div className="space-y-1">
                     <H1 className="text-3xl font-bold text-foreground">{title}</H1>

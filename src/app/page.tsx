@@ -3,7 +3,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, Trash, Edit, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban, ArrowRight, Share2, Link, ExternalLink, Sparkles, Euro, Receipt, Clock } from 'lucide-react';
+import { Download, Settings, Euro, Receipt, Package, Sparkles, Clock, ShoppingBag, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { H4 } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
 import { MetricCard } from '@/components/widgets/metric-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,12 +19,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
-import { ActionTile } from '@/components/ui/action-tile';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
+import { DashboardConfigDialog, type DashboardConfig } from '@/components/dialogs/dashboard-config-dialog';
 
 // ✅ MOCK DATA - Importado directamente
 import { mockUser, mockOrders, mockIngredients, mockStaffMembers, mockEnvironments, mockProducts, getCategoryName } from '@/data/mock-data';
@@ -91,18 +89,6 @@ const allOrders = mockOrders;
  * - Diversos gráficos sobre ventas, reservas, ocupación y costes.
  */
 // Dashboard widget configuration
-interface DashboardConfig {
-    metrics: boolean;
-    salesChart: boolean;
-    revenueChart: boolean;
-    occupancyChart: boolean;
-    recentOrders: boolean;
-    stockAlerts: boolean;
-    teamRanking: boolean;
-    topProducts: boolean;
-    costBreakdown: boolean;
-    badgeTable: boolean;
-}
 
 const defaultDashboardConfig: DashboardConfig = {
     metrics: true,
@@ -199,7 +185,7 @@ export default function Home() {
 
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader
                 title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
                 actions={
@@ -356,145 +342,14 @@ export default function Home() {
                     </div>
                 )}
 
-                <Dialog open={configOpen} onOpenChange={setConfigOpen}>
-                    <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
-                        <DialogHeader
-                            icon={Settings}
-                            title="Configurar Dashboard"
-                            description="Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión."
-                        />
-                        
-                        <ScrollArea className="max-h-[60vh] -mx-6">
-                            <div className="space-y-6 px-6 py-4">
-                                {/* Sección: Análisis de Ventas */}
-                                <div className="space-y-4">
-                                    <Label icon={TrendingUp}>Análisis de Ventas</Label>
-                                    <div className="grid gap-3">
-                                        <ActionTile
-                                            switchId="metrics"
-                                            icon={TrendingUp}
-                                            title="Métricas Principales"
-                                            description="Ingresos, ticket medio y variación temporal."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.metrics}
-                                            onSwitchChange={() => handleConfigToggle('metrics')}
-                                        />
-
-                                        <ActionTile
-                                            switchId="salesChart"
-                                            icon={LineChart}
-                                            title="Ventas por Hora"
-                                            description="Curva de demanda distribuida por franjas horarias."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.salesChart}
-                                            onSwitchChange={() => handleConfigToggle('salesChart')}
-                                            iconColor="blue-500"
-                                        />
-
-                                        <ActionTile
-                                            switchId="revenueChart"
-                                            icon={BarChart}
-                                            title="Gráfico de Ingresos"
-                                            description="Visualización comparativa de facturación bruta."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.revenueChart}
-                                            onSwitchChange={() => handleConfigToggle('revenueChart')}
-                                            iconColor="green-500"
-                                        />
-                                    </div>
-                                </div>
-
-                                <Separator className="opacity-50" />
-
-                                {/* Sección: Operaciones */}
-                                <div className="space-y-4">
-                                    <Label icon={LayoutGrid}>Operaciones y Stock</Label>
-                                    <div className="grid gap-3">
-                                        <ActionTile
-                                            switchId="recentOrders"
-                                            icon={ShoppingBag}
-                                            title="Comandas Recientes"
-                                            description="Monitor en tiempo real de los últimos pedidos."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.recentOrders}
-                                            onSwitchChange={() => handleConfigToggle('recentOrders')}
-                                            iconColor="orange-500"
-                                        />
-
-                                        <ActionTile
-                                            switchId="stockAlerts"
-                                            icon={AlertTriangle}
-                                            title="Alertas de Stock"
-                                            description="Aviso crítico de ingredientes bajo mínimos."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.stockAlerts}
-                                            onSwitchChange={() => handleConfigToggle('stockAlerts')}
-                                            iconColor="red-500"
-                                        />
-
-                                        <ActionTile
-                                            switchId="occupancyChart"
-                                            icon={Users}
-                                            title="Distribución de Aforo"
-                                            description="Ocupación porcentual por salones y terrazas."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.occupancyChart}
-                                            onSwitchChange={() => handleConfigToggle('occupancyChart')}
-                                            iconColor="purple-500"
-                                        />
-                                    </div>
-                                </div>
-
-                                <Separator className="opacity-50" />
-
-                                {/* Sección: Rendimiento */}
-                                <div className="space-y-4">
-                                    <Label icon={Trophy}>Rendimiento y Costes</Label>
-                                    <div className="grid gap-3">
-                                        <ActionTile
-                                            switchId="teamRanking"
-                                            icon={Trophy}
-                                            title="Ranking de Equipo"
-                                            description="Leaderboard de ventas y desempeño del personal."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.teamRanking}
-                                            onSwitchChange={() => handleConfigToggle('teamRanking')}
-                                            iconColor="yellow-500"
-                                        />
-
-                                        <ActionTile
-                                            switchId="topProducts"
-                                            icon={Star}
-                                            title="Top Productos"
-                                            description="Análisis de los platos y bebidas más populares."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.topProducts}
-                                            onSwitchChange={() => handleConfigToggle('topProducts')}
-                                            iconColor="pink-500"
-                                        />
-
-                                        <ActionTile
-                                            switchId="costBreakdown"
-                                            icon={Activity}
-                                            title="Desglose de Costes"
-                                            description="Distribución de gastos fijos y variables."
-                                            rightContentType="switch"
-                                            switchChecked={dashboardConfig.costBreakdown}
-                                            onSwitchChange={() => handleConfigToggle('costBreakdown')}
-                                            iconColor="cyan-500"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </ScrollArea>
-                        
-                        <DialogFooter
-                            onCancel={() => setConfigOpen(false)}
-                            onConfirm={handleSaveConfig}
-                        />
-                    </DialogContent>
-                </Dialog>
+                <DashboardConfigDialog 
+                    open={configOpen}
+                    onOpenChange={setConfigOpen}
+                    config={dashboardConfig}
+                    onToggle={handleConfigToggle}
+                    onSave={handleSaveConfig}
+                />
             </PageContent>
-        </div>
+        </PageContainer>
     );
 }

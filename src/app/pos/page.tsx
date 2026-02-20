@@ -2,8 +2,9 @@
 import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Monitor, Settings, ExternalLink } from 'lucide-react';
@@ -51,7 +52,7 @@ export default function PosPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Punto de Venta (POS)" />
       <PageContent className="items-center justify-center">
         <Card className="w-full max-w-md text-center">
@@ -66,11 +67,11 @@ export default function PosPage() {
           </CardHeader>
           <CardContent className="pb-4">
             <div className="flex flex-col gap-3">
-              <Button size="lg" className="w-full" onClick={handleLaunchPOS}>
+              <Button size="md" className="w-full" onClick={handleLaunchPOS}>
                 <ExternalLink className="mr-2 h-5 w-5" />
                 Iniciar sesión en POS
               </Button>
-              <Button variant="outline" size="lg" className="w-full" onClick={() => setConfigOpen(true)}>
+              <Button variant="outline" size="md" className="w-full" onClick={() => setConfigOpen(true)}>
                 <Settings className="mr-2 h-5 w-5" />
                 Configurar POS
               </Button>
@@ -203,7 +204,7 @@ export default function PosPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </PageContainer>
+    );
 }
 

@@ -6,12 +6,14 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Card, CardHeader, CardContent, CardDescription } from '@/components/ui/card';
 import { ArrowRight, User, CreditCard, Bell, Printer, Percent, Clock } from 'lucide-react';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
+
 
 export default function SettingsPage() {
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Configuración" />
       <PageContent>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -99,7 +101,6 @@ export default function SettingsPage() {
           </Link>
         </div>
       </PageContent>
-    </div>
+    </PageContainer>
   );
 }
-

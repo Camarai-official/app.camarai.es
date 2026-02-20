@@ -147,15 +147,14 @@ export function ExportModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent size="lg">
         <DialogHeader
-          flush
           icon={Download}
           title={title}
           description={description}
         />
 
-        <ScrollArea className="max-h-[70vh]">
+        <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
             {/* Format Selection */}
             <div className="space-y-4">
@@ -256,7 +255,6 @@ export function ExportModal({
         </ScrollArea>
 
         <DialogFooter
-          flush
           hint="La exportación puede tardar unos segundos."
           onCancel={() => onOpenChange(false)}
           cancelText="Cancelar"

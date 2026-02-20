@@ -21,13 +21,14 @@ import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator"
 import { Hash } from "lucide-react";
 import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 
 // Templates for quick floor plan setup
 const floorPlanTemplates = [
@@ -822,7 +823,7 @@ export default function PlanoMesasPage() {
     if (!isMounted) return null;
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Plano de Mesas" />
             <PageContent>
                 <Tabs value={activeEnvironmentId} onValueChange={setActiveEnvironmentId} className="flex flex-col flex-grow">
@@ -1201,7 +1202,7 @@ export default function PlanoMesasPage() {
                     onApplyTemplate={applyTemplate}
                 />
             </PageContent>
-        </div>
+        </PageContainer>
     );
 }
 

@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/dialogs/global-alert-dialog';
 import { buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -21,9 +21,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContainer } from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -144,21 +145,24 @@ function CategoryDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col">
+      <DialogContent size="lg">
         <DialogHeader
           icon={SelectedIcon}
           title={`${category ? 'Editar' : 'Crear'} Categoría`}
           description="Configura los detalles de la categoría y gestiona los productos asignados."
         />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="apariencia">Apariencia</TabsTrigger>
-            <TabsTrigger value="productos">Productos</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <div className="px-6 bg-muted/20 border-b">
+            <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
+              <TabsTrigger value="general" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">General</TabsTrigger>
+              <TabsTrigger value="apariencia" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Apariencia</TabsTrigger>
+              <TabsTrigger value="productos" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Productos</TabsTrigger>
+            </TabsList>
+          </div>
 
-          <ScrollArea className="flex-1 mt-4 pr-4">
+          <ScrollArea className="flex-1">
+            <div className="p-6">
             {/* Tab General */}
             <TabsContent value="general" className="space-y-6 mt-0">
               <div className="space-y-2">
@@ -497,7 +501,7 @@ export default function CategoriasPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Librería de Categorías" />
       <PageContent>
         <Card className="min-h-[70vh]">
@@ -624,8 +628,8 @@ export default function CategoriasPage() {
         products={products}
         allCategories={categories}
       />
-    </div>
-  );
+    </PageContainer>
+    );
 }
 
 

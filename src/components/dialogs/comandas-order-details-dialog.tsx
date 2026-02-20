@@ -24,7 +24,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden bg-zinc-100 dark:bg-zinc-900 border-none shadow-2xl flex flex-col">
+      <DialogContent size="sm" className="bg-zinc-100 dark:bg-zinc-900 border-none">
         <DialogTitle className="sr-only">Detalles del Pedido</DialogTitle>
         <DialogDescription className="sr-only">Visualización detallada del ticket del pedido</DialogDescription>
         

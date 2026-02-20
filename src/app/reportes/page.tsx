@@ -19,8 +19,9 @@ import {
 import type { AbsenceRequest } from '@/data/mock-data';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import {
     allOrders,
     mockReportOrderDetails as mockOrderDetails,
@@ -33,8 +34,8 @@ import { PerformanceTab } from '@/components/ui/performance-tab';
 import { StaffTab } from '@/components/ui/staff-tab';
 import { InventoryTab } from '@/components/ui/inventory-tab';
 import { CashClosingTab } from '@/components/ui/cash-closing-tab';
-import { OrderDetailsDialog } from '@/components/ui/reportes-order-details-dialog';
-import { MovementsDetailsDialog } from '@/components/ui/movements-details-dialog';
+import { OrderDetailsDialog } from '@/components/dialogs/reportes-order-details-dialog';
+import { MovementsDetailsDialog } from '@/components/dialogs/movements-details-dialog';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -182,7 +183,7 @@ export default function ReportesPage() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Panel de Reportes & Cierre de Caja" />
             <PageContent>
                 <Tabs defaultValue="billing">
@@ -377,7 +378,7 @@ export default function ReportesPage() {
                 <OrderDetailsDialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen} order={selectedOrder} />
                 <MovementsDetailsDialog open={isMovementsOpen} onOpenChange={setIsMovementsOpen} />
             </PageContent>
-        </div>
+        </PageContainer>
     );
 }
 

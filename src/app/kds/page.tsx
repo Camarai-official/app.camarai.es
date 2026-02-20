@@ -2,8 +2,9 @@
 import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MonitorPlay, Settings, ExternalLink, Volume2 } from 'lucide-react';
@@ -57,7 +58,7 @@ export default function KdsPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Kitchen Display System (KDS)" />
       <PageContent className="items-center justify-center">
         <Card className="w-full max-w-md text-center">
@@ -72,11 +73,11 @@ export default function KdsPage() {
           </CardHeader>
           <CardContent className="pb-4">
             <div className="flex flex-col gap-3">
-              <Button size="lg" className="w-full" onClick={handleLaunchKDS}>
+              <Button size="md" className="w-full" onClick={handleLaunchKDS}>
                 <ExternalLink className="mr-2 h-5 w-5" />
                 Iniciar KDS
               </Button>
-              <Button variant="outline" size="lg" className="w-full" onClick={() => setConfigOpen(true)}>
+               <Button variant="outline" size="md" className="w-full" onClick={() => setConfigOpen(true)}>
                 <Settings className="mr-2 h-5 w-5" />
                 Configurar Pantallas
               </Button>
@@ -207,7 +208,7 @@ export default function KdsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </PageContainer>
+    );
 }
 

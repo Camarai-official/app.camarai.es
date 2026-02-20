@@ -55,7 +55,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger } from '@/components/ui/alert-dialog';
+    AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { Switch } from '@/components/ui/switch';
@@ -65,9 +65,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { SearchInput } from '@/components/ui/search-input';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 
 
 // Extended Product type with new fields
@@ -285,25 +286,26 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-4xl max-h-[90vh]">
+            <DialogContent>
                 <DialogHeader
                     icon={PlusCircle}
                     title={`${productToEdit ? 'Editar' : 'Crear'} Producto`}
                     description="Rellena los detalles. Los productos se añadirán a tu librería global para usarlos en las cartas."
                 />
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
-                        <TabsList className="inline-flex w-max sm:w-full sm:grid sm:grid-cols-5 p-1">
-                            <TabsTrigger value="general" className="px-4 sm:px-0">General</TabsTrigger>
-                            <TabsTrigger value="precios" className="px-4 sm:px-0">Precios</TabsTrigger>
-                            <TabsTrigger value="receta" className="px-4 sm:px-0">Receta</TabsTrigger>
-                            <TabsTrigger value="variantes" className="px-4 sm:px-0">Variantes</TabsTrigger>
-                            <TabsTrigger value="disponibilidad" className="px-4 sm:px-0">Disponibilidad</TabsTrigger>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+                    <div className="px-6 bg-muted/20 border-b">
+                        <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
+                            <TabsTrigger value="general" className="px-4 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">General</TabsTrigger>
+                            <TabsTrigger value="precios" className="px-4 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Precios</TabsTrigger>
+                            <TabsTrigger value="receta" className="px-4 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Receta</TabsTrigger>
+                            <TabsTrigger value="variantes" className="px-4 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Variantes</TabsTrigger>
+                            <TabsTrigger value="disponibilidad" className="px-4 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Disponibilidad</TabsTrigger>
                         </TabsList>
                     </div>
 
-                    <ScrollArea className="h-[50vh] mt-4 pr-4">
+                    <ScrollArea className="flex-1">
+                        <div className="p-6">
                         {/* Tab General */}
                         <TabsContent value="general" className="space-y-6 mt-0">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -621,6 +623,7 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                                 </div>
                             </div>
                         </TabsContent>
+                        </div>
                     </ScrollArea>
                 </Tabs>
 
@@ -724,7 +727,7 @@ export default function ProductosPage() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Librería de Productos" />
             <PageContent>
                 <Card className="min-h-[70vh]">
@@ -868,7 +871,7 @@ export default function ProductosPage() {
                 </Card>
             </PageContent>
             <ProductDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} productToEdit={editingProduct} onSave={handleSave} />
-        </div>
+        </PageContainer>
     );
 }
 

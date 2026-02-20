@@ -31,26 +31,37 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl overflow-hidden",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-2.5 opacity-70 transition-all hover:opacity-100 hover:bg-muted disabled:pointer-events-none text-muted-foreground">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { size?: 'sm' | 'md' | 'lg' | 'xl' | 'full' }
+>(({ className, children, size = 'xl', ...props }, ref) => {
+  const sizeClasses = {
+    sm: "sm:max-w-[425px] h-auto",
+    md: "sm:max-w-lg h-auto",
+    lg: "sm:max-w-2xl h-auto",
+    xl: "sm:max-w-4xl h-[90vh]",
+    full: "sm:max-w-[95vw] h-[95vh]",
+  }
+
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          "fixed left-[50%] top-[50%] z-50 flex flex-col w-full translate-x-[-50%] translate-y-[-50%] gap-0 border-none bg-background p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl overflow-hidden",
+          sizeClasses[size],
+          className
+        )}
+        {...props}
+      >
+        {children}
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-full p-2.5 opacity-70 transition-all hover:opacity-100 hover:bg-muted disabled:pointer-events-none text-muted-foreground z-10">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 interface DialogHeaderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
@@ -62,7 +73,7 @@ interface DialogHeaderProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   icon?: React.ElementType;
   /**
    * Set to true when the parent DialogContent has p-0 (no padding).
-   * Removes the negative margins that are normally used to "bleed" into the dialog padding.
+   * Note: As p-0 is now the default, flush defaults to true.
    */
   flush?: boolean;
 }
@@ -73,7 +84,7 @@ const DialogHeader = ({
   title,
   description,
   icon,
-  flush = false,
+  flush = true,
   ...props
 }: DialogHeaderProps) => {
   const hasSmartProps = title !== undefined;
@@ -81,7 +92,7 @@ const DialogHeader = ({
   return (
     <div
       className={cn(
-        "flex flex-col space-y-1.5 text-center sm:text-left border-b border-border/50 p-6 bg-muted/40",
+        "flex flex-col space-y-1.5 text-center sm:text-left border-b border-border/50 p-6 bg-muted/40 shrink-0",
         flush ? "mb-0" : "-mx-6 -mt-6 mb-6",
         className
       )}
@@ -117,7 +128,7 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   confirmDisabled?: boolean;
   /**
    * Set to true when the parent DialogContent has p-0 (no padding).
-   * Removes the negative margins that are normally used to "bleed" into the dialog padding.
+   * Note: As p-0 is now the default, flush defaults to true.
    */
   flush?: boolean;
 }
@@ -131,7 +142,7 @@ const DialogFooter = ({
   onConfirm,
   confirmText = "Guardar Cambios",
   confirmDisabled = false,
-  flush = false,
+  flush = true,
   ...props
 }: DialogFooterProps) => {
   const hasSmartProps = onCancel !== undefined || onConfirm !== undefined;
@@ -139,7 +150,7 @@ const DialogFooter = ({
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 bg-muted/40 border-t border-border/50 p-6",
+        "flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 bg-muted/20 border-t border-border/50 p-6 shrink-0",
         flush ? "mt-0" : "-mx-6 -mb-6 mt-6",
         className
       )}

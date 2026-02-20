@@ -20,7 +20,7 @@ import { cn } from '@/lib/utils';
 import { ActionTile } from '@/components/ui/action-tile';
 import { ConfigToggle, ConfigItem } from '@/components/ui/config-item';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -36,8 +36,10 @@ interface EnvironmentCardProps {
   onRemove: (id: string, name: string) => void;
   onOpenQR: (env: any) => void;
   calculateStats: (env: any) => {
+    totalTables: number;
     totalCapacity: number;
-    activeTables: number;
+    occupiedTables: number;
+    occupiedCapacity: number;
     occupancyPercentage: number;
   };
 }
@@ -211,31 +213,16 @@ export function EnvironmentCard({
         {/* Stats Grid with ActionTiles */}
         <div className="grid grid-cols-2 gap-3">
           <ActionTile
-            title={<span>{env.tables.length}</span>}
-             description="Mesas Totales"
-             icon={Utensils}
-             iconColor="green-500"
-             
+            title="Mesas"
+            description={`${stats.occupiedTables} de ${stats.totalTables}`}
+            icon={Utensils}
+            iconColor="green-500"
           />
           <ActionTile
-            title={<span>{stats.totalCapacity}</span>}
-             description="Aforo Total"
-             icon={Users}
-             iconColor="blue-500"
-          />
-
-          <ActionTile
-            title={<span>{env.tables.length}</span>}
-             description="Mesas Ocupadas"
-             icon={Utensils}
-             iconColor="green-500"
-             
-          />
-          <ActionTile
-            title={<span>{stats.totalCapacity}</span>}
-             description="Aforo Actual"
-             icon={Users}
-             iconColor="blue-500"
+            title="Aforo"
+            description={`${stats.occupiedCapacity} de ${stats.totalCapacity}`}
+            icon={Users}
+            iconColor="blue-500"
           />
         </div>
       </div>

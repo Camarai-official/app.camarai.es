@@ -28,11 +28,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger } from '@/components/ui/alert-dialog';
+  AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 
 export default function TaxesPage() {
   const [taxes, setTaxes] = React.useState<Tax[]>(mockTaxes);
@@ -95,7 +96,7 @@ export default function TaxesPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Gestión de Impuestos" />
       <PageContent>
         <Card>
@@ -187,7 +188,7 @@ export default function TaxesPage() {
           </CardContent>
         </Card>
       </PageContent>
-    </div>
-  );
+    </PageContainer>
+    );
 }
 

@@ -18,7 +18,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { mockMenuCombos, mockProducts, mockCategories, mockTaxes, MenuCombo, Product, Category, Tax, ElementoMenuCombo } from '@/data/mock-data';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 
 const emptyElement: Omit<ElementoMenuCombo, 'id' | 'tipo'> = {

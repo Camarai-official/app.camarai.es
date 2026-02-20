@@ -118,10 +118,9 @@ export function EditOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[850px] sm:h-[90vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
+      <DialogContent>
         {/* Header */}
         <DialogHeader
-          flush
           icon={Pencil}
           title={`Editar Comanda #${order.order}`}
           description="Gestiona los productos y detalles del servicio de forma eficiente."
@@ -279,7 +278,6 @@ export function EditOrderDialog({
 
         {/* Footer */}
         <DialogFooter
-          flush
           onCancel={() => onOpenChange(false)}
           cancelText="Cancelar"
           onConfirm={handleSave}

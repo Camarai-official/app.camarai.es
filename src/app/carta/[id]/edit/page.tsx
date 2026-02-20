@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { mockCartas, mockCategories, mockMenuCombos, Carta, MenuCombo, Category, ElementoCarta } from '@/data/mock-data';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
+import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 
 function EditCartaContent({ cartaId }: { cartaId: string }) {

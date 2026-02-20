@@ -36,15 +36,15 @@ export function ViewConfigDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
+      <DialogContent size="lg">
         <DialogHeader
           icon={Settings}
           title="Configurar Vista"
           description="Personaliza las columnas visibles y opciones de visualización de las comandas."
         />
 
-        <ScrollArea className="max-h-[60vh] -mx-6">
-          <div className="space-y-6 px-6 py-4">
+        <ScrollArea className="flex-1">
+          <div className="space-y-6 p-6">
             {/* Sección: Columnas */}
             <div className="space-y-4">
               <Label icon={LayoutGrid}>Columnas Visibles</Label>
@@ -144,15 +144,10 @@ export function ViewConfigDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter>
-          <p className="text-xs text-muted-foreground">Los cambios se aplicarán instantáneamente.</p>
-          <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => onOpenChange(false)}>Cerrar</Button>
-            <Button onClick={onSave} variant="default">
-              Guardar Cambios
-            </Button>
-          </div>
-        </DialogFooter>
+        <DialogFooter
+          onCancel={() => onOpenChange(false)}
+          onConfirm={onSave}
+        />
       </DialogContent>
     </Dialog>
   );

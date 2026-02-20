@@ -26,9 +26,9 @@ import {
 import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
 import { mockOrderDetails, mockOrderProducts, mockOrderTables, mockOrders } from '@/data/orders';
 import { exportFields, defaultViewConfig, type ViewConfig } from '@/app/comandas/_data/config';
-import { EditOrderDialog } from '@/components/ui/edit-order-dialog';
-import { OrderDetailsDialog } from '@/components/ui/comandas-order-details-dialog';
-import { ViewConfigDialog } from '@/components/ui/view-config-dialog';
+import { EditOrderDialog } from '@/components/dialogs/comandas-edit-order-dialog';
+import { OrderDetailsDialog } from '@/components/dialogs/comandas-order-details-dialog';
+import { ViewConfigDialog } from '@/components/dialogs/comandas-config-dialog';
 
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -47,15 +47,16 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from "@/components/dialogs/global-alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/ui/page-header';
-import { ExportModal } from '@/components/features/export-modal';
+import { PageHeader } from '@/components/layout/page-header';
+import { ExportModal } from '@/components/dialogs/comandas-export';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { SearchInput } from '@/components/ui/search-input';
 import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 
 export default function ComandasPage() {
     const { toast } = useToast();
@@ -235,7 +236,7 @@ export default function ComandasPage() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Historial de Pedidos" />
             <PageContent>
 
@@ -467,7 +468,7 @@ export default function ComandasPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </PageContainer>
     );
 }
 
