@@ -6,7 +6,7 @@ import { Settings, Hash, User, LayoutGrid, Clock, Wallet, Activity, ListOrdered 
 import type { ViewConfig } from '@/app/comandas/_data/config';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
@@ -36,14 +36,15 @@ export function ViewConfigDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg">
+      <DialogWindow size="md">
         <DialogHeader
           icon={Settings}
           title="Configurar Vista"
           description="Personaliza las columnas visibles y opciones de visualización de las comandas."
         />
 
-        <ScrollArea className="flex-1">
+        <DialogContent>
+          <ScrollArea className="h-full">
           <div className="space-y-6 p-6">
             {/* Sección: Columnas */}
             <div className="space-y-4">
@@ -142,13 +143,14 @@ export function ViewConfigDialog({
               </ConfigItem>
             </div>
           </div>
-        </ScrollArea>
+          </ScrollArea>
+        </DialogContent>
 
         <DialogFooter
           onCancel={() => onOpenChange(false)}
           onConfirm={onSave}
         />
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 }

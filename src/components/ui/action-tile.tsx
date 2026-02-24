@@ -169,32 +169,30 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
     if (!Icon) return null;
     
     const isLucideComponent = (typeof Icon === 'function' || (typeof Icon === 'object' && Icon !== null)) && !React.isValidElement(Icon);
-    const isTailwindColor = iconColor && !iconColor.startsWith('#');
+    const isHexColor = typeof iconColor === 'string' && iconColor.startsWith('#');
+    const isTailwindColor = iconColor && !isHexColor;
     
-    // Icon styles: Icon has the color, background is faded
-    const iconStyle = iconColor && !isTailwindColor ? { color: iconColor } : undefined;
-    const iconTailwindClass = isTailwindColor ? `text-${iconColor}` : 'text-primary';
+    // We apply the main color to the container. 
+    // This allows us to use 'currentColor' for both the icon and the background mix.
+    const containerClasses = cn(
+      "flex-shrink-0 h-10 w-10 rounded-xl transition-all duration-300 flex items-center justify-center",
+      "bg-[color-mix(in_srgb,currentColor,transparent_90%)]",
+      !iconColor && "text-primary",
+      isTailwindColor && `text-${iconColor}`
+    );
     
-    // Render the icon
+    const containerStyle = isHexColor ? { color: iconColor as string } : undefined;
+
+    // Render the icon content. If it's a Lucide component, it will naturally 
+    // inherit 'currentColor' which we've set on the parent div.
     const iconContent = isLucideComponent
       ? React.createElement(Icon as React.ElementType, { 
-          className: cn(
-            "h-5 w-5 transition-all duration-300",
-            iconTailwindClass
-          ),
-          style: iconStyle
+          className: "h-5 w-5 transition-all duration-300",
         })
       : Icon;
 
     return (
-      <div 
-        className={cn(
-          "flex-shrink-0 p-2 rounded-xl transition-all duration-300",
-          !iconColor && "bg-primary/10",
-          isTailwindColor && `bg-${iconColor}/20`
-        )}
-        style={iconColor && !isTailwindColor ? { backgroundColor: iconColor.startsWith('#') ? `${iconColor}33` : undefined } : undefined}
-      >
+      <div className={containerClasses} style={containerStyle}>
         {iconContent}
       </div>
     );
@@ -235,7 +233,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             onValueChange={selectProps.onSelectChange}
             disabled={disabled}
           >
-            <SelectTrigger className="w-[180px] h-9 border-none bg-muted/50 text-xs">
+            <SelectTrigger className="w-full min-w-0 h-10 border-none bg-muted/50 text-xs">
               <SelectValue placeholder={selectProps.selectPlaceholder} />
             </SelectTrigger>
             <SelectContent>
@@ -373,7 +371,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
         ref={ref}
         onClick={onClick}
         className={cn(
-          "flex items-center p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
+          "flex flex-1 items-center p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
           disabled && "opacity-50 cursor-not-allowed",
           onClick && "cursor-pointer",
           className
@@ -414,7 +412,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
+        "flex flex-1 flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3 min-w-0",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className
@@ -436,7 +434,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       </div>
 
       {/* Right Side: Dynamic Content */}
-      <div className="flex items-center gap-2 justify-end sm:ml-4 sm:flex-none">
+      <div className="flex items-center gap-2 justify-end sm:ml-4 min-w-0">
         {renderRightContent()}
       </div>
     </div>

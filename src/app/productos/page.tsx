@@ -13,6 +13,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, ChevronLeft, ChevronRight, Package } from 'lucide-react';
 import {
     Dialog,
+    DialogWindow,
     DialogContent,
     DialogFooter,
     DialogHeader,
@@ -286,14 +287,15 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogWindow size="lg" className="max-h-[90vh]">
                 <DialogHeader
                     icon={PlusCircle}
                     title={`${productToEdit ? 'Editar' : 'Crear'} Producto`}
                     description="Rellena los detalles. Los productos se añadirán a tu librería global para usarlos en las cartas."
                 />
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+                <DialogContent>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
                     <div className="px-6 bg-muted/20 border-b">
                         <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
                             <TabsTrigger value="general" className="px-4 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">General</TabsTrigger>
@@ -625,13 +627,14 @@ function ProductDialog({ open, onOpenChange, productToEdit, onSave }: { open: bo
                         </TabsContent>
                         </div>
                     </ScrollArea>
-                </Tabs>
+                    </Tabs>
+                </DialogContent>
 
                 <DialogFooter>
                     <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
                     <Button variant="default" onClick={handleSaveClick}>Guardar Producto</Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     )
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogClose, DialogFooter } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogHeader, DialogClose, DialogFooter } from '@/components/layout/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,13 +15,13 @@ type MovementsDetailsDialogProps = {
 export function MovementsDetailsDialog({ open, onOpenChange }: MovementsDetailsDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-lg">
+            <DialogWindow size="md">
                 <DialogHeader
                     icon={ArrowLeftRight}
                     title="Movimientos Detallados del Turno"
                     description="Aquí se muestra un desglose de todas las transacciones del día."
                 />
-                <div className="max-h-[60vh] overflow-y-auto">
+                <DialogContent className="p-6">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -47,13 +47,13 @@ export function MovementsDetailsDialog({ open, onOpenChange }: MovementsDetailsD
                             ))}
                         </TableBody>
                     </Table>
-                </div>
+                </DialogContent>
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="ghost">Cerrar</Button>
                     </DialogClose>
                 </DialogFooter>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

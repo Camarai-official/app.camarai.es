@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Settings, Activity, Users, Clock, Calendar, AlertCircle, Smartphone } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -31,14 +31,14 @@ export function PersonalConfigDialog({
 }: PersonalConfigDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
+            <DialogWindow size="sm">
                 <DialogHeader
                     icon={Settings}
                     title="Configurar Vista Personal"
                     description="Personaliza qué secciones quieres ver en tu panel de gestión de equipo."
                 />
-
-                <div className="space-y-4 py-4 px-6">
+                <DialogContent className="p-6">
+                    <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
@@ -116,14 +116,15 @@ export function PersonalConfigDialog({
                         </div>
                         <Switch checked={config.fichaje} onCheckedChange={() => onToggle('fichaje')} />
                     </div>
-                </div>
+                    </div>
+                </DialogContent>
 
                 <DialogFooter>
                     <Button variant="default" className="w-full" onClick={() => onOpenChange(false)}>
                         Cerrar y Guardar
                     </Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

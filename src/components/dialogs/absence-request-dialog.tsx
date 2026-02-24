@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,14 +31,15 @@ export function AbsenceRequestDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="md">
-                <DialogHeader
-                    icon={Calendar}
-                    title="Registrar Solicitud de Ausencia"
-                    description="Crea una nueva solicitud de vacaciones o baja para un empleado."
-                />
-                
-                <form onSubmit={handleSubmit} className="space-y-4 pt-4 px-6">
+            <DialogWindow size="md">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                    <DialogHeader
+                        icon={Calendar}
+                        title="Registrar Solicitud de Ausencia"
+                        description="Crea una nueva solicitud de vacaciones o baja para un empleado."
+                    />
+                    
+                    <DialogContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="staffId">Empleado</Label>
                         <Select name="staffId" required>
@@ -78,12 +79,14 @@ export function AbsenceRequestDialog({
                         <Input name="reason" placeholder="Opcional" />
                     </div>
 
+                    </DialogContent>
+
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
                         <Button type="submit">Enviar Solicitud</Button>
                     </DialogFooter>
                 </form>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

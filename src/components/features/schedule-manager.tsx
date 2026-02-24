@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Calendar, CalendarDays, Download, FileSpread
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -127,14 +127,15 @@ function ShiftEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogWindow>
         <DialogHeader
           icon={shift ? Edit2 : Plus}
           title={shift ? 'Editar Turno' : 'Nuevo Turno'}
           description={format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
         />
 
-        <div className="grid gap-4 py-4">
+        <DialogContent className="p-6">
+          <div className="grid gap-4">
           <div className="grid gap-2">
             <Label>Empleado</Label>
             <Select value={formData.staffId} onValueChange={(v) => setFormData(p => ({ ...p, staffId: v }))}>
@@ -182,6 +183,7 @@ function ShiftEditorDialog({
             />
           </div>
         </div>
+        </DialogContent>
 
         <DialogFooter>
           {shift && onDelete && (
@@ -197,7 +199,7 @@ function ShiftEditorDialog({
             Guardar
           </Button>
         </DialogFooter>
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 }

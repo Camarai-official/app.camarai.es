@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield, Building2, Upload, FileDown, Eye, EyeOff, Check, X } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -214,14 +214,15 @@ export function EmployeeDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogWindow size="xl">
                 <DialogHeader
                     icon={User}
                     title={`${employeeToEdit ? 'Editar' : 'Añadir'} Empleado`}
                     description="Configura todos los datos del empleado organizados por secciones."
                 />
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+                <DialogContent>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
                     <div className="px-6 bg-muted/20 border-b">
                         <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
                             <TabsTrigger value="datos" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1"><User className="h-3 w-3 mr-1" />Datos</TabsTrigger>
@@ -622,7 +623,8 @@ export function EmployeeDialog({
                         </TabsContent>
                         </div>
                     </ScrollArea>
-                </Tabs>
+                    </Tabs>
+                </DialogContent>
 
                 <DialogFooter>
                     <DialogClose asChild>
@@ -630,7 +632,7 @@ export function EmployeeDialog({
                     </DialogClose>
                     <Button variant="default" onClick={handleSave}>Guardar Empleado</Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

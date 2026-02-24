@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -257,71 +257,75 @@ export function IntegrationsTab() {
             
             {/* Configuration Dialog */}
             <Dialog open={configDialogOpen} onOpenChange={setConfigDialogOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogWindow size="md">
                     <DialogHeader
                         icon={Settings}
                         title={`Configurar ${selectedIntegration?.name}`}
                         description="Configura los ajustes de esta integración."
                     />
                     
-                    {selectedIntegration?.id === 'whatsapp' && (
-                        <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="wa-phone">Número de teléfono</Label>
-                                <Input 
-                                    id="wa-phone"
-                                    placeholder="+34 612 345 678"
-                                    value={configForm.phone || ''}
-                                    onChange={(e) => setConfigForm(prev => ({ ...prev, phone: e.target.value }))}
-                                />
-                            </div>
-                            <div className="space-y-3">
-                                <Label>Notificaciones</Label>
-                                <div className="flex items-center gap-2">
-                                    <Checkbox 
-                                        id="wa-reservations"
-                                        checked={configForm.notifyReservations}
-                                        onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, notifyReservations: c }))}
-                                    />
-                                    <Label htmlFor="wa-reservations" className="font-normal">Notificar reservas</Label>
+                    <DialogContent className="p-6">
+                        <div className="space-y-4">
+                            {selectedIntegration?.id === 'whatsapp' && (
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="wa-phone">Número de teléfono</Label>
+                                        <Input 
+                                            id="wa-phone"
+                                            placeholder="+34 612 345 678"
+                                            value={configForm.phone || ''}
+                                            onChange={(e) => setConfigForm(prev => ({ ...prev, phone: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <Label>Notificaciones</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox 
+                                                id="wa-reservations"
+                                                checked={configForm.notifyReservations}
+                                                onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, notifyReservations: c }))}
+                                            />
+                                            <Label htmlFor="wa-reservations" className="font-normal">Notificar reservas</Label>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Checkbox 
+                                                id="wa-orders"
+                                                checked={configForm.notifyOrders}
+                                                onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, notifyOrders: c }))}
+                                            />
+                                            <Label htmlFor="wa-orders" className="font-normal">Notificar pedidos</Label>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <Checkbox 
-                                        id="wa-orders"
-                                        checked={configForm.notifyOrders}
-                                        onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, notifyOrders: c }))}
-                                    />
-                                    <Label htmlFor="wa-orders" className="font-normal">Notificar pedidos</Label>
+                            )}
+                            
+                            {selectedIntegration?.id === 'google' && (
+                                <div className="space-y-4 py-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="google-calendar">ID del Calendario</Label>
+                                        <Input 
+                                            id="google-calendar"
+                                            placeholder="ejemplo@group.calendar.google.com"
+                                            value={configForm.calendarId || ''}
+                                            onChange={(e) => setConfigForm(prev => ({ ...prev, calendarId: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Checkbox 
+                                            id="google-autosync"
+                                            checked={configForm.autoSync}
+                                            onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, autoSync: c }))}
+                                        />
+                                        <Label htmlFor="google-autosync" className="font-normal">Sincronización automática</Label>
+                                    </div>
+                                    <Button variant="outline" className="w-full">
+                                        <ExternalLink className="mr-2 h-4 w-4" />
+                                        Conectar con Google
+                                    </Button>
                                 </div>
-                            </div>
+                            )}
                         </div>
-                    )}
-                    
-                    {selectedIntegration?.id === 'google' && (
-                        <div className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="google-calendar">ID del Calendario</Label>
-                                <Input 
-                                    id="google-calendar"
-                                    placeholder="ejemplo@group.calendar.google.com"
-                                    value={configForm.calendarId || ''}
-                                    onChange={(e) => setConfigForm(prev => ({ ...prev, calendarId: e.target.value }))}
-                                />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Checkbox 
-                                    id="google-autosync"
-                                    checked={configForm.autoSync}
-                                    onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, autoSync: c }))}
-                                />
-                                <Label htmlFor="google-autosync" className="font-normal">Sincronización automática</Label>
-                            </div>
-                            <Button variant="outline" className="w-full">
-                                <ExternalLink className="mr-2 h-4 w-4" />
-                                Conectar con Google
-                            </Button>
-                        </div>
-                    )}
+                    </DialogContent>
                     
                     <DialogFooter>
                         <Button variant="ghost" onClick={() => setConfigDialogOpen(false)}>Cancelar</Button>
@@ -329,7 +333,7 @@ export function IntegrationsTab() {
                             Guardar configuración
                         </Button>
                     </DialogFooter>
-                </DialogContent>
+                </DialogWindow>
             </Dialog>
         </TabsContent>
     );

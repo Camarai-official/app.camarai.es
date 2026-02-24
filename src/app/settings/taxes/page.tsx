@@ -8,6 +8,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, ArrowLeft, Banknote } from 'lucide-react';
 import {
   Dialog,
+  DialogWindow,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -109,13 +110,14 @@ export default function TaxesPage() {
                   Añadir Impuesto
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogWindow size="md">
                 <DialogHeader
                   icon={Banknote}
                   title={`${editingTax ? 'Editar' : 'Crear'} Impuesto`}
                   description="Define un nuevo tipo impositivo para tus productos."
                 />
-                <div className="py-4 space-y-4">
+                <DialogContent>
+                  <div className="space-y-4 p-6">
                   <div>
                     <Label htmlFor="tax-name">Nombre del Impuesto</Label>
                     <Input id="tax-name" value={taxName} onChange={(e) => setTaxName(e.target.value)} placeholder="Ej: IVA General, Tasa Turística..." />
@@ -124,12 +126,13 @@ export default function TaxesPage() {
                     <Label htmlFor="tax-rate">Porcentaje (%)</Label>
                     <Input id="tax-rate" type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} placeholder="Ej: 21" />
                   </div>
-                </div>
+                  </div>
+                </DialogContent>
                 <DialogFooter>
                   <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
                   <Button variant="default" onClick={handleSave}>Guardar Impuesto</Button>
                 </DialogFooter>
-              </DialogContent>
+              </DialogWindow>
             </Dialog>
           </CardHeader>
           <CardContent className="p-0 sm:p-6">

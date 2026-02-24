@@ -39,7 +39,12 @@ export function CalendarDateRangePicker({
     ...props
 }: CalendarDateRangePickerProps) {
     const [open, setOpen] = React.useState(false)
+    const [mounted, setMounted] = React.useState(false)
     const [internalDate, setInternalDate] = React.useState<DateRange | undefined>()
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
 
     // Use props if provided, otherwise internal state
     const selectedDate = date !== undefined ? date : internalDate
@@ -56,12 +61,30 @@ export function CalendarDateRangePicker({
         }
     }
 
+    // Return a simplified version for SSR/initial hydration to avoid ARIA mismatches
+    if (!mounted) {
+        return (
+            <div className={cn("grid gap-2", className)} {...props}>
+                <Button
+                    variant={"outline"}
+                    size="md"
+                    className={cn(
+                        "justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                    )}
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {placeholder}
+                </Button>
+            </div>
+        )
+    }
+
     return (
         <div className={cn("grid gap-2", className)} {...props}>
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
-                        id="date"
                         variant={"outline"}
                         size="md"
                         className={cn(

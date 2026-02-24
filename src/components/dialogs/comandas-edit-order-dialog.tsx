@@ -19,7 +19,7 @@ import type { OrderDetails, OrderDetailItem } from '@/types/orders';
 import type { OrderProduct } from '@/data/orders';
 
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogFooter } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogHeader, DialogContent, DialogFooter } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -118,7 +118,7 @@ export function EditOrderDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogWindow>
         {/* Header */}
         <DialogHeader
           icon={Pencil}
@@ -126,8 +126,7 @@ export function EditOrderDialog({
           description="Gestiona los productos y detalles del servicio de forma eficiente."
         />
 
-        {/* Main Body */}
-        <div className="flex-1 flex overflow-hidden">
+        <DialogContent className="flex-row">
           
           {/* Left Column (Items) */}
           <div className="flex-[7] flex flex-col border-r">
@@ -274,7 +273,7 @@ export function EditOrderDialog({
               </div>
             </ScrollArea>
           </div>
-        </div>
+        </DialogContent>
 
         {/* Footer */}
         <DialogFooter
@@ -283,7 +282,7 @@ export function EditOrderDialog({
           onConfirm={handleSave}
           confirmText="Guardar Cambios"
         />
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 }

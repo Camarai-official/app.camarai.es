@@ -203,11 +203,11 @@ export function EnvironmentCard({
         {/* Occupancy Section */}
         <ActionTile
           icon={Percent}
-          iconColor="primary"
+          iconColor="foreground"
           title="Ocupación"
           rightContentType="progress"
           progressValue={stats.occupancyPercentage}
-          progressIndicatorClassName="bg-primary"
+          progressIndicatorClassName="bg-muted-foreground"
         />
 
         {/* Stats Grid with ActionTiles */}
@@ -216,13 +216,13 @@ export function EnvironmentCard({
             title="Mesas"
             description={`${stats.occupiedTables} de ${stats.totalTables}`}
             icon={Utensils}
-            iconColor="green-500"
+            iconColor="foreground"
           />
           <ActionTile
             title="Aforo"
             description={`${stats.occupiedCapacity} de ${stats.totalCapacity}`}
             icon={Users}
-            iconColor="blue-500"
+            iconColor="foreground"
           />
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { MessageSquare, Bell, Clock, X } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -52,14 +52,15 @@ export function WhatsAppNotificationsDialog({ open, onOpenChange }: WhatsAppNoti
     
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="lg">
+            <DialogWindow size="lg">
                 <DialogHeader
                     icon={MessageSquare}
                     title="Notificaciones WhatsApp"
                     description="Configura los mensajes automáticos para las reservas."
                 />
                 
-                <Tabs defaultValue="config" className="flex-1 flex flex-col overflow-hidden">
+                <DialogContent>
+                    <Tabs defaultValue="config" className="flex-1 flex flex-col overflow-hidden">
                     <div className="px-6 border-b">
                         <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
                             <TabsTrigger value="config" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Configuración</TabsTrigger>
@@ -192,13 +193,14 @@ export function WhatsAppNotificationsDialog({ open, onOpenChange }: WhatsAppNoti
                             </TabsContent>
                         </div>
                     </ScrollArea>
-                </Tabs>
+                    </Tabs>
+                </DialogContent>
                 
                 <DialogFooter>
                     <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
                     <Button onClick={handleSave}>Guardar Configuración</Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

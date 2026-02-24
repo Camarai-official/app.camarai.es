@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Settings, TrendingUp, LineChart, BarChart, ShoppingBag, AlertTriangle, LayoutGrid, Users, Trophy, Star, Activity } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { ActionTile } from '@/components/ui/action-tile';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -38,14 +38,15 @@ export function DashboardConfigDialog({
 }: DashboardConfigDialogProps) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="lg">
+            <DialogWindow size="md">
                 <DialogHeader
                     icon={Settings}
                     title="Configurar Dashboard"
                     description="Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión."
                 />
                 
-                <ScrollArea className="flex-1">
+                <DialogContent className="h-[60vh]">
+                    <ScrollArea className="h-full">
                     <div className="space-y-6 p-6">
                         {/* Sección: Análisis de Ventas */}
                         <div className="space-y-4">
@@ -167,13 +168,14 @@ export function DashboardConfigDialog({
                             </div>
                         </div>
                     </div>
-                </ScrollArea>
+                    </ScrollArea>
+                </DialogContent>
                 
                 <DialogFooter
                     onCancel={() => onOpenChange(false)}
                     onConfirm={onSave}
                 />
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

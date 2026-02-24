@@ -125,7 +125,6 @@ export default function Home() {
     }, []);
 
     const [label, setLabel] = React.useState<string>('Últimos 7 días');
-    const [popoverOpen, setPopoverOpen] = React.useState(false);
 
     // Dashboard configuration state
     const [configOpen, setConfigOpen] = React.useState(false);

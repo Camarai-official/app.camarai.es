@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/dialogs/global-alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -219,131 +219,133 @@ export function ProvidersTab() {
             
             {/* Provider Dialog */}
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-xl">
+                <DialogWindow size="lg">
                     <DialogHeader
                         icon={Building2}
                         title={editingProvider ? 'Editar Proveedor' : 'Nuevo Proveedor'}
                         description={editingProvider ? 'Modifica los datos del proveedor.' : 'Añade un nuevo proveedor a tu lista.'}
                     />
                     
-                    <Tabs defaultValue="datos" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="datos">Datos</TabsTrigger>
-                            <TabsTrigger value="condiciones">Condiciones</TabsTrigger>
-                        </TabsList>
-                        
-                        <InnerTabsContent value="datos" className="space-y-4 mt-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="providerName">Nombre *</Label>
-                                    <Input 
-                                        id="providerName"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                        placeholder="Nombre de la empresa"
-                                    />
+                    <DialogContent className="p-6">
+                        <Tabs defaultValue="datos" className="w-full">
+                            <TabsList className="grid w-full grid-cols-2">
+                                <TabsTrigger value="datos">Datos</TabsTrigger>
+                                <TabsTrigger value="condiciones">Condiciones</TabsTrigger>
+                            </TabsList>
+                            
+                            <InnerTabsContent value="datos" className="space-y-4 mt-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="providerName">Nombre *</Label>
+                                        <Input 
+                                            id="providerName"
+                                            value={formData.name}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                            placeholder="Nombre de la empresa"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="providerNif">NIF</Label>
+                                        <Input 
+                                            id="providerNif"
+                                            value={formData.nif}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, nif: e.target.value.toUpperCase() }))}
+                                            placeholder="B12345678"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="providerContact">Persona de Contacto</Label>
+                                        <Input 
+                                            id="providerContact"
+                                            value={formData.contactName}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                                            placeholder="Nombre del contacto"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="providerCategory">Categoría</Label>
+                                        <Select 
+                                            value={formData.category} 
+                                            onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}
+                                        >
+                                            <SelectTrigger id="providerCategory">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {providerCategories.map(cat => (
+                                                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="providerEmail">Email *</Label>
+                                        <Input 
+                                            id="providerEmail"
+                                            type="email"
+                                            value={formData.email}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                                            placeholder="email@proveedor.com"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="providerPhone">Teléfono</Label>
+                                        <Input 
+                                            id="providerPhone"
+                                            value={formData.phone}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                                            placeholder="+34 912 345 678"
+                                        />
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="providerNif">NIF</Label>
+                                    <Label htmlFor="providerAddress">Dirección</Label>
                                     <Input 
-                                        id="providerNif"
-                                        value={formData.nif}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, nif: e.target.value.toUpperCase() }))}
-                                        placeholder="B12345678"
+                                        id="providerAddress"
+                                        value={formData.address}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                                        placeholder="Dirección completa"
                                     />
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            </InnerTabsContent>
+                            
+                            <InnerTabsContent value="condiciones" className="space-y-4 mt-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="providerContact">Persona de Contacto</Label>
-                                    <Input 
-                                        id="providerContact"
-                                        value={formData.contactName}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                                        placeholder="Nombre del contacto"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="providerCategory">Categoría</Label>
+                                    <Label htmlFor="providerPayment">Días de Pago</Label>
                                     <Select 
-                                        value={formData.category} 
-                                        onValueChange={(v) => setFormData(prev => ({ ...prev, category: v }))}
+                                        value={formData.paymentTerms} 
+                                        onValueChange={(v) => setFormData(prev => ({ ...prev, paymentTerms: v }))}
                                     >
-                                        <SelectTrigger id="providerCategory">
+                                        <SelectTrigger id="providerPayment">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {providerCategories.map(cat => (
-                                                <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-                                            ))}
+                                            <SelectItem value="0">Pago inmediato</SelectItem>
+                                            <SelectItem value="15">15 días</SelectItem>
+                                            <SelectItem value="30">30 días</SelectItem>
+                                            <SelectItem value="45">45 días</SelectItem>
+                                            <SelectItem value="60">60 días</SelectItem>
+                                            <SelectItem value="90">90 días</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="providerEmail">Email *</Label>
-                                    <Input 
-                                        id="providerEmail"
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                                        placeholder="email@proveedor.com"
+                                    <Label htmlFor="providerNotes">Notas</Label>
+                                    <Textarea 
+                                        id="providerNotes"
+                                        value={formData.notes}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                                        placeholder="Información adicional sobre el proveedor, horarios de entrega, etc."
+                                        rows={4}
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="providerPhone">Teléfono</Label>
-                                    <Input 
-                                        id="providerPhone"
-                                        value={formData.phone}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                                        placeholder="+34 912 345 678"
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="providerAddress">Dirección</Label>
-                                <Input 
-                                    id="providerAddress"
-                                    value={formData.address}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                                    placeholder="Dirección completa"
-                                />
-                            </div>
-                        </InnerTabsContent>
-                        
-                        <InnerTabsContent value="condiciones" className="space-y-4 mt-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="providerPayment">Días de Pago</Label>
-                                <Select 
-                                    value={formData.paymentTerms} 
-                                    onValueChange={(v) => setFormData(prev => ({ ...prev, paymentTerms: v }))}
-                                >
-                                    <SelectTrigger id="providerPayment">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="0">Pago inmediato</SelectItem>
-                                        <SelectItem value="15">15 días</SelectItem>
-                                        <SelectItem value="30">30 días</SelectItem>
-                                        <SelectItem value="45">45 días</SelectItem>
-                                        <SelectItem value="60">60 días</SelectItem>
-                                        <SelectItem value="90">90 días</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="providerNotes">Notas</Label>
-                                <Textarea 
-                                    id="providerNotes"
-                                    value={formData.notes}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-                                    placeholder="Información adicional sobre el proveedor, horarios de entrega, etc."
-                                    rows={4}
-                                />
-                            </div>
-                        </InnerTabsContent>
-                    </Tabs>
+                            </InnerTabsContent>
+                        </Tabs>
+                    </DialogContent>
                     
                     <DialogFooter>
                         <Button variant="ghost" onClick={handleCloseDialog}>Cancelar</Button>
@@ -351,7 +353,7 @@ export function ProvidersTab() {
                             {editingProvider ? 'Guardar Cambios' : 'Añadir Proveedor'}
                         </Button>
                     </DialogFooter>
-                </DialogContent>
+                </DialogWindow>
             </Dialog>
             
             {/* Delete Confirmation */}

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import {
   Dialog,
+  DialogWindow,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -147,14 +148,15 @@ export function ExportModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="lg">
+      <DialogWindow size="lg">
         <DialogHeader
           icon={Download}
           title={title}
           description={description}
         />
 
-        <ScrollArea className="flex-1">
+        <DialogContent>
+          <ScrollArea className="h-full">
           <div className="p-6 space-y-8">
             {/* Format Selection */}
             <div className="space-y-4">
@@ -252,7 +254,8 @@ export function ExportModal({
               />
             )}
           </div>
-        </ScrollArea>
+          </ScrollArea>
+        </DialogContent>
 
         <DialogFooter
           hint="La exportación puede tardar unos segundos."
@@ -262,7 +265,7 @@ export function ExportModal({
           confirmText={isExporting ? "Generando..." : "Comenzar Exportación"}
           confirmDisabled={isExporting}
         />
-      </DialogContent>
+      </DialogWindow>
     </Dialog>
   );
 }

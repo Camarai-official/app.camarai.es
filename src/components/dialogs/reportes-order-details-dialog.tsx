@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { FileText } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogHeader } from '@/components/layout/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -26,12 +26,13 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md">
+            <DialogWindow size="md">
                 <DialogHeader
                     icon={FileText}
                     title={`Detalles de la Comanda #${order.order}`}
                     description={`Realizada a las ${order.time} para ${order.name}.`}
                 />
+                <DialogContent className="p-6">
                 <div className="space-y-4">
                     <div className="flex justify-between items-center text-sm">
                         <span className="text-muted-foreground">Mesa: <span className="font-bold text-foreground">{order.table}</span></span>
@@ -74,7 +75,8 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                         </div>
                     </div>
                 </div>
-            </DialogContent>
+                </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

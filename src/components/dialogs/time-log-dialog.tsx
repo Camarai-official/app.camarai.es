@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Clock, Edit } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,16 +36,17 @@ export function TimeLogDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="md">
-                <DialogHeader
-                    icon={isEditing ? Edit : Clock}
-                    title={isEditing ? "Editar Registro de Fichaje" : "Registrar Fichaje Manual"}
-                    description={isEditing 
-                        ? "Modifica la fecha, hora o acción del registro." 
-                        : "Añadir un registro de tiempo manualmente."}
-                />
-                
-                <form onSubmit={handleSubmit} className="space-y-4 pt-4 px-6">
+            <DialogWindow size="md">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                    <DialogHeader
+                        icon={isEditing ? Edit : Clock}
+                        title={isEditing ? "Editar Registro de Fichaje" : "Registrar Fichaje Manual"}
+                        description={isEditing 
+                            ? "Modifica la fecha, hora o acción del registro." 
+                            : "Añadir un registro de tiempo manualmente."}
+                    />
+                    
+                    <DialogContent className="space-y-4">
                     {isEditing ? (
                         <div className="space-y-2">
                             <Label>Empleado</Label>
@@ -103,12 +104,14 @@ export function TimeLogDialog({
                         </Select>
                     </div>
 
+                    </DialogContent>
+
                     <DialogFooter>
                         <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
                         <Button type="submit">{isEditing ? 'Guardar Cambios' : 'Guardar Registro'}</Button>
                     </DialogFooter>
                 </form>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

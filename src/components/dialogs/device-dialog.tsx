@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Tablet, Monitor, Smartphone } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,13 +47,14 @@ export function DeviceDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="md">
-                <DialogHeader
-                    icon={Tablet}
-                    title={`${editingDevice ? 'Editar' : 'Añadir'} Dispositivo`}
-                    description="Configura los parámetros del dispositivo de fichaje."
-                />
-                <form onSubmit={handleSubmit} className="space-y-4 py-4 px-6">
+            <DialogWindow size="md">
+                <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                    <DialogHeader
+                        icon={Tablet}
+                        title={`${editingDevice ? 'Editar' : 'Añadir'} Dispositivo`}
+                        description="Configura los parámetros del dispositivo de fichaje."
+                    />
+                    <DialogContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="nombre">Nombre del dispositivo</Label>
                         <Input id="nombre" name="nombre" defaultValue={editingDevice?.nombre || ''} placeholder="Ej: Tablet Entrada" required />
@@ -91,12 +92,13 @@ export function DeviceDialog({
                         </div>
                         <Checkbox name="modo_offline" defaultChecked={editingDevice?.modo_offline ?? true} />
                     </div>
+                    </DialogContent>
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
                         <Button type="submit">Guardar</Button>
                     </DialogFooter>
                 </form>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }

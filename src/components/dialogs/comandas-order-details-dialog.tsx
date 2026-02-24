@@ -7,7 +7,7 @@ import type { OrderDetails } from '@/types/orders';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/layout/dialog';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
@@ -24,11 +24,10 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent size="sm" className="bg-zinc-100 dark:bg-zinc-900 border-none">
-        <DialogTitle className="sr-only">Detalles del Pedido</DialogTitle>
-        <DialogDescription className="sr-only">Visualización detallada del ticket del pedido</DialogDescription>
+      <DialogWindow size="sm" className="bg-zinc-100 dark:bg-zinc-900 border-none">
+        <DialogHeader className="sr-only" title="Detalles del Pedido" description="Visualización detallada del ticket del pedido" />
         
-        <div className="flex-1 overflow-y-auto pt-6">
+        <DialogContent>
           <div className="bg-foreground text-black p-6 font-mono text-sm shadow-sm relative m-4 mb-10 rounded-sm">
             {/* Ticket Header */}
             <div className="text-center mb-6">
@@ -107,10 +106,9 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
               bottom: '-10px'
             }} />
           </div>
-        </div>
+        </DialogContent>
 
-        {/* Action Buttons (fixed at bottom, corrected implementation) */}
-        <div className="p-6 bg-zinc-100 dark:bg-zinc-900 border-t flex gap-3">
+        <DialogFooter className="p-6 bg-zinc-100 dark:bg-zinc-900 border-t flex gap-3">
           <Button 
             variant="default" 
             className="flex-1 rounded-xl h-11 shadow-lg shadow-primary/10" 
@@ -127,8 +125,8 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
           >
             Editar
           </Button>
-        </div>
-      </DialogContent>
+        </DialogFooter>
+      </DialogWindow>
     </Dialog>
   );
 }

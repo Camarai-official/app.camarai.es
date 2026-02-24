@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Calendar } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
+import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -108,13 +108,14 @@ export function ReservationDialog({
     
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="md">
+            <DialogWindow size="md">
                 <DialogHeader
                     icon={Calendar}
                     title={isEditing ? 'Editar Reserva' : 'Añadir Nueva Reserva'}
                     description={isEditing ? 'Modifica los datos de la reserva.' : 'Introduce los datos para crear una reserva manualmente.'}
                 />
-                <div className="grid gap-4 py-4 px-6">
+                <DialogContent>
+                    <div className="grid gap-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="customerName">Nombre del Cliente</Label>
@@ -178,12 +179,13 @@ export function ReservationDialog({
                         <Label htmlFor="notes">Notas (Opcional)</Label>
                         <Textarea id="notes" placeholder="Alergias, preferencias de mesa, celebración, etc." value={reservation.notes} onChange={e => setReservation(p => ({...p, notes: e.target.value}))}/>
                     </div>
-                </div>
+                    </div>
+                </DialogContent>
                 <DialogFooter>
                     <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
                     <Button variant="default" onClick={handleSave}>{isEditing ? 'Guardar Cambios' : 'Crear Reserva'}</Button>
                 </DialogFooter>
-            </DialogContent>
+            </DialogWindow>
         </Dialog>
     );
 }
