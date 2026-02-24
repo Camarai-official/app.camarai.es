@@ -52,7 +52,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
-import { ExportModal } from '@/components/dialogs/comandas-export';
+import { ExportModal } from '@/components/dialogs/comandas-export-dialog';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { SearchInput } from '@/components/ui/search-input';
 import { PageContent } from '@/components/layout/page-content';

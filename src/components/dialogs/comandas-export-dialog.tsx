@@ -170,10 +170,10 @@ export function ExportModal({
                     title={formatLabels[format]}
                     onClick={() => setSelectedFormat(format)}
                     className={cn(
-                      "transition-all duration-300 p-2",
+                      "transition-all duration-300",
                       selectedFormat === format 
                         ? "border-primary bg-primary/5 ring-1 ring-primary/20" 
-                        : "border-border/50 bg-muted/20"
+                        : ""
                     )}
                   />
                 ))}

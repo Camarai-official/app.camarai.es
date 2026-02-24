@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Badge, IconBadge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ActionTile } from '@/components/ui/action-tile';
 import { ConfigToggle, ConfigItem } from '@/components/ui/config-item';
@@ -94,18 +94,14 @@ export function EnvironmentCard({
           <div className="flex items-center gap-4 min-w-0 flex-1">
             <Popover>
               <PopoverTrigger asChild>
-                <Button 
-                  variant="secondary"
-                  size='md'
-                  className="relative"
-                  style={{ 
-                    backgroundColor: displayColor,
-                  }}
+                <IconBadge 
+                  icon={Icon}
+                  iconColor={env.color}
+                  className="relative cursor-pointer"
                 >
-                  <Icon/>
-                  <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full border-2 border-border shadow-md" 
+                  <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full border-2 border-background shadow-md" 
                        style={{ backgroundColor: env.status === 'Abierto' ? '#22c55e' : '#ef4444' }} />
-                </Button>
+                </IconBadge>
               </PopoverTrigger>
               <PopoverContent className="w-80 space-y-4 " align="start">
                 <div className="space-y-4">
@@ -203,7 +199,7 @@ export function EnvironmentCard({
         {/* Occupancy Section */}
         <ActionTile
           icon={Percent}
-          iconColor="foreground"
+          iconColor="muted-foreground"
           title="Ocupación"
           rightContentType="progress"
           progressValue={stats.occupancyPercentage}
@@ -216,13 +212,13 @@ export function EnvironmentCard({
             title="Mesas"
             description={`${stats.occupiedTables} de ${stats.totalTables}`}
             icon={Utensils}
-            iconColor="foreground"
+            iconColor="muted-foreground"
           />
           <ActionTile
             title="Aforo"
             description={`${stats.occupiedCapacity} de ${stats.totalCapacity}`}
             icon={Users}
-            iconColor="foreground"
+            iconColor="muted-foreground"
           />
         </div>
       </div>

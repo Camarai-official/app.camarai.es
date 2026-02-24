@@ -1,7 +1,7 @@
 
 import * as React from "react"
 import { H4 } from "@/components/ui/typography"
-
+import { IconBadge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<
@@ -34,9 +34,7 @@ const CardHeader = React.forwardRef<
   >
     <div className="flex flex-row items-center gap-2.5">
       {Icon && (
-        <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-muted/20 text-muted-foreground">
-          <Icon className="h-4 w-4" />
-        </div>
+        <IconBadge icon={Icon} iconColor="muted-foreground" />
       )}
       {title && (
         <H4 className="text-muted-foreground font-medium">

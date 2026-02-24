@@ -4,7 +4,7 @@ import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { MoreHorizontal, Package, PlusCircle, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
-import { ExportModal, type ExportField } from '@/components/dialogs/comandas-export';
+import { ExportModal, type ExportField } from '@/components/dialogs/comandas-export-dialog';
 import { Switch } from '@/components/ui/switch';
 
 import { Badge } from '@/components/ui/badge';

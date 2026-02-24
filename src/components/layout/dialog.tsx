@@ -5,6 +5,7 @@ import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { IconBadge } from "@/components/ui/badge"
 
 const Dialog = DialogPrimitive.Root
 
@@ -177,7 +178,7 @@ const DialogFooter = ({
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 bg-muted/20 border-t border-border/50 p-6 shrink-0",
+        "flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 bg-muted/40 border-t border-border/50 p-6 shrink-0",
         flush ? "mt-0" : "-mx-6 -mb-6 mt-6",
         className
       )}
@@ -222,9 +223,7 @@ const DialogTitle = React.forwardRef<
     {...props}
   >
     {Icon && (
-      <div className="h-10 w-10 bg-foreground/10 rounded-lg flex items-center justify-center shrink-0">
-        <Icon className="text-foreground h-5 w-5" />
-      </div>
+      <IconBadge icon={Icon} iconColor="muted-foreground" />
     )}
     {children}
   </DialogPrimitive.Title>

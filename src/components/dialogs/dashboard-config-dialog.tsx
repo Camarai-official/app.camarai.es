@@ -141,7 +141,7 @@ export function DashboardConfigDialog({
                                     rightContentType="switch"
                                     switchChecked={config.teamRanking}
                                     onSwitchChange={() => onToggle('teamRanking')}
-                                    iconColor="yellow-500"
+                                    iconColor="green-500"
                                 />
 
                                 <ActionTile
@@ -152,7 +152,7 @@ export function DashboardConfigDialog({
                                     rightContentType="switch"
                                     switchChecked={config.topProducts}
                                     onSwitchChange={() => onToggle('topProducts')}
-                                    iconColor="pink-500"
+                                    iconColor="yellow-500"
                                 />
 
                                 <ActionTile

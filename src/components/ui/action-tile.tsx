@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Badge, IconBadge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -167,34 +167,11 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
   
   const renderIcon = () => {
     if (!Icon) return null;
-    
-    const isLucideComponent = (typeof Icon === 'function' || (typeof Icon === 'object' && Icon !== null)) && !React.isValidElement(Icon);
-    const isHexColor = typeof iconColor === 'string' && iconColor.startsWith('#');
-    const isTailwindColor = iconColor && !isHexColor;
-    
-    // We apply the main color to the container. 
-    // This allows us to use 'currentColor' for both the icon and the background mix.
-    const containerClasses = cn(
-      "flex-shrink-0 h-10 w-10 rounded-xl transition-all duration-300 flex items-center justify-center",
-      "bg-[color-mix(in_srgb,currentColor,transparent_90%)]",
-      !iconColor && "text-primary",
-      isTailwindColor && `text-${iconColor}`
-    );
-    
-    const containerStyle = isHexColor ? { color: iconColor as string } : undefined;
-
-    // Render the icon content. If it's a Lucide component, it will naturally 
-    // inherit 'currentColor' which we've set on the parent div.
-    const iconContent = isLucideComponent
-      ? React.createElement(Icon as React.ElementType, { 
-          className: "h-5 w-5 transition-all duration-300",
-        })
-      : Icon;
-
     return (
-      <div className={containerClasses} style={containerStyle}>
-        {iconContent}
-      </div>
+      <IconBadge 
+        icon={Icon} 
+        iconColor={iconColor}
+      />
     );
   };
 
