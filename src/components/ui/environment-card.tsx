@@ -227,9 +227,9 @@ export function EnvironmentCard({
         <Button 
           variant="outline"
           onClick={() => onOpenQR(env)}
-          className="w-full"
+          fullWidth
+          startIcon={<QrCode />}
         >
-          <QrCode className="h-4 w-4" />
           Configurar QR de Mesas
         </Button>
       </div>

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-medium text-[11px] transition-all relative [&_svg]:h-3 [&_svg]:w-3",
+  "inline-flex items-center transition-all relative shrink-0",
   {
     variants: {
       variant: {
@@ -13,43 +13,58 @@ const badgeVariants = cva(
         secondary:
           "border-transparent bg-secondary text-secondary-foreground",
         destructive:
-          "border-transparent bg-destructive/10 text-destructive dark:text-red-400",
+          "border-transparent bg-destructive/10 text-destructive dark:text-red-400 font-bold",
         outline: "text-foreground border-border",
         
         // Semantic Premium Status Variants
         success:
-          "border-transparent bg-green-500/10 text-green-700 dark:text-green-400",
+          "border-transparent bg-green-500/10 text-green-700 dark:text-green-400 font-bold",
         warning:
-          "border-transparent bg-orange-500/10 text-orange-700 dark:text-orange-400",
+          "border-transparent bg-orange-500/10 text-orange-700 dark:text-orange-400 font-bold",
         danger:
-          "border-transparent bg-rose-500/10 text-rose-700 dark:text-rose-400",
+          "border-transparent bg-rose-500/10 text-rose-700 dark:text-rose-400 font-bold",
         info:
-          "border-transparent bg-blue-500/10 text-blue-700 dark:text-blue-400",
+          "border-transparent bg-blue-500/10 text-blue-700 dark:text-blue-400 font-bold",
+        purple:
+          "border-transparent bg-purple-500/10 text-purple-700 dark:text-purple-400 font-bold",
         neutral:
           "border-transparent bg-muted text-muted-foreground",
 
         // Legacy / Named Statuses
         completed:
-          "border-transparent bg-green-500/10 text-green-700 dark:text-green-400",
+          "border-transparent bg-green-500/10 text-green-700 dark:text-green-400 font-bold",
         'in-progress':
-          "border-transparent bg-blue-500/10 text-blue-700 dark:text-blue-400",
+          "border-transparent bg-blue-500/10 text-blue-700 dark:text-blue-400 font-bold",
         cancelled:
-          "border-transparent bg-red-500/10 text-red-700 dark:text-red-500",
+          "border-transparent bg-red-500/10 text-red-700 dark:text-red-500 font-bold",
       },
+      size: {
+        default: "rounded-sm border px-2 py-0.5 text-[11px] font-normal gap-1 [&_svg]:h-3 [&_svg]:w-3",
+        md: "h-10 px-4 rounded-xl border text-xs font-normal gap-2 [&_svg]:h-4 [&_svg]:w-4",
+        xs: "h-5 w-5 rounded-full p-0 flex items-center justify-center border-none [&_svg]:h-2.5 [&_svg]:w-2.5",
+      }
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 )
 
 export interface BadgeProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+    VariantProps<typeof badgeVariants> {
+  startIcon?: React.ReactNode
+  endIcon?: React.ReactNode
+}
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+function Badge({ className, variant, size, startIcon, endIcon, children, ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
+      {startIcon && <span className="inline-flex shrink-0">{startIcon}</span>}
+      {children}
+      {endIcon && <span className="inline-flex shrink-0">{endIcon}</span>}
+    </div>
   )
 }
 

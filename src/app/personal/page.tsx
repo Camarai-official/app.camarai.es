@@ -238,9 +238,7 @@ export default function PersonalPage() {
             <PageHeader
                 title="Gestión de Personal"
                 actions={
-                    <Button variant="outline" size="md" onClick={() => setIsConfigDialogOpen(true)} aria-label="Configurar vista">
-                        <Settings className="h-4 w-4" />
-                    </Button>
+                    <Button variant="outline" size="md" onClick={() => setIsConfigDialogOpen(true)} aria-label="Configurar vista" startIcon={<Settings />} />
                 }
             />
             
@@ -278,11 +276,11 @@ export default function PersonalPage() {
                             </TabsList>
                         </div>
                         <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}>
-                                <Clock className="mr-2 h-4 w-4" />Fichaje Manual
+                            <Button variant="outline" size="sm" onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }} startIcon={<Clock />}>
+                                Fichaje Manual
                             </Button>
-                            <Button onClick={() => handleOpenEmployeeDialog()} size="sm">
-                                <PlusCircle className="mr-2 h-4 w-4" />Añadir Empleado
+                            <Button onClick={() => handleOpenEmployeeDialog()} size="sm" startIcon={<PlusCircle />}>
+                                Añadir Empleado
                             </Button>
                         </div>
                     </div>
@@ -378,9 +376,7 @@ export default function PersonalPage() {
                                                                 </TableCell>
                                                                 <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
                                                                 <TableCell>
-                                                                    <Button variant="ghost" size="sm" onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }}>
-                                                                        <Edit className="h-4 w-4" />
-                                                                    </Button>
+                                                                    <Button variant="ghost" size="icon" onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }} startIcon={<Edit />} />
                                                                 </TableCell>
                                                             </TableRow>
                                                         );
@@ -401,7 +397,7 @@ export default function PersonalPage() {
                                         <H3>Solicitudes de Ausencia</H3>
                                         <CardDescription>Gestiona vacaciones y bajas del personal.</CardDescription>
                                     </div>
-                                    <Button startIcon={<Calendar className="h-4 w-4" />} onClick={() => setIsAbsenceRequestDialogOpen(true)}>Nueva Solicitud</Button>
+                                    <Button startIcon={<Calendar />} onClick={() => setIsAbsenceRequestDialogOpen(true)}>Nueva Solicitud</Button>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="overflow-x-auto">
@@ -431,12 +427,8 @@ export default function PersonalPage() {
                                                             <TableCell className="text-right">
                                                                 {req.status === 'pending' && (
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Button size="sm" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
-                                                                            <Check className="h-4 w-4" />
-                                                                        </Button>
-                                                                        <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
-                                                                            <X className="h-4 w-4" />
-                                                                        </Button>
+                                                                        <Button size="icon" variant="ghost-primary" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
+                                                                        <Button size="icon" variant="ghost-destructive" onClick={() => updateAbsenceStatus(req.id, 'rejected')} startIcon={<X />} />
                                                                     </div>
                                                                 )}
                                                             </TableCell>
@@ -490,12 +482,8 @@ export default function PersonalPage() {
                                                             <TableCell className="text-right">
                                                                 {inc.estado === 'pendiente' && (
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Button size="sm" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
-                                                                            <Check className="h-4 w-4" />
-                                                                        </Button>
-                                                                        <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
-                                                                            <X className="h-4 w-4" />
-                                                                        </Button>
+                                                                        <Button size="icon" variant="ghost-primary" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')} startIcon={<Check />} />
+                                                                        <Button size="icon" variant="ghost-destructive" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')} startIcon={<X />} />
                                                                     </div>
                                                                 )}
                                                             </TableCell>
@@ -577,8 +565,8 @@ export default function PersonalPage() {
                                                 </div>
                                                 <p className="text-sm font-medium">Escanea para añadir el número</p>
                                                 <p className="text-xs text-muted-foreground mt-1">+34 600 000 000</p>
-                                                <Button variant="outline" size="sm" className="mt-4">
-                                                    <Download className="mr-2 h-4 w-4" />Descargar QR
+                                                <Button variant="outline" size="sm" className="mt-4" startIcon={<Download />}>
+                                                    Descargar QR
                                                 </Button>
                                             </div>
                                         </div>
@@ -591,8 +579,8 @@ export default function PersonalPage() {
                                             <H3>Dispositivos de Fichaje</H3>
                                             <CardDescription>Gestiona tablets y terminales para el fichaje del personal.</CardDescription>
                                         </div>
-                                        <Button onClick={() => { setEditingDevice(null); setIsDeviceDialogOpen(true); }}>
-                                            <PlusCircle className="mr-2 h-4 w-4" />Añadir Dispositivo
+                                        <Button onClick={() => { setEditingDevice(null); setIsDeviceDialogOpen(true); }} startIcon={<PlusCircle />}>
+                                            Añadir Dispositivo
                                         </Button>
                                     </CardHeader>
                                     <CardContent>
@@ -621,8 +609,8 @@ export default function PersonalPage() {
                                                             </Badge>
                                                         </div>
                                                         <div className="mt-3 flex gap-2">
-                                                            <Button variant="outline" size="sm" className="flex-1" onClick={() => { setEditingDevice(device); setIsDeviceDialogOpen(true); }}>Configurar</Button>
-                                                            <Button variant="outline" size="sm" onClick={() => handleDeleteDevice(device.id)}><X className="h-4 w-4 text-muted-foreground" /></Button>
+                                                            <Button variant="outline" size="sm" fullWidth onClick={() => { setEditingDevice(device); setIsDeviceDialogOpen(true); }}>Configurar</Button>
+                                                            <Button variant="outline" size="icon" onClick={() => handleDeleteDevice(device.id)} startIcon={<X />} />
                                                         </div>
                                                     </CardContent>
                                                 </Card>

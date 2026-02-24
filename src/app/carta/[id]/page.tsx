@@ -100,7 +100,7 @@ function AddElementDialog({ menuId, type, open, onOpenChange, onAdd }: { menuId:
                 </div>
                 <DialogFooter>
                     <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button onClick={handleSave}>Añadir Elemento</Button>
+                    <Button onClick={handleSave} startIcon={<PlusCircle />}>Añadir Elemento</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -323,9 +323,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                                             </p>
                                         </div>
                                     </div>
-                                    <Button variant="ghost" size="md" className="h-8 w-8 hover:bg-destructive/10" onClick={() => removeElementFromMenuCombo(menuId, el.id)}>
-                                        <Trash className="h-4 w-4 text-muted-foreground" />
-                                    </Button>
+                                    <Button variant="ghost-destructive" size="icon" onClick={() => removeElementFromMenuCombo(menuId, el.id)} startIcon={<Trash />} />
                                 </div>
                             ))}
                             {activeMenu.elementos_menu.length === 0 && (
@@ -333,8 +331,8 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                             )}
                         </CardContent>
                         <CardFooter className="flex-col sm:flex-row justify-end gap-2 border-t pt-6">
-                            <Button variant="outline" onClick={() => setIsAddProductOpen(true)}><PlusCircle className="mr-2" />Añadir Producto</Button>
-                            <Button variant="outline" onClick={() => setIsAddCategoryOpen(true)}><PlusCircle className="mr-2" />Añadir Categoría</Button>
+                            <Button variant="outline" onClick={() => setIsAddProductOpen(true)} startIcon={<PlusCircle />}>Añadir Producto</Button>
+                            <Button variant="outline" onClick={() => setIsAddCategoryOpen(true)} startIcon={<PlusCircle />}>Añadir Categoría</Button>
                         </CardFooter>
                     </Card>
                 </div>

@@ -229,20 +229,16 @@ export default function CartaPage() {
                                                 <div className="flex items-center gap-1 rounded-lg">
                                                     <Button 
                                                         variant="ghost" 
-                                                        size="md" 
-                                                        className="h-7 w-7 text-foreground bg-background transition-all rounded-md"
+                                                        size="icon" 
                                                         onClick={(e) => { e.stopPropagation(); setEditingCarta(carta); setIsCartaDialogOpen(true); }}
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </Button>
+                                                        startIcon={<Edit />}
+                                                    />
                                                     <Button 
                                                         variant="ghost" 
-                                                        size="md" 
-                                                        className="h-7 w-7 text-foreground bg-background transition-all rounded-md"
+                                                        size="icon" 
                                                         onClick={(e) => { e.stopPropagation(); removeCarta(carta.id); }}
-                                                    >
-                                                        <Trash className="h-4 w-4" />
-                                                    </Button>
+                                                        startIcon={<Trash />}
+                                                    />
                                                 </div>
                                             </div>
                                         </ConfigItem>
@@ -250,8 +246,8 @@ export default function CartaPage() {
                                             <div className="mt-4 border-t pt-4">
                                                 <div className="flex justify-between items-center mb-2">
                                                     <span className="text-sm font-medium text-muted-foreground">Contenido ({carta.elementos_carta.length})</span>
-                                                    <Button variant="outline" size="sm" onClick={() => { setSelectedCartaId(carta.id); setIsElementDialogOpen(true); }}>
-                                                        <PlusCircle className="h-3 w-3 mr-1" /> Añadir
+                                                    <Button variant="outline" size="sm" onClick={() => { setSelectedCartaId(carta.id); setIsElementDialogOpen(true); }} startIcon={<PlusCircle />}>
+                                                        Añadir
                                                     </Button>
                                                 </div>
                                                 <ScrollArea className="h-[120px] pr-4">
@@ -271,9 +267,7 @@ export default function CartaPage() {
                                                                         <Badge variant="outline" className="text-[10px] h-5 px-1">{el.tipo === 'categoria' ? 'CAT' : 'MEN'}</Badge>
                                                                         <span className="truncate max-w-[120px]">{name}</span>
                                                                     </div>
-                                                                    <Button variant="ghost" size="md" className="h-6 w-6 opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10" onClick={() => removeElementFromCarta(carta.id, el.id)}>
-                                                                        <Trash className="h-3 w-3 text-muted-foreground" />
-                                                                    </Button>
+                                                                    <Button variant="ghost-destructive" size="icon" onClick={() => removeElementFromCarta(carta.id, el.id)} startIcon={<Trash />} />
                                                                 </div>
                                                             )
                                                         })}
@@ -463,8 +457,8 @@ export default function CartaPage() {
                         <DialogFooter>
                             <p className="text-xs text-muted-foreground">Los cambios se guardarán en la configuración de esta carta.</p>
                             <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setIsCartaDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
-                                <Button variant="default" onClick={handleSaveCarta} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Carta</Button>
+                                <Button variant="ghost" onClick={() => setIsCartaDialogOpen(false)} startIcon={<X />}>Cancelar</Button>
+                                <Button variant="default" onClick={handleSaveCarta} startIcon={<Save />}>Guardar Carta</Button>
                             </div>
                         </DialogFooter>
                     </DialogContent>
@@ -527,8 +521,8 @@ export default function CartaPage() {
                         <DialogFooter>
                             <p className="text-xs text-muted-foreground">Añadirás este elemento al final de la carta actual.</p>
                             <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setIsElementDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
-                                <Button variant="default" onClick={addElementToCarta} disabled={!newElementData.id_elemento} className="rounded-xl px-6" startIcon={<PlusCircle className="h-4 w-4" />}>
+                                <Button variant="ghost" onClick={() => setIsElementDialogOpen(false)} startIcon={<X />}>Cancelar</Button>
+                                <Button variant="default" onClick={addElementToCarta} disabled={!newElementData.id_elemento} startIcon={<PlusCircle />}>
                                     Añadir Contenido
                                 </Button>
                             </div>
@@ -589,8 +583,8 @@ export default function CartaPage() {
                         <DialogFooter>
                             <p className="text-xs text-muted-foreground">Configura los elementos de este menú desde la edición detallada.</p>
                             <div className="flex gap-3">
-                                <Button variant="ghost" onClick={() => setIsMenuDialogOpen(false)} className="rounded-xl" startIcon={<X className="h-4 w-4" />}>Cancelar</Button>
-                                <Button variant="default" onClick={handleSaveMenu} className="rounded-xl px-6" startIcon={<Save className="h-4 w-4" />}>Guardar Menú</Button>
+                                <Button variant="ghost" onClick={() => setIsMenuDialogOpen(false)} startIcon={<X />}>Cancelar</Button>
+                                <Button variant="default" onClick={handleSaveMenu} startIcon={<Save />}>Guardar Menú</Button>
                             </div>
                         </DialogFooter>
                     </DialogContent>

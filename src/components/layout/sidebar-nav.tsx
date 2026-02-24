@@ -257,13 +257,11 @@ export function SidebarNav() {
                     >
                       <AlertDialogTrigger asChild>
                         <Button
-                          variant="ghost"
-                          size="md"
-                          className="h-6 w-6 hover:bg-destructive/10"
+                          variant="ghost-destructive"
+                          size="icon"
                           onClick={(e) => handleDeleteClick(e, est)}
-                        >
-                          <Trash />
-                        </Button>
+                          startIcon={<Trash />}
+                        />
                       </AlertDialogTrigger>
                     </ConfigEntity>
                   </DropdownMenuItem>
@@ -279,10 +277,10 @@ export function SidebarNav() {
         ) : (
           <Button
             variant="outline"
-            className="w-full"
+            fullWidth
             onClick={handleAddEstablishment}
+            startIcon={<PlusCircle />}
           >
-            <PlusCircle className="mr-2 h-4 w-4" />
             Crear Establecimiento
           </Button>
         )}
@@ -346,7 +344,7 @@ export function SidebarNav() {
                     <Bell />
                     Notificaciones
                   </div>
-                  {totalNotifications > 0 && <Badge variant="destructive" className="h-5 w-5 p-0 justify-center">{totalNotifications}</Badge>}
+                  {totalNotifications > 0 && <Badge variant="destructive">{totalNotifications}</Badge>}
                 </div>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="p-2 w-64 sm:w-80">
@@ -368,10 +366,10 @@ export function SidebarNav() {
                             className="border-none bg-accent/50 hover:bg-accent p-2 rounded-md"
                             noIconContainer
                           >
-                            <div className="flex gap-1">
-                              <Button size="md" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
-                              <Button size="md" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
-                            </div>
+                             <div className="flex gap-1">
+                                <Button size="icon" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
+                                <Button size="icon" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
+                              </div>
                           </ConfigItem>
                         )
                       })

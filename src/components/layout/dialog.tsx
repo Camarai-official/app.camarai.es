@@ -159,6 +159,8 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
    * Note: As p-0 is now the default, flush defaults to true.
    */
   flush?: boolean;
+  /** Optional extra actions to display next to the standard buttons */
+  actions?: React.ReactNode;
 }
 
 const DialogFooter = ({
@@ -171,6 +173,7 @@ const DialogFooter = ({
   confirmText = "Guardar Cambios",
   confirmDisabled = false,
   flush = true,
+  actions,
   ...props
 }: DialogFooterProps) => {
   const hasSmartProps = onCancel !== undefined || onConfirm !== undefined;
@@ -200,6 +203,7 @@ const DialogFooter = ({
                 {confirmText}
               </Button>
             )}
+            {actions}
           </div>
         </>
       ) : (

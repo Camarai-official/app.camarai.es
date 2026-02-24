@@ -92,9 +92,10 @@ export function StaffTab({
                                         <Button
                                             id="date-personal"
                                             variant="outline"
-                                            className={cn('w-full justify-start text-left font-normal truncate', !date && 'text-muted-foreground')}
+                                            fullWidth
+                                            className="justify-start text-left font-normal truncate"
+                                            startIcon={<CalendarIcon />}
                                         >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
                                             {date?.from ? (
                                                 date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>)
                                                     : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)
@@ -114,8 +115,7 @@ export function StaffTab({
                                 </Popover>
                             </div>
                             <div className="flex items-end">
-                                <Button className="w-full">
-                                    <Download className="mr-2 h-4 w-4" />
+                                <Button fullWidth startIcon={<Download />}>
                                     Exportar a CSV
                                 </Button>
                             </div>
@@ -255,8 +255,7 @@ export function StaffTab({
                                 <Label htmlFor="absence-date-range">Rango de Fechas</Label>
                                 <Popover>
                                     <PopoverTrigger asChild>
-                                        <Button id="absence-date-range" variant="outline" className={cn('w-full justify-start text-left font-normal truncate', !date && 'text-muted-foreground')}>
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                        <Button id="absence-date-range" variant="outline" fullWidth className="justify-start text-left font-normal truncate" startIcon={<CalendarIcon />}>
                                             {date?.from ? (date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>) : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)}
                                         </Button>
                                     </PopoverTrigger>
@@ -322,19 +321,17 @@ export function StaffTab({
                                                 <TableCell>{req.startDate}</TableCell>
                                                 <TableCell>{req.type}</TableCell>
                                                 <TableCell className="text-center">
-                                                    <Badge variant={statusProps.variant}>
-                                                        <statusProps.icon className="mr-1 h-3 w-3" />
-                                                        {req.status}
-                                                    </Badge>
+                                                  <Badge variant={statusProps.variant} startIcon={<statusProps.icon />}>
+                                                      {req.status}
+                                                  </Badge>
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     {req.status === 'pending' ? (
                                                         <div className="flex gap-2 justify-end">
-                                                            <Button size="sm" variant="outline" className="hover:bg-destructive/10" onClick={() => onUpdateRequest(req, 'rejected')}>
-                                                                <XCircle />
+                                                            <Button size="sm" variant="ghost-destructive" onClick={() => onUpdateRequest(req, 'rejected')} startIcon={<XCircle />}>
                                                                 Rechazar
                                                             </Button>
-                                                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-foreground" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
+                                                            <Button size="sm" variant="success" onClick={() => onUpdateRequest(req, 'approved')} startIcon={<CheckCircle />}>Aprobar</Button>
                                                         </div>
                                                     ) : (
                                                         <span className="text-xs text-muted-foreground">Gestionada</span>
@@ -362,17 +359,16 @@ export function StaffTab({
                                             <div className="space-y-1 text-sm">
                                                 <div className="flex justify-between"><span>Fecha:</span> <span>{req.startDate}</span></div>
                                                 <div className="flex justify-between"><span>Tipo:</span> <span>{req.type}</span></div>
-                                                <div className="flex justify-between items-center"><span>Estado:</span> <Badge variant={statusProps.variant}><statusProps.icon className="mr-1 h-3 w-3" />{req.status}</Badge></div>
+                                                <div className="flex justify-between items-center"><span>Estado:</span> <Badge variant={statusProps.variant} startIcon={<statusProps.icon />}>{req.status}</Badge></div>
                                             </div>
                                             {req.status === 'pending' && (
                                                 <>
                                                     <Separator className="my-3" />
                                                     <div className="flex gap-2 justify-end">
-                                                        <Button size="sm" variant="outline" className="hover:bg-destructive/10 flex-1" onClick={() => onUpdateRequest(req, 'rejected')}>
-                                                            <XCircle />
+                                                        <Button size="sm" variant="ghost-destructive" fullWidth onClick={() => onUpdateRequest(req, 'rejected')} startIcon={<XCircle />}>
                                                             Rechazar
                                                         </Button>
-                                                        <Button size="sm" className="bg-green-600 hover:bg-green-700 text-foreground flex-1" onClick={() => onUpdateRequest(req, 'approved')}>Aprobar</Button>
+                                                        <Button size="sm" variant="success" fullWidth onClick={() => onUpdateRequest(req, 'approved')} startIcon={<CheckCircle />}>Aprobar</Button>
                                                     </div>
                                                 </>
                                             )}
