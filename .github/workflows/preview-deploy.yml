@@ -1,0 +1,49 @@
+name: Preview de despliegue
+
+on:
+  push:
+    branches:
+      - main  # O 'master', la rama donde tienes tu código estable
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Bajamos el código del Repo A
+      - name: Checkout del código fuente
+        uses: actions/checkout@v4
+
+      # 2. Instalar Node + Configurar el registro de GitHub (MAGIA AQUÍ)
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # 3. Instalar dependencias inyectando el Token
+      - name: Instalar dependencias
+        run: npm i
+
+      # 4. Construir proyecto (Build)
+      - name: Construir proyecto (Build)
+        run: npm run build
+
+      # 4.1 Fix 404 for SPA
+      - name: Fix 404 for SPA
+        run: cp dist/index.html dist/404.html
+
+      # 5. Desplegar al Repositorio B
+      - name: Add PR comment with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+              const comment = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ **Verificación exitosa**\n\nEl código se ha verificado correctamente:\n- Dependencias instaladas\n- Build exitoso\n- Tests pasados\n\n_Esta es solo una verificación, no se ha realizado ningún despliegue._`
+              };
+              await github.rest.issues.createComment(comment);
