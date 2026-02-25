@@ -19,7 +19,12 @@ import {
     Tablet, 
     Check, 
     X, 
-    Download
+    Download,
+    TrendingUp,
+    TrendingDown,
+    Zap,
+    HeartPulse,
+    AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -43,6 +48,7 @@ import { PageContent } from '@/components/layout/page-content';
 // Feature Components
 import { StaffCardPro, type StaffStatus } from '@/components/features/staff-card-pro';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
+import { MetricCard } from '@/components/widgets/metric-card';
 
 // Dialog Components
 import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/employee-dialog';
@@ -245,34 +251,60 @@ export default function PersonalPage() {
             <PageContent>
                 {/* KPIs */}
                 {personalConfig.kpis && (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-                        {[
-                            { label: 'Total Empleados', value: stats.total },
-                            { label: 'Activos', value: stats.activos },
-                            { label: 'Trabajando Ahora', value: stats.trabajandoAhora, badge: 'En línea' },
-                            { label: 'En Descanso', value: stats.enDescanso },
-                            { label: 'Horas Hoy', value: `${stats.horasHoy}h` }
-                        ].map((stat, i) => (
-                            <Card key={i} className="border-none shadow-none rounded-lg bg-muted/30">
-                                <CardContent className="p-4">
-                                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{stat.value}</p>
-                                    {stat.badge && <Badge variant="completed" className="text-[10px] mt-1 px-1 py-0 h-4">{stat.badge}</Badge>}
-                                </CardContent>
-                            </Card>
-                        ))}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <MetricCard
+                            title="Total Empleados"
+                            value={stats.total.toString()}
+                            icon={Users}
+                        />
+                        <MetricCard
+                            title="Activos"
+                            value={stats.activos.toString()}
+                            icon={Check}
+                        />
+                        <MetricCard
+                            title="Trabajando Ahora"
+                            value={stats.trabajandoAhora.toString()}
+                            icon={Activity}
+                            badge="En línea"
+                        />
+                        <MetricCard
+                            title="En Descanso"
+                            value={stats.enDescanso.toString()}
+                            icon={Clock}
+                        />
+                        <MetricCard
+                            title="Horas Hoy"
+                            value={`${stats.horasHoy}h`}
+                            icon={Zap}
+                        />
                     </div>
                 )}
                 
                 <Tabs defaultValue="team" className="w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div className="w-full overflow-x-auto pb-1 scrollbar-hide">
-                            <TabsList className="inline-flex w-max md:w-auto">
-                                <TabsTrigger value="team" className="px-6 md:px-3">Equipo</TabsTrigger>
-                                <TabsTrigger value="time-tracking" className="px-6 md:px-3">Control Horario</TabsTrigger>
-                                <TabsTrigger value="absences" className="px-6 md:px-3">Ausencias</TabsTrigger>
-                                <TabsTrigger value="incidencias" className="px-6 md:px-3">Incidencias</TabsTrigger>
-                                <TabsTrigger value="fichaje" className="px-6 md:px-3">Métodos Fichaje</TabsTrigger>
+                            <TabsList>
+                                <TabsTrigger value="team">
+                                    <Users className="h-4 w-4 mr-2" />
+                                    Equipo
+                                </TabsTrigger>
+                                <TabsTrigger value="time-tracking">
+                                    <Clock className="h-4 w-4 mr-2" />
+                                    Control Horario
+                                </TabsTrigger>
+                                <TabsTrigger value="absences">
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Ausencias
+                                </TabsTrigger>
+                                <TabsTrigger value="incidencias">
+                                    <AlertCircle className="h-4 w-4 mr-2" />
+                                    Incidencias
+                                </TabsTrigger>
+                                <TabsTrigger value="fichaje">
+                                    <Smartphone className="h-4 w-4 mr-2" />
+                                    Métodos Fichaje
+                                </TabsTrigger>
                             </TabsList>
                         </div>
                         <div className="flex gap-2">

@@ -239,20 +239,20 @@ export default function ReservasPage() {
                     </div>
                 </Card>
                 <div className="lg:w-1/3 xl:w-1/3 flex flex-col gap-4">
-                    <Card className="flex-grow flex flex-col">
+                    <Card className="flex-grow">
                         <CardHeader>
                             <div>
-                                <H3 className="text-lg font-bold">
+                                <H3>
                                     {format(selectedDate, "PPP", { locale: es })}
                                 </H3>
                                 <CardDescription>{dayReservations.length} reservas</CardDescription>
                             </div>
                             <div className="mt-4 flex gap-2">
-                                <Button className="flex-1" onClick={handleOpenNewReservation} size="sm">
-                                    <PlusCircle className="mr-2 h-4 w-4" />Añadir Reserva
+                                <Button onClick={handleOpenNewReservation} size="sm">
+                                    <PlusCircle />Añadir Reserva
                                 </Button>
                                 <Button variant="outline" size="sm" onClick={() => setIsWhatsAppConfigOpen(true)}>
-                                    <MessageSquare className="h-4 w-4" />
+                                    <MessageSquare />
                                 </Button>
                             </div>
                         </CardHeader>

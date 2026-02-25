@@ -9,11 +9,12 @@ type MetricCardProps = {
   value?: string;
   change?: string;
   changeType?: 'increase' | 'decrease';
+  badge?: string;
   icon?: LucideIcon;
   className?: string;
 };
 
-export function MetricCard({ title, value, change, changeType, icon: Icon, className }: MetricCardProps) {
+export function MetricCard({ title, value, change, changeType, badge, icon: Icon, className }: MetricCardProps) {
   const isIncrease = changeType === 'increase';
 
   return (
@@ -28,18 +29,25 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
       
       <CardContent>
         <div className="flex flex-col gap-1.5">
-          {value && (
-            <H1>
-              {value}
-            </H1>
-          )}
+          <div className="flex items-center gap-2">
+            {value && (
+              <H1>
+                {value}
+              </H1>
+            )}
+            {badge && (
+              <Badge variant="completed" className="text-[10px] px-1.5 h-5">
+                {badge}
+              </Badge>
+            )}
+          </div>
           
           {change && (
             <div className="flex items-center gap-2 mt-1">
               <Badge 
                 variant={isIncrease ? 'success' : 'danger'} 
               >
-                {isIncrease ? <TrendingUp /> : <TrendingDown />}
+                {isIncrease ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                 {change}
               </Badge>
             </div>
