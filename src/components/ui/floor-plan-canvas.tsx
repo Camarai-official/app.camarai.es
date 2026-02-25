@@ -70,6 +70,21 @@ export function FloorPlanCanvas({
     const [activeRotate, setActiveRotate] = React.useState<RotateItem | null>(null);
     const [selectedTableId, setSelectedTableId] = React.useState<number | null>(null);
     const [collidingTableId, setCollidingTableId] = React.useState<number | null>(null);
+    const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
+
+    React.useEffect(() => {
+        const updateSize = () => {
+            if (containerRef.current) {
+                setContainerSize({
+                    width: containerRef.current.clientWidth,
+                    height: containerRef.current.clientHeight
+                });
+            }
+        };
+        updateSize();
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
 
     const getTableBounds = (table: Table, customPos?: { x: number, y: number, w: number, h: number }) => {
         const CHAIR_SIZE = 26;
@@ -97,6 +112,18 @@ export function FloorPlanCanvas({
                  rect1.y + rect1.h < rect2.y || 
                  rect1.y > rect2.y + rect2.h);
     };
+
+    const contentBounds = React.useMemo(() => {
+        if (activeEnv.tables.length === 0) return { w: 0, h: 0 };
+        let maxX = 0, maxY = 0;
+        activeEnv.tables.forEach(table => {
+            const bounds = getTableBounds(table);
+            maxX = Math.max(maxX, bounds.x + bounds.w);
+            maxY = Math.max(maxY, bounds.y + bounds.h);
+        });
+        // Añadimos un pequeño margen de seguridad de 20px
+        return { w: maxX + 20, h: maxY + 20 };
+    }, [activeEnv.tables, getTableBounds]);
 
     const handleMouseDown = (e: React.MouseEvent, table: Table) => {
         e.stopPropagation();
@@ -171,6 +198,9 @@ export function FloorPlanCanvas({
         }
 
         if (activeResize) {
+            const currentTable = activeEnv.tables.find(t => t.id === activeResize.id);
+            const isRound = currentTable?.shape === 'round';
+
             const deltaX = Math.round((mouseX - activeResize.startX) / 10) * 10;
             const deltaY = Math.round((mouseY - activeResize.startY) / 10) * 10;
             let nextX = activeResize.startXPos;
@@ -178,20 +208,41 @@ export function FloorPlanCanvas({
             let nextW = activeResize.startWidth;
             let nextH = activeResize.startHeight;
             const MIN_SIZE = 40;
-            if (activeResize.corner.includes('e')) nextW = Math.max(MIN_SIZE, activeResize.startWidth + deltaX);
-            if (activeResize.corner.includes('w')) {
-                const possibleW = activeResize.startWidth - deltaX;
-                if (possibleW >= MIN_SIZE) {
-                    nextW = possibleW;
-                    nextX = activeResize.startXPos + deltaX;
+
+            if (isRound) {
+                // Proportional resize for round tables
+                const absX = Math.abs(deltaX);
+                const absY = Math.abs(deltaY);
+                const useDelta = absX > absY ? deltaX : deltaY;
+                
+                let finalDelta = 0;
+                if (activeResize.corner === 'se') finalDelta = (absX > absY ? deltaX : deltaY);
+                else if (activeResize.corner === 'nw') finalDelta = -(absX > absY ? deltaX : deltaY);
+                else if (activeResize.corner === 'ne') finalDelta = (absX > absY ? deltaX : -deltaY);
+                else if (activeResize.corner === 'sw') finalDelta = (absX > absY ? -deltaX : deltaY);
+
+                const newSize = Math.max(MIN_SIZE, activeResize.startWidth + finalDelta);
+                nextW = newSize;
+                nextH = newSize;
+
+                if (activeResize.corner.includes('w')) nextX = activeResize.startXPos + (activeResize.startWidth - newSize);
+                if (activeResize.corner.includes('n')) nextY = activeResize.startYPos + (activeResize.startHeight - newSize);
+            } else {
+                if (activeResize.corner.includes('e')) nextW = Math.max(MIN_SIZE, activeResize.startWidth + deltaX);
+                if (activeResize.corner.includes('w')) {
+                    const possibleW = activeResize.startWidth - deltaX;
+                    if (possibleW >= MIN_SIZE) {
+                        nextW = possibleW;
+                        nextX = activeResize.startXPos + deltaX;
+                    }
                 }
-            }
-            if (activeResize.corner.includes('s')) nextH = Math.max(MIN_SIZE, activeResize.startHeight + deltaY);
-            if (activeResize.corner.includes('n')) {
-                const possibleH = activeResize.startHeight - deltaY;
-                if (possibleH >= MIN_SIZE) {
-                    nextH = possibleH;
-                    nextY = activeResize.startYPos + deltaY;
+                if (activeResize.corner.includes('s')) nextH = Math.max(MIN_SIZE, activeResize.startHeight + deltaY);
+                if (activeResize.corner.includes('n')) {
+                    const possibleH = activeResize.startHeight - deltaY;
+                    if (possibleH >= MIN_SIZE) {
+                        nextH = possibleH;
+                        nextY = activeResize.startYPos + deltaY;
+                    }
                 }
             }
             onUpdateTable(activeResize.id, { x: nextX, y: nextY, width: nextW, height: nextH });
@@ -206,7 +257,7 @@ export function FloorPlanCanvas({
             if (!e.shiftKey) nextRotation = Math.round(nextRotation / 15) * 15;
             onUpdateTable(activeRotate.id, { rotation: nextRotation });
         }
-    }, [activeDrag, activeResize, activeRotate, zoom, activeEnv.tables, onUpdateTable]);
+    }, [activeDrag, activeResize, activeRotate, zoom, activeEnv.tables, onUpdateTable, getTableBounds]);
 
     const handleMouseUp = React.useCallback(() => {
         setActiveDrag(null);
@@ -229,8 +280,59 @@ export function FloorPlanCanvas({
         };
     }, [activeDrag, activeResize, activeRotate, handleMouseMove, handleMouseUp]);
 
+    const handleFitContent = () => {
+        if (!containerRef.current || activeEnv.tables.length === 0) {
+            setZoom(1);
+            return;
+        }
+
+        const rect = containerRef.current.getBoundingClientRect();
+        const containerWidth = rect.width;
+        const containerHeight = rect.height;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+        activeEnv.tables.forEach(table => {
+            const bounds = getTableBounds(table);
+            minX = Math.min(minX, bounds.x);
+            minY = Math.min(minY, bounds.y);
+            maxX = Math.max(maxX, bounds.x + bounds.w);
+            maxY = Math.max(maxY, bounds.y + bounds.h);
+        });
+
+        // Añadir un margen alrededor del contenido
+        const padding = 80;
+        const contentWidth = (maxX - minX) + padding * 2;
+        const contentHeight = (maxY - minY) + padding * 2;
+
+        const zoomX = containerWidth / contentWidth;
+        const zoomY = containerHeight / contentHeight;
+        
+        let newZoom = Math.min(zoomX, zoomY);
+        // Redondear al múltiplo de 0.1 (10%) más cercano
+        newZoom = Math.round(newZoom * 10) / 10;
+        // Limitar el zoom entre 0.2 y 1.5 para que no se vea excesivamente grande o pequeño
+        newZoom = Math.min(Math.max(newZoom, 0.2), 1.5);
+
+        setZoom(newZoom);
+
+        // Centrar el scroll después de aplicar el zoom
+        setTimeout(() => {
+            if (containerRef.current) {
+                const centerX = ((minX + maxX) / 2) * newZoom;
+                const centerY = ((minY + maxY) / 2) * newZoom;
+                
+                containerRef.current.scrollTo({
+                    left: centerX - containerWidth / 2,
+                    top: centerY - containerHeight / 2,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    };
+
     return (
-        <Card className="flex-1 min-h-[600px] border-none shadow-2xl relative overflow-hidden group/canvas ring-1 ring-border/50 bg-white/50 dark:bg-black/50">
+        <Card className="flex-none h-[600px] w-full border-none shadow-2xl relative overflow-hidden group/canvas ring-1 ring-border/50 bg-white/50 dark:bg-black/50">
             {/* Patron de Puntos Background */}
             <div 
                 className="absolute inset-0 select-none text-zinc-400 dark:text-zinc-600"
@@ -249,15 +351,20 @@ export function FloorPlanCanvas({
             >
                 <div 
                     style={{ 
-                        width: zoom > 1 ? `${100 * zoom}%` : '100%', 
-                        height: zoom > 1 ? `${100 * zoom}%` : '100%',
+                        width: (contentBounds.w * zoom) > containerSize.width ? contentBounds.w * zoom : '100%', 
+                        height: (contentBounds.h * zoom) > containerSize.height ? contentBounds.h * zoom : '100%',
                         minWidth: '100%',
-                        minHeight: '100%'
+                        minHeight: '100%',
+                        position: 'relative'
                     }}
                 >
                     <div 
-                        className="h-full w-full origin-top-left transition-transform duration-200 ease-out will-change-transform"
-                        style={{ transform: `scale(${zoom})` }}
+                        className="origin-top-left transition-transform duration-200 ease-out preserve-3d will-change-transform"
+                        style={{ 
+                            transform: `scale(${zoom})`,
+                            width: contentBounds.w,
+                            height: contentBounds.h
+                        }}
                     >
                         {activeEnv.tables.map(table => {
                             const isDragging = activeDrag?.id === table.id;
@@ -269,8 +376,8 @@ export function FloorPlanCanvas({
                                 const CHAIR_SPACING = 48;
                                 const isEditing = editingChairsId === table.id;
 
-                                const toggleChair = (side: 'top' | 'bottom' | 'left' | 'right', index: number) => {
-                                    const currentChairs = table.chairs || { top: [], bottom: [], left: [], right: [] };
+                                const toggleChair = (side: 'top' | 'bottom' | 'left' | 'right' | 'round', index: number) => {
+                                    const currentChairs = table.chairs || { top: [], bottom: [], left: [], right: [], round: [] };
                                     const sideIndices = [...(currentChairs[side] || [])];
                                     const exists = sideIndices.indexOf(index);
                                     
@@ -330,10 +437,64 @@ export function FloorPlanCanvas({
                                     }
                                 };
 
-                                renderSide('top');
-                                renderSide('bottom');
-                                renderSide('left');
-                                renderSide('right');
+                                 const renderRoundChairs = () => {
+                                    if (table.shape !== 'round') return;
+                                    const rx = table.width / 2;
+                                    const ry = table.height / 2;
+                                    const circumference = Math.PI * (rx + ry);
+                                    const ROUND_CHAIR_SPACING = 56;
+                                    const maxChairs = Math.floor(circumference / ROUND_CHAIR_SPACING);
+                                    const activeIndices = table.chairs?.round || [];
+
+                                    for (let i = 0; i < maxChairs; i++) {
+                                        const isActive = activeIndices.includes(i);
+                                        if (!isActive && !isEditing) continue;
+
+                                        const t = (i / maxChairs) * 2 * Math.PI - Math.PI / 2;
+                                        const x = rx + (rx + CHAIR_OFFSET + CHAIR_SIZE / 2) * Math.cos(t) - CHAIR_SIZE / 2;
+                                        const y = ry + (ry + CHAIR_OFFSET + CHAIR_SIZE / 2) * Math.sin(t) - CHAIR_SIZE / 2;
+
+                                        // Normal angle of ellipse
+                                        const alpha = Math.atan2(rx * Math.sin(t), ry * Math.cos(t));
+                                        const rotation = (alpha * 180 / Math.PI) + 90;
+
+                                        chairs.push(
+                                            <div 
+                                                key={`round-${i}`}
+                                                onClick={(e) => {
+                                                    if (isEditing) {
+                                                        e.stopPropagation();
+                                                        toggleChair('round', i);
+                                                    }
+                                                }}
+                                                className={cn(
+                                                    "absolute w-[26px] h-[26px] flex items-center justify-center transition-all duration-200 rounded-t-lg",
+                                                    isActive 
+                                                        ? "bg-muted-foreground/30 border border-border/50 shadow-sm" 
+                                                        : "bg-transparent border border-dashed border-muted-foreground/30 hover:bg-muted-foreground/10",
+                                                    isEditing && "cursor-pointer scale-110 z-50",
+                                                    isEditing && !isActive && "opacity-50 hover:opacity-100"
+                                                )}
+                                                style={{ 
+                                                    left: x, 
+                                                    top: y, 
+                                                    width: CHAIR_SIZE, 
+                                                    height: CHAIR_SIZE,
+                                                    transform: `rotate(${rotation}deg)`
+                                                }}
+                                            />
+                                        );
+                                    }
+                                };
+
+                                if (table.shape === 'round') {
+                                    renderRoundChairs();
+                                } else {
+                                    renderSide('top');
+                                    renderSide('bottom');
+                                    renderSide('left');
+                                    renderSide('right');
+                                }
                                 
                                 return chairs;
                             };
@@ -345,6 +506,7 @@ export function FloorPlanCanvas({
                                     onClick={(e) => e.stopPropagation()}
                                     className={cn(
                                         "absolute top-0 left-0 flex items-center justify-center bg-background border select-none group/table border-border rounded-xl transition-colors duration-200",
+                                        table.shape === 'round' && "rounded-full",
                                         selectedTableId === table.id && !isDragging ? "ring-1 ring-primary z-40 cursor-grab" : "z-30 cursor-pointer",
                                         isDragging ? "z-50 cursor-grabbing shadow-xl ring-1 ring-primary" : "",
                                         collidingTableId === table.id && "border-destructive bg-destructive/5"
@@ -359,8 +521,8 @@ export function FloorPlanCanvas({
                                     {/* Chairs */}
                                     {renderChairs()}
 
-                                    {/* Interaction Handles - Only visible when selected */}
-                                    {selectedTableId === table.id && !isDragging && (
+                                     {/* Interaction Handles - Only visible when selected */}
+                                    {selectedTableId === table.id && !isDragging && table.shape !== 'round' && (
                                         <>
                                             {/* Resize Pins */}
                                             <div 
@@ -379,7 +541,7 @@ export function FloorPlanCanvas({
                                                 className="absolute -bottom-1.5 -right-1.5 w-5 h-5 cursor-se-resize z-50" 
                                                 onMouseDown={(e) => handleResizeStart(e, table, 'se')}
                                             />
-
+ 
                                             {/* Rotation Handles (Outer Corners) */}
                                             <div 
                                                 className="absolute -top-7 -left-7 w-6 h-6 flex items-center justify-center cursor-crosshair z-50"
@@ -408,25 +570,61 @@ export function FloorPlanCanvas({
                                         </>
                                     )}
 
-                                    <span className={cn(
-                                        "text-base transition-all duration-200",
-                                        isDragging ? "text-muted-foreground" : "text-muted-foreground/50"
+                                    {/* Interaction Handles for Round Tables (Only Resize - Positioned on the circle border) */}
+                                    {selectedTableId === table.id && !isDragging && table.shape === 'round' && (
+                                        <>
+                                            <div 
+                                                className="absolute w-5 h-5 cursor-nw-resize z-50 flex items-center justify-center group/handle" 
+                                                style={{ top: '14.6%', left: '14.6%', transform: 'translate(-50%, -50%)' }}
+                                                onMouseDown={(e) => handleResizeStart(e, table, 'nw')}
+                                            >
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover/handle:opacity-100 transition-opacity" />
+                                            </div>
+                                            <div 
+                                                className="absolute w-5 h-5 cursor-ne-resize z-50 flex items-center justify-center group/handle" 
+                                                style={{ top: '14.6%', right: '14.6%', transform: 'translate(50%, -50%)' }}
+                                                onMouseDown={(e) => handleResizeStart(e, table, 'ne')}
+                                            >
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover/handle:opacity-100 transition-opacity" />
+                                            </div>
+                                            <div 
+                                                className="absolute w-5 h-5 cursor-sw-resize z-50 flex items-center justify-center group/handle" 
+                                                style={{ bottom: '14.6%', left: '14.6%', transform: 'translate(-50%, 50%)' }}
+                                                onMouseDown={(e) => handleResizeStart(e, table, 'sw')}
+                                            >
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover/handle:opacity-100 transition-opacity" />
+                                            </div>
+                                            <div 
+                                                className="absolute w-5 h-5 cursor-se-resize z-50 flex items-center justify-center group/handle" 
+                                                style={{ bottom: '14.6%', right: '14.6%', transform: 'translate(50%, 50%)' }}
+                                                onMouseDown={(e) => handleResizeStart(e, table, 'se')}
+                                            >
+                                                <div className="w-1.5 h-1.5 rounded-full bg-primary opacity-0 group-hover/handle:opacity-100 transition-opacity" />
+                                            </div>
+                                        </>
                                     )}
-                                    style={{ transform: `rotate(${-(table.rotation || 0)}deg)` }}
-                                    >
-                                        {table.number}
-                                    </span>
 
-                                    {/* Status Indicator Badge */}
-                                    {table.status && statusConfig[table.status as TableStatus] && (
-                                        <Badge 
-                                            variant={statusConfig[table.status as TableStatus].variant}
-                                            size="sm"
-                                            className="absolute top-1 right-1 z-10 transition-transform duration-200"
-                                            style={{ transform: `rotate(${-(table.rotation || 0)}deg)` }}
-                                            startIcon={React.createElement(statusConfig[table.status as TableStatus].icon)}
-                                        />
-                                    )}
+                                    <div 
+                                        className="flex flex-col items-center justify-center gap-1 z-10"
+                                        style={{ transform: `rotate(${-(table.rotation || 0)}deg)` }}
+                                    >
+                                        <span className={cn(
+                                            "font-medium text-lg transition-all duration-200",
+                                            isDragging ? "text-muted-foreground" : "text-foreground"
+                                        )}>
+                                            {table.number}
+                                        </span>
+
+                                        {/* Status Indicator Badge */}
+                                        {table.status && statusConfig[table.status as TableStatus] && (
+                                            <Badge 
+                                                variant={statusConfig[table.status as TableStatus].variant}
+                                                size="sm"
+                                                className="transition-transform duration-200"
+                                                startIcon={React.createElement(statusConfig[table.status as TableStatus].icon)}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                             );
                         })}
@@ -500,8 +698,8 @@ export function FloorPlanCanvas({
                 <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-9 w-9 rounded-xl p-0 hover:bg-muted" 
-                    onClick={() => setZoom(Math.max(0.2, zoom - 0.1))}
+                    className="h-10 w-10 rounded-xl p-0 hover:bg-muted" 
+                    onClick={() => setZoom(prev => Math.max(0.2, Math.round((prev - 0.1) * 10) / 10))}
                 >
                     <Minus className="h-4 w-4" />
                 </Button>
@@ -513,8 +711,8 @@ export function FloorPlanCanvas({
                 <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-9 w-9 rounded-xl p-0 hover:bg-muted" 
-                    onClick={() => setZoom(Math.min(2, zoom + 0.1))}
+                    className="h-10 w-10 rounded-xl p-0 hover:bg-muted" 
+                    onClick={() => setZoom(prev => Math.min(2, Math.round((prev + 0.1) * 10) / 10))}
                 >
                     <Plus className="h-4 w-4" />
                 </Button>
@@ -524,8 +722,9 @@ export function FloorPlanCanvas({
                 <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="h-9 w-9 rounded-xl p-0 hover:bg-muted" 
-                    onClick={() => setZoom(1)}
+                    className="h-10 w-10 rounded-xl p-0 hover:bg-muted" 
+                    onClick={handleFitContent}
+                    title="Ajustar zoom al contenido"
                 >
                     <Maximize className="h-4 w-4" />
                 </Button>

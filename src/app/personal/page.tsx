@@ -376,7 +376,7 @@ export default function PersonalPage() {
                                                                 </TableCell>
                                                                 <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
                                                                 <TableCell>
-                                                                    <Button variant="ghost" size="icon" onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }} startIcon={<Edit />} />
+                                                                    <Button variant="ghost" size="md" onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }} startIcon={<Edit />} />
                                                                 </TableCell>
                                                             </TableRow>
                                                         );
@@ -427,8 +427,8 @@ export default function PersonalPage() {
                                                             <TableCell className="text-right">
                                                                 {req.status === 'pending' && (
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Button size="icon" variant="ghost-primary" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
-                                                                        <Button size="icon" variant="ghost-destructive" onClick={() => updateAbsenceStatus(req.id, 'rejected')} startIcon={<X />} />
+                                                                        <Button size="md" variant="ghost-primary" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
+                                                                        <Button size="md" variant="ghost-destructive" onClick={() => updateAbsenceStatus(req.id, 'rejected')} startIcon={<X />} />
                                                                     </div>
                                                                 )}
                                                             </TableCell>
@@ -482,8 +482,8 @@ export default function PersonalPage() {
                                                             <TableCell className="text-right">
                                                                 {inc.estado === 'pendiente' && (
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Button size="icon" variant="ghost-primary" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')} startIcon={<Check />} />
-                                                                        <Button size="icon" variant="ghost-destructive" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')} startIcon={<X />} />
+                                                                        <Button size="md" variant="ghost-primary" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')} startIcon={<Check />} />
+                                                                        <Button size="md" variant="ghost-destructive" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')} startIcon={<X />} />
                                                                     </div>
                                                                 )}
                                                             </TableCell>
@@ -610,7 +610,7 @@ export default function PersonalPage() {
                                                         </div>
                                                         <div className="mt-3 flex gap-2">
                                                             <Button variant="outline" size="sm" fullWidth onClick={() => { setEditingDevice(device); setIsDeviceDialogOpen(true); }}>Configurar</Button>
-                                                            <Button variant="outline" size="icon" onClick={() => handleDeleteDevice(device.id)} startIcon={<X />} />
+                                                            <Button variant="outline" size="md" onClick={() => handleDeleteDevice(device.id)} startIcon={<X />} />
                                                         </div>
                                                     </CardContent>
                                                 </Card>

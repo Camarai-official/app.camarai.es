@@ -9,6 +9,7 @@ export type Table = {
   height: number;
   capacity: number;
   status: TableStatus;
+  shape?: 'rectangle' | 'round';
   rotation?: number;
   occupiedSince?: string;
   reservedFor?: string;
@@ -19,6 +20,7 @@ export type Table = {
     bottom: number[];
     left: number[];
     right: number[];
+    round?: number[];
   };
 };
 

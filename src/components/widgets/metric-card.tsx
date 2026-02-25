@@ -29,7 +29,7 @@ export function MetricCard({ title, value, change, changeType, icon: Icon, class
       <CardContent>
         <div className="flex flex-col gap-1.5">
           {value && (
-            <H1 className="font-extrabold tracking-tight text-3xl">
+            <H1>
               {value}
             </H1>
           )}

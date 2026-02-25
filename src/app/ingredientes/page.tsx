@@ -364,7 +364,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                         <div className="space-y-1 flex-1">
                                             <Label className="text-xs">Unidad origen</Label>
                                             <Select value={newConversion.unidad_origen} onValueChange={(v) => setNewConversion(prev => ({ ...prev, unidad_origen: v }))}>
-                                                <SelectTrigger className="h-9"><SelectValue placeholder="Origen" /></SelectTrigger>
+                                                <SelectTrigger className="h-10"><SelectValue placeholder="Origen" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="kg">Kilos (kg)</SelectItem>
                                                     <SelectItem value="g">Gramos (g)</SelectItem>
@@ -381,14 +381,14 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                                 type="number"
                                                 value={newConversion.factor}
                                                 onChange={(e) => setNewConversion(prev => ({ ...prev, factor: parseFloat(e.target.value) || 1 }))}
-                                                className="h-9"
+                                                className="h-10"
                                                 step="0.01"
                                             />
                                         </div>
                                         <div className="space-y-1 flex-1">
                                             <Label className="text-xs">Unidad destino</Label>
                                             <Select value={newConversion.unidad_destino} onValueChange={(v) => setNewConversion(prev => ({ ...prev, unidad_destino: v }))}>
-                                                <SelectTrigger className="h-9"><SelectValue placeholder="Destino" /></SelectTrigger>
+                                                <SelectTrigger className="h-10"><SelectValue placeholder="Destino" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="kg">Kilos (kg)</SelectItem>
                                                     <SelectItem value="g">Gramos (g)</SelectItem>
@@ -398,7 +398,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <Button size="sm" onClick={handleAddConversion} className="h-9">Añadir</Button>
+                                        <Button size="sm" onClick={handleAddConversion} className="h-10">Añadir</Button>
                                     </div>
 
                                     <Separator />

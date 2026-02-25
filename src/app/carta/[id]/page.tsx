@@ -323,7 +323,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                                             </p>
                                         </div>
                                     </div>
-                                    <Button variant="ghost-destructive" size="icon" onClick={() => removeElementFromMenuCombo(menuId, el.id)} startIcon={<Trash />} />
+                                    <Button variant="ghost-destructive" size="md" onClick={() => removeElementFromMenuCombo(menuId, el.id)} startIcon={<Trash />} />
                                 </div>
                             ))}
                             {activeMenu.elementos_menu.length === 0 && (

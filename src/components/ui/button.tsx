@@ -23,7 +23,7 @@ const buttonVariants = cva(
         "ghost-success": "bg-green-500/10 text-green-500 hover:bg-green-500/20",
       },
       size: {
-        sm: "min-w-8 h-8 px-3 [&_svg]:h-3.5 [&_svg]:w-3.5",
+        sm: "min-w-8 h-8 px-2 [&_svg]:h-3.5 [&_svg]:w-3.5",
         md: "min-w-10 h-10 px-3 [&_svg]:h-4 [&_svg]:w-4",
         icon: "h-7 w-7 p-0 [&_svg]:h-4 [&_svg]:w-4",
       },

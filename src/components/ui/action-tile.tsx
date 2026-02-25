@@ -180,7 +180,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       <IconBadge 
         icon={Icon} 
         iconColor={iconColor}
-        className={cn("h-9 w-9 rounded-lg shrink-0", iconContainerClassName)}
+        className={cn("h-10 w-10 rounded-xl shrink-0", iconContainerClassName)}
         iconClassName={cn("h-5 w-5", iconClassName)}
       />
     );
@@ -221,7 +221,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             onValueChange={selectProps.onSelectChange}
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="h-10">
               <SelectValue placeholder={selectProps.selectPlaceholder} />
             </SelectTrigger>
             <SelectContent>
@@ -241,7 +241,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               {dropdownProps.dropdownTrigger || (
-                <Button variant="ghost" size="md" className="h-8 w-8">
+                <Button variant="ghost" size="md" className="h-10 w-10">
                   <span className="sr-only">Abrir menú</span>
                   •••
                 </Button>
@@ -268,6 +268,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             onClick={buttonProps.onButtonClick}
             disabled={disabled}
             startIcon={buttonProps.buttonIcon}
+            className="h-10"
           >
             {buttonProps.buttonText}
           </Button>
@@ -281,6 +282,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             <Button
               variant="ghost"
               size="md"
+              className="h-10 w-10"
               onClick={(e) => {
                 e.stopPropagation();
                 qProps.onDecrease();
@@ -294,6 +296,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             <Button
               variant="ghost"
               size="md"
+              className="h-10 w-10"
               onClick={(e) => {
                 e.stopPropagation();
                 qProps.onIncrease();
@@ -304,6 +307,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             <Button
               variant="ghost"
               size="md"
+              className="h-10 w-10"
               onClick={(e) => {
                 e.stopPropagation();
                 qProps.onRemove();
@@ -397,14 +401,14 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between py-2 px-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-2 h-18",
+        "flex flex-col sm:flex-row sm:items-center justify-between py-1.5 px-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-2 h-16",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className
       )}
     >
       {/* Left Side: Icon + Title + Description */}
-      <div className="flex items-center gap-2.5 overflow-hidden min-w-0 flex-1">
+      <div className="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
         {renderIcon()}
         <div className="min-w-0 flex-1">
           <div className="text-sm font-bold text-foreground leading-tight">
@@ -419,7 +423,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       </div>
 
       {/* Right Side: Dynamic Content */}
-      <div className={cn("flex items-center gap-2 justify-end sm:ml-4 min-w-0", rightContentClassName)}>
+      <div className={cn("flex items-center gap-2 justify-end sm:ml-4 min-w-0 h-10", rightContentClassName)}>
         {renderRightContent()}
       </div>
     </div>

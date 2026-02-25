@@ -55,7 +55,7 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
   };
 
   return (
-    <Card className={className}>
+    <Card className={cn(" flex flex-col", className)}>
       <CardHeader 
         title="Número de Reservas" 
         icon={CalendarIcon}
@@ -99,16 +99,10 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
           </div>
         }
       />
-      <CardContent className="flex-grow h-full">
+      <CardContent className="flex-1">
         <div className="w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={1} />
-                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
-                </linearGradient>
-              </defs>
               <CartesianGrid 
                 strokeDasharray="3 3" 
                 vertical={false} 
@@ -161,7 +155,7 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
               />
               <Bar
                 dataKey="revenue"
-                fill="url(#barGradient)"
+                fill="hsl(var(--primary))"
                 radius={[4, 4, 0, 0]}
                 barSize={isMobile ? 8 : 12}
                 animationDuration={1500}

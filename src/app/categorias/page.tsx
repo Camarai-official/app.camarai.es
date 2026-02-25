@@ -6,7 +6,7 @@ import * as React from 'react';
 import { Card, CardContent, CardHeader, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose, DialogWindow } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -145,14 +145,14 @@ function CategoryDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent size="lg">
+      <DialogWindow size="lg">
         <DialogHeader
           icon={SelectedIcon}
           title={`${category ? 'Editar' : 'Crear'} Categoría`}
           description="Configura los detalles de la categoría y gestiona los productos asignados."
         />
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+        <DialogContent className='p-0'>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
           <div className="px-6 bg-muted/20 border-b">
             <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
               <TabsTrigger value="general" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">General</TabsTrigger>
@@ -381,16 +381,16 @@ function CategoryDialog({
                 </Card>
               </div>
             </TabsContent>
-          </ScrollArea>
+          </div>
+        </ScrollArea>
         </Tabs>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="ghost">Cancelar</Button>
-          </DialogClose>
-          <Button variant="default" onClick={handleSaveClick}>Guardar Categoría</Button>
-        </DialogFooter>
-      </DialogContent>
+        </DialogContent>
+        <DialogFooter
+          onCancel={() => onOpenChange(false)}
+          onConfirm={handleSaveClick}
+          confirmText="Guardar Categoría"
+        />
+      </DialogWindow>
     </Dialog>
   );
 }

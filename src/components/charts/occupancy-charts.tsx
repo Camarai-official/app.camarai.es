@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DashboardList, DashboardListItem } from '@/components/ui/dashboard-list';
+import { H1 } from '@/components/ui/typography';
 
 type OccupancyData = {
   name: string;
@@ -58,33 +59,34 @@ export function OccupancyChart({ data, className }: OccupancyChartProps) {
   }, [processedData]);
 
   return (
-    <Card className={className}>
+    <Card className={cn("flex-col", className)}>
       <CardHeader 
         title="Aforo Ambientes" 
         icon={Users} 
       />
-      <CardContent className="pt-0">
+      <CardContent>
         {!data || data.length === 0 ? (
-          <div className="flex items-center justify-center min-h-[200px]">
+          <div className="flex items-center justify-center">
             <p className="text-muted-foreground text-xs text-center">No hay datos disponibles.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-8">
-            <div className="flex justify-center py-6">
-              <div className="relative w-48 h-48">
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xs text-muted-foreground  tracking-widest">Total</span>
-                  <span className="text-3xl font-black">{total}</span>
+          <div className="flex flex-col space-y-6">
+            <div className="flex justify-center">
+              <div className="relative w-full h-[140px] overflow-hidden">
+                <div className="absolute inset-0 flex flex-col items-center justify-end">
+                  <H1>{total}</H1>
                 </div>
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
+                  <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
                     <Pie
                       data={processedData}
                       cx="50%"
-                      cy="50%"
-                      innerRadius="75%"
-                      outerRadius="100%"
-                      paddingAngle={2}
+                      cy="100%"
+                      innerRadius="110%"
+                      outerRadius="160%"
+                      paddingAngle={10}
+                      startAngle={180}
+                      endAngle={0}
                       dataKey="value"
                       stroke="none"
                       animationDuration={1000}

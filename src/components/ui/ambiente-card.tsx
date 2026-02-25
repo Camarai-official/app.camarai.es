@@ -87,7 +87,7 @@ export function EnvironmentCard({
     <Card >
       
       
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Top Header: Icon and Title together */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -156,7 +156,7 @@ export function EnvironmentCard({
                   onBlur={handleUpdateName}
                   onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
                   autoFocus
-                  className="pl-0 text-sm md:text-md font-semibold tracking-tight border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none focus:ring-0 bg-transparent shadow-none"
+                  className="text-left pl-0 text-sm md:text-md font-medium tracking-tight border-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none focus:ring-0 bg-transparent shadow-none"
                 />
               ) : (
                 <H5 
@@ -172,30 +172,44 @@ export function EnvironmentCard({
             </div>
           </div>
 
-          {/* New Status Toggle Pill - Icon Only */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button 
-                  onClick={() => onUpdate(env.id, { status: env.status === 'Abierto' ? 'Cerrado' : 'Abierto' })}
-                  className={cn(
-                    "flex items-center justify-center h-8 w-8 rounded-full bg-none transition-all duration-150",
-                    env.status === 'Abierto' 
-                      ? "hover:bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400" 
-                      : "hover:bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400"
-                  )}
-                >
-                  <Power className="h-3 w-3" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent side="left">
-                <p>Ambiente {env.status}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant="secondary"
+                    size="md"
+                    onClick={() => onOpenQR(env)}
+                    startIcon={<QrCode />}
+                    
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Configurar QR de Mesas</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button 
+                    variant={env.status === 'Abierto' ? "ghost-success" : "ghost-destructive"}
+                    size="md"
+                    onClick={() => onUpdate(env.id, { status: env.status === 'Abierto' ? 'Cerrado' : 'Abierto' })}
+                    startIcon={<Power />}
+                    
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">
+                  <p>Ambiente {env.status}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
 
-        {/* Occupancy Section */}
+        
+        <div className="space-y-2">
+          {/* Occupancy Section */}
         <ActionTile
           icon={Percent}
           iconColor="muted-foreground"
@@ -206,7 +220,7 @@ export function EnvironmentCard({
         />
 
         {/* Stats Grid with ActionTiles */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2">
           <ActionTile
             title="Mesas"
             description={`${stats.occupiedTables} de ${stats.totalTables}`}
@@ -220,18 +234,9 @@ export function EnvironmentCard({
             iconColor="muted-foreground"
           />
         </div>
+        </div>
       </div>
 
-      <div className="px-5 pb-5">
-        <Button 
-          variant="outline"
-          onClick={() => onOpenQR(env)}
-          fullWidth
-          startIcon={<QrCode />}
-        >
-          Configurar QR de Mesas
-        </Button>
-      </div>
     </Card>
   );
 }

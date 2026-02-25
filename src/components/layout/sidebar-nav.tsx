@@ -206,7 +206,7 @@ export function SidebarNav() {
                   isCollapsed ? "justify-center" : "justify-start gap-3"
                 )}
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                   <img
                     src={activeEstablishment.id === 'camarai' 
                       ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" 
@@ -263,7 +263,7 @@ export function SidebarNav() {
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="ghost-destructive"
-                            size="icon"
+                            size="md"
                             onClick={(e) => handleDeleteClick(e, est)}
                             startIcon={<Trash />}
                           />
@@ -315,7 +315,7 @@ export function SidebarNav() {
                   isCollapsed ? "justify-center" : "justify-start gap-3"
                 )}
             >
-              <Avatar className="h-9 w-9 shrink-0 rounded-lg">
+              <Avatar className="h-10 w-10 shrink-0 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.firstName} />
                 <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">
                   {user.firstName?.charAt(0) || 'U'}
@@ -373,8 +373,8 @@ export function SidebarNav() {
                             rightContentType="custom"
                             customContent={
                                <div className="flex gap-1">
-                                  <Button size="icon" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
-                                  <Button size="icon" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
+                                  <Button size="md" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
+                                  <Button size="md" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
                                 </div>
                             }
                           />

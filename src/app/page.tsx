@@ -3,20 +3,10 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { Download, Settings, Euro, Receipt, Package, Sparkles, Clock, ShoppingBag, Star } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
-import { H4 } from '@/components/ui/typography';
+import { Download, Settings, Euro, Receipt, Package, Sparkles, Clock, ShoppingBag, Star, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { MetricCard } from '@/components/widgets/metric-card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
 import { useToast } from '@/hooks/use-toast';
@@ -29,7 +19,6 @@ import { DashboardConfigDialog, type DashboardConfig } from '@/components/dialog
 import { mockUser, mockOrders, mockIngredients, mockStaffMembers, mockEnvironments, mockProducts, getCategoryName } from '@/data/mock-data';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { generateCSV, prepareDashboardExportData } from '@/lib/export-utils';
-import { Filter } from 'lucide-react';
 
 const ChartFallback = () => (
     <div className="h-[200px] w-full rounded-md bg-muted/30" />

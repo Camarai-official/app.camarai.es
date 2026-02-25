@@ -29,7 +29,7 @@ const CardHeader = React.forwardRef<
 >(({ className, title, icon: Icon, actions, children, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-row items-center justify-between gap-4 p-4 pb-2 space-y-0 text-left w-full ", className)}
+    className={cn("flex flex-row items-center justify-between gap-4 p-4 space-y-4 text-left w-full ", className)}
     {...props}
   >
     <div className="flex flex-row items-center gap-2.5">
@@ -37,7 +37,7 @@ const CardHeader = React.forwardRef<
         <IconBadge icon={Icon} iconColor="muted-foreground" />
       )}
       {title && (
-        <H4 className="text-muted-foreground font-medium">
+        <H4 className="text-muted-foreground">
           {title}
         </H4>
       )}

@@ -206,7 +206,7 @@ export function StaffCardPro({
                                 <Button 
                                     variant="outline" 
                                     size="md" 
-                                    className="flex-1 h-9"
+                                    className="flex-1 h-10"
                                     onClick={() => window.location.href = `tel:${staff.telefono}`}
                                     disabled={!staff.telefono}
                                 >
@@ -223,7 +223,7 @@ export function StaffCardPro({
                                 <Button 
                                     variant="outline" 
                                     size="md" 
-                                    className="flex-1 h-9"
+                                    className="flex-1 h-10"
                                     onClick={() => window.location.href = `mailto:${staff.email}`}
                                 >
                                     <Mail className="h-4 w-4" />
@@ -240,7 +240,7 @@ export function StaffCardPro({
                                     <Button 
                                         variant="outline" 
                                         size="md" 
-                                        className="flex-1 h-9 text-brand-whatsapp hover:text-brand-whatsapp hover:bg-brand-whatsapp/10"
+                                        className="flex-1 h-10 text-brand-whatsapp hover:text-brand-whatsapp hover:bg-brand-whatsapp/10"
                                         onClick={onWhatsApp}
                                     >
                                         <MessageSquare className="h-4 w-4" />
@@ -258,7 +258,7 @@ export function StaffCardPro({
                                     <Button 
                                         variant="outline" 
                                         size="md" 
-                                        className="flex-1 h-9"
+                                        className="flex-1 h-10"
                                         onClick={onEdit}
                                     >
                                         <Edit className="h-4 w-4" />

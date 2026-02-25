@@ -1,52 +1,24 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
-
-
 import * as React from 'react';
 import { Card, CardHeader, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Plus, Power, Percent, QrCode, Download, Copy, Check, Filter, LayoutGrid, Maximize, FileType } from 'lucide-react';
+import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Power, Percent } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { mockEnvironments } from '@/data/mock-data';
-import type { Environment, EnvironmentStatus } from '@/data/mock-data';
+import type { Environment } from '@/data/mock-data';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Switch } from '@/components/ui/switch';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger } from "@/components/dialogs/global-alert-dialog"
-import { Dialog, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
-import { ColorPicker } from '@/components/ui/color-picker';
-import { SearchInput } from '@/components/ui/search-input';
-import { EmptyState } from '@/components/ui/empty-state';
 import { QRManagementDialog } from '@/components/dialogs/ambientes-qr-dialog';
-
 
 /**
  * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
  * ✅ Versión desacoplada: Utiliza mock data y gestión de estado local.
  */
-
 
 // Mapeo de iconos para una renderización dinámica.
 const iconMap: { [key: string]: React.ElementType } = {
@@ -69,8 +41,7 @@ const availableIcons = ['Utensils', 'Wine', 'Coffee', 'Beer', 'Sun', 'Building']
 const availableColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
 
 import { ActionTile } from '@/components/ui/action-tile';
-import { EnvironmentCard } from '@/components/ui/environment-card';
-import { Separator } from '@/components/ui/separator';
+import { EnvironmentCard } from '@/components/ui/ambiente-card';
 
 /**
  * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
@@ -156,8 +127,6 @@ export default function AmbientesPage() {
             description: `Se han enviado ${selectedTables.size} códigos QR a la impresora.` });
     };
 
-    const qrSizeMap = { small: 120, medium: 200, large: 300 };
-
     return (
     <PageContainer className="bg-background/50">
             <PageHeader title="Gestión de Ambientes" />
@@ -173,7 +142,7 @@ export default function AmbientesPage() {
                             calculateStats={calculateStats}
                         />
                     ))}
-                    <div className="h-[420px]">
+                    <div className="h-[300px]">
                       <CreateActionCard
                           label="Crear Nuevo Ambiente"
                           onClick={addEnvironment}
@@ -198,8 +167,3 @@ export default function AmbientesPage() {
         </PageContainer>
     );
 }
-
-// Re-using types and helpers from local context
-import { Link as LinkIcon } from 'lucide-react';
-
-

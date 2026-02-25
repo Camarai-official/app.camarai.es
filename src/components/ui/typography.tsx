@@ -14,15 +14,15 @@ export function H3({ className, children, ...props }: React.HTMLAttributes<HTMLH
 }
 
 export function H4({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return (<h4 className={cn("text-md md:text-lg font-semibold tracking-tight", className)} {...props}> {children} </h4>)
+  return (<h4 className={cn("text-md md:text-lg font-medium tracking-tight", className)} {...props}> {children} </h4>)
 }
 
 export function H5({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return (<h5 className={cn("text-sm md:text-md font-semibold tracking-tight", className)} {...props}> {children} </h5>)
+  return (<h5 className={cn("text-sm md:text-md font-medium tracking-tight", className)} {...props}> {children} </h5>)
 }
 
 export function H6({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return (<h6 className={cn("text-xs md:text-sm font-semibold tracking-tight", className)} {...props}> {children} </h6>)
+  return (<h6 className={cn("text-xs md:text-sm font-medium tracking-tight", className)} {...props}> {children} </h6>)
 }
 
 export function TextMD({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
