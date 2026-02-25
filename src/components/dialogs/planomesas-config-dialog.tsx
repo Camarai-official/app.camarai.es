@@ -5,9 +5,6 @@ import { Settings, QrCode, CheckSquare, Users, Clock, AlertTriangle, XSquare, Co
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { TextXS } from '@/components/ui/typography';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 import { ActionTile } from '@/components/ui/action-tile';
 import { type Table, type TableStatus } from '@/data/mock-data';
 
@@ -42,10 +39,12 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         title="Número de Mesa"
                         description="Identificador visual para clientes y tickets"
                         rightContentType="custom"
+                        rightContentClassName="w-20"
                         customContent={
                             <Input 
                                 type="number" 
                                 value={editingTable.number} 
+                                className="w-full"
                                 onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) })}
                             />
                         }
@@ -54,12 +53,17 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                     <ActionTile
                         icon={Users}
                         title="Capacidad"
-                        description="Máximo de comensales sugerido"
-                        rightContentType="quantity"
-                        quantity={editingTable.capacity || 0}
-                        onIncrease={() => setEditingTable({ ...editingTable, capacity: (editingTable.capacity || 0) + 1 })}
-                        onDecrease={() => setEditingTable({ ...editingTable, capacity: Math.max(1, (editingTable.capacity || 0) - 1) })}
-                        onRemove={() => {}}
+                        description="Basado en las sillas configuradas"
+                        rightContentType="custom"
+                        rightContentClassName="w-20"
+                        customContent={
+                            <div className="flex items-center justify-center w-full h-10 border rounded-xl bg-background text-sm">
+                                {((editingTable.chairs?.top?.length || 0) + 
+                                  (editingTable.chairs?.bottom?.length || 0) + 
+                                  (editingTable.chairs?.left?.length || 0) + 
+                                  (editingTable.chairs?.right?.length || 0))}
+                            </div>
+                        }
                     />
 
                     <ActionTile
@@ -68,6 +72,7 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         title="Estado Operativo"
                         description="Determina si la mesa está disponible."
                         rightContentType="select"
+                        rightContentClassName="min-w-36"
                         selectValue={editingTable.status}
                         onSelectChange={(v) => setEditingTable({ ...editingTable, status: v as TableStatus })}
                         selectOptions={Object.keys(statusConfig).map(s => ({ value: s, label: s }))}

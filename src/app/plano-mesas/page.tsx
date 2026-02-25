@@ -12,9 +12,11 @@ import { H3, TextXS, TextSM } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge, IconBadge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -26,36 +28,153 @@ import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from 
 
 // Data & Helpers
 import { mockEnvironments, type Table, type TableStatus, type Environment } from '@/data/mock-data';
-import { cn } from '@/lib/utils';
 import { FloorPlanCanvas } from '../../components/ui/floor-plan-canvas';
 import { QuickTemplatesDialog } from '@/components/dialogs/planomesas-templates-dialog';
-import { Settings, Copy, Download, Armchair, Minus } from 'lucide-react';
+import { Settings, Copy, Download, Armchair, Minus, Globe, MapPin, FileText, Printer as PrinterIcon, Undo2, Redo2 } from 'lucide-react';
+import { ActionTile } from '@/components/ui/action-tile';
 import { EditTableDialog } from '@/components/dialogs/planomesas-config-dialog';
 
 
-// --- Sub-Components ---
+// --- Constants & Helpers ---
+const CHAIR_SPACING = 48;
 
-function QRConfigDialog({ open, onOpenChange, table }: { open: boolean; onOpenChange: (open: boolean) => void; table: Table | null; }) {
+const generateAllChairs = (width: number, height: number) => {
+    const getIndices = (dim: number) => Array.from({ length: Math.floor(dim / CHAIR_SPACING) }, (_, i) => i);
+    return {
+        top: getIndices(width),
+        bottom: getIndices(width),
+        left: getIndices(height),
+        right: getIndices(height),
+    };
+};
+
+function QRConfigDialog({ 
+    open, 
+    onOpenChange, 
+    table, 
+    activeEnv 
+}: { 
+    open: boolean; 
+    onOpenChange: (open: boolean) => void; 
+    table: Table | null;
+    activeEnv?: Environment;
+}) {
     const { toast } = useToast();
+    const [qrKey, setQrKey] = React.useState(0);
+    const [qrConfig, setQrConfig] = React.useState({
+        baseUrl: 'https://camarai.app',
+        includeEnv: true,
+        customMessage: '¡Bienvenido! Escanea para ver nuestro menú.',
+    });
+
     if (!table) return null;
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`https://camarai.app/t/${table.number}`)}`;
+
+    const getQRUrl = () => {
+        let url = `${qrConfig.baseUrl}/t/${table.number}`;
+        if (qrConfig.includeEnv && activeEnv) {
+            url += `?env=${encodeURIComponent(activeEnv.name)}`;
+        }
+        return url;
+    };
+
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl())}&t=${qrKey}`;
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(getQRUrl());
+        toast({ title: "Enlace Copiado", description: "El enlace de la mesa ha sido copiado al portapapeles." });
+    };
+
+    const handleDownload = () => {
+        const link = document.createElement('a');
+        link.href = qrImageUrl;
+        link.download = `qr-mesa-${table.number}.png`;
+        link.click();
+        toast({ title: "Descargando QR", description: `El código de la Mesa ${table.number} se está descargando.` });
+    };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogWindow size="md">
-                <DialogHeader icon={QrCode} title={`Configurar QR - Mesa ${table.number}`} description="Los clientes podrán escanear este código para ver el menú digital." />
+            <DialogWindow size="lg">
+                <DialogHeader 
+                    icon={QrCode} 
+                    title={`Configurar QR - Mesa ${table.number}`} 
+                    description="Personaliza el acceso digital y el mensaje de bienvenida para tus clientes." 
+                />
                 <DialogContent>
-                    <div className="flex flex-col items-center gap-8 py-4">
-                        <div className="p-6 bg-foreground rounded-[2rem] shadow-2xl">
-                            <img src={qrImageUrl} alt="QR" className="w-48 h-48 rounded-lg" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-2">
+                        {/* Previsualización */}
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="p-8 bg-foreground rounded-[2.5rem] shadow-2xl group/qr relative overflow-hidden transition-transform hover:scale-[1.02] duration-300">
+                                <img src={qrImageUrl} alt="QR Preview" className="w-48 h-48 rounded-xl" />
+                                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover/qr:opacity-100 transition-opacity pointer-events-none" />
+                            </div>
+                            <Button 
+                                variant="outline" 
+                                size="md" 
+                                onClick={() => { setQrKey(Date.now()); toast({ title: "QR Regenerado" }); }} 
+                                startIcon={<Activity />}
+                                className="w-full max-w-[200px]"
+                            >
+                                Regenerar Firma
+                            </Button>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 w-full">
-                            <Button variant="outline" onClick={() => toast({ title: "Enlace Copiado" })} startIcon={<Copy />}>Enlace</Button>
-                            <Button variant="outline" onClick={() => toast({ title: "Descargando..." })} startIcon={<Download />}>Imagen</Button>
+
+                        {/* Configuración */}
+                        <div className="flex flex-col gap-5">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">URL de Acceso</Label>
+                                <div className="relative group">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-primary/10 rounded-lg">
+                                        <Globe className="h-3.5 w-3.5 text-primary" />
+                                    </div>
+                                    <Input 
+                                        value={qrConfig.baseUrl}
+                                        onChange={(e) => setQrConfig(p => ({ ...p, baseUrl: e.target.value }))}
+                                        className="pl-10"
+                                        placeholder="https://tu-restaurante.com"
+                                    />
+                                </div>
+                            </div>
+
+                            <ActionTile
+                                icon={MapPin}
+                                title="Incluir Ambiente"
+                                description="Añade el nombre del salón al enlace."
+                                rightContentType="switch"
+                                switchId="include-env"
+                                switchChecked={qrConfig.includeEnv}
+                                onSwitchChange={(v) => setQrConfig(p => ({ ...p, includeEnv: v }))}
+                            />
+
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground ml-1">Mensaje de Bienvenida</Label>
+                                <Textarea 
+                                    value={qrConfig.customMessage}
+                                    onChange={(e) => setQrConfig(p => ({ ...p, customMessage: e.target.value }))}
+                                    placeholder="¡Hola! Bienvenidos..."
+                                    className="resize-none h-24"
+                                />
+                            </div>
+
+                            <div className="p-4 bg-muted/30 rounded-2xl border border-dashed border-muted-foreground/20">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <FileText className="h-3 w-3 text-primary" />
+                                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">URL Generada</span>
+                                </div>
+                                <TextXS className="font-mono break-all opacity-70 line-clamp-2">
+                                    {getQRUrl()}
+                                </TextXS>
+                            </div>
                         </div>
                     </div>
                 </DialogContent>
-                <DialogFooter onCancel={() => onOpenChange(false)} onConfirm={() => { toast({ title: "Enviado a imprimir" }); onOpenChange(false); }} confirmText="Imprimir Código" />
+                <DialogFooter>
+                    <div className="flex gap-2 w-full justify-end">
+                        <Button variant="ghost" onClick={handleCopy} startIcon={<Copy />}>Copiar Enlace</Button>
+                        <Button variant="outline" onClick={handleDownload} startIcon={<Download />}>Descargar</Button>
+                        <Button variant="brand" onClick={() => { handleDownload(); onOpenChange(false); }} startIcon={<PrinterIcon />}>Imprimir Código</Button>
+                    </div>
+                </DialogFooter>
             </DialogWindow>
         </Dialog>
     );
@@ -68,6 +187,47 @@ export default function PlanoMesasPage() {
     const { toast } = useToast();
     const [environments, setEnvironments] = React.useState<Environment[]>(mockEnvironments);
     const [activeEnvId, setActiveEnvId] = React.useState<string>(mockEnvironments[0]?.id || '');
+
+    // Undo/Redo state
+    const [history, setHistory] = React.useState<Environment[][]>([mockEnvironments]);
+    const [historyIndex, setHistoryIndex] = React.useState(0);
+
+    const saveToHistory = (newEnvironments: Environment[]) => {
+        const newHistory = history.slice(0, historyIndex + 1);
+        newHistory.push(newEnvironments);
+        if (newHistory.length > 50) newHistory.shift();
+        setHistory(newHistory);
+        setHistoryIndex(newHistory.length - 1);
+    };
+
+    const setEnvironmentsWithHistory = (updater: React.SetStateAction<Environment[]>) => {
+        setEnvironments(prev => {
+            const newState = typeof updater === 'function' ? updater(prev) : updater;
+            saveToHistory(newState);
+            return newState;
+        });
+    };
+
+    const canUndo = historyIndex > 0;
+    const canRedo = historyIndex < history.length - 1;
+
+    const handleUndo = () => {
+        if (canUndo) {
+            const prevIndex = historyIndex - 1;
+            setHistoryIndex(prevIndex);
+            setEnvironments(history[prevIndex]);
+            toast({ title: 'Deshacer', description: 'Acción deshecha.' });
+        }
+    };
+
+    const handleRedo = () => {
+        if (canRedo) {
+            const nextIndex = historyIndex + 1;
+            setHistoryIndex(nextIndex);
+            setEnvironments(history[nextIndex]);
+            toast({ title: 'Rehacer', description: 'Acción rehecha.' });
+        }
+    };
 
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [showLeftArrow, setShowLeftArrow] = React.useState(false);
@@ -112,7 +272,7 @@ export default function PlanoMesasPage() {
     const activeEnv = environments.find(e => e.id === activeEnvId);
 
     const updateTable = (tableId: number, updates: Partial<Table>) => {
-        setEnvironments(prev => prev.map(env => env.id === activeEnvId 
+        setEnvironmentsWithHistory(prev => prev.map(env => env.id === activeEnvId 
             ? { ...env, tables: env.tables.map(t => t.id === tableId ? { ...t, ...updates } : t) }
             : env
         ));
@@ -120,7 +280,7 @@ export default function PlanoMesasPage() {
 
     const removeTable = (tableId: number) => {
         const table = activeEnv?.tables.find(t => t.id === tableId);
-        setEnvironments(prev => prev.map(env => env.id === activeEnvId 
+        setEnvironmentsWithHistory(prev => prev.map(env => env.id === activeEnvId 
             ? { ...env, tables: env.tables.filter(t => t.id !== tableId) }
             : env
         ));
@@ -134,8 +294,20 @@ export default function PlanoMesasPage() {
     const addTable = () => {
         if (!activeEnv) return;
         const newId = Date.now();
-        setEnvironments(prev => prev.map(env => env.id === activeEnvId 
-            ? { ...env, tables: [...env.tables, { id: newId, number: env.tables.length + 1, x: 20, y: 20, width: 100, height: 80, capacity: 4, status: 'Libre' }] }
+        const width = 100;
+        const height = 80;
+        setEnvironmentsWithHistory(prev => prev.map(env => env.id === activeEnvId 
+            ? { ...env, tables: [...env.tables, { 
+                id: newId, 
+                number: env.tables.length + 1, 
+                x: 20, 
+                y: 20, 
+                width, 
+                height, 
+                capacity: 4, 
+                status: 'Libre',
+                chairs: generateAllChairs(width, height)
+            }] }
             : env
         ));
     };
@@ -154,7 +326,7 @@ export default function PlanoMesasPage() {
             y: table.y + 20
         };
         
-        setEnvironments(prev => {
+        setEnvironmentsWithHistory(prev => {
             return prev.map(env => 
                 env.id === activeEnvId 
                     ? { ...env, tables: [...env.tables, newTable] }
@@ -172,6 +344,39 @@ export default function PlanoMesasPage() {
         setEditingChairsId(table.id === editingChairsId ? null : table.id);
     };
 
+    const applyTemplate = (template: { id: string, name: string, tables: number }) => {
+        if (!activeEnvId) return;
+        
+        const newTables: Table[] = [];
+        const cols = Math.ceil(Math.sqrt(template.tables));
+        const spacing = 150;
+        
+        for (let i = 0; i < template.tables; i++) {
+            const row = Math.floor(i / cols);
+            const col = i % cols;
+            const width = 100;
+            const height = 80;
+            newTables.push({
+                id: Date.now() + i,
+                number: i + 1,
+                x: 50 + col * spacing,
+                y: 50 + row * spacing,
+                width,
+                height,
+                capacity: 4,
+                status: 'Libre' as TableStatus,
+                chairs: generateAllChairs(width, height)
+            });
+        }
+        
+        setEnvironmentsWithHistory(prev => prev.map(env => 
+            env.id === activeEnvId ? { ...env, tables: newTables } : env
+        ));
+        
+        setIsTemplatesOpen(false);
+        toast({ title: 'Plantilla aplicada', description: `Se han creado ${template.tables} mesas.` });
+    };
+
     return (
         <PageContainer>
             <PageHeader 
@@ -179,6 +384,13 @@ export default function PlanoMesasPage() {
                 subtitle="Diseña y organiza la disposición de tu salón"
                 actions={
                     <div className="flex gap-2">
+                        <Button variant="outline" size="md" onClick={handleUndo} disabled={!canUndo} title="Deshacer">
+                            <Undo2 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="md" onClick={handleRedo} disabled={!canRedo} title="Rehacer">
+                            <Redo2 className="h-4 w-4" />
+                        </Button>
+                        <Separator orientation="vertical" className="h-8 mx-1" />
                         <Button variant="outline" size="md" onClick={() => setIsTemplatesOpen(true)} startIcon={<FolderOpen />}>
                             Plantillas
                         </Button>
@@ -241,7 +453,7 @@ export default function PlanoMesasPage() {
                                                     size="md"
                                                     onClick={() => {
                                                         const newStatus = activeEnv.status === 'Abierto' ? 'Cerrado' : 'Abierto';
-                                                        setEnvironments(prev => prev.map(e => e.id === activeEnvId ? { ...e, status: newStatus } : e));
+                                                        setEnvironmentsWithHistory(prev => prev.map(e => e.id === activeEnvId ? { ...e, status: newStatus } : e));
                                                     }}
                                                     startIcon={<Power/>}
                                                 />
@@ -341,14 +553,12 @@ export default function PlanoMesasPage() {
                 onOpenQR={(t: any) => { setEditingTable(t); setIsQRDialogOpen(true); }}
             />
 
-            <QRConfigDialog open={isQRDialogOpen} onOpenChange={setIsQRDialogOpen} table={editingTable as Table} />
+            <QRConfigDialog open={isQRDialogOpen} onOpenChange={setIsQRDialogOpen} table={editingTable} activeEnv={activeEnv} />
 
             <QuickTemplatesDialog 
                 open={isTemplatesOpen} 
                 onOpenChange={setIsTemplatesOpen} 
-                onApply={(template) => {
-                    // Aquí se puede añadir lógica adicional al aplicar plantilla si fuera necesario
-                }} 
+                onApply={applyTemplate} 
             />
         </PageContainer>
     );

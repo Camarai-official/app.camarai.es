@@ -9,6 +9,7 @@ export type Table = {
   height: number;
   capacity: number;
   status: TableStatus;
+  rotation?: number;
   occupiedSince?: string;
   reservedFor?: string;
   reservedName?: string;

@@ -47,6 +47,8 @@ interface BaseActionTileProps {
   iconContainerClassName?: string;
   /** Custom className for the icon itself */
   iconClassName?: string;
+  /** Custom className for the right content container */
+  rightContentClassName?: string;
 }
 
 // Switch variant props
@@ -165,6 +167,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
     onClick,
     iconContainerClassName,
     iconClassName,
+    rightContentClassName,
   } = props;
 
   // ============================================================================
@@ -299,7 +302,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
               <Plus className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost-destructive"
+              variant="ghost"
               size="md"
               onClick={(e) => {
                 e.stopPropagation();
@@ -394,7 +397,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-1 flex-col sm:flex-row sm:items-center justify-between py-2 px-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-2 min-w-0",
+        "flex flex-col sm:flex-row sm:items-center justify-between py-2 px-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-2 h-18",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className
@@ -416,7 +419,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       </div>
 
       {/* Right Side: Dynamic Content */}
-      <div className="flex items-center gap-2 justify-end sm:ml-4 min-w-0">
+      <div className={cn("flex items-center gap-2 justify-end sm:ml-4 min-w-0", rightContentClassName)}>
         {renderRightContent()}
       </div>
     </div>

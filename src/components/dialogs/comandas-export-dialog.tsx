@@ -193,11 +193,11 @@ export function ExportModal({
                         <Button
                           variant="outline"
                           className={cn(
-                            'w-full justify-start text-left',
+                            'w-full justify-start text-left font-normal',
                             !dateRange.from && 'text-muted-foreground'
                           )}
                         >
-                          <CalendarDefault className="mr-2 h-4 w-4 text-primary" />
+                          
                           {dateRange.from ? format(dateRange.from, 'dd MMM yyyy', { locale: es }) : 'Desde'}
                         </Button>
                       </PopoverTrigger>
@@ -218,11 +218,11 @@ export function ExportModal({
                         <Button
                           variant="outline"
                           className={cn(
-                            'w-full justify-start text-left',
+                            'w-full justify-start text-left font-normal',
                             !dateRange.to && 'text-muted-foreground'
                           )}
                         >
-                          <CalendarDefault className="mr-2 h-4 w-4 text-primary" />
+                          
                           {dateRange.to ? format(dateRange.to, 'dd MMM yyyy', { locale: es }) : 'Hasta'}
                         </Button>
                       </PopoverTrigger>
