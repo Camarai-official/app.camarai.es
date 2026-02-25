@@ -61,10 +61,8 @@ export default function KdsPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Kitchen Display System (KDS)" />
-      </header>
-      <main className="flex flex-1 items-center justify-center p-4 pt-0 md:p-6 md:pt-0">
+      <PageHeader title="Kitchen Display System (KDS)" />
+      <main className="flex flex-1 items-center justify-center p-4 pt-2 md:p-6 md:pt-3">
         <Card className="w-full max-w-md text-center">
           <CardHeader className="pb-4">
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
@@ -99,7 +97,7 @@ export default function KdsPage() {
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Configuración del KDS</DialogTitle>
+            <DialogTitle icon={Settings}>Configuración del KDS</DialogTitle>
             <DialogDescription>
               Configura el ambiente, categorías y opciones de visualización para la pantalla de cocina.
             </DialogDescription>

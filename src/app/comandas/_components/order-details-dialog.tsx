@@ -7,7 +7,7 @@ import type { OrderDetails } from '@/types/orders';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +25,8 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden bg-zinc-100 dark:bg-zinc-900 border-none shadow-2xl">
+        <DialogTitle className="sr-only">Detalles del Pedido</DialogTitle>
+        <DialogDescription className="sr-only">Visualización detallada del ticket del pedido</DialogDescription>
         <div className="bg-white text-black p-6 font-mono text-sm shadow-sm relative m-4 mb-20 rounded-sm">
           {/* Ticket Header */}
           <div className="text-center mb-6">

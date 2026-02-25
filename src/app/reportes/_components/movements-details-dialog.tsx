@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,7 @@ export function MovementsDetailsDialog({ open, onOpenChange }: MovementsDetailsD
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                    <DialogTitle>Movimientos Detallados del Turno</DialogTitle>
+                    <DialogTitle icon={ArrowLeftRight}>Movimientos Detallados del Turno</DialogTitle>
                     <DialogDescription>Aquí se muestra un desglose de todas las transacciones del día.</DialogDescription>
                 </DialogHeader>
                 <div className="max-h-[60vh] overflow-y-auto">

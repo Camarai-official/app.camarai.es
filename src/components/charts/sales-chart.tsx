@@ -122,10 +122,10 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   };
 
   return (
-    <Card className="col-span-1 lg:col-span-2 flex flex-col h-full shadow-md border-border/50">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex flex-col gap-1">
-          <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+    <Card className="col-span-1 lg:col-span-2 flex flex-col h-full shadow-md border-border/50 gap-4">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <div className="flex flex-col gap-4">
+          <CardTitle className="text-base font-bold text-muted-foreground flex items-center gap-2">
             Ventas Totales
             {isDetached && (
               <Button
@@ -139,7 +139,6 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
               </Button>
             )}
           </CardTitle>
-        </div>
 
         <div className="flex items-center gap-2">
 
@@ -149,7 +148,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
               <Button
                 variant="outline"
                 className={cn(
-                  "w-[240px] justify-start text-left font-normal h-9",
+                  "justify-start text-left font-normal h-9",
                   !date && "text-muted-foreground"
                 )}
               >
@@ -200,6 +199,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
             <Download className="h-4 w-4" />
           </Button>
         </div>
+                </div>
       </CardHeader>
 
       <CardContent className="flex-1 w-full min-h-[200px]">

@@ -12,7 +12,15 @@ import { Download } from 'lucide-react';
 
 
 // --- InventoryValuationCard ---
-const COLORS = ['#9B6EFD', '#78A3ED', '#F0768C', '#F7B731', '#4CAF50', '#2196F3', '#FF9800'];
+const COLORS = [
+  'hsl(var(--primary))',
+  'hsl(var(--brand-blue))',
+  'hsl(var(--brand-pink))',
+  'hsl(var(--brand-yellow))',
+  'hsl(var(--brand-green))',
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-5))'
+];
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -69,7 +77,7 @@ export function InventoryValuationCard({ ingredients, ingredientCategories }: In
                 labelLine={false}
                 outerRadius={110}
                 innerRadius={50}
-                fill="#8884d8"
+                fill="hsl(var(--primary))"
                 dataKey="value"
                 stroke="hsl(var(--card))"
                 strokeWidth={4}

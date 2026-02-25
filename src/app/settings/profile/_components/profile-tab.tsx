@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ConfigItem } from '@/components/ui/config-item';
+import { CheckCircle2 } from 'lucide-react';
 import type { User } from '@/data/mock-data';
 
 type ProfileTabProps = {
@@ -56,9 +58,11 @@ export function ProfileTab({
                                     </Button>
                                     <Input ref={profileFileInputRef} type="file" accept="image/*" className="hidden" onChange={onProfileImageChange} />
                                 </div>
-                                <div className="grid gap-1.5 flex-grow text-center md:text-left">
-                                    <h2 className="text-2xl font-bold">{localUser.firstName} {localUser.lastName}</h2>
-                                    <p className="text-muted-foreground">{localUser.email}</p>
+                                <div className="grid grid-cols-1 gap-1.5 flex-grow text-center md:text-left">
+                                    <div>
+                                        <h2 className="text-2xl font-bold">{localUser.firstName} {localUser.lastName}</h2>
+                                        <p className="text-muted-foreground">{localUser.email}</p>
+                                    </div>
                                     <p className="text-sm text-muted-foreground">Último login: 12/07/2024 10:30 AM</p>
                                 </div>
                             </div>
@@ -88,16 +92,23 @@ export function ProfileTab({
                                     <Label htmlFor="pin">PIN de seguridad</Label>
                                     <Input id="pin" type="password" maxLength={4} placeholder="••••" />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="status">Estado</Label>
+                                <ConfigItem
+                                    icon={CheckCircle2}
+                                    label="Estado de la Cuenta"
+                                    description="Estado actual de tu perfil de usuario."
+                                    iconClassName="text-green-500"
+                                    iconContainerClassName="bg-green-500/10"
+                                >
                                     <Select defaultValue="activo">
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectTrigger className="w-28 h-8 border-none bg-muted/50">
+                                            <SelectValue />
+                                        </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="activo">Activo</SelectItem>
                                             <SelectItem value="inactivo">Inactivo</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
+                                </ConfigItem>
                             </div>
                         </>
                     ) : (

@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Trash2, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -132,10 +132,8 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title={<>Gestionar Carta: &quot;{activeCarta.nombre_carta}&quot;</>} />
-            </header>
-            <main className="flex-grow p-4 pt-0 md:p-6 md:pt-0">
+            <PageHeader title={<>Gestionar Carta: &quot;{activeCarta.nombre_carta}&quot;</>} />
+            <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                     {/* Bento Grid Layout */}
                     <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -184,8 +182,8 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'down')} disabled={index === activeCarta.elementos_carta.length - 1}>
                                                 <ArrowDown className="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleRemoveElement(el.id)}>
-                                                <Trash2 className="h-4 w-4" />
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10" onClick={() => handleRemoveElement(el.id)}>
+                                                <Trash className="h-4 w-4 text-muted-foreground" />
                                             </Button>
                                         </div>
                                     </div>

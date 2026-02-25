@@ -5,11 +5,10 @@ import * as React from 'react';
 import {
     MoreHorizontal,
     PlusCircle,
-    Search,
     FileDown,
     Edit,
     Copy,
-    Trash2,
+    Trash,
     Package,
     Layers,
     Users,
@@ -75,6 +74,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { cn } from '@/lib/utils';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
@@ -264,7 +264,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
-                    <DialogTitle>{campaign ? 'Editar' : 'Crear Nueva'} Campaña de WhatsApp</DialogTitle>
+                    <DialogTitle icon={MessageSquare}>{campaign ? 'Editar' : 'Crear Nueva'} Campaña de WhatsApp</DialogTitle>
                     <DialogDescription>
                         Configura los detalles de tu nueva campaña. Se enviará únicamente a través de WhatsApp.
                     </DialogDescription>
@@ -335,16 +335,12 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                                 <Label htmlFor="product-search">Producto a promocionar</Label>
                                 <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
                                     <PopoverTrigger asChild>
-                                        <div className="relative">
-                                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                            <Input
-                                                id="product-search"
-                                                placeholder="Buscar producto..."
-                                                className="pl-8"
-                                                value={productSearch}
-                                                onChange={(e) => setProductSearch(e.target.value)}
-                                            />
-                                        </div>
+                                        <SearchInput
+                                            id="product-search"
+                                            placeholder="Buscar producto..."
+                                            value={productSearch}
+                                            onChange={(e) => setProductSearch(e.target.value)}
+                                        />
                                     </PopoverTrigger>
                                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                         <Command>
@@ -462,7 +458,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                     </div>
                 </div>
                 
-                <DialogFooter className="pt-4 border-t gap-2">
+                <DialogFooter>
                     <DialogClose asChild>
                         <Button type="button" variant="secondary">
                             Cancelar
@@ -471,7 +467,7 @@ function CreateCampaignDialog({ open, onOpenChange, campaign, onSave }: { open: 
                     <Button type="button" variant="outline" onClick={() => handleSave(true)}>
                         Guardar Borrador
                     </Button>
-                    <Button type="button" onClick={() => handleSave(false)}>
+                    <Button variant="brand" type="button" onClick={() => handleSave(false)}>
                         <Send className="mr-2 h-4 w-4" />
                         {campaign ? 'Guardar y Reprogramar' : 'Guardar y Programar'}
                     </Button>
@@ -551,10 +547,8 @@ export default function PromocionesPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title="Gestión de Promociones y Campañas" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Gestión de Promociones y Campañas" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 {/* Stats KPIs - design system: sin iconos */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <StatsCard 
@@ -597,10 +591,7 @@ export default function PromocionesPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="relative">
-                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input placeholder="Buscar por nombre..." className="pl-8 w-full" />
-                                    </div>
+                                    <SearchInput placeholder="Buscar por nombre..." />
                                     <Select>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Filtrar por tipo" />
@@ -673,10 +664,10 @@ export default function PromocionesPage() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                                                <DropdownMenuItem><Copy className="mr-2 h-4 w-4" />Duplicar</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
+                                                <DropdownMenuItem><Copy className="mr-2 h-4 w-4 text-muted-foreground" />Duplicar</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -765,10 +756,10 @@ export default function PromocionesPage() {
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                        <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                                                        <DropdownMenuItem><Copy className="mr-2 h-4 w-4" />Duplicar</DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
+                                                        <DropdownMenuItem><Copy className="mr-2 h-4 w-4 text-muted-foreground" />Duplicar</DropdownMenuItem>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
+                                                        <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>

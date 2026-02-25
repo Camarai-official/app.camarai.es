@@ -49,7 +49,7 @@ export function LowStockAlerts({ ingredients }: LowStockAlertsProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-grow p-0 overflow-hidden">
-        <ScrollArea className={cn("h-full", lowStockIngredients.length > 5 ? "h-[640px]" : "h-auto")}>
+        <ScrollArea className={cn("h-full", lowStockIngredients.length > 5 ? "max-h-[60vh]" : "max-h-none")}>
           <div className="space-y-6 px-6 pb-6">
             {lowStockIngredients.length > 0 ? (
               lowStockIngredients.map(ing => {

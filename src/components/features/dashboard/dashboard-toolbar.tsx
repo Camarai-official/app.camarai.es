@@ -36,7 +36,7 @@ export function DashboardToolbar({ date, setDate, onExport }: DashboardToolbarPr
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
                         <DropdownMenuLabel>Filtrar por</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
+                        <DropdownMenuSeparator variant="label" />
                         <DropdownMenuCheckboxItem checked>Turno Mañana</DropdownMenuCheckboxItem>
                         <DropdownMenuCheckboxItem checked>Turno Tarde</DropdownMenuCheckboxItem>
                         <DropdownMenuSeparator />

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { RefObject } from 'react';
-import { Camera, Trash2 } from 'lucide-react';
+import { Camera, Trash } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import type { Establishment } from '@/data/establishments';
+import { ConfigToggle } from '@/components/ui/config-item';
+import { Store } from 'lucide-react';
 
 type EstablishmentTabProps = {
     activeEstablishment: Establishment | null;
@@ -85,8 +87,8 @@ export function EstablishmentTab({
                                 <Input ref={establishmentFileInputRef} type="file" accept="image/*" className="hidden" onChange={onEstablishmentImageChange} />
                             </div>
                             <div className="grid gap-1.5 flex-grow text-center md:text-left">
-                                <h2 className="text-2xl font-bold">{localEstablishment.name}</h2>
-                                <p className="text-muted-foreground">{localEstablishment.type}</p>
+                                <h2 className="text-xl sm:text-2xl font-bold">{localEstablishment.name}</h2>
+                                <p className="text-sm text-muted-foreground">{localEstablishment.type}</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -98,54 +100,55 @@ export function EstablishmentTab({
                                 <Label htmlFor="type">Tipo</Label>
                                 <Input id="type" value={localEstablishment.type || ''} onChange={onEstablishmentInputChange} />
                             </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="address">Dirección</Label>
-                                <Input id="address" value={localEstablishment.address || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="postalCode">Código Postal</Label>
-                                <Input id="postalCode" value={localEstablishment.postalCode || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="city">Ciudad</Label>
-                                <Input id="city" value={localEstablishment.city || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="province">Provincia</Label>
-                                <Input id="province" value={localEstablishment.province || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="country">País</Label>
-                                <Input id="country" value={localEstablishment.country || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="phone">Teléfono</Label>
-                                <Input id="phone" value={localEstablishment.phone || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" value={localEstablishment.email || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="space-y-2 md:col-span-2">
-                                <Label htmlFor="hours">Horario</Label>
-                                <Textarea id="hours" value={localEstablishment.hours || ''} onChange={onEstablishmentInputChange} />
-                            </div>
-                            <div className="flex items-center space-x-2">
-                                <Switch
+                                <div className="space-y-2 col-span-1 md:col-span-2">
+                                    <Label htmlFor="address">Dirección</Label>
+                                    <Input id="address" value={localEstablishment.address || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="postalCode">Código Postal</Label>
+                                    <Input id="postalCode" value={localEstablishment.postalCode || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="city">Ciudad</Label>
+                                    <Input id="city" value={localEstablishment.city || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="province">Provincia</Label>
+                                    <Input id="province" value={localEstablishment.province || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="country">País</Label>
+                                    <Input id="country" value={localEstablishment.country || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone">Teléfono</Label>
+                                    <Input id="phone" value={localEstablishment.phone || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="email">Email</Label>
+                                    <Input id="email" type="email" value={localEstablishment.email || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <div className="space-y-2 col-span-1 md:col-span-2">
+                                    <Label htmlFor="hours">Horario</Label>
+                                    <Textarea id="hours" value={localEstablishment.hours || ''} onChange={onEstablishmentInputChange} />
+                                </div>
+                                <ConfigToggle
                                     id="active"
+                                    icon={Store}
+                                    label="Establecimiento Activo"
+                                    description="Habilita o deshabilita este establecimiento en la plataforma."
                                     checked={localEstablishment.active || false}
                                     onCheckedChange={(checked) => onEstablishmentSwitchChange(checked, 'active')}
+                                    className="col-span-1 md:col-span-2"
                                 />
-                                <Label htmlFor="active">Establecimiento Activo</Label>
-                            </div>
                         </div>
                     </CardContent>
-                    <CardFooter className="border-t px-6 py-4 flex justify-between">
-                        <Button onClick={onSaveEstablishmentChanges}>Guardar Cambios</Button>
+                    <CardFooter className="border-t px-6 py-4 flex flex-col sm:flex-row gap-4 sm:justify-between">
+                        <Button className="w-full sm:w-auto" onClick={onSaveEstablishmentChanges}>Guardar Cambios</Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
+                                <Button variant="destructive" className="w-full sm:w-auto">
+                                    <Trash className="mr-2 h-4 w-4" />
                                     Eliminar Establecimiento
                                 </Button>
                             </AlertDialogTrigger>

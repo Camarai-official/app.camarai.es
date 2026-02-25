@@ -186,10 +186,8 @@ export default function ReportesPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title="Panel de Reportes & Cierre de Caja" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Panel de Reportes & Cierre de Caja" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 <Tabs defaultValue="billing">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
@@ -260,7 +258,7 @@ export default function ReportesPage() {
                             <Card className="border-none shadow-none rounded-lg p-4">
                                 <CardContent className="p-0">
                                     <p className="text-sm font-medium text-muted-foreground">Mensajes Enviados</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.mensajesEnviados.toLocaleString()}</p>
+                                    <p className="text-2xl font-bold text-primary mt-1">{new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}</p>
                                 </CardContent>
                             </Card>
                             <Card className="border-none shadow-none rounded-lg p-4">
@@ -345,34 +343,36 @@ export default function ReportesPage() {
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Cliente</TableHead>
-                                            <TableHead>Tipo</TableHead>
-                                            <TableHead>Fecha</TableHead>
-                                            <TableHead>Estado</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {mockWhatsAppMetrics.conversaciones.map((conv) => (
-                                            <TableRow key={conv.id}>
-                                                <TableCell className="font-medium">{conv.cliente}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
-                                                        {conv.tipo}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
-                                                <TableCell>
-                                                    <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
-                                                        {conv.estado}
-                                                    </Badge>
-                                                </TableCell>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Cliente</TableHead>
+                                                <TableHead>Tipo</TableHead>
+                                                <TableHead>Fecha</TableHead>
+                                                <TableHead>Estado</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {mockWhatsAppMetrics.conversaciones.map((conv) => (
+                                                <TableRow key={conv.id}>
+                                                    <TableCell className="font-medium">{conv.cliente}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
+                                                            {conv.tipo}
+                                                        </Badge>
+                                                    </TableCell>
+                                                    <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
+                                                    <TableCell>
+                                                        <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
+                                                            {conv.estado}
+                                                        </Badge>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>

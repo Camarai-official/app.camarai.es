@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, ArrowLeft, Banknote } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -98,10 +98,8 @@ export default function TaxesPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Gestión de Impuestos" />
-      </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+      <PageHeader title="Gestión de Impuestos" />
+      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Todos los Impuestos</CardTitle>
@@ -114,7 +112,7 @@ export default function TaxesPage() {
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>{editingTax ? 'Editar' : 'Crear'} Impuesto</DialogTitle>
+                  <DialogTitle icon={Banknote}>{editingTax ? 'Editar' : 'Crear'} Impuesto</DialogTitle>
                   <DialogDescription>
                     Define un nuevo tipo impositivo para tus productos.
                   </DialogDescription>
@@ -131,62 +129,64 @@ export default function TaxesPage() {
                 </div>
                 <DialogFooter>
                   <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                  <Button onClick={handleSave}>Guardar Impuesto</Button>
+                  <Button variant="brand" onClick={handleSave}>Guardar Impuesto</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre Impuesto</TableHead>
-                  <TableHead>Porcentaje</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {taxes.length > 0 ? taxes.map((tax) => (
-                  <TableRow key={tax.id}>
-                    <TableCell className="font-medium">{tax.nombre_impuesto}</TableCell>
-                    <TableCell>{tax.porcentaje_impuesto}%</TableCell>
-                    <TableCell className="text-right">
-                      <AlertDialog>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => handleOpenDialog(tax)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
-                            </AlertDialogTrigger>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción no se puede deshacer. Se eliminará el impuesto permanentemente.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => removeTax(tax.id)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                )) : (
+          <CardContent className="p-0 sm:p-6">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={3} className="h-24 text-center">
-                      No has creado ningún impuesto todavía.
-                    </TableCell>
+                    <TableHead>Nombre Impuesto</TableHead>
+                    <TableHead>Porcentaje</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {taxes.length > 0 ? taxes.map((tax) => (
+                    <TableRow key={tax.id}>
+                      <TableCell className="font-medium">{tax.nombre_impuesto}</TableCell>
+                      <TableCell>{tax.porcentaje_impuesto}%</TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem onClick={() => handleOpenDialog(tax)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                              </AlertDialogTrigger>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta acción no se puede deshacer. Se eliminará el impuesto permanentemente.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => removeTax(tax.id)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center">
+                        No has creado ningún impuesto todavía.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </main>

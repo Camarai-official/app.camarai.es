@@ -10,10 +10,8 @@ import { PageHeader } from '@/components/layout/page-header';
 export default function SettingsPage() {
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Configuración" />
-      </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+      <PageHeader title="Configuración" />
+      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Link href="/settings/profile">
             <Card className="hover:border-primary transition-colors h-full flex flex-col group border-l-4 border-l-primary">

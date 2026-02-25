@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Search, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Clock, Calendar, Check, X, User, Briefcase, Key, Wallet, FileText, Eye, EyeOff, Upload, MessageSquare, QrCode, Smartphone, LogIn, LogOut, Coffee, Users, Filter, Download, RefreshCw, AlertTriangle, Wifi, WifiOff, Monitor, Tablet, Globe, Settings, Edit, Shield, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,7 @@ import { Slider } from '@/components/ui/slider';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 
 // Métodos de fichaje disponibles
 const metodosFichaje = [
@@ -247,8 +248,7 @@ function EmployeeDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <User className="h-5 w-5" />
+                    <DialogTitle icon={User}>
                         {employeeToEdit ? 'Editar' : 'Añadir'} Empleado
                     </DialogTitle>
                     <DialogDescription>
@@ -257,27 +257,31 @@ function EmployeeDialog({
                 </DialogHeader>
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-5">
-                        <TabsTrigger value="datos" className="text-xs"><User className="h-3 w-3 mr-1" />Datos</TabsTrigger>
-                        <TabsTrigger value="laboral" className="text-xs"><Briefcase className="h-3 w-3 mr-1" />Laboral</TabsTrigger>
-                        <TabsTrigger value="acceso" className="text-xs"><Key className="h-3 w-3 mr-1" />Acceso</TabsTrigger>
-                        <TabsTrigger value="nomina" className="text-xs"><Wallet className="h-3 w-3 mr-1" />Nómina</TabsTrigger>
-                        <TabsTrigger value="documentos" className="text-xs"><FileText className="h-3 w-3 mr-1" />Docs</TabsTrigger>
-                    </TabsList>
+                    <div className="w-full overflow-x-auto pb-2 scrollbar-hide">
+                        <TabsList className="inline-flex w-max sm:w-full sm:grid sm:grid-cols-5 p-1">
+                            <TabsTrigger value="datos" className="text-xs px-4 sm:px-0"><User className="h-3 w-3 mr-1" />Datos</TabsTrigger>
+                            <TabsTrigger value="laboral" className="text-xs px-4 sm:px-0"><Briefcase className="h-3 w-3 mr-1" />Laboral</TabsTrigger>
+                            <TabsTrigger value="acceso" className="text-xs px-4 sm:px-0"><Key className="h-3 w-3 mr-1" />Acceso</TabsTrigger>
+                            <TabsTrigger value="nomina" className="text-xs px-4 sm:px-0"><Wallet className="h-3 w-3 mr-1" />Nómina</TabsTrigger>
+                            <TabsTrigger value="documentos" className="text-xs px-4 sm:px-0"><FileText className="h-3 w-3 mr-1" />Docs</TabsTrigger>
+                        </TabsList>
+                    </div>
 
-                    <ScrollArea className="h-[45vh] mt-4 pr-4">
+                    <ScrollArea className="h-[45vh] -mx-6">
+                        <div className="px-6 py-4 space-y-4">
                         {/* Tab Datos Personales */}
                         <TabsContent value="datos" className="space-y-6 mt-0">
-                            <div className="grid grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                                 <div className="col-span-1">
                                     <ImageUploader
                                         value={employee.fotoUrl}
                                         onChange={(url) => handleInputChange('fotoUrl', url)}
                                         placeholder="Foto del empleado"
                                         aspectRatio="square"
+                                        className="max-w-[150px] mx-auto sm:max-w-none"
                                     />
                                 </div>
-                                <div className="col-span-2 space-y-4">
+                                <div className="col-span-1 sm:col-span-2 space-y-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="nombre">Nombre Completo *</Label>
                                         <Input
@@ -287,7 +291,7 @@ function EmployeeDialog({
                                             placeholder="Ej: Juan Pérez García"
                                         />
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="email">Correo Electrónico *</Label>
                                             <Input
@@ -314,7 +318,7 @@ function EmployeeDialog({
 
                         {/* Tab Laboral */}
                         <TabsContent value="laboral" className="space-y-6 mt-0">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Rol Principal *</Label>
                                     <Select value={employee.rol} onValueChange={(v) => handleInputChange('rol', v)}>
@@ -344,7 +348,7 @@ function EmployeeDialog({
                                     </Select>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Tipo de Contrato</Label>
                                     <Select value={employee.tipo_contrato || ''} onValueChange={(v) => handleInputChange('tipo_contrato', v)}>
@@ -365,6 +369,7 @@ function EmployeeDialog({
                                         type="date"
                                         value={employee.fecha_alta || ''}
                                         onChange={(e) => handleInputChange('fecha_alta', e.target.value)}
+                                        className="dark:[color-scheme:dark]"
                                     />
                                 </div>
                             </div>
@@ -418,7 +423,7 @@ function EmployeeDialog({
                                     <CardDescription>Selecciona el tipo de usuario para aplicar permisos predefinidos.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {nivelesAcceso.map(nivel => (
                                             <div 
                                                 key={nivel.id}
@@ -458,9 +463,17 @@ function EmployeeDialog({
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {permisosDisponibles.map(permiso => (
-                                            <div key={permiso.id} className="flex items-center space-x-2">
+                                            <div key={permiso.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                                                        <Shield className="h-4 w-4 text-primary" />
+                                                    </div>
+                                                    <Label htmlFor={`permiso-${permiso.id}`} className="text-sm font-semibold cursor-pointer">
+                                                        {permiso.label}
+                                                    </Label>
+                                                </div>
                                                 <Checkbox
                                                     id={`permiso-${permiso.id}`}
                                                     checked={employee.permisos?.includes(permiso.id)}
@@ -471,9 +484,6 @@ function EmployeeDialog({
                                                         handleTogglePermiso(permiso.id);
                                                     }}
                                                 />
-                                                <Label htmlFor={`permiso-${permiso.id}`} className="text-sm font-normal cursor-pointer">
-                                                    {permiso.label}
-                                                </Label>
                                             </div>
                                         ))}
                                     </div>
@@ -486,17 +496,22 @@ function EmployeeDialog({
                                     <CardDescription>En qué locales puede trabajar este empleado.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="space-y-2">
+                                    <div className="grid grid-cols-1 gap-3">
                                         {mockEstablecimientos.map(est => (
-                                            <div key={est.id} className="flex items-center space-x-2 p-2 border rounded-lg">
+                                            <div key={est.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
+                                                        <Building2 className="h-4 w-4 text-orange-500" />
+                                                    </div>
+                                                    <Label htmlFor={`est-${est.id}`} className="text-sm font-semibold cursor-pointer">
+                                                        {est.nombre}
+                                                    </Label>
+                                                </div>
                                                 <Checkbox
                                                     id={`est-${est.id}`}
                                                     checked={employee.establecimientos_asignados?.includes(est.id)}
                                                     onCheckedChange={() => handleToggleEstablecimiento(est.id)}
                                                 />
-                                                <Label htmlFor={`est-${est.id}`} className="text-sm font-normal cursor-pointer flex-1">
-                                                    {est.nombre}
-                                                </Label>
                                             </div>
                                         ))}
                                     </div>
@@ -515,11 +530,19 @@ function EmployeeDialog({
                                     <CardDescription>Selecciona cómo puede fichar este empleado.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         {metodosFichaje.map(metodo => {
                                             const Icon = metodo.icon;
                                             return (
-                                                <div key={metodo.id} className="flex items-center space-x-2 p-2 border rounded-lg">
+                                                <div key={metodo.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
+                                                            <Icon className="h-4 w-4 text-blue-500" />
+                                                        </div>
+                                                        <Label htmlFor={`metodo-${metodo.id}`} className="text-sm font-semibold cursor-pointer">
+                                                            {metodo.label}
+                                                        </Label>
+                                                    </div>
                                                     <Checkbox
                                                         id={`metodo-${metodo.id}`}
                                                         checked={employee.metodos_fichaje_permitidos?.includes(metodo.id as 'app' | 'whatsapp' | 'qr' | 'web')}
@@ -533,10 +556,6 @@ function EmployeeDialog({
                                                             }));
                                                         }}
                                                     />
-                                                    <Icon className="h-4 w-4 text-muted-foreground" />
-                                                    <Label htmlFor={`metodo-${metodo.id}`} className="text-sm font-normal cursor-pointer flex-1">
-                                                        {metodo.label}
-                                                    </Label>
                                                 </div>
                                             );
                                         })}
@@ -547,7 +566,7 @@ function EmployeeDialog({
 
                         {/* Tab Nómina */}
                         <TabsContent value="nomina" className="space-y-6 mt-0">
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="horasContratadas">Horas Contratadas (semanales)</Label>
                                     <Input
@@ -637,14 +656,15 @@ function EmployeeDialog({
                                 </CardContent>
                             </Card>
                         </TabsContent>
+                        </div>
                     </ScrollArea>
                 </Tabs>
 
-                <DialogFooter className="border-t pt-4">
+                <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="secondary">Cancelar</Button>
                     </DialogClose>
-                    <Button onClick={handleSave}>Guardar Empleado</Button>
+                    <Button variant="brand" onClick={handleSave}>Guardar Empleado</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -823,53 +843,55 @@ export default function PersonalPage() {
         const activos = staffMembers.filter(s => s.estado === 'Activo').length;
         const trabajandoAhora = staffMembers.filter(s => getStaffMemberStatus(s.id) === 'active').length;
         const enDescanso = staffMembers.filter(s => getStaffMemberStatus(s.id) === 'break').length;
-        const horasHoy = timeLogs.filter(l => l.timestamp.startsWith(new Date().toISOString().split('T')[0])).length * 2; // Mock
+        
+        // Use a fixed date reference to avoid hydration mismatch
+        const todayStr = '2024-07-12'; // Mock stable date
+        const horasHoy = timeLogs.filter(l => l.timestamp.split('T')[0] === todayStr).length * 2;
+        
         return { total: staffMembers.length, activos, trabajandoAhora, enDescanso, horasHoy };
     }, [staffMembers, timeLogs]);
 
     return (
         <div className="flex flex-1 flex-col h-full">
             {/* Header expandido con botón Settings */}
-            <header className="p-4 md:p-6">
-                <div className="flex items-center justify-between gap-4 w-full">
-                    <div className="flex-1 min-w-0">
-                        <PageHeader title="Gestión de Personal" />
-                    </div>
-                    <Button variant="outline" size="icon" onClick={() => setConfigOpen(true)} className="shrink-0">
+            <PageHeader
+                title="Gestión de Personal"
+                actions={
+                    <Button variant="outline" size="icon" onClick={() => setConfigOpen(true)}>
                         <Settings className="h-4 w-4" />
                     </Button>
-                </div>
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+                }
+            />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
                 {/* KPIs - Design System: sin iconos */}
                 {personalConfig.kpis && (
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <Card className="border-none shadow-none rounded-lg p-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Total Empleados</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.total}</p>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4">
+                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Activos</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.activos}</p>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4">
+                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30 col-span-2 sm:col-span-1">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Trabajando Ahora</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.trabajandoAhora}</p>
                             <Badge variant="completed" className="text-xs mt-1">En línea</Badge>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4">
+                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">En Descanso</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.enDescanso}</p>
                         </CardContent>
                     </Card>
-                    <Card className="border-none shadow-none rounded-lg p-4">
+                    <Card className="border-none shadow-none rounded-lg p-4 bg-muted/30">
                         <CardContent className="p-0">
                             <p className="text-sm font-medium text-muted-foreground">Horas Hoy</p>
                             <p className="text-2xl font-bold text-primary mt-1">{stats.horasHoy}h</p>
@@ -880,13 +902,15 @@ export default function PersonalPage() {
                 
                 <Tabs defaultValue="team" className="w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                        <TabsList>
-                            <TabsTrigger value="team">Equipo</TabsTrigger>
-                            <TabsTrigger value="time-tracking">Control Horario</TabsTrigger>
-                            <TabsTrigger value="absences">Ausencias</TabsTrigger>
-                            <TabsTrigger value="incidencias">Incidencias</TabsTrigger>
-                            <TabsTrigger value="fichaje">Métodos Fichaje</TabsTrigger>
-                        </TabsList>
+                        <div className="w-full overflow-x-auto pb-1 scrollbar-hide">
+                            <TabsList className="inline-flex w-max md:w-auto">
+                                <TabsTrigger value="team" className="px-6 md:px-3">Equipo</TabsTrigger>
+                                <TabsTrigger value="time-tracking" className="px-6 md:px-3">Control Horario</TabsTrigger>
+                                <TabsTrigger value="absences" className="px-6 md:px-3">Ausencias</TabsTrigger>
+                                <TabsTrigger value="incidencias" className="px-6 md:px-3">Incidencias</TabsTrigger>
+                                <TabsTrigger value="fichaje" className="px-6 md:px-3">Métodos Fichaje</TabsTrigger>
+                            </TabsList>
+                        </div>
                         <div className="flex gap-2">
                             <Dialog open={isTimeLogOpen} onOpenChange={setIsTimeLogOpen}>
                                 <DialogTrigger asChild>
@@ -896,7 +920,7 @@ export default function PersonalPage() {
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
-                                        <DialogTitle>Registrar Fichaje Manual</DialogTitle>
+                                        <DialogTitle icon={Clock}>Registrar Fichaje Manual</DialogTitle>
                                         <DialogDescription>Añadir un registro de tiempo manualmente.</DialogDescription>
                                     </DialogHeader>
                                     <form onSubmit={handleManualTimeLog} className="space-y-4 pt-4">
@@ -940,61 +964,55 @@ export default function PersonalPage() {
 
                     <TabsContent value="team" className="space-y-4">
                         {personalConfig.equipo && (
-                        <Card>
-                            <CardHeader>
-                                <div className="flex items-center justify-between">
-                                    <CardTitle>Miembros del Equipo</CardTitle>
-                                    <div className="relative w-64">
-                                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Buscar empleado..."
-                                            className="pl-8"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
+                        <div className="space-y-4">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <h2 className="text-xl font-semibold tracking-tight">Mi Equipo</h2>
+                                <SearchInput
+                                    containerClassName="sm:w-64"
+                                    placeholder="Buscar empleado..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            
+                            {/* Grid con StaffCardPro (Fase 8) */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredStaff.length === 0 && staffMembers.length === 0 ? (
+                                    <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+                                        <p className="text-muted-foreground mb-4">No hay empleados en el equipo.</p>
+                                        <CreateActionCard label="Añadir primer empleado" onClick={() => handleOpenEmployeeDialog()} />
                                     </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                {/* Grid con StaffCardPro (Fase 8) */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {filteredStaff.length === 0 && staffMembers.length === 0 ? (
-                                        <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                                            <p className="text-muted-foreground mb-4">No hay empleados en el equipo.</p>
-                                            <CreateActionCard label="Añadir primer empleado" onClick={() => handleOpenEmployeeDialog()} />
-                                        </div>
-                                    ) : filteredStaff.length === 0 ? (
-                                        <div className="col-span-full py-16 text-center text-muted-foreground">
-                                            No se encontraron empleados con ese criterio de búsqueda.
-                                        </div>
-                                    ) : null}
-                                    {filteredStaff.map(staff => {
-                                        const status = getStaffMemberStatus(staff.id);
-                                        return (
-                                            <StaffCardPro
-                                                key={staff.id}
-                                                staff={{
-                                                    id: staff.id,
-                                                    nombre: staff.nombre,
-                                                    email: staff.email,
-                                                    telefono: staff.telefono,
-                                                    rol: staff.rol,
-                                                    estado: staff.estado,
-                                                    horasContratadas: staff.horasContratadas,
-                                                    horasTrabajadas: Math.floor(Math.random() * staff.horasContratadas), // Mock
-                                                    metodos_fichaje_permitidos: staff.metodos_fichaje_permitidos,
-                                                }}
-                                                status={status as StaffStatus}
-                                                onEdit={() => handleOpenEmployeeDialog(staff)}
-                                                onDelete={() => handleRemoveStaff(staff.id)}
-                                                onWhatsApp={() => window.open(`https://wa.me/${staff.telefono?.replace(/\D/g, '')}`, '_blank')}
-                                            />
-                                        );
-                                    })}
-                                    <CreateActionCard label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
-                                </div>
-                            </CardContent>
-                        </Card>
+                                ) : filteredStaff.length === 0 ? (
+                                    <div className="col-span-full py-16 text-center text-muted-foreground">
+                                        No se encontraron empleados con ese criterio de búsqueda.
+                                    </div>
+                                ) : null}
+                                {filteredStaff.map(staff => {
+                                    const status = getStaffMemberStatus(staff.id);
+                                    return (
+                                        <StaffCardPro
+                                            key={staff.id}
+                                            staff={{
+                                                id: staff.id,
+                                                nombre: staff.nombre,
+                                                email: staff.email,
+                                                telefono: staff.telefono,
+                                                rol: staff.rol,
+                                                estado: staff.estado,
+                                                horasContratadas: staff.horasContratadas,
+                                                horasTrabajadas: Math.floor(((staff.nombre.length * 7) % 100) / 100 * staff.horasContratadas), // Deterministic mock value
+                                                metodos_fichaje_permitidos: staff.metodos_fichaje_permitidos,
+                                            }}
+                                            status={status as StaffStatus}
+                                            onEdit={() => handleOpenEmployeeDialog(staff)}
+                                            onDelete={() => handleRemoveStaff(staff.id)}
+                                            onWhatsApp={() => window.open(`https://wa.me/${staff.telefono?.replace(/\D/g, '')}`, '_blank')}
+                                        />
+                                    );
+                                })}
+                                <CreateActionCard label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
+                            </div>
+                        </div>
                         )}
                     </TabsContent>
 
@@ -1033,56 +1051,58 @@ export default function PersonalPage() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Empleado</TableHead>
-                                            <TableHead>Fecha</TableHead>
-                                            <TableHead>Hora</TableHead>
-                                            <TableHead>Acción</TableHead>
-                                            <TableHead>Método</TableHead>
-                                            <TableHead className="w-[60px]"><span className="sr-only">Acciones</span></TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {timeLogs
-                                            .filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff)
-                                            .filter(log => timeLogFilterAction === 'all' || log.action === timeLogFilterAction)
-                                            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                                            .slice(0, 20)
-                                            .map(log => {
-                                            const staff = staffMembers.find(s => s.id === log.staffId);
-                                            const date = new Date(log.timestamp);
-                                            return (
-                                                <TableRow key={log.id}>
-                                                    <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
-                                                    <TableCell>{date.toLocaleDateString()}</TableCell>
-                                                    <TableCell>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="outline">
-                                                            {log.action === 'clock-in' ? 'Entrada' :
-                                                                log.action === 'clock-out' ? 'Salida' :
-                                                                    log.action === 'start-break' ? 'Inicio Pausa' : 'Fin Pausa'}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-muted-foreground text-xs capitalize">{log.method}</TableCell>
-                                                    <TableCell>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingTimeLog(log)} aria-label="Editar registro">
-                                                            <Edit className="h-4 w-4" />
-                                                        </Button>
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Empleado</TableHead>
+                                                <TableHead className="hidden sm:table-cell">Fecha</TableHead>
+                                                <TableHead>Hora</TableHead>
+                                                <TableHead>Acción</TableHead>
+                                                <TableHead className="hidden md:table-cell">Método</TableHead>
+                                                <TableHead className="w-[60px]"><span className="sr-only">Acciones</span></TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {timeLogs
+                                                .filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff)
+                                                .filter(log => timeLogFilterAction === 'all' || log.action === timeLogFilterAction)
+                                                .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                                .slice(0, 20)
+                                                .map(log => {
+                                                const staff = staffMembers.find(s => s.id === log.staffId);
+                                                const date = new Date(log.timestamp);
+                                                return (
+                                                    <TableRow key={log.id}>
+                                                        <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
+                                                        <TableCell className="hidden sm:table-cell">{`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`}</TableCell>
+                                                        <TableCell>{`${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant="outline">
+                                                                {log.action === 'clock-in' ? 'Entrada' :
+                                                                    log.action === 'clock-out' ? 'Salida' :
+                                                                        log.action === 'start-break' ? 'Inicio Pausa' : 'Fin Pausa'}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
+                                                        <TableCell>
+                                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setEditingTimeLog(log)} aria-label="Editar registro">
+                                                                <Edit className="h-4 w-4" />
+                                                            </Button>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                            {timeLogs.filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff).filter(log => timeLogFilterAction === 'all' || log.action === timeLogFilterAction).length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                                        No hay registros con los filtros seleccionados.
                                                     </TableCell>
                                                 </TableRow>
-                                            )
-                                        })}
-                                        {timeLogs.filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff).filter(log => timeLogFilterAction === 'all' || log.action === timeLogFilterAction).length === 0 && (
-                                            <TableRow>
-                                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
-                                                    No hay registros con los filtros seleccionados.
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
                         )}
@@ -1102,7 +1122,7 @@ export default function PersonalPage() {
                                     </DialogTrigger>
                                     <DialogContent>
                                         <DialogHeader>
-                                            <DialogTitle>Registrar Solicitud de Ausencia</DialogTitle>
+                                            <DialogTitle icon={Calendar}>Registrar Solicitud de Ausencia</DialogTitle>
                                         </DialogHeader>
                                         <form onSubmit={handleAbsenceRequest} className="space-y-4 pt-4">
                                             <div className="space-y-2">
@@ -1126,7 +1146,7 @@ export default function PersonalPage() {
                                                     </SelectContent>
                                                 </Select>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="space-y-2">
                                                     <Label htmlFor="startDate">Desde</Label>
                                                     <Input name="startDate" type="date" required />
@@ -1148,51 +1168,53 @@ export default function PersonalPage() {
                                 </Dialog>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Empleado</TableHead>
-                                            <TableHead>Tipo</TableHead>
-                                            <TableHead>Fechas</TableHead>
-                                            <TableHead>Estado</TableHead>
-                                            <TableHead className="text-right">Acciones</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {absenceRequests.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map(req => {
-                                            const staff = staffMembers.find(s => s.id === req.staffId);
-                                            return (
-                                                <TableRow key={req.id}>
-                                                    <TableCell className="font-medium">{staff?.nombre}</TableCell>
-                                                    <TableCell className="capitalize">{req.type.replace('_', ' ')}</TableCell>
-                                                    <TableCell>{req.startDate} - {req.endDate}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={req.status === 'approved' ? 'default' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
-                                                            {req.status === 'approved' ? 'Aprobado' : req.status === 'rejected' ? 'Rechazado' : 'Pendiente'}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {req.status === 'pending' && (
-                                                            <div className="flex justify-end gap-2">
-                                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
-                                                                    <Check className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
-                                                                    <X className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            )
-                                        })}
-                                        {absenceRequests.length === 0 && (
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
                                             <TableRow>
-                                                <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">No hay solicitudes pendientes.</TableCell>
+                                                <TableHead>Empleado</TableHead>
+                                                <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+                                                <TableHead>Fechas</TableHead>
+                                                <TableHead>Estado</TableHead>
+                                                <TableHead className="text-right">Acciones</TableHead>
                                             </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {absenceRequests.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map(req => {
+                                                const staff = staffMembers.find(s => s.id === req.staffId);
+                                                return (
+                                                    <TableRow key={req.id}>
+                                                        <TableCell className="font-medium">{staff?.nombre}</TableCell>
+                                                        <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
+                                                        <TableCell className="text-xs sm:text-sm">{req.startDate} - {req.endDate}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant={req.status === 'approved' ? 'default' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                                                {req.status === 'approved' ? 'Aprobado' : req.status === 'rejected' ? 'Rechazado' : 'Pendiente'}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            {req.status === 'pending' && (
+                                                                <div className="flex justify-end gap-2">
+                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => updateAbsenceStatus(req.id, 'approved')}>
+                                                                        <Check className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => updateAbsenceStatus(req.id, 'rejected')}>
+                                                                        <X className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
+                                            {absenceRequests.length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">No hay solicitudes pendientes.</TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
                         )}
@@ -1207,57 +1229,59 @@ export default function PersonalPage() {
                                 <CardDescription>Gestiona las incidencias reportadas por el sistema o los empleados.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Empleado</TableHead>
-                                            <TableHead>Tipo</TableHead>
-                                            <TableHead>Fecha/Hora</TableHead>
-                                            <TableHead>Motivo</TableHead>
-                                            <TableHead>Estado</TableHead>
-                                            <TableHead className="text-right">Acciones</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {incidencias.map(inc => {
-                                            const staff = staffMembers.find(s => s.id === inc.staffId);
-                                            return (
-                                                <TableRow key={inc.id}>
-                                                    <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="outline">
-                                                            {tipoIncidenciaLabels[inc.tipo]}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell>{inc.fecha} {inc.hora}</TableCell>
-                                                    <TableCell className="max-w-[200px] truncate">{inc.motivo || '-'}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={inc.estado === 'aprobada' ? 'default' : inc.estado === 'rechazada' ? 'destructive' : 'secondary'}>
-                                                            {estadoIncidenciaLabels[inc.estado]}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {inc.estado === 'pendiente' && (
-                                                            <div className="flex justify-end gap-2">
-                                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
-                                                                    <Check className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
-                                                                    <X className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        })}
-                                        {incidencias.length === 0 && (
+                                <div className="overflow-x-auto">
+                                    <Table>
+                                        <TableHeader>
                                             <TableRow>
-                                                <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">No hay incidencias registradas.</TableCell>
+                                                <TableHead>Empleado</TableHead>
+                                                <TableHead>Tipo</TableHead>
+                                                <TableHead>Fecha/Hora</TableHead>
+                                                <TableHead className="hidden md:table-cell">Motivo</TableHead>
+                                                <TableHead>Estado</TableHead>
+                                                <TableHead className="text-right">Acciones</TableHead>
                                             </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {incidencias.map(inc => {
+                                                const staff = staffMembers.find(s => s.id === inc.staffId);
+                                                return (
+                                                    <TableRow key={inc.id}>
+                                                        <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant="outline">
+                                                                {tipoIncidenciaLabels[inc.tipo]}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-xs sm:text-sm">{inc.fecha} {inc.hora}</TableCell>
+                                                        <TableCell className="hidden md:table-cell max-w-[200px] truncate">{inc.motivo || '-'}</TableCell>
+                                                        <TableCell>
+                                                            <Badge variant={inc.estado === 'aprobada' ? 'default' : inc.estado === 'rechazada' ? 'destructive' : 'secondary'}>
+                                                                {estadoIncidenciaLabels[inc.estado]}
+                                                            </Badge>
+                                                        </TableCell>
+                                                        <TableCell className="text-right">
+                                                            {inc.estado === 'pendiente' && (
+                                                                <div className="flex justify-end gap-2">
+                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')}>
+                                                                        <Check className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')}>
+                                                                        <X className="h-4 w-4" />
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
+                                            {incidencias.length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">No hay incidencias registradas.</TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </CardContent>
                         </Card>
                         )}
@@ -1268,7 +1292,7 @@ export default function PersonalPage() {
                         {personalConfig.fichaje && (
                         <>
                         {/* Métodos de Fichaje Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             {metodosFichaje.map((metodo) => {
                                 const Icon = metodo.icon;
                                 const isWhatsApp = metodo.id === 'whatsapp';
@@ -1389,7 +1413,7 @@ export default function PersonalPage() {
                                 </Button>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {dispositivos.map(device => (
                                         <Card key={device.id} className="relative">
                                             <CardContent className="p-4">
@@ -1429,8 +1453,8 @@ export default function PersonalPage() {
                                                     <Button variant="outline" size="sm" className="flex-1" onClick={() => { setEditingDevice(device); setIsDeviceDialogOpen(true); }}>
                                                         Configurar
                                                     </Button>
-                                                    <Button variant="outline" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleDeleteDevice(device.id)}>
-                                                        <X className="h-4 w-4" />
+                                                    <Button variant="outline" size="sm" onClick={() => handleDeleteDevice(device.id)}>
+                                                        <X className="h-4 w-4 text-muted-foreground" />
                                                     </Button>
                                                 </div>
                                             </CardContent>
@@ -1501,7 +1525,7 @@ export default function PersonalPage() {
             <Dialog open={!!editingTimeLog} onOpenChange={(open) => !open && setEditingTimeLog(null)}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Editar Registro de Fichaje</DialogTitle>
+                        <DialogTitle icon={Edit}>Editar Registro de Fichaje</DialogTitle>
                         <DialogDescription>Modifica la fecha, hora o acción del registro.</DialogDescription>
                     </DialogHeader>
                     {editingTimeLog && (
@@ -1561,8 +1585,7 @@ export default function PersonalPage() {
             <Dialog open={configOpen} onOpenChange={setConfigOpen}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                            <Settings className="h-5 w-5" />
+                        <DialogTitle icon={Settings}>
                             Configurar Vista de Personal
                         </DialogTitle>
                         <DialogDescription>
@@ -1625,7 +1648,7 @@ export default function PersonalPage() {
             <Dialog open={isDeviceDialogOpen} onOpenChange={setIsDeviceDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>{editingDevice ? 'Editar' : 'Añadir'} Dispositivo</DialogTitle>
+                        <DialogTitle icon={Tablet}>{editingDevice ? 'Editar' : 'Añadir'} Dispositivo</DialogTitle>
                         <DialogDescription>Configura los parámetros del dispositivo de fichaje.</DialogDescription>
                     </DialogHeader>
                     <form onSubmit={(e) => {

@@ -5,7 +5,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import { addDays, format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings } from 'lucide-react';
+import { CalendarIcon, ChevronDown, TrendingUp, Download, MoreHorizontal, AlertTriangle, Package, CheckCircle, XCircle, ChevronLeft, ChevronRight, Target, BarChart, Donut, Users, Settings, LineChart, PieChart, ShoppingBag, Trophy, Star, Activity, LayoutGrid, FileText, Eye, PlayCircle, Printer, Ban } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -22,7 +22,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Switch } from '@/components/ui/switch';
+import { SettingItem } from '@/components/ui/settings-modal';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -172,6 +173,7 @@ export default function Home() {
         const dateFactor = (dateFrom + dateTo) / 1000000;
 
         // Simular que los datos cambian con la fecha
+        const numberFormatter = new Intl.NumberFormat('es-ES');
         const metrics = {
             totalRevenue: `€${((2.6 + (dateFactor % 1))).toFixed(1)}M`,
             avgTicket: `€${(38.5 + (dateFactor % 2)).toFixed(2)}`,
@@ -179,7 +181,7 @@ export default function Home() {
             conversion: `${(35 + (dateFactor % 15)).toFixed(0)}%`,
             // Nuevas métricas operacionales
             serviceTime: `${(24 - (dateFactor % 8)).toFixed(0)} min`,
-            totalOrders: Math.floor(1248 + (dateFactor % 1000)).toLocaleString(),
+            totalOrders: numberFormatter.format(Math.floor(1248 + (dateFactor % 1000))),
             nps: (78 + (dateFactor % 12)).toFixed(0)
         };
 
@@ -238,72 +240,69 @@ export default function Home() {
     return (
         <div className="flex flex-1 flex-col h-full">
             {/* Header full width: título + acción */}
-            <header className="p-4 md:p-6 w-full">
-                <PageHeader
-                    title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
-                    actions={
-                        <div className="flex items-center gap-2">
-                            <CalendarDateRangePicker date={date} setDate={setDate} />
+            <PageHeader
+                title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
+                actions={
+                    <div className="flex items-stretch gap-2 flex-row sm:items-center">
+                        <CalendarDateRangePicker date={date} setDate={setDate} />
 
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-10 w-10"
-                                title="Exportar Informe Global"
-                                onClick={() => {
-                                    const data = prepareDashboardExportData({}, allOrders, mockProducts);
-                                    generateCSV(data, 'camarai_global_report');
-                                    toast({
-                                        title: "Exportación iniciada",
-                                        description: "El reporte global se está descargando."
-                                    });
-                                }}
-                            >
-                                <Download className="h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setConfigOpen(true)}>
-                                <Settings className="h-4 w-4" />
-                            </Button>
-                        </div>
-                    }
-                />
-            </header>
-            <main className="flex flex-1 flex-col gap-6 p-4 pt-0 md:p-6 md:pt-0">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10"
+                            title="Exportar Informe Global"
+                            onClick={() => {
+                                const data = prepareDashboardExportData({}, allOrders, mockProducts);
+                                generateCSV(data, 'camarai_global_report');
+                                toast({
+                                    title: "Exportación iniciada",
+                                    description: "El reporte global se está descargando."
+                                });
+                            }}
+                        >
+                            <Download className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setConfigOpen(true)}>
+                            <Settings className="h-4 w-4" />
+                        </Button>
+                    </div>
+                }
+            />
+            <main className="flex flex-1 flex-col gap-6 p-4 pt-2 md:p-6 md:pt-3">
 
                 {/* Sección de Métricas Principales */}
                 {dashboardConfig.metrics && (
-                    <Card className="bg-card p-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Ingresos totales"
                                 value={metricsData.totalRevenue}
                                 change="+4.5% que la semana pasada"
                                 changeType="increase"
                             />
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Ticket Medio"
                                 value={metricsData.avgTicket}
                                 change="-1.2% que la semana pasada"
                                 changeType="decrease"
                             />
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Productos por Comanda"
                                 value={metricsData.itemsPerOrder}
                                 change="+0.5% que la semana pasada"
                                 changeType="increase"
                             />
                             <MetricCard
-                                className="bg-background"
+                                className="bg-card"
                                 title="Tasa Conversión Upsell"
                                 value={metricsData.conversion}
                                 change="+3% que la semana pasada"
                                 changeType="increase"
                             />
                         </div>
-                    </Card>
+
                 )}
 
                 {/* Gráfico de Ventas por Hora */}
@@ -414,7 +413,7 @@ export default function Home() {
                         {/* Tabla de Comandas Recientes */}
                         {dashboardConfig.recentOrders && (
                             <Card className={cn("flex flex-col", dashboardConfig.stockAlerts ? "lg:col-span-2" : "lg:col-span-3")}>
-                                <CardHeader className="flex flex-row items-center justify-between px-6 pt-6 pb-2">
+                                <CardHeader className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-6 pt-6 pb-2">
                                     <div>
                                         <CardTitle className="text-base font-bold text-muted-foreground">Comandas Recientes</CardTitle>
                                     </div>
@@ -437,10 +436,18 @@ export default function Home() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>Exportar marcadas</DropdownMenuItem>
-                                                <DropdownMenuItem>Exportar todo</DropdownMenuItem>
-                                                <DropdownMenuItem disabled>Cambiar estado (Próximamente)</DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <Download className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    Exportar marcadas
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem>
+                                                    <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    Exportar todo
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem disabled>
+                                                    <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                    Cambiar estado (Próximamente)
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
@@ -482,20 +489,41 @@ export default function Home() {
                                                                         <MoreHorizontal className="h-4 w-4" />
                                                                     </Button>
                                                                 </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end">
+                                                                 <DropdownMenuContent align="end">
                                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                                    <DropdownMenuItem>Ver detalles</DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                        Ver detalles
+                                                                    </DropdownMenuItem>
                                                                     <DropdownMenuSub>
-                                                                        <DropdownMenuSubTrigger>Cambiar Estado</DropdownMenuSubTrigger>
+                                                                        <DropdownMenuSubTrigger>
+                                                                            <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                            Cambiar Estado
+                                                                        </DropdownMenuSubTrigger>
                                                                         <DropdownMenuSubContent>
-                                                                            <DropdownMenuItem>En Progreso</DropdownMenuItem>
-                                                                            <DropdownMenuItem>Completado</DropdownMenuItem>
-                                                                            <DropdownMenuItem>Cancelado</DropdownMenuItem>
+                                                                            <DropdownMenuItem>
+                                                                                <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                En Progreso
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem>
+                                                                                <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                Completado
+                                                                            </DropdownMenuItem>
+                                                                            <DropdownMenuItem>
+                                                                                <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                                Cancelado
+                                                                            </DropdownMenuItem>
                                                                         </DropdownMenuSubContent>
                                                                     </DropdownMenuSub>
-                                                                    <DropdownMenuItem>Reimprimir</DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <Printer className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                        Reimprimir
+                                                                    </DropdownMenuItem>
                                                                     <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem className="text-destructive">Anular comanda</DropdownMenuItem>
+                                                                    <DropdownMenuItem>
+                                                                        <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                        Anular comanda
+                                                                    </DropdownMenuItem>
                                                                 </DropdownMenuContent>
                                                             </DropdownMenu>
                                                         </TableCell>
@@ -586,89 +614,154 @@ export default function Home() {
                     </div>
                 )}
 
-                {/* Dashboard Configuration Modal */}
                 <Dialog open={configOpen} onOpenChange={setConfigOpen}>
-                    <DialogContent className="sm:max-w-[500px]">
+                    <DialogContent className="sm:max-w-[550px] overflow-hidden border-none shadow-2xl p-6">
                         <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2">
-                                <Settings className="h-5 w-5" />
+                            <DialogTitle icon={Settings}>
                                 Configurar Dashboard
                             </DialogTitle>
                             <DialogDescription>
-                                Personaliza qué widgets se muestran en tu panel de control.
+                                Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión.
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Métricas Principales</Label>
-                                    <p className="text-xs text-muted-foreground">Ingresos, ticket medio, etc.</p>
+                        
+                        <ScrollArea className="max-h-[60vh] -mx-6">
+                            <div className="space-y-6 px-6 py-4">
+                                {/* Sección: Análisis de Ventas */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <TrendingUp className="h-3 w-3" /> Análisis de Ventas
+                                    </h4>
+                                    <div className="grid gap-3">
+                                        <SettingItem
+                                            id="metrics"
+                                            icon={TrendingUp}
+                                            label="Métricas Principales"
+                                            description="Ingresos, ticket medio y variación temporal."
+                                            checked={dashboardConfig.metrics}
+                                            onCheckedChange={() => handleConfigToggle('metrics')}
+                                        />
+
+                                        <SettingItem
+                                            id="salesChart"
+                                            icon={LineChart}
+                                            label="Ventas por Hora"
+                                            description="Curva de demanda distribuida por franjas horarias."
+                                            checked={dashboardConfig.salesChart}
+                                            onCheckedChange={() => handleConfigToggle('salesChart')}
+                                            iconClassName="text-blue-500"
+                                            className="[&_.icon-container]:bg-blue-500/10 [&_.icon-container]:group-hover:bg-blue-500/20"
+                                        />
+
+                                        <SettingItem
+                                            id="revenueChart"
+                                            icon={BarChart}
+                                            label="Gráfico de Ingresos"
+                                            description="Visualización comparativa de facturación bruta."
+                                            checked={dashboardConfig.revenueChart}
+                                            onCheckedChange={() => handleConfigToggle('revenueChart')}
+                                            iconClassName="text-green-500"
+                                            className="[&_.icon-container]:bg-green-500/10 [&_.icon-container]:group-hover:bg-green-500/20"
+                                        />
+                                    </div>
                                 </div>
-                                <Switch checked={dashboardConfig.metrics} onCheckedChange={() => handleConfigToggle('metrics')} />
-                            </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Gráfico de Ventas por Hora</Label>
-                                    <p className="text-xs text-muted-foreground">Ventas distribuidas por hora</p>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Sección: Operaciones */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <LayoutGrid className="h-3 w-3" /> Operaciones y Stock
+                                    </h4>
+                                    <div className="grid gap-3">
+                                        <SettingItem
+                                            id="recentOrders"
+                                            icon={ShoppingBag}
+                                            label="Comandas Recientes"
+                                            description="Monitor en tiempo real de los últimos pedidos."
+                                            checked={dashboardConfig.recentOrders}
+                                            onCheckedChange={() => handleConfigToggle('recentOrders')}
+                                            iconClassName="text-orange-500"
+                                            className="[&_.icon-container]:bg-orange-500/10 [&_.icon-container]:group-hover:bg-orange-500/20"
+                                        />
+
+                                        <SettingItem
+                                            id="stockAlerts"
+                                            icon={AlertTriangle}
+                                            label="Alertas de Stock"
+                                            description="Aviso crítico de ingredientes bajo mínimos."
+                                            checked={dashboardConfig.stockAlerts}
+                                            onCheckedChange={() => handleConfigToggle('stockAlerts')}
+                                            iconClassName="text-red-500"
+                                            className="[&_.icon-container]:bg-red-500/10 [&_.icon-container]:group-hover:bg-red-500/20"
+                                        />
+
+                                        <SettingItem
+                                            id="occupancyChart"
+                                            icon={Users}
+                                            label="Distribución de Aforo"
+                                            description="Ocupación porcentual por salones y terrazas."
+                                            checked={dashboardConfig.occupancyChart}
+                                            onCheckedChange={() => handleConfigToggle('occupancyChart')}
+                                            iconClassName="text-purple-500"
+                                            className="[&_.icon-container]:bg-purple-500/10 [&_.icon-container]:group-hover:bg-purple-500/20"
+                                        />
+                                    </div>
                                 </div>
-                                <Switch checked={dashboardConfig.salesChart} onCheckedChange={() => handleConfigToggle('salesChart')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Gráfico de Ingresos</Label>
-                                    <p className="text-xs text-muted-foreground">Ingresos y ocupación</p>
+
+                                <Separator className="opacity-50" />
+
+                                {/* Sección: Rendimiento */}
+                                <div className="space-y-4">
+                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                        <Trophy className="h-3 w-3" /> Rendimiento y Costes
+                                    </h4>
+                                    <div className="grid gap-3">
+                                        <SettingItem
+                                            id="teamRanking"
+                                            icon={Trophy}
+                                            label="Ranking de Equipo"
+                                            description="Leaderboard de ventas y desempeño del personal."
+                                            checked={dashboardConfig.teamRanking}
+                                            onCheckedChange={() => handleConfigToggle('teamRanking')}
+                                            iconClassName="text-yellow-500"
+                                            className="[&_.icon-container]:bg-yellow-500/10 [&_.icon-container]:group-hover:bg-yellow-500/20"
+                                        />
+
+                                        <SettingItem
+                                            id="topProducts"
+                                            icon={Star}
+                                            label="Top Productos"
+                                            description="Análisis de los platos y bebidas más populares."
+                                            checked={dashboardConfig.topProducts}
+                                            onCheckedChange={() => handleConfigToggle('topProducts')}
+                                            iconClassName="text-pink-500"
+                                            className="[&_.icon-container]:bg-pink-500/10 [&_.icon-container]:group-hover:bg-pink-500/20"
+                                        />
+
+                                        <SettingItem
+                                            id="costBreakdown"
+                                            icon={Activity}
+                                            label="Desglose de Costes"
+                                            description="Distribución de gastos fijos y variables."
+                                            checked={dashboardConfig.costBreakdown}
+                                            onCheckedChange={() => handleConfigToggle('costBreakdown')}
+                                            iconClassName="text-cyan-500"
+                                            className="[&_.icon-container]:bg-cyan-500/10 [&_.icon-container]:group-hover:bg-cyan-500/20"
+                                        />
+                                    </div>
                                 </div>
-                                <Switch checked={dashboardConfig.revenueChart} onCheckedChange={() => handleConfigToggle('revenueChart')} />
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Distribución de Aforo</Label>
-                                    <p className="text-xs text-muted-foreground">Ocupación por ambiente</p>
-                                </div>
-                                <Switch checked={dashboardConfig.occupancyChart} onCheckedChange={() => handleConfigToggle('occupancyChart')} />
-                            </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Comandas Recientes</Label>
-                                    <p className="text-xs text-muted-foreground">Tabla de últimas comandas</p>
-                                </div>
-                                <Switch checked={dashboardConfig.recentOrders} onCheckedChange={() => handleConfigToggle('recentOrders')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Alertas de Stock</Label>
-                                    <p className="text-xs text-muted-foreground">Ingredientes con stock bajo</p>
-                                </div>
-                                <Switch checked={dashboardConfig.stockAlerts} onCheckedChange={() => handleConfigToggle('stockAlerts')} />
-                            </div>
-                            <Separator />
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Ranking de Equipo</Label>
-                                    <p className="text-xs text-muted-foreground">Leaderboard del personal</p>
-                                </div>
-                                <Switch checked={dashboardConfig.teamRanking} onCheckedChange={() => handleConfigToggle('teamRanking')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Top Productos</Label>
-                                    <p className="text-xs text-muted-foreground">Productos más vendidos</p>
-                                </div>
-                                <Switch checked={dashboardConfig.topProducts} onCheckedChange={() => handleConfigToggle('topProducts')} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <Label>Desglose de Costes</Label>
-                                    <p className="text-xs text-muted-foreground">Distribución de gastos</p>
-                                </div>
-                                <Switch checked={dashboardConfig.costBreakdown} onCheckedChange={() => handleConfigToggle('costBreakdown')} />
-                            </div>
-                        </div>
+                        </ScrollArea>
+                        
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setConfigOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleSaveConfig}>Guardar</Button>
+                            <p className="text-xs text-muted-foreground">Los cambios se aplicarán instantáneamente.</p>
+                            <div className="flex gap-3">
+                                <Button variant="ghost" onClick={() => setConfigOpen(false)}>Cerrar</Button>
+                                <Button onClick={handleSaveConfig} variant="brand">
+                                    Guardar Cambios
+                                </Button>
+                            </div>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

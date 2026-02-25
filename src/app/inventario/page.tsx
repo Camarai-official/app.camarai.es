@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { MoreHorizontal, Package, PlusCircle, Search, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
+import { MoreHorizontal, Package, PlusCircle, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
 import { ExportModal, type ExportField } from '@/components/features/export-modal';
 import { Switch } from '@/components/ui/switch';
 
@@ -57,6 +57,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -121,7 +122,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Ajustar Stock de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
+          <DialogTitle icon={Package}>Ajustar Stock de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
           <DialogDescription>Stock actual: {item.stock_actual} {item.unidad_medida}. Selecciona una operación.</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-4 gap-2 pt-4">
@@ -162,7 +163,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
         </Card>
         <DialogFooter>
           <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-          <Button onClick={handleAdjust}>Ajustar Stock</Button>
+          <Button variant="brand" onClick={handleAdjust}>Ajustar Stock</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -183,7 +184,7 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Historial de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
+          <DialogTitle icon={History}>Historial de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="movements" className="w-full pt-4">
           <TabsList className="grid w-full grid-cols-3">
@@ -197,31 +198,33 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
                 <CardTitle>Historial de Movimientos</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Fecha</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Cantidad</TableHead>
-                      <TableHead>Usuario</TableHead>
-                      <TableHead>Motivo</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {mockHistoryData.map((h, i) => (
-                      <TableRow key={i}>
-                        <TableCell>{h.date}</TableCell>
-                        <TableCell>
-                          {/* Adjusted Badge variant to standard ones */}
-                          <Badge variant={h.type === 'Entrada' ? 'default' : h.type === 'Merma' ? 'destructive' : 'secondary'}>{h.type}</Badge>
-                        </TableCell>
-                        <TableCell className={cn(h.quantity > 0 ? 'text-green-500' : 'text-red-500')}>{h.quantity > 0 ? `+${h.quantity}` : h.quantity} {item.unidad_medida}</TableCell>
-                        <TableCell>{h.user}</TableCell>
-                        <TableCell>{h.reason}</TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Fecha</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Cantidad</TableHead>
+                        <TableHead>Usuario</TableHead>
+                        <TableHead>Motivo</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {mockHistoryData.map((h, i) => (
+                        <TableRow key={i}>
+                          <TableCell>{h.date}</TableCell>
+                          <TableCell>
+                            {/* Adjusted Badge variant to standard ones */}
+                            <Badge variant={h.type === 'Entrada' ? 'default' : h.type === 'Merma' ? 'destructive' : 'secondary'}>{h.type}</Badge>
+                          </TableCell>
+                          <TableCell className={cn(h.quantity > 0 ? 'text-green-500' : 'text-red-500')}>{h.quantity > 0 ? `+${h.quantity}` : h.quantity} {item.unidad_medida}</TableCell>
+                          <TableCell>{h.user}</TableCell>
+                          <TableCell>{h.reason}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -343,10 +346,8 @@ export default function InventarioPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Gestión de Inventario" />
-      </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+      <PageHeader title="Gestión de Inventario" />
+      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <Card>
           <CardHeader>
             <CardTitle className="text-base font-bold text-muted-foreground">Filtros</CardTitle>
@@ -354,10 +355,12 @@ export default function InventarioPage() {
           <CardContent>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-3/4">
-                <div className="relative w-full sm:w-auto sm:flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Buscar por nombre..." className="pl-8 w-full" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-                </div>
+                <SearchInput 
+                  containerClassName="sm:flex-1"
+                  placeholder="Buscar por nombre..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                />
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="w-full sm:w-auto sm:flex-1">
                     <SelectValue placeholder="Filtrar por categoría" />
@@ -397,64 +400,68 @@ export default function InventarioPage() {
             <CardTitle className="text-base font-bold text-muted-foreground">Componentes en Inventario</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Componente</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead className="text-right">Stock Actual</TableHead>
-                  <TableHead><span className="sr-only">Acciones</span></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody
-                key={currentPage}
-                className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
-              >
-                {currentItems.map(item => {
-                  const stockStatus = getStockStatus(item.stock_actual, item.stock_minimo_alerta);
-                  return (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">{item.nombre_ingrediente}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{getIngredientCategoryName(item.id_categoria_ingrediente)}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {/* Mapped badge variants to standard ones */}
-                        <Badge variant={stockStatus === 'low' ? 'destructive' : stockStatus === 'warning' ? 'destructive' : 'secondary'}>
-                          {item.stock_actual} {item.unidad_medida}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                              <MoreHorizontal className="h-4 w-4" />
-                              <span className="sr-only">Menú de acciones</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => openStockDialog(item)}>
-                              Ajustar Stock
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
-                              Ver historial
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Componente</TableHead>
+                      <TableHead>Categoría</TableHead>
+                      <TableHead className="text-right">Stock Actual</TableHead>
+                      <TableHead><span className="sr-only">Acciones</span></TableHead>
                     </TableRow>
-                  );
-                })}
-                {filteredItems.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
-                      No se encontraron componentes en el inventario con los filtros seleccionados.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody
+                    key={currentPage}
+                    className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
+                  >
+                    {currentItems.map(item => {
+                      const stockStatus = getStockStatus(item.stock_actual, item.stock_minimo_alerta);
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.nombre_ingrediente}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{getIngredientCategoryName(item.id_categoria_ingrediente)}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {/* Mapped badge variants to standard ones */}
+                            <Badge variant={stockStatus === 'low' ? 'destructive' : stockStatus === 'warning' ? 'destructive' : 'secondary'}>
+                              {item.stock_actual} {item.unidad_medida}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Menú de acciones</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                <DropdownMenuItem onSelect={() => openStockDialog(item)}>
+                                  <Package className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  Ajustar Stock
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
+                                  <History className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  Ver historial
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                    {filteredItems.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                          No se encontraron componentes en el inventario con los filtros seleccionados.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+              </Table>
+            </div>
           </CardContent>
           <CardFooter className="flex justify-between items-center">
             <div className="text-xs text-muted-foreground">
@@ -509,8 +516,7 @@ export default function InventarioPage() {
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="sm:max-w-[450px]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
+            <DialogTitle icon={Settings}>
               Configurar Inventario
             </DialogTitle>
             <DialogDescription>

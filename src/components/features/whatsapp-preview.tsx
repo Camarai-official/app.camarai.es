@@ -51,8 +51,8 @@ const MessageBubble = ({ message }: { message: WhatsAppMessage }) => {
       <div className={cn(
         'max-w-[80%] rounded-lg p-2 shadow-sm',
         isOutgoing 
-          ? 'bg-[#dcf8c6] dark:bg-[#005c4b] rounded-tr-none' 
-          : 'bg-white dark:bg-[#202c33] rounded-tl-none'
+          ? 'bg-emerald-50 dark:bg-emerald-900 rounded-tr-none' 
+          : 'bg-white dark:bg-slate-800 rounded-tl-none'
       )}>
         {/* Image */}
         {message.type === 'image' && message.imageUrl && (
@@ -76,7 +76,7 @@ const MessageBubble = ({ message }: { message: WhatsAppMessage }) => {
             {message.buttons.map((btn) => (
               <button
                 key={btn.id}
-                className="w-full py-2 px-3 text-sm text-[#00a884] dark:text-[#00a884] bg-transparent border border-[#00a884]/20 rounded-md hover:bg-[#00a884]/5 transition-colors"
+                className="w-full py-2 px-3 text-sm text-emerald-600 dark:text-emerald-500 bg-transparent border border-emerald-600/20 rounded-md hover:bg-emerald-600/5 transition-colors"
               >
                 {btn.label}
               </button>
@@ -130,15 +130,15 @@ export function WhatsAppPreview({
   return (
     <div className={cn(
       'w-full max-w-sm mx-auto rounded-xl overflow-hidden border shadow-lg',
-      'bg-[#efeae2] dark:bg-[#0b141a]',
+      'bg-stone-100 dark:bg-gray-950',
       className
     )}>
       {/* Header */}
       {showHeader && (
-        <div className="bg-[#075e54] dark:bg-[#202c33] px-4 py-3 flex items-center gap-3">
+        <div className="bg-emerald-800 dark:bg-slate-800 px-4 py-3 flex items-center gap-3">
           <Avatar className="h-10 w-10">
             <AvatarImage src={businessLogo} alt={businessName} />
-            <AvatarFallback className="bg-[#00a884] text-white">
+            <AvatarFallback className="bg-emerald-500 text-white">
               {businessName.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -170,11 +170,11 @@ export function WhatsAppPreview({
       </div>
       
       {/* Input Bar (Decorative) */}
-      <div className="bg-[#f0f2f5] dark:bg-[#202c33] px-3 py-2 flex items-center gap-2">
-        <div className="flex-1 bg-white dark:bg-[#2a3942] rounded-full px-4 py-2">
+      <div className="bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2">
+        <div className="flex-1 bg-white dark:bg-slate-700 rounded-full px-4 py-2">
           <p className="text-sm text-gray-400">Escribe un mensaje</p>
         </div>
-        <div className="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center">
+        <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
           <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 14.016l5.016-5.016 1.406 1.406-6.422 6.422-6.422-6.422 1.406-1.406z"/>
           </svg>

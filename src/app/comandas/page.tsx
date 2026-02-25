@@ -9,11 +9,18 @@ import {
     MoreHorizontal,
     ChevronLeft,
     ChevronRight,
-    Search,
     Download,
     Settings,
     Pencil,
     Printer,
+    Eye,
+    Activity,
+    PlayCircle,
+    CheckCircle,
+    XCircle,
+    FileText,
+    CreditCard,
+    Ban,
 } from 'lucide-react';
 
 import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
@@ -37,6 +44,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
 import { ExportModal } from '@/components/features/export-modal';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
+import { SearchInput } from '@/components/ui/search-input';
 
 export default function ComandasPage() {
     const { toast } = useToast();
@@ -205,18 +213,18 @@ export default function ComandasPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <PageHeader title="Historial de Pedidos" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+            <PageHeader title="Historial de Pedidos" />
+            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
 
 
                 <Card>
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="relative w-full md:w-1/3">
-                            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Buscar por orden, mesa, cliente..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-                        </div>
+                        <SearchInput
+                            containerClassName="md:w-1/3"
+                            placeholder="Buscar por orden, mesa, cliente..."
+                            value={searchTerm}
+                            onChange={e => setSearchTerm(e.target.value)}
+                        />
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
                             <CalendarDateRangePicker date={date} setDate={setDate} />
 
@@ -237,102 +245,128 @@ export default function ComandasPage() {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-[40px]">
-                                        <Checkbox
-                                            checked={currentOrders.length > 0 && selectedOrders.size === currentOrders.length}
-                                            onCheckedChange={toggleAllSelection}
-                                            aria-label="Seleccionar todo"
-                                        />
-                                    </TableHead>
-                                    {viewConfig.showOrder && <TableHead>Nºorden</TableHead>}
-                                    {viewConfig.showTime && <TableHead>Hora</TableHead>}
-                                    {viewConfig.showTable && <TableHead>Mesa</TableHead>}
-                                    {viewConfig.showName && <TableHead>Nombre</TableHead>}
-                                    {viewConfig.showTotal && <TableHead>Total</TableHead>}
-                                    {viewConfig.showStatus && <TableHead>Estado</TableHead>}
-                                    <TableHead><span className="sr-only">Acciones</span></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody
-                                key={currentPage}
-                                className={cn(
-                                    'transition-opacity duration-300',
-                                    isAnimating ? 'opacity-0' : 'opacity-100'
-                                )}
-                            >
-                                {false && (
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={8} className="h-24 text-center">Cargando comandas...</TableCell>
-                                    </TableRow>
-                                )}
-                                {currentOrders.length === 0 && (
-                                    <TableRow>
-                                        <TableCell colSpan={8} className="h-24 text-center">No se encontraron comandas.</TableCell>
-                                    </TableRow>
-                                )}
-                                {currentOrders.map((order) => (
-                                    <TableRow key={order.order}>
-                                        <TableCell>
+                                        <TableHead className="w-[40px]">
                                             <Checkbox
-                                                checked={selectedOrders.has(order.order)}
-                                                onCheckedChange={() => toggleOrderSelection(order.order)}
+                                                checked={currentOrders.length > 0 && selectedOrders.size === currentOrders.length}
+                                                onCheckedChange={toggleAllSelection}
+                                                aria-label="Seleccionar todo"
                                             />
-                                        </TableCell>
-                                        {viewConfig.showOrder && <TableCell className="font-medium">{order.order}</TableCell>}
-                                        {viewConfig.showTime && <TableCell>{order.time}</TableCell>}
-                                        {viewConfig.showTable && <TableCell>{order.table}</TableCell>}
-                                        {viewConfig.showName && <TableCell>{order.name}</TableCell>}
-                                        {viewConfig.showTotal && <TableCell>{order.total}</TableCell>}
-                                        {viewConfig.showStatus && <TableCell>
-                                            <Badge
-                                                variant={
-                                                    order.status === 'Completado'
-                                                        ? 'completed'
-                                                        : order.status === 'En Progreso'
-                                                            ? 'in-progress'
-                                                            : 'cancelled'
-                                                }
-                                            >
-                                                {order.status}
-                                            </Badge>
-                                        </TableCell>}
-                                        <TableCell>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0">
-                                                        <span className="sr-only">Abrir menú</span>
-                                                        <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => handleViewDetails(order)}>Ver detalles</DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => handleEditOrder(order)}>
-                                                        <Pencil className="mr-2 h-4 w-4" />
-                                                        Editar comanda
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuSub>
-                                                        <DropdownMenuSubTrigger>Cambiar Estado</DropdownMenuSubTrigger>
-                                                        <DropdownMenuSubContent>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>En Progreso</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>Completado</DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>Cancelado</DropdownMenuItem>
-                                                        </DropdownMenuSubContent>
-                                                    </DropdownMenuSub>
-                                                    <DropdownMenuItem>Exportar a PDF</DropdownMenuItem>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem>Marcar como pagada</DropdownMenuItem>
-                                                    <DropdownMenuItem className="text-destructive">Anular comanda</DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
+                                        </TableHead>
+                                        {viewConfig.showOrder && <TableHead>Nºorden</TableHead>}
+                                        {viewConfig.showTime && <TableHead>Hora</TableHead>}
+                                        {viewConfig.showTable && <TableHead>Mesa</TableHead>}
+                                        {viewConfig.showName && <TableHead>Nombre</TableHead>}
+                                        {viewConfig.showTotal && <TableHead>Total</TableHead>}
+                                        {viewConfig.showStatus && <TableHead>Estado</TableHead>}
+                                        <TableHead><span className="sr-only">Acciones</span></TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody
+                                    key={currentPage}
+                                    className={cn(
+                                        'transition-opacity duration-300',
+                                        isAnimating ? 'opacity-0' : 'opacity-100'
+                                    )}
+                                >
+                                    {false && (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="h-24 text-center">Cargando comandas...</TableCell>
+                                        </TableRow>
+                                    )}
+                                    {currentOrders.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={8} className="h-24 text-center">No se encontraron comandas.</TableCell>
+                                        </TableRow>
+                                    )}
+                                    {currentOrders.map((order) => (
+                                        <TableRow key={order.order}>
+                                            <TableCell>
+                                                <Checkbox
+                                                    checked={selectedOrders.has(order.order)}
+                                                    onCheckedChange={() => toggleOrderSelection(order.order)}
+                                                />
+                                            </TableCell>
+                                            {viewConfig.showOrder && <TableCell className="font-medium">{order.order}</TableCell>}
+                                            {viewConfig.showTime && <TableCell>{order.time}</TableCell>}
+                                            {viewConfig.showTable && <TableCell>{order.table}</TableCell>}
+                                            {viewConfig.showName && <TableCell>{order.name}</TableCell>}
+                                            {viewConfig.showTotal && <TableCell>{order.total}</TableCell>}
+                                            {viewConfig.showStatus && <TableCell>
+                                                <Badge
+                                                    variant={
+                                                        order.status === 'Completado'
+                                                            ? 'completed'
+                                                            : order.status === 'En Progreso'
+                                                                ? 'in-progress'
+                                                                : 'cancelled'
+                                                    }
+                                                >
+                                                    {order.status}
+                                                </Badge>
+                                            </TableCell>}
+                                            <TableCell>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                                            <span className="sr-only">Abrir menú</span>
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleViewDetails(order)}>
+                                                            <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Ver detalles
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem onClick={() => handleEditOrder(order)}>
+                                                            <Pencil className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Editar comanda
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSub>
+                                                            <DropdownMenuSubTrigger>
+                                                                <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                Cambiar Estado
+                                                            </DropdownMenuSubTrigger>
+                                                            <DropdownMenuSubContent>
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>
+                                                                    <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    En Progreso
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>
+                                                                    <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    Completado
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>
+                                                                    <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    Cancelado
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuSubContent>
+                                                        </DropdownMenuSub>
+                                                        <DropdownMenuItem>
+                                                            <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Exportar a PDF
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem>
+                                                            <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Marcar como pagada
+                                                        </DropdownMenuItem>
+                                                        <DropdownMenuItem>
+                                                            <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            Anular comanda
+                                                        </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center">
                         <div className="text-xs text-muted-foreground">

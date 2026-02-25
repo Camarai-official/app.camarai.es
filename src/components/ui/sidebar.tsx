@@ -93,10 +93,10 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
+      return isMobile || isTablet
         ? setOpenMobile((open) => !open)
         : setOpen((open) => !open)
-    }, [isMobile, setOpen, setOpenMobile])
+    }, [isMobile, isTablet, setOpen, setOpenMobile])
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -256,12 +256,11 @@ const Sidebar = React.forwardRef<
         {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-            "group-data-[collapsible=offcanvas]:w-0",
+            "duration-200 relative h-svh bg-transparent transition-[width] ease-linear",
             "group-data-[side=right]:rotate-180",
-            variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
+            "w-[--sidebar-width]",
+            "group-data-[state=collapsed]:w-[--sidebar-width-icon]",
+            "group-data-[collapsible=offcanvas]:w-0"
           )}
         />
         <div
@@ -359,7 +358,7 @@ const SidebarInset = React.forwardRef<
     <main
       ref={ref}
       className={cn(
-        "relative flex min-h-svh flex-1 flex-col bg-background",
+        "relative flex min-h-svh flex-1 flex-col bg-background min-w-0 overflow-x-hidden transition-all duration-200",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-[calc(var(--sidebar-width-icon)+theme(spacing.4)+2px)] md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         "md:peer-data-[state=collapsed]:pl-[var(--sidebar-width-icon)] lg:peer-data-[state=expanded]:pl-[var(--sidebar-width)]",
         className
@@ -396,7 +395,10 @@ const SidebarHeader = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 p-2 pt-8", className)}
+      className={cn(
+        "flex flex-col gap-2 p-3 pt-4 sm:p-4 sm:pt-6 lg:pt-8",
+        className
+      )}
       {...props}
     />
   )
@@ -411,7 +413,10 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-      className={cn("mt-auto flex flex-col gap-2 p-2", className)}
+      className={cn(
+        "mt-auto flex flex-col gap-2 p-3 pb-4 sm:p-4 sm:pb-5 border-t border-sidebar-border/60",
+        className
+      )}
       {...props}
     />
   )

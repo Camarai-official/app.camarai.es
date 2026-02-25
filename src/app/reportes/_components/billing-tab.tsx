@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { CalendarIcon, Download, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarIcon, Download, MoreHorizontal, ChevronLeft, ChevronRight, FileSpreadsheet, FileText, Eye, Monitor, Receipt } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -120,9 +120,9 @@ export function BillingTab({
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Exportar a CSV</DropdownMenuItem>
-                                <DropdownMenuItem>Exportar a PDF</DropdownMenuItem>
-                                <DropdownMenuItem>Exportar a Excel</DropdownMenuItem>
+                                <DropdownMenuItem><FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a CSV</DropdownMenuItem>
+                                <DropdownMenuItem><FileText className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a PDF</DropdownMenuItem>
+                                <DropdownMenuItem><FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />Exportar a Excel</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -135,67 +135,69 @@ export function BillingTab({
                     </div>
                 </CardHeader>
                 <CardContent className="px-6 pb-2">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Nº orden</TableHead>
-                                <TableHead>Hora</TableHead>
-                                <TableHead>Mesa</TableHead>
-                                <TableHead>Nombre</TableHead>
-                                <TableHead>Total</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead className="w-[40px]"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody
-                            key={currentPage}
-                            className={cn(
-                                'transition-opacity duration-300',
-                                isAnimating ? 'opacity-0' : 'opacity-100 animate-fade-in'
-                            )}
-                        >
-                            {currentOrders.map((order) => (
-                                <TableRow key={order.order}>
-                                    <TableCell className="font-medium">{order.order}</TableCell>
-                                    <TableCell>{order.time}</TableCell>
-                                    <TableCell>{order.table}</TableCell>
-                                    <TableCell>{order.name}</TableCell>
-                                    <TableCell>{order.total}</TableCell>
-                                    <TableCell>
-                                        <Badge
-                                            variant={
-                                                order.status === 'Completado'
-                                                    ? 'completed'
-                                                    : order.status === 'En Progreso'
-                                                        ? 'in-progress'
-                                                        : 'cancelled'
-                                            }
-                                        >
-                                            {order.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Abrir menú</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem onClick={() => onViewDetails(order.order)}>Ver detalles</DropdownMenuItem>
-                                                <DropdownMenuItem>Descargar PDF</DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>Reabrir en TPV</DropdownMenuItem>
-                                                <DropdownMenuItem>Generar/Borrar factura</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Nº orden</TableHead>
+                                    <TableHead>Hora</TableHead>
+                                    <TableHead>Mesa</TableHead>
+                                    <TableHead>Nombre</TableHead>
+                                    <TableHead>Total</TableHead>
+                                    <TableHead>Estado</TableHead>
+                                    <TableHead className="w-[40px]"></TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody
+                                key={currentPage}
+                                className={cn(
+                                    'transition-opacity duration-300',
+                                    isAnimating ? 'opacity-0' : 'opacity-100 animate-fade-in'
+                                )}
+                            >
+                                {currentOrders.map((order) => (
+                                    <TableRow key={order.order}>
+                                        <TableCell className="font-medium">{order.order}</TableCell>
+                                        <TableCell>{order.time}</TableCell>
+                                        <TableCell>{order.table}</TableCell>
+                                        <TableCell>{order.name}</TableCell>
+                                        <TableCell>{order.total}</TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant={
+                                                    order.status === 'Completado'
+                                                        ? 'completed'
+                                                        : order.status === 'En Progreso'
+                                                            ? 'in-progress'
+                                                            : 'cancelled'
+                                                }
+                                            >
+                                                {order.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0">
+                                                        <span className="sr-only">Abrir menú</span>
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                    <DropdownMenuItem onClick={() => onViewDetails(order.order)}><Eye className="mr-2 h-4 w-4 text-muted-foreground" />Ver detalles</DropdownMenuItem>
+                                                    <DropdownMenuItem><Download className="mr-2 h-4 w-4 text-muted-foreground" />Descargar PDF</DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem><Monitor className="mr-2 h-4 w-4 text-muted-foreground" />Reabrir en TPV</DropdownMenuItem>
+                                                    <DropdownMenuItem><Receipt className="mr-2 h-4 w-4 text-muted-foreground" />Generar/Borrar factura</DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
                 <CardFooter className="flex justify-end items-center gap-2">
                     <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onPaginate(currentPage - 1)} disabled={currentPage === 1}>

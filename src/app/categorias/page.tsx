@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash2, Search, X, ChevronLeft, ChevronRight, Printer } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit, Trash, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { SearchInput } from '@/components/ui/search-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -66,7 +67,7 @@ function CategoryDialog({
     nombre_categoria: '',
     descripcion: '',
     icono: 'Utensils',
-    color: '#9B6EFD',
+    color: 'violet-500',
     imagen: '',
     orden: 0,
     categoria_padre_id: '',
@@ -98,7 +99,7 @@ function CategoryDialog({
         nombre_categoria: '',
         descripcion: '',
         icono: 'Utensils',
-        color: '#9B6EFD',
+        color: 'violet-500',
         imagen: '',
         orden: allCategories.length,
         categoria_padre_id: '',
@@ -146,15 +147,7 @@ function CategoryDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {categoryData.icono && (
-              <div
-                className="h-8 w-8 rounded-md flex items-center justify-center"
-                style={{ backgroundColor: categoryData.color || '#9B6EFD' }}
-              >
-                <SelectedIcon className="h-4 w-4 text-white" />
-              </div>
-            )}
+          <DialogTitle icon={SelectedIcon}>
             {category ? 'Editar' : 'Crear'} Categoría
           </DialogTitle>
           <DialogDescription>
@@ -306,19 +299,15 @@ function CategoryDialog({
               <div className="space-y-4">
                 <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
                   <PopoverTrigger asChild>
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Buscar productos para añadir..."
-                        className="pl-8"
-                        value={searchTerm}
-                        onChange={(e) => {
-                          setSearchTerm(e.target.value);
-                          if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
-                          else setIsSearchPopoverOpen(false);
-                        }}
-                      />
-                    </div>
+                    <SearchInput
+                      placeholder="Buscar productos para añadir..."
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
+                        else setIsSearchPopoverOpen(false);
+                      }}
+                    />
                   </PopoverTrigger>
                   <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                     <Command>
@@ -348,20 +337,39 @@ function CategoryDialog({
                     <CardTitle className='text-base'>Productos Asignados ({assignedProducts.length})</CardTitle>
                     <CardDescription>Productos que pertenecen a esta categoría.</CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <ScrollArea className="h-52">
-                      <div className="space-y-2 pr-4">
-                        {assignedProducts.length > 0 ? assignedProducts.map(p => (
-                          <div key={p.id} className="flex items-center justify-between p-2 border rounded-lg bg-background text-sm">
-                            <div className='flex items-center gap-2'>
-                              <Image src={p.url_imagen_producto} alt={p.nombre_producto} width={32} height={32} className="rounded-sm" data-ai-hint="product image" />
-                              <span>{p.nombre_producto}</span>
+                    <CardContent className="p-0">
+                      <ScrollArea className="h-52">
+                        <div className="space-y-2 p-6">
+                          {assignedProducts.length > 0 ? assignedProducts.map(p => (
+                            <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
+                              <div className="flex items-center gap-3">
+                                <div className="relative h-10 w-10 overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
+                                  {p.url_imagen_producto ? (
+                                    <Image 
+                                      src={p.url_imagen_producto} 
+                                      alt={p.nombre_producto} 
+                                      fill 
+                                      className="object-cover" 
+                                    />
+                                  ) : (
+                                    <Package className="h-5 w-5 text-muted-foreground opacity-40" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-semibold">{p.nombre_producto}</p>
+                                  <p className="text-[11px] text-muted-foreground">ID: {p.id}</p>
+                                </div>
+                              </div>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 hover:bg-destructive/10 transition-colors" 
+                                onClick={() => handleRemoveProduct(p.id)}
+                              >
+                                <X className="h-4 w-4 text-muted-foreground" />
+                              </Button>
                             </div>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-destructive" onClick={() => handleRemoveProduct(p.id)}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )) : (
+                          )) : (
                           <div className="text-center text-sm text-muted-foreground py-10">
                             <p>Aún no hay productos en esta categoría.</p>
                             <p className="text-xs mt-1">Busca productos arriba para añadirlos.</p>
@@ -376,11 +384,11 @@ function CategoryDialog({
           </ScrollArea>
         </Tabs>
 
-        <DialogFooter className='pt-4 border-t'>
+        <DialogFooter>
           <DialogClose asChild>
             <Button variant="secondary">Cancelar</Button>
           </DialogClose>
-          <Button onClick={handleSaveClick}>Guardar Categoría</Button>
+          <Button variant="brand" onClick={handleSaveClick}>Guardar Categoría</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -497,90 +505,98 @@ export default function CategoriasPage() {
 
   return (
     <div className="flex flex-1 flex-col h-full">
-      <header className="p-4 md:p-6">
-        <PageHeader title="Librería de Categorías" />
-      </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-0 md:gap-6 md:p-6 md:pt-0">
+      <PageHeader title="Librería de Categorías" />
+      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
         <Card className="min-h-[70vh]">
           <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:w-1/3">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar categoría..." className="pl-8" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-            </div>
+            <SearchInput 
+              containerClassName="md:w-1/3"
+              placeholder="Buscar categoría..." 
+              value={searchTerm} 
+              onChange={e => setSearchTerm(e.target.value)} 
+            />
             <Button onClick={() => handleOpenDialog()} className="w-full md:w-auto">
               <PlusCircle className="mr-2 h-4 w-4" />
               Crear Nueva Categoría
             </Button>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre Categoría</TableHead>
-                  <TableHead>Productos</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody
-                key={currentPage}
-                className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
-              >
-                {currentCategories.length > 0 ? currentCategories.map((cat) => {
-                  const CatIcon = iconMap[cat.icono || 'Utensils'] || iconMap['Utensils'];
-                  return (
-                  <TableRow key={cat.id}>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-8 w-8 rounded-md flex items-center justify-center shrink-0"
-                          style={{ backgroundColor: cat.color || '#9B6EFD' }}
-                        >
-                          <CatIcon className="h-4 w-4 text-white" />
-                        </div>
-                        <span>{cat.nombre_categoria}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{getProductsInCategoryCount(cat.id)} productos</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <AlertDialog>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => handleOpenDialog(cat)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem className="text-destructive"><Trash2 className="mr-2 h-4 w-4" />Eliminar</DropdownMenuItem>
-                            </AlertDialogTrigger>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Esta acción no se puede deshacer. Se eliminará la categoría permanentemente. Los productos en las cartas que usen esta categoría quedarán sin categorizar.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleRemove(cat.id, cat.nombre_categoria)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                  );
-                }) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={3} className="h-24 text-center">
-                      {searchTerm ? 'No se encontraron categorías.' : 'No has creado ninguna categoría todavía.'}
-                    </TableCell>
+                    <TableHead>Nombre Categoría</TableHead>
+                    <TableHead>Productos</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody
+                  key={currentPage}
+                  className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
+                >
+                  {currentCategories.length > 0 ? currentCategories.map((cat) => {
+                    const CatIcon = iconMap[cat.icono || 'Utensils'] || iconMap['Utensils'];
+                    return (
+                    <TableRow key={cat.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-8 w-8 rounded-md flex items-center justify-center shrink-0"
+                            style={{ backgroundColor: cat.color || '#9B6EFD' }}
+                          >
+                            <CatIcon className="h-4 w-4 text-white" />
+                          </div>
+                          <span>{cat.nombre_categoria}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="secondary">{getProductsInCategoryCount(cat.id)} productos</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <AlertDialog>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem onClick={() => handleOpenDialog(cat)}>
+                                <Edit className="mr-2 h-4 w-4 text-muted-foreground transition-colors" />
+                                Editar
+                              </DropdownMenuItem>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem>
+                                  <Trash className="mr-2 h-4 w-4 text-muted-foreground transition-colors" />
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Esta acción no se puede deshacer. Se eliminará la categoría permanentemente. Los productos en las cartas que usen esta categoría quedarán sin categorizar.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleRemove(cat.id, cat.nombre_categoria)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                    );
+                  }) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center">
+                        {searchTerm ? 'No se encontraron categorías.' : 'No has creado ninguna categoría todavía.'}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
           <CardFooter className="flex justify-between items-center">
             <div className="text-xs text-muted-foreground">

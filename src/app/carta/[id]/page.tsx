@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, PlusCircle, Trash2, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, TrendingUp } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash, Edit, Package, Layers, Image as ImageIcon, DollarSign, Percent, Info, Save, TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -53,7 +53,7 @@ function AddElementDialog({ menuId, type, open, onOpenChange, onAdd }: { menuId:
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                    <DialogTitle icon={type === 'producto' ? Package : Layers}>{title}</DialogTitle>
                     <DialogDescription>{description}</DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
@@ -223,15 +223,13 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <header className="p-4 md:p-6">
-                <Link href="/carta">
-                    <PageHeader
-                        className="cursor-pointer"
-                        title={<>Gestionar Menú/Combo: &quot;{activeMenu.nombre_carta}&quot;</>}
-                    />
-                </Link>
-            </header>
-            <main className="flex-grow p-4 pt-0 md:p-6 md:pt-0">
+            <Link href="/carta">
+                <PageHeader
+                    className="cursor-pointer"
+                    title={<>Gestionar Menú/Combo: &quot;{activeMenu.nombre_carta}&quot;</>}
+                />
+            </Link>
+            <main className="flex-grow p-4 pt-2 md:p-6 md:pt-3">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     {/* Left Column: Menu Details & Profitability */}
                     <div className="lg:col-span-1 flex flex-col gap-8">
@@ -264,7 +262,13 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                                 <div className="space-y-2">
                                     <Label htmlFor="url_imagen"><ImageIcon className="inline-block mr-2" />Imagen</Label>
                                     <div className="flex flex-col items-center gap-2">
-                                        <Image src={activeMenu.url_imagen} alt={activeMenu.nombre_carta} width={128} height={128} className="rounded-lg border" data-ai-hint="menu image" />
+                                        <div className="relative w-32 h-32 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
+                                            {activeMenu.url_imagen ? (
+                                                <Image src={activeMenu.url_imagen} alt={activeMenu.nombre_carta} fill className="object-cover" data-ai-hint="menu image" />
+                                            ) : (
+                                                <ImageIcon className="h-10 w-10 text-muted-foreground opacity-40" />
+                                            )}
+                                        </div>
                                         <Input type="file" onChange={handleImageChange} accept="image/*" className="text-xs" />
                                     </div>
                                 </div>
@@ -316,8 +320,8 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                                             </p>
                                         </div>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => removeElementFromMenuCombo(menuId, el.id)}>
-                                        <Trash2 className="h-4 w-4" />
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10" onClick={() => removeElementFromMenuCombo(menuId, el.id)}>
+                                        <Trash className="h-4 w-4 text-muted-foreground" />
                                     </Button>
                                 </div>
                             ))}

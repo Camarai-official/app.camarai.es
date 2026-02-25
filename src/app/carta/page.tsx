@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Edit, Trash2, BookOpen, Utensils, Wine, Coffee, IceCream, Pizza, Beer, ArrowUp, ArrowDown, MessageSquare, Mic, Clock } from 'lucide-react';
+import { PlusCircle, Edit, Trash, Utensils, Wine, Coffee, IceCream, Pizza, Beer, ArrowUp, ArrowDown, MessageSquare, Mic, Clock, BookOpen, CheckCircle, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { mockCartas, mockMenuCombos, mockCategories, mockProducts, type Carta, type MenuCombo, type ElementoCarta, type ElementoMenuCombo } from '@/data/mock-data';
@@ -18,6 +18,11 @@ import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { cn } from '@/lib/utils';
+import { ConfigItem, ConfigToggle } from '@/components/ui/config-item';
+import { IconPicker, iconMap as allIcons } from '@/components/ui/icon-picker';
+import { ColorPicker } from '@/components/ui/color-picker';
+
 
 // WhatsApp config type for Carta
 interface CartaWhatsAppConfig {
@@ -28,9 +33,13 @@ interface CartaWhatsAppConfig {
   horarioFin: string;
 }
 
+// Basic icons for fallback
 const icons = {
     BookOpen, Utensils, Wine, Coffee, IceCream, Pizza, Beer
 };
+
+const availableColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
+
 
 export default function CartaPage() {
     const { toast } = useToast();
@@ -85,7 +94,7 @@ export default function CartaPage() {
             activa: false,
             elementos_carta: [],
             icon: 'BookOpen',
-            color: '#78A3ED'
+            color: 'blue-400'
         };
         setCartas(prev => [...prev, newCarta]);
         setEditingCarta(newCarta);
@@ -112,7 +121,7 @@ export default function CartaPage() {
             elementos_menu: [],
             active: false,
             icon: 'Utensils',
-            color: '#F0768C'
+            color: 'rose-500'
         };
         setMenuCombos(prev => [...prev, newMenu]);
         setEditingMenu(newMenu);
@@ -171,16 +180,14 @@ export default function CartaPage() {
 
     return (
         <div className="flex flex-1 flex-col h-full bg-muted/10">
-            <header className="p-4 md:p-6 pb-0">
-                <PageHeader
-                    title="Gestión de Cartas y Menús"
-                    subtitle="Diseña y organiza las cartas digitales y menús combinados."
-                />
-            </header>
+            <PageHeader
+                title="Gestión de Cartas y Menús"
+                subtitle="Diseña y organiza las cartas digitales y menús combinados."
+            />
 
-            <main className="flex-grow p-4 md:p-6 pt-0 space-y-6">
+            <main className="flex-grow p-4 md:p-6 pt-2 md:pt-3 space-y-6">
                 <Tabs defaultValue="cartas" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 max-w-[400px] mb-4">
+                    <TabsList className="grid w-full grid-cols-2 max-w-full sm:max-w-[400px] mb-4">
                         <TabsTrigger value="cartas">Cartas Digitales</TabsTrigger>
                         <TabsTrigger value="menus">Menús y Combos</TabsTrigger>
                     </TabsList>
@@ -188,34 +195,55 @@ export default function CartaPage() {
                     <TabsContent value="cartas" className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {cartas.map(carta => {
-                                const Icon = icons[carta.icon as keyof typeof icons] || BookOpen;
+                                const Icon = (allIcons[carta.icon] || icons[carta.icon as keyof typeof icons] || BookOpen) as LucideIcon;
                                 return (
                                     <Card key={carta.id} className="relative overflow-hidden group">
-                                        <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: carta.color }} />
-                                        <CardHeader className="pl-6 pb-2">
-                                            <div className="flex justify-between items-start">
+                                        <div 
+                                            className={cn(
+                                                "absolute top-0 left-0 w-1 h-full",
+                                                carta.color && !carta.color.startsWith('#') && `bg-${carta.color}`
+                                            )} 
+                                            style={carta.color && carta.color.startsWith('#') ? { backgroundColor: carta.color } : undefined} 
+                                        />
+                                        <ConfigItem
+                                            icon={<Icon className="h-5 w-5" />}
+                                            color={carta.color}
+                                            label={
                                                 <div className="flex items-center gap-2">
-                                                    <div className="p-2 rounded-md bg-muted">
-                                                        <Icon className="h-5 w-5" style={{ color: carta.color }} />
-                                                    </div>
-                                                    <div>
-                                                        <CardTitle className="text-xl">{carta.nombre_carta}</CardTitle>
-                                                        <Badge variant={carta.activa ? 'default' : 'secondary'} className="mt-1">
-                                                            {carta.activa ? 'Activa' : 'Borrador'}
-                                                        </Badge>
-                                                    </div>
+                                                    <span className="text-base font-bold text-foreground leading-tight">{carta.nombre_carta}</span>
+                                                    <Badge variant={carta.activa ? 'success' : 'neutral'}>
+                                                        {carta.activa ? 'Activa' : 'Borrador'}
+                                                    </Badge>
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button variant="ghost" size="icon" onClick={() => { setEditingCarta(carta); setIsCartaDialogOpen(true); }}>
-                                                        <Edit className="h-4 w-4 text-muted-foreground" />
+                                            }
+                                            description={
+                                                <span className="text-[11px] leading-relaxed line-clamp-1">
+                                                    {carta.descripcion_carta || 'Sin descripción'}
+                                                </span>
+                                            }
+                                            className="bg-muted/10 border-none border-b rounded-b-none hover:bg-muted/20 p-5 transition-all group/header"
+                                        >
+                                            <div className="opacity-0 group-hover:opacity-100 group-hover/header:opacity-100 transition-all transform">
+                                                <div className="flex items-center gap-1 rounded-lg">
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        className="h-7 w-7 text-foreground bg-background transition-all rounded-md"
+                                                        onClick={(e) => { e.stopPropagation(); setEditingCarta(carta); setIsCartaDialogOpen(true); }}
+                                                    >
+                                                        <Edit className="h-4 w-4" />
                                                     </Button>
-                                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => removeCarta(carta.id)}>
-                                                        <Trash2 className="h-4 w-4" />
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        className="h-7 w-7 text-foreground bg-background transition-all rounded-md"
+                                                        onClick={(e) => { e.stopPropagation(); removeCarta(carta.id); }}
+                                                    >
+                                                        <Trash className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             </div>
-                                            <CardDescription className="line-clamp-2 mt-2">{carta.descripcion_carta || 'Sin descripción'}</CardDescription>
-                                        </CardHeader>
+                                        </ConfigItem>
                                         <CardContent className="pl-6 pt-0">
                                             <div className="mt-4 border-t pt-4">
                                                 <div className="flex justify-between items-center mb-2">
@@ -241,8 +269,8 @@ export default function CartaPage() {
                                                                         <Badge variant="outline" className="text-[10px] h-5 px-1">{el.tipo === 'categoria' ? 'CAT' : 'MEN'}</Badge>
                                                                         <span className="truncate max-w-[120px]">{name}</span>
                                                                     </div>
-                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover/item:opacity-100 text-muted-foreground hover:text-destructive" onClick={() => removeElementFromCarta(carta.id, el.id)}>
-                                                                        <Trash2 className="h-3 w-3" />
+                                                                    <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover/item:opacity-100 hover:bg-destructive/10" onClick={() => removeElementFromCarta(carta.id, el.id)}>
+                                                                        <Trash className="h-3 w-3 text-muted-foreground" />
                                                                     </Button>
                                                                 </div>
                                                             )
@@ -293,221 +321,280 @@ export default function CartaPage() {
 
                 {/* Dialog para Editar Carta */}
                 <Dialog open={isCartaDialogOpen} onOpenChange={(open) => { setIsCartaDialogOpen(open); if (!open) setDialogTab('general'); }}>
-                    <DialogContent className="sm:max-w-2xl">
+                    <DialogContent className="sm:max-w-4xl overflow-hidden border-none shadow-2xl p-6">
                         <DialogHeader>
-                            <DialogTitle>Editar Carta Digital</DialogTitle>
+                            <DialogTitle icon={BookOpen}>
+                                Editar Carta Digital
+                            </DialogTitle>
                             <DialogDescription>Configura los detalles principales y la integración WhatsApp.</DialogDescription>
                         </DialogHeader>
                         
-                        <Tabs value={dialogTab} onValueChange={setDialogTab} className="w-full">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="general">
-                                    <BookOpen className="h-4 w-4 mr-2" />
-                                    General
-                                </TabsTrigger>
-                                <TabsTrigger value="whatsapp">
-                                    <MessageSquare className="h-4 w-4 mr-2" />
-                                    WhatsApp
-                                </TabsTrigger>
-                            </TabsList>
-                            
-                            <TabsContent value="general" className="space-y-4 mt-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="name">Nombre de la Carta</Label>
-                                    <Input id="name" value={editingCarta?.nombre_carta || ''} onChange={(e) => setEditingCarta(prev => ({ ...prev, nombre_carta: e.target.value }))} />
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="desc">Descripción</Label>
-                                    <Textarea id="desc" value={editingCarta?.descripcion_carta || ''} onChange={(e) => setEditingCarta(prev => ({ ...prev, descripcion_carta: e.target.value }))} />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="grid gap-2">
-                                        <Label>Icono</Label>
-                                        <Select value={editingCarta?.icon} onValueChange={(val) => setEditingCarta(prev => ({ ...prev, icon: val }))}>
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                {Object.keys(icons).map(key => (
-                                                    <SelectItem key={key} value={key}>{key}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label>Color de Identidad</Label>
-                                        <div className="flex items-center gap-2">
-                                            <Input type="color" className="w-12 h-10 p-1 cursor-pointer" value={editingCarta?.color || '#000000'} onChange={(e) => setEditingCarta(prev => ({ ...prev, color: e.target.value }))} />
-                                            <span className="text-sm text-muted-foreground">{editingCarta?.color}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center justify-between border p-4 rounded-lg">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-base">Carta Activa</Label>
-                                        <p className="text-sm text-muted-foreground">Visible para los clientes</p>
-                                    </div>
-                                    <Switch checked={editingCarta?.activa} onCheckedChange={(checked) => setEditingCarta(prev => ({ ...prev, activa: checked }))} />
-                                </div>
-                            </TabsContent>
-                            
-                            <TabsContent value="whatsapp" className="mt-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {/* Config Column */}
-                                    <div className="space-y-4">
-                                        <div className="flex items-center justify-between p-3 border rounded-lg">
-                                            <div className="flex items-center gap-2">
-                                                <MessageSquare className="h-4 w-4 text-brand-whatsapp" />
-                                                <div>
-                                                    <Label>Disponible vía WhatsApp</Label>
-                                                    <p className="text-xs text-muted-foreground">Clientes pueden pedir por WhatsApp</p>
-                                                </div>
-                                            </div>
-                                            <Switch 
-                                                checked={whatsAppConfig.disponibleWhatsApp}
-                                                onCheckedChange={(v) => setWhatsAppConfig(p => ({ ...p, disponibleWhatsApp: v }))}
-                                            />
-                                        </div>
-                                        
-                                        <div className="flex items-center justify-between p-3 border rounded-lg">
-                                            <div className="flex items-center gap-2">
-                                                <Mic className="h-4 w-4 text-blue-500" />
-                                                <div>
-                                                    <Label>Permitir pedidos por voz</Label>
-                                                    <p className="text-xs text-muted-foreground">Procesar audios con IA</p>
-                                                </div>
-                                            </div>
-                                            <Switch 
-                                                checked={whatsAppConfig.permitirVoz}
-                                                onCheckedChange={(v) => setWhatsAppConfig(p => ({ ...p, permitirVoz: v }))}
-                                            />
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <Label>Mensaje de bienvenida</Label>
-                                            <Textarea
-                                                value={whatsAppConfig.mensajeBienvenida}
-                                                onChange={(e) => setWhatsAppConfig(p => ({ ...p, mensajeBienvenida: e.target.value }))}
-                                                placeholder="¡Hola! Bienvenido a nuestro restaurante..."
-                                                rows={3}
-                                            />
-                                        </div>
-                                        
-                                        <div className="space-y-2">
-                                            <Label className="flex items-center gap-2">
-                                                <Clock className="h-4 w-4" />
-                                                Horario disponibilidad WhatsApp
-                                            </Label>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <div>
-                                                    <Label className="text-xs text-muted-foreground">Desde</Label>
-                                                    <Input
-                                                        type="time"
-                                                        value={whatsAppConfig.horarioInicio}
-                                                        onChange={(e) => setWhatsAppConfig(p => ({ ...p, horarioInicio: e.target.value }))}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <Label className="text-xs text-muted-foreground">Hasta</Label>
-                                                    <Input
-                                                        type="time"
-                                                        value={whatsAppConfig.horarioFin}
-                                                        onChange={(e) => setWhatsAppConfig(p => ({ ...p, horarioFin: e.target.value }))}
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Preview Column */}
-                                    <div>
-                                        <Label className="mb-2 block">Vista previa del menú</Label>
-                                        <WhatsAppPreview
-                                            messages={getWhatsAppPreviewMessages()}
-                                            businessName={editingCarta?.nombre_carta || 'Mi Restaurante'}
-                                            showHeader={true}
+                        <ScrollArea className="max-h-[70vh] -mx-6 px-6">
+                            <Tabs value={dialogTab} onValueChange={setDialogTab} className="w-full mt-2">
+                                <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl">
+                                    <TabsTrigger value="general" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                        <BookOpen className="h-4 w-4 mr-2" />
+                                        General
+                                    </TabsTrigger>
+                                    <TabsTrigger value="whatsapp" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                                        <MessageSquare className="h-4 w-4 mr-2" />
+                                        WhatsApp
+                                    </TabsTrigger>
+                                </TabsList>
+                                
+                                <TabsContent value="general" className="space-y-5 mt-6">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name" className="ml-1">Nombre de la Carta</Label>
+                                        <Input 
+                                            id="name" 
+                                            value={editingCarta?.nombre_carta || ''} 
+                                            onChange={(e) => setEditingCarta(prev => ({ ...prev, nombre_carta: e.target.value }))}
+                                            className="h-10 bg-muted/50 border-input/60 hover:bg-muted/80 hover:border-input transition-colors rounded-lg shadow-sm focus-visible:ring-1 text-center w-full"
                                         />
                                     </div>
-                                </div>
-                            </TabsContent>
-                        </Tabs>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="desc" className="ml-1">Descripción</Label>
+                                        <Textarea 
+                                            id="desc" 
+                                            value={editingCarta?.descripcion_carta || ''} 
+                                            onChange={(e) => setEditingCarta(prev => ({ ...prev, descripcion_carta: e.target.value }))}
+                                            className="min-h-[100px] bg-muted/50 border-input/60 hover:bg-muted/80 hover:border-input transition-colors rounded-lg shadow-sm resize-none focus-visible:ring-1 text-center"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <IconPicker
+                                            value={editingCarta?.icon || 'BookOpen'}
+                                            onChange={(icon) => setEditingCarta(prev => ({ ...prev, icon: icon }))}
+                                            label="Icono Representativo"
+                                        />
+                                        <ColorPicker
+                                            label="Color de Identidad"
+                                            value={editingCarta?.color}
+                                            onChange={(val) => setEditingCarta(prev => ({ ...prev, color: val }))}
+                                        />
+                                    </div>
+                                    <ConfigToggle
+                                        id="carta-activa"
+                                        icon={BookOpen}
+                                        label="Carta Activa"
+                                        description="Esta carta será visible para los clientes."
+                                        checked={editingCarta?.activa || false}
+                                        onCheckedChange={(checked) => setEditingCarta(prev => ({ ...prev, activa: checked }))}
+                                    />
+                                </TabsContent>
+                                
+                                <TabsContent value="whatsapp" className="mt-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {/* Config Column */}
+                                        <div className="space-y-5">
+                                            <ConfigToggle
+                                                id="ws-pedidos"
+                                                icon={MessageSquare}
+                                                label="Pedidos por WhatsApp"
+                                                description="Habilitar flujo de pedidos"
+                                                checked={whatsAppConfig.disponibleWhatsApp}
+                                                onCheckedChange={(v) => setWhatsAppConfig(p => ({ ...p, disponibleWhatsApp: v }))}
+                                                color="#16a34a"
+                                            />
+                                            
+                                            <ConfigToggle
+                                                id="ws-voz"
+                                                icon={Mic}
+                                                label="Pedidos por Voz (IA)"
+                                                description="Procesar audios automáticamente"
+                                                checked={whatsAppConfig.permitirVoz}
+                                                onCheckedChange={(v) => setWhatsAppConfig(p => ({ ...p, permitirVoz: v }))}
+                                                color="#3b82f6"
+                                            />
+                                            
+                                            <div className="space-y-2">
+                                                <Label className="ml-1">Mensaje de Bienvenida</Label>
+                                                <Textarea
+                                                    value={whatsAppConfig.mensajeBienvenida}
+                                                    onChange={(e) => setWhatsAppConfig(p => ({ ...p, mensajeBienvenida: e.target.value }))}
+                                                    placeholder="¡Hola! Bienvenido a nuestro restaurante..."
+                                                    rows={3}
+                                                    className="bg-muted/50 border-input/60 hover:bg-muted/80 transition-colors rounded-lg shadow-sm resize-none text-center pt-4"
+                                                />
+                                            </div>
+                                            
+                                            <div className="space-y-2">
+                                                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1 flex items-center gap-2">
+                                                    <Clock className="h-3 w-3" /> Disponibilidad
+                                                </Label>
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div>
+                                                        <Label className="mb-1 block">Desde</Label>
+                                                        <Input
+                                                            type="time"
+                                                            value={whatsAppConfig.horarioInicio}
+                                                            onChange={(e) => setWhatsAppConfig(p => ({ ...p, horarioInicio: e.target.value }))}
+                                                            className="h-9 bg-muted/50 border-input/60 rounded-lg shadow-sm text-center"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label className="mb-1 block">Hasta</Label>
+                                                        <Input
+                                                            type="time"
+                                                            value={whatsAppConfig.horarioFin}
+                                                            onChange={(e) => setWhatsAppConfig(p => ({ ...p, horarioFin: e.target.value }))}
+                                                            className="h-9 bg-muted/50 border-input/60 rounded-lg shadow-sm text-center"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        {/* Preview Column */}
+                                        <div className="bg-muted/30 rounded-2xl border p-4">
+                                            <Label className="mb-3 block text-center">Vista Previa</Label>
+                                            <div className="pointer-events-none scale-95 origin-top">
+                                                <WhatsAppPreview
+                                                    messages={getWhatsAppPreviewMessages()}
+                                                    businessName={editingCarta?.nombre_carta || 'Mi Restaurante'}
+                                                    showHeader={true}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
+                        </ScrollArea>
                         
-                        <DialogFooter className="mt-4">
-                            <Button variant="outline" onClick={() => setIsCartaDialogOpen(false)}>Cancelar</Button>
-                            <Button onClick={handleSaveCarta}>Guardar Carta</Button>
+                        <DialogFooter>
+                            <p className="text-xs text-muted-foreground">Los cambios se guardarán en la configuración de esta carta.</p>
+                            <div className="flex gap-3">
+                                <Button variant="ghost" onClick={() => setIsCartaDialogOpen(false)} className="rounded-xl">Cancelar</Button>
+                                <Button variant="brand" onClick={handleSaveCarta} className="rounded-xl px-6">Guardar Carta</Button>
+                            </div>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
 
                 {/* Dialog para Añadir Elemento a Carta */}
                 <Dialog open={isElementDialogOpen} onOpenChange={setIsElementDialogOpen}>
-                    <DialogContent>
+                    <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
                         <DialogHeader>
-                            <DialogTitle>Añadir contenido a la carta</DialogTitle>
-                            <DialogDescription>Selecciona una categoría o un menú para añadir.</DialogDescription>
+                            <DialogTitle icon={PlusCircle}>
+                                Añadir Contenido
+                            </DialogTitle>
+                            <DialogDescription>Selecciona una categoría de productos o un menú existente.</DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <Tabs value={newElementData.tipo} onValueChange={(val) => setNewElementData({ tipo: val as any, id_elemento: '' })}>
-                                <TabsList className="grid w-full grid-cols-2">
-                                    <TabsTrigger value="categoria">Categoría de Productos</TabsTrigger>
-                                    <TabsTrigger value="menu">Menú / Combo</TabsTrigger>
+                        
+                        <div className="py-4 space-y-4">
+                            <Tabs value={newElementData.tipo} onValueChange={(val) => setNewElementData({ tipo: val as any, id_elemento: '' })} className="w-full">
+                                <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl mb-4">
+                                    <TabsTrigger value="categoria" className="rounded-lg">Categoría</TabsTrigger>
+                                    <TabsTrigger value="menu" className="rounded-lg">Menú / Combo</TabsTrigger>
                                 </TabsList>
-                                <TabsContent value="categoria" className="space-y-4">
-                                    <div className="grid gap-2">
-                                        <Label>Seleccionar Categoría</Label>
+                                <TabsContent value="categoria" className="space-y-4 pt-2">
+                                    <ConfigItem
+                                        icon={BookOpen}
+                                        label="Seleccionar Categoría"
+                                        description="Elige la sección de productos a mostrar"
+                                    >
                                         <Select value={newElementData.id_elemento} onValueChange={(val) => setNewElementData(prev => ({ ...prev, id_elemento: val }))}>
-                                            <SelectTrigger><SelectValue placeholder="Elige una categoría..." /></SelectTrigger>
+                                            <SelectTrigger className="w-full h-9 bg-muted/50 border-none hover:bg-muted/80 transition-colors rounded-lg shadow-sm text-center mx-1">
+                                                <SelectValue placeholder="Elige una categoría..." />
+                                            </SelectTrigger>
                                             <SelectContent>
                                                 {mockCategories.map(cat => (
                                                     <SelectItem key={cat.id} value={cat.id}>{cat.nombre_categoria}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                    </div>
+                                    </ConfigItem>
                                 </TabsContent>
-                                <TabsContent value="menu" className="space-y-4">
-                                    <div className="grid gap-2">
-                                        <Label>Seleccionar Menú</Label>
+                                <TabsContent value="menu" className="space-y-4 pt-2">
+                                    <ConfigItem
+                                        icon={Utensils}
+                                        label="Seleccionar Menú"
+                                        description="Elige un menú combinado existente"
+                                    >
                                         <Select value={newElementData.id_elemento} onValueChange={(val) => setNewElementData(prev => ({ ...prev, id_elemento: val }))}>
-                                            <SelectTrigger><SelectValue placeholder="Elige un menú..." /></SelectTrigger>
+                                            <SelectTrigger className="w-full h-9 bg-muted/50 border-none hover:bg-muted/80 transition-colors rounded-lg shadow-sm text-center mx-1">
+                                                <SelectValue placeholder="Elige un menú..." />
+                                            </SelectTrigger>
                                             <SelectContent>
                                                 {menuCombos.map(menu => (
                                                     <SelectItem key={menu.id} value={menu.id}>{menu.nombre_carta}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                    </div>
+                                    </ConfigItem>
                                 </TabsContent>
                             </Tabs>
                         </div>
+                        
                         <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsElementDialogOpen(false)}>Cancelar</Button>
-                            <Button onClick={addElementToCarta} disabled={!newElementData.id_elemento}>Añadir</Button>
+                            <p className="text-xs text-muted-foreground">Añadirás este elemento al final de la carta actual.</p>
+                            <div className="flex gap-3">
+                                <Button variant="ghost" onClick={() => setIsElementDialogOpen(false)} className="rounded-xl">Cancelar</Button>
+                                <Button variant="brand" onClick={addElementToCarta} disabled={!newElementData.id_elemento} className="rounded-xl px-6">
+                                    Añadir Contenido
+                                </Button>
+                            </div>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
 
                 {/* Dialogo Básico para Editar Menú (Simulado) */}
                 <Dialog open={isMenuDialogOpen} onOpenChange={setIsMenuDialogOpen}>
-                    <DialogContent>
+                    <DialogContent className="sm:max-w-xl overflow-hidden border-none shadow-2xl p-6">
                         <DialogHeader>
-                            <DialogTitle>Editar Menú: {editingMenu?.nombre_carta}</DialogTitle>
-                            <DialogDescription>Detalles básicos del menú.</DialogDescription>
+                            <DialogTitle icon={Utensils}>
+                                Editar Menú
+                            </DialogTitle>
+                            <DialogDescription>Configura los detalles del menú o combo.</DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid gap-2">
-                                <Label>Nombre</Label>
-                                <Input value={editingMenu?.nombre_carta || ''} onChange={(e) => setEditingMenu(prev => ({ ...prev, nombre_carta: e.target.value }))} />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>Precio</Label>
-                                <Input type="number" step="0.5" value={editingMenu?.precio_carta || 0} onChange={(e) => setEditingMenu(prev => ({ ...prev, precio_carta: parseFloat(e.target.value) || 0 }))} />
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Switch checked={editingMenu?.active} onCheckedChange={(checked) => setEditingMenu(prev => ({ ...prev, active: checked }))} />
-                                <Label>Disponible para venta</Label>
-                            </div>
+                         <div className="space-y-4 py-4">
+                            <ConfigItem
+                                icon={Edit}
+                                label="Nombre del Menú"
+                                description="Título que verán los clientes en la carta"
+                            >
+                                <Input 
+                                    value={editingMenu?.nombre_carta || ''} 
+                                    onChange={(e) => setEditingMenu(prev => ({ ...prev, nombre_carta: e.target.value }))}
+                                    className="h-9 bg-muted/50 border-none hover:bg-muted/80 transition-colors rounded-lg shadow-sm w-full text-center mx-1"
+                                />
+                            </ConfigItem>
+
+                            <ConfigItem
+                                icon={Utensils}
+                                label="Precio de Venta"
+                                description="Precio unitario con impuestos incluidos"
+                                iconClassName="text-amber-500"
+                                iconContainerClassName="bg-amber-500/10"
+                            >
+                                <div className="relative w-full mx-1">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">€</span>
+                                    <Input 
+                                        type="number" 
+                                        step="0.5" 
+                                        value={editingMenu?.precio_carta || 0} 
+                                        onChange={(e) => setEditingMenu(prev => ({ ...prev, precio_carta: parseFloat(e.target.value) || 0 }))}
+                                        className="pl-7 h-9 bg-muted/50 border-none hover:bg-muted/80 transition-colors rounded-lg shadow-sm font-mono text-sm text-center no-spinner" 
+                                    />
+                                </div>
+                            </ConfigItem>
+
+                            <ConfigToggle
+                                id="menu-disponible"
+                                icon={CheckCircle}
+                                label="Disponible para venta"
+                                description="El menú aparecerá en opciones de compra."
+                                checked={editingMenu?.active || false}
+                                onCheckedChange={(checked) => setEditingMenu(prev => ({ ...prev, active: checked }))}
+                                color="#16a34a"
+                            />
                         </div>
                         <DialogFooter>
-                            <Button onClick={handleSaveMenu}>Guardar Menú</Button>
+                            <p className="text-xs text-muted-foreground">Configura los elementos de este menú desde la edición detallada.</p>
+                            <div className="flex gap-3">
+                                <Button variant="ghost" onClick={() => setIsMenuDialogOpen(false)} className="rounded-xl">Cancelar</Button>
+                                <Button variant="brand" onClick={handleSaveMenu} className="rounded-xl px-6">Guardar Menú</Button>
+                            </div>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

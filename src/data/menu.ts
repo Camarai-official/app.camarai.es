@@ -11,7 +11,7 @@ export const mockCartas: Carta[] = [
         elementos_carta: [],
         descripcion_carta: 'Menú principal del restaurante',
         icon: 'Utensils',
-        color: '#ff0000'
+        color: 'red-500'
     }
 ];
 

@@ -452,7 +452,7 @@ Error:
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
- [2m246[0m |                                                         <Trash2 className="h-3 w-3" />
+ [2m246[0m |                                                         <Trash className="h-3 w-3" />
  [2m247[0m |                                                     </Button>
  [2m248[0m |                                                 </div>
  [2m249[0m |                                             </div>
@@ -779,7 +779,7 @@ Error:
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
- [2m246[0m |                                                         <Trash2 className="h-3 w-3" />
+ [2m246[0m |                                                         <Trash className="h-3 w-3" />
  [2m247[0m |                                                     </Button>
  [2m248[0m |                                                 </div>
  [2m249[0m |                                             </div>
@@ -1178,7 +1178,7 @@ Error:
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
- [2m246[0m |                                                         <Trash2 className="h-3 w-3" />
+ [2m246[0m |                                                         <Trash className="h-3 w-3" />
  [2m247[0m |                                                     </Button>
  [2m248[0m |                                                 </div>
  [2m249[0m |                                             </div>
@@ -1749,7 +1749,7 @@ Error:
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
- [2m246[0m |                                                         <Trash2 className="h-3 w-3" />
+ [2m246[0m |                                                         <Trash className="h-3 w-3" />
  [2m247[0m |                                                     </Button>
  [2m248[0m |                                                 </div>
  [2m249[0m |                                             </div>
@@ -2076,7 +2076,7 @@ Error:
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
- [2m246[0m |                                                         <Trash2 className="h-3 w-3" />
+ [2m246[0m |                                                         <Trash className="h-3 w-3" />
  [2m247[0m |                                                     </Button>
  [2m248[0m |                                                 </div>
  [2m249[0m |                                             </div>
@@ -2475,7 +2475,7 @@ Error:
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
- [2m246[0m |                                                         <Trash2 className="h-3 w-3" />
+ [2m246[0m |                                                         <Trash className="h-3 w-3" />
  [2m247[0m |                                                     </Button>
  [2m248[0m |                                                 </div>
  [2m249[0m |                                             </div>
