@@ -22,6 +22,8 @@ export type Table = {
     right: number[];
     round?: number[];
   };
+  isObject?: boolean;
+  objectType?: string;
 };
 
 export type EnvironmentStatus = 'Abierto' | 'Cerrado';

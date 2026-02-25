@@ -138,36 +138,49 @@ export default function PlanoMesasPage() {
             ? { ...env, tables: env.tables.filter(t => t.id !== tableId) }
             : env
         ));
+
+        const label = table?.isObject ? (table.objectType || 'Objeto') : `la mesa ${table?.number || ''}`;
         toast({ 
-            title: "Mesa Eliminada", 
-            description: `Se ha eliminado la mesa ${table?.number || ''} correctamente.`,
+            title: table?.isObject ? "Objeto Eliminado" : "Mesa Eliminada", 
+            description: `Se ha eliminado ${label} correctamente.`,
             variant: "destructive"
         });
     };
 
-    const addTable = (shape: 'rectangle' | 'round' = 'rectangle') => {
+    const addTable = (shape: 'rectangle' | 'round' = 'rectangle', isObject = false, objectType?: string) => {
         if (!activeEnv) return;
         const newId = Date.now();
-        const width = shape === 'round' ? 90 : 100;
-        const height = shape === 'round' ? 90 : 80;
+        
+        let width = shape === 'round' ? 90 : 100;
+        let height = shape === 'round' ? 90 : 80;
+
+        // Ajustar dimensiones por defecto para objetos
+        if (isObject) {
+            width = 60;
+            height = 60;
+        }
+
         setEnvironments(prev => prev.map(env => env.id === activeEnvId 
             ? { ...env, tables: [...env.tables, { 
                 id: newId, 
-                number: env.tables.length + 1, 
+                number: isObject ? 0 : env.tables.filter(t => !t.isObject).length + 1, 
                 x: 20, 
                 y: 20, 
                 width, 
                 height, 
-                capacity: shape === 'round' ? 4 : 4, 
-                status: 'Libre',
+                capacity: isObject ? 0 : 4, 
+                status: isObject ? 'Inactiva' : 'Libre',
                 shape,
-                chairs: generateAllChairs(width, height, shape)
+                isObject,
+                objectType,
+                chairs: isObject ? undefined : generateAllChairs(width, height, shape)
             }] }
             : env
         ));
+
         toast({ 
-            title: "Mesa Añadida", 
-            description: `Se ha añadido una mesa ${shape === 'round' ? 'circular' : 'rectangular'} correctamente.` 
+            title: isObject ? "Objeto Añadido" : "Mesa Añadida", 
+            description: `Se ha añadido ${isObject ? `un(a) ${objectType}` : `una mesa ${shape === 'round' ? 'circular' : 'rectangular'}`} correctamente.` 
         });
     };
 
@@ -180,7 +193,7 @@ export default function PlanoMesasPage() {
         const newTable: Table = {
             ...table,
             id: newId,
-            number: maxNumber + 1,
+            number: table.isObject ? 0 : maxNumber + 1,
             x: table.x + 20,
             y: table.y + 20
         };
@@ -193,9 +206,10 @@ export default function PlanoMesasPage() {
             );
         });
 
+        const label = table.isObject ? (table.objectType || 'Objeto') : `la Mesa ${table.number}`;
         toast({ 
-            title: "Mesa Duplicada", 
-            description: `Se ha creado una copia de la Mesa ${table.number} como Mesa ${newTable.number}` 
+            title: table.isObject ? "Objeto Duplicado" : "Mesa Duplicada", 
+            description: `Se ha creado una copia de ${label}.` 
         });
     };
 
@@ -208,7 +222,7 @@ export default function PlanoMesasPage() {
         
         const newTables: Table[] = [];
         const cols = Math.ceil(Math.sqrt(template.tables));
-        const spacing = 150;
+        const spacing = 200;
         
         for (let i = 0; i < template.tables; i++) {
             const row = Math.floor(i / cols);
@@ -249,10 +263,11 @@ export default function PlanoMesasPage() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button size="md" startIcon={<PlusCircle />}>
-                                    Añadir Mesa
+                                    Añadir
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="end" className="w-48">
+                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Mesas</div>
                                 <DropdownMenuItem onClick={() => addTable('rectangle')}>
                                     <Square className="mr-2 h-4 w-4" />
                                     Mesa Rectangular
@@ -260,6 +275,16 @@ export default function PlanoMesasPage() {
                                 <DropdownMenuItem onClick={() => addTable('round')}>
                                     <Circle className="mr-2 h-4 w-4" />
                                     Mesa Circular
+                                </DropdownMenuItem>
+                                <Separator className="my-1" />
+                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Objetos</div>
+                                <DropdownMenuItem onClick={() => addTable('rectangle', true, 'Objeto Rectangular')}>
+                                    <Square className="mr-2 h-4 w-4 fill-muted-foreground/20" />
+                                    Objeto Rectangular
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => addTable('round', true, 'Objeto Circular')}>
+                                    <Circle className="mr-2 h-4 w-4 fill-muted-foreground/20" />
+                                    Objeto Circular
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -349,7 +374,7 @@ export default function PlanoMesasPage() {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <Badge variant="secondary" size="md" startIcon={<LayoutGrid />}>
-                                                    <span>{activeEnv.tables.length}</span>
+                                                    <span>{activeEnv.tables.filter(t => !t.isObject).length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
                                             <TooltipContent side="bottom">
@@ -360,7 +385,7 @@ export default function PlanoMesasPage() {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <Badge variant="success" size="md" startIcon={<CheckSquare />}>
-                                                    <span>{activeEnv.tables.filter(t => t.status === 'Libre').length}</span>
+                                                    <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Libre').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
                                             <TooltipContent side="bottom">
@@ -371,7 +396,7 @@ export default function PlanoMesasPage() {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <Badge variant="info" size="md" startIcon={<Users />}>
-                                                    <span>{activeEnv.tables.filter(t => t.status === 'Ocupada').length}</span>
+                                                    <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Ocupada').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
                                             <TooltipContent side="bottom">
@@ -382,7 +407,7 @@ export default function PlanoMesasPage() {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <Badge variant="purple" size="md" startIcon={<Clock />}>
-                                                    <span>{activeEnv.tables.filter(t => t.status === 'Reservada').length}</span>
+                                                    <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Reservada').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
                                             <TooltipContent side="bottom">
@@ -393,7 +418,7 @@ export default function PlanoMesasPage() {
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <Badge variant="warning" size="md" startIcon={<AlertTriangle />}>
-                                                    <span>{activeEnv.tables.filter(t => t.status === 'Mantenimiento').length}</span>
+                                                    <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Mantenimiento').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
                                             <TooltipContent side="bottom">

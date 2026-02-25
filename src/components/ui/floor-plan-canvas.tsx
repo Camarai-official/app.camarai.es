@@ -505,11 +505,16 @@ export function FloorPlanCanvas({
                                     onMouseDown={(e) => handleMouseDown(e, table)}
                                     onClick={(e) => e.stopPropagation()}
                                     className={cn(
-                                        "absolute top-0 left-0 flex items-center justify-center bg-background border select-none group/table border-border rounded-xl transition-colors duration-200",
-                                        table.shape === 'round' && "rounded-full",
+                                        "absolute top-0 left-0 flex items-center justify-center border select-none group/table transition-colors duration-200",
+                                        table.isObject 
+                                            ? "bg-muted" 
+                                            : "bg-background border-border",
+                                        table.shape === 'round' 
+                                            ? "rounded-full" 
+                                            : (table.isObject ? "rounded-none" : "rounded-xl"),
                                         selectedTableId === table.id && !isDragging ? "ring-1 ring-primary z-40 cursor-grab" : "z-30 cursor-pointer",
                                         isDragging ? "z-50 cursor-grabbing shadow-xl ring-1 ring-primary" : "",
-                                        collidingTableId === table.id && "border-destructive bg-destructive/5"
+                                        
                                     )}
                                     style={{
                                         transform: `translate3d(${table.x}px, ${table.y}px, 0) rotate(${table.rotation || 0}deg)`,
@@ -518,11 +523,11 @@ export function FloorPlanCanvas({
                                         willChange: isDragging || activeResize?.id === table.id || activeRotate?.id === table.id ? 'transform, width, height' : 'auto',
                                     }}
                                 >
-                                    {/* Chairs */}
-                                    {renderChairs()}
+                                    {/* Chairs - Only for tables */}
+                                    {!table.isObject && renderChairs()}
 
                                      {/* Interaction Handles - Only visible when selected */}
-                                    {selectedTableId === table.id && !isDragging && table.shape !== 'round' && (
+                                    {selectedTableId === table.id && !isDragging && (table.shape !== 'round' || table.isObject) && (
                                         <>
                                             {/* Resize Pins */}
                                             <div 
@@ -604,27 +609,29 @@ export function FloorPlanCanvas({
                                         </>
                                     )}
 
-                                    <div 
-                                        className="flex flex-col items-center justify-center gap-1 z-10"
-                                        style={{ transform: `rotate(${-(table.rotation || 0)}deg)` }}
-                                    >
-                                        <span className={cn(
-                                            "font-medium text-lg transition-all duration-200",
-                                            isDragging ? "text-muted-foreground" : "text-foreground"
-                                        )}>
-                                            {table.number}
-                                        </span>
+                                    {!table.isObject && (
+                                        <div 
+                                            className="flex flex-col items-center justify-center gap-1 z-10"
+                                            style={{ transform: `rotate(${-(table.rotation || 0)}deg)` }}
+                                        >
+                                            <span className={cn(
+                                                "font-medium text-lg transition-all duration-200",
+                                                isDragging ? "text-muted-foreground" : "text-foreground"
+                                            )}>
+                                                {table.number}
+                                            </span>
 
-                                        {/* Status Indicator Badge */}
-                                        {table.status && statusConfig[table.status as TableStatus] && (
-                                            <Badge 
-                                                variant={statusConfig[table.status as TableStatus].variant}
-                                                size="sm"
-                                                className="transition-transform duration-200"
-                                                startIcon={React.createElement(statusConfig[table.status as TableStatus].icon)}
-                                            />
-                                        )}
-                                    </div>
+                                            {/* Status Indicator Badge */}
+                                            {table.status && statusConfig[table.status as TableStatus] && (
+                                                <Badge 
+                                                    variant={statusConfig[table.status as TableStatus].variant}
+                                                    size="sm"
+                                                    className="transition-transform duration-200"
+                                                    startIcon={React.createElement(statusConfig[table.status as TableStatus].icon)}
+                                                />
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -641,7 +648,7 @@ export function FloorPlanCanvas({
                         return (
                             <div className="flex items-center gap-2">
                                 <div className="px-3 h-10 flex items-center">
-                                    <TextSM>Mesa {table.number}</TextSM>
+                                    <TextSM>{table.isObject ? (table.objectType || 'Objeto') : `Mesa ${table.number}`}</TextSM>
                                 </div>
 
                                 <Separator orientation="vertical" className="h-5 mx-1" />
@@ -655,24 +662,28 @@ export function FloorPlanCanvas({
                                     Duplicar
                                 </Button>
                                 
-                                <Button 
-                                    variant={editingChairsId === table.id ? "secondary" : "ghost"} 
-                                    size="md" 
-                                    startIcon={<Armchair />} 
-                                    onClick={() => onEditChairs(table)}
-                                    className={cn(editingChairsId === table.id && "bg-primary/10 text-primary hover:bg-primary/20")}
-                                >
-                                    {editingChairsId === table.id ? "Listo" : "Sillas"}
-                                </Button>
+                                {!table.isObject && (
+                                    <>
+                                        <Button 
+                                            variant={editingChairsId === table.id ? "secondary" : "ghost"} 
+                                            size="md" 
+                                            startIcon={<Armchair />} 
+                                            onClick={() => onEditChairs(table)}
+                                            className={cn(editingChairsId === table.id && "bg-primary/10 text-primary hover:bg-primary/20")}
+                                        >
+                                            {editingChairsId === table.id ? "Listo" : "Sillas"}
+                                        </Button>
 
-                                <Button 
-                                    variant="ghost" 
-                                    size="md" 
-                                    startIcon={<Settings />} 
-                                    onClick={() => onOpenEdit(table)}
-                                >
-                                    Configurar
-                                </Button>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="md" 
+                                            startIcon={<Settings />} 
+                                            onClick={() => onOpenEdit(table)}
+                                        >
+                                            Configurar
+                                        </Button>
+                                    </>
+                                )}
 
                                 <Separator orientation="vertical" className="h-5 mx-1" />
 

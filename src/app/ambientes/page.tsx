@@ -142,13 +142,13 @@ export default function AmbientesPage() {
                             calculateStats={calculateStats}
                         />
                     ))}
-                    <div className="h-[300px]">
-                      <CreateActionCard
-                          label="Crear Nuevo Ambiente"
-                          onClick={addEnvironment}
-                          className="h-full border-dashed border-2 bg-card transition-all rounded-xl"
-                      />
-                    </div>
+                    <div className="h-[230px]">
+                    <CreateActionCard
+                        label="Crear Nuevo Ambiente"
+                        onClick={addEnvironment}
+                        className="h-full border-dashed border-2 bg-card transition-all rounded-xl"
+                    />
+                </div>
                 </div>
             </PageContent>
 
