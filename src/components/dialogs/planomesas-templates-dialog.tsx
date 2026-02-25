@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { LayoutGrid, FolderOpen } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogHeader } from '@/components/layout/dialog';
-import { ConfigItem } from '@/components/ui/config-item';
+import { ActionTile } from '@/components/ui/action-tile';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -47,15 +47,17 @@ export function QuickTemplatesDialog({ open, onOpenChange, onApply }: QuickTempl
                 <DialogContent>
                     <div className="grid gap-3">
                         {floorPlanTemplates.map(t => (
-                            <ConfigItem 
+                            <ActionTile 
                                 key={t.id} 
                                 icon={LayoutGrid} 
-                                label={t.name} 
+                                title={t.name} 
                                 description={t.description} 
                                 onClick={() => handleApply(t)}
-                            >
-                                <Button variant="outline" size="sm">Aplicar</Button>
-                            </ConfigItem>
+                                rightContentType="button"
+                                buttonText="Aplicar"
+                                buttonVariant="outline"
+                                onButtonClick={() => handleApply(t)}
+                            />
                         ))}
                     </div>
                 </DialogContent>

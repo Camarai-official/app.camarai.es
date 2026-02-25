@@ -41,7 +41,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
                   className="h-16 w-auto object-contain grayscale"
                 />
               </div>
-              <h2 className="font-bold text-lg uppercase tracking-wider">Camarai Rest.</h2>
+              <h2 className="font-bold text-lg  tracking-wider">Camarai Rest.</h2>
               <p className="text-xs text-gray-500">Calle Principal 123, Madrid</p>
               <p className="text-xs text-gray-500">Tel: +34 912 345 678</p>
 
@@ -54,7 +54,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
             </div>
 
             {/* Customer Info */}
-            <div className="flex justify-between mb-4 text-xs font-bold uppercase">
+            <div className="flex justify-between mb-4 text-xs font-bold ">
               <span>MESA: {order.table}</span>
               <span>CLIENTE: {order.name.split(' ')[0]}</span>
             </div>

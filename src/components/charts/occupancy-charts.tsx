@@ -73,7 +73,7 @@ export function OccupancyChart({ data, className }: OccupancyChartProps) {
             <div className="flex justify-center py-6">
               <div className="relative w-48 h-48">
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xs text-muted-foreground uppercase tracking-widest">Total</span>
+                  <span className="text-xs text-muted-foreground  tracking-widest">Total</span>
                   <span className="text-3xl font-black">{total}</span>
                 </div>
                 <ResponsiveContainer width="100%" height="100%">

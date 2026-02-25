@@ -27,20 +27,11 @@ import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from 
 // Data & Helpers
 import { mockEnvironments, type Table, type TableStatus, type Environment } from '@/data/mock-data';
 import { cn } from '@/lib/utils';
-import { ConfigItem } from '@/components/ui/config-item';
-import { FloorPlanCanvas } from './components/floor-plan-canvas';
+import { FloorPlanCanvas } from '../../components/ui/floor-plan-canvas';
 import { QuickTemplatesDialog } from '@/components/dialogs/planomesas-templates-dialog';
-import { Settings, Copy, Download } from 'lucide-react';
+import { Settings, Copy, Download, Armchair, Minus } from 'lucide-react';
+import { EditTableDialog } from '@/components/dialogs/planomesas-config-dialog';
 
-// --- Constants ---
-
-const statusConfig: Record<TableStatus, { color: string; icon: React.ElementType; bgColor: string }> = {
-    'Libre': { color: 'green-500', icon: CheckSquare, bgColor: 'bg-green-500/10' },
-    'Ocupada': { color: 'blue-500', icon: Users, bgColor: 'bg-blue-500/10' },
-    'Reservada': { color: 'purple-500', icon: Clock, bgColor: 'bg-purple-500/10' },
-    'Mantenimiento': { color: 'orange-500', icon: AlertTriangle, bgColor: 'bg-orange-500/10' },
-    'Inactiva': { color: 'muted-foreground', icon: XSquare, bgColor: 'bg-muted' }
-};
 
 // --- Sub-Components ---
 
@@ -70,46 +61,6 @@ function QRConfigDialog({ open, onOpenChange, table }: { open: boolean; onOpenCh
     );
 }
 
-function EditTableDialog({ open, onOpenChange, editingTable, setEditingTable, onSave, onOpenQR }: any) {
-    if (!editingTable) return null;
-    const config = statusConfig[editingTable.status as TableStatus];
-
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogWindow size="md">
-                <DialogHeader icon={Settings} title={`Editar Mesa ${editingTable.number}`} description="Ajusta los parámetros físicos y operativos." />
-                <DialogContent>
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <TextXS className="font-bold uppercase tracking-wider text-muted-foreground ml-1">Número</TextXS>
-                                <Input type="number" value={editingTable.number} className="rounded-xl h-12 bg-muted/50 border-none px-4 font-bold text-lg" onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) })} />
-                            </div>
-                            <div className="space-y-2">
-                                <TextXS className="font-bold uppercase tracking-wider text-muted-foreground ml-1">Capacidad</TextXS>
-                                <Input type="number" value={editingTable.capacity} className="rounded-xl h-12 bg-muted/50 border-none px-4 font-bold text-lg" onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) })} />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <TextXS className="font-bold uppercase tracking-wider text-muted-foreground ml-1">Estado Operativo</TextXS>
-                            <div className="p-1 bg-muted/30 rounded-2xl border">
-                                <ConfigItem icon={config.icon} color={config.color} label="Estado Actual" description="Determina si la mesa está disponible.">
-                                    <Select value={editingTable.status} onValueChange={(v) => setEditingTable({ ...editingTable, status: v as TableStatus })}>
-                                        <SelectTrigger className="w-32 h-9 border-none bg-background shadow-sm rounded-lg"><SelectValue /></SelectTrigger>
-                                        <SelectContent className="rounded-xl border-none shadow-xl">
-                                            {Object.keys(statusConfig).map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </ConfigItem>
-                            </div>
-                        </div>
-                    </div>
-                </DialogContent>
-                <DialogFooter onCancel={() => onOpenChange(false)} onConfirm={onSave} actions={<Button variant="ghost" onClick={() => onOpenQR(editingTable)} startIcon={<QrCode />}>QR</Button>} />
-            </DialogWindow>
-        </Dialog>
-    );
-}
 
 // --- Main Page Component ---
 
@@ -152,10 +103,11 @@ export default function PlanoMesasPage() {
             });
         }
     };
-    const [editingTable, setEditingTable] = React.useState<Partial<Table> | null>(null);
+    const [editingTable, setEditingTable] = React.useState<Table | null>(null);
     const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
     const [isQRDialogOpen, setIsQRDialogOpen] = React.useState(false);
     const [isTemplatesOpen, setIsTemplatesOpen] = React.useState(false);
+    const [editingChairsId, setEditingChairsId] = React.useState<number | null>(null);
 
     const activeEnv = environments.find(e => e.id === activeEnvId);
 
@@ -167,10 +119,16 @@ export default function PlanoMesasPage() {
     };
 
     const removeTable = (tableId: number) => {
+        const table = activeEnv?.tables.find(t => t.id === tableId);
         setEnvironments(prev => prev.map(env => env.id === activeEnvId 
             ? { ...env, tables: env.tables.filter(t => t.id !== tableId) }
             : env
         ));
+        toast({ 
+            title: "Mesa Eliminada", 
+            description: `Se ha eliminado la mesa ${table?.number || ''} correctamente.`,
+            variant: "destructive"
+        });
     };
 
     const addTable = () => {
@@ -180,6 +138,38 @@ export default function PlanoMesasPage() {
             ? { ...env, tables: [...env.tables, { id: newId, number: env.tables.length + 1, x: 20, y: 20, width: 100, height: 80, capacity: 4, status: 'Libre' }] }
             : env
         ));
+    };
+
+    const duplicateTable = (table: Table) => {
+        if (!activeEnv) return;
+        
+        const newId = Date.now() + Math.floor(Math.random() * 1000);
+        const maxNumber = activeEnv.tables.reduce((max, t) => Math.max(max, t.number), 0);
+        
+        const newTable: Table = {
+            ...table,
+            id: newId,
+            number: maxNumber + 1,
+            x: table.x + 20,
+            y: table.y + 20
+        };
+        
+        setEnvironments(prev => {
+            return prev.map(env => 
+                env.id === activeEnvId 
+                    ? { ...env, tables: [...env.tables, newTable] }
+                    : env
+            );
+        });
+
+        toast({ 
+            title: "Mesa Duplicada", 
+            description: `Se ha creado una copia de la Mesa ${table.number} como Mesa ${newTable.number}` 
+        });
+    };
+
+    const editChairs = (table: Table) => {
+        setEditingChairsId(table.id === editingChairsId ? null : table.id);
     };
 
     return (
@@ -334,6 +324,9 @@ export default function PlanoMesasPage() {
                             onRemoveTable={removeTable}
                             onOpenEdit={(t) => { setEditingTable(t); setIsEditDialogOpen(true); }}
                             onOpenQR={(t) => { setEditingTable(t); setIsQRDialogOpen(true); }}
+                            onDuplicateTable={duplicateTable}
+                            onEditChairs={editChairs}
+                            editingChairsId={editingChairsId}
                         />
                     )}
                 </div>

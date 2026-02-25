@@ -82,7 +82,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
-import { ConfigEntity, ConfigItem, ConfigToggle } from "@/components/ui/config-item"
+import { ActionTile } from "@/components/ui/action-tile"
 import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest, StaffMember } from "@/data/mock-data"
 
 const menuItems = [
@@ -248,22 +248,28 @@ export function SidebarNav() {
               <DropdownMenuGroup>
                 {establishments.map(est => (
                   <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} className="p-0 overflow-hidden">
-                    <ConfigEntity
-                      image={est.image}
-                      fallback={est.name.charAt(0)}
-                      label={est.name}
-                      className="w-full border-none bg-transparent hover:bg-transparent p-2"
-                      avatarClassName="h-6 w-6"
-                    >
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost-destructive"
-                          size="icon"
-                          onClick={(e) => handleDeleteClick(e, est)}
-                          startIcon={<Trash />}
-                        />
-                      </AlertDialogTrigger>
-                    </ConfigEntity>
+                    <ActionTile
+                      key={est.id}
+                      icon={
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={est.image} alt={est.name} />
+                          <AvatarFallback className="text-[10px]">{est.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      }
+                      title={est.name}
+                      className="w-full border-none bg-transparent hover:bg-transparent p-2 shadow-none"
+                      rightContentType="custom"
+                      customContent={
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost-destructive"
+                            size="icon"
+                            onClick={(e) => handleDeleteClick(e, est)}
+                            startIcon={<Trash />}
+                          />
+                        </AlertDialogTrigger>
+                      }
+                    />
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuGroup>
@@ -359,18 +365,19 @@ export function SidebarNav() {
                       pendingRequests.map(req => {
                         const employee = mockStaffMembers.find(s => s.id === req.staffId);
                         return (
-                          <ConfigItem
+                          <ActionTile
                             key={req.id}
-                            label={employee?.nombre || ''}
+                            title={employee?.nombre || ''}
                             description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
-                            className="border-none bg-accent/50 hover:bg-accent p-2 rounded-md"
-                            noIconContainer
-                          >
-                             <div className="flex gap-1">
-                                <Button size="icon" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
-                                <Button size="icon" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
-                              </div>
-                          </ConfigItem>
+                            className="border-none bg-accent/50 hover:bg-accent p-2 rounded-md shadow-none"
+                            rightContentType="custom"
+                            customContent={
+                               <div className="flex gap-1">
+                                  <Button size="icon" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
+                                  <Button size="icon" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
+                                </div>
+                            }
+                          />
                         )
                       })
                     ) : (
@@ -412,14 +419,14 @@ export function SidebarNav() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="p-0 overflow-hidden">
-              <ConfigToggle
-                id="dark-mode"
+              <ActionTile
+                rightContentType="switch"
+                switchId="dark-mode"
                 icon={isDarkMode ? Moon : Sun}
-                label={isDarkMode ? 'Modo noche' : 'Modo claro'}
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-                className="w-full border-none bg-transparent hover:bg-transparent p-2"
-                noIconContainer
+                title={isDarkMode ? 'Modo noche' : 'Modo claro'}
+                switchChecked={isDarkMode}
+                onSwitchChange={setIsDarkMode}
+                className="w-full border-none bg-transparent hover:bg-transparent p-2 shadow-none"
               />
             </DropdownMenuItem>
             <DropdownMenuSeparator />

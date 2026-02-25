@@ -5,14 +5,10 @@ import { Settings, Hash, User, LayoutGrid, Clock, Wallet, Activity, ListOrdered 
 
 import type { ViewConfig } from '@/app/comandas/_data/config';
 
-import { Button } from '@/components/ui/button';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ActionTile } from '@/components/ui/action-tile';
-import { ConfigItem } from '@/components/ui/config-item';
 
 type ViewConfigDialogProps = {
   open: boolean;
@@ -45,10 +41,7 @@ export function ViewConfigDialog({
 
         <DialogContent>
           <ScrollArea className="h-full">
-          <div className="space-y-6 p-6">
-            {/* Sección: Columnas */}
-            <div className="space-y-4">
-              <Label icon={LayoutGrid}>Columnas Visibles</Label>
+            <div className="flex flex-col gap-4 p-1">
               <div className="grid gap-3">
                 <ActionTile
                   switchId="showOrder"
@@ -115,34 +108,25 @@ export function ViewConfigDialog({
                   iconColor="red-500"
                 />
               </div>
-            </div>
 
-            <Separator className="opacity-50" />
+              <Separator className="opacity-50" />
 
-            {/* Sección: Paginación */}
-            <div className="space-y-4">
-              <Label icon={ListOrdered}>Paginación</Label>
-              <ConfigItem
+              <ActionTile
                 icon={ListOrdered}
-                label="Items por página"
-                description="Cantidad de registros a mostrar por vista."
-                iconClassName="text-cyan-500"
-                iconContainerClassName="bg-cyan-500/10 group-hover:bg-cyan-500/20"
-              >
-                <Select value={viewConfig.itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
-                  <SelectTrigger className="w-24 border-none bg-muted/50 group-hover:bg-muted transition-colors">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="5">5 registros</SelectItem>
-                    <SelectItem value="10">10 registros</SelectItem>
-                    <SelectItem value="20">20 registros</SelectItem>
-                    <SelectItem value="50">50 registros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </ConfigItem>
+                title="Items por página"
+                description="Cantidad de registros a mostrar por vista"
+                rightContentType="select"
+                selectValue={viewConfig.itemsPerPage.toString()}
+                onSelectChange={handleItemsPerPageChange}
+                selectOptions={[
+                  { value: "5", label: "5 registros" },
+                  { value: "10", label: "10 registros" },
+                  { value: "20", label: "20 registros" },
+                  { value: "50", label: "50 registros" },
+                ]}
+                iconColor="cyan-500"
+              />
             </div>
-          </div>
           </ScrollArea>
         </DialogContent>
 

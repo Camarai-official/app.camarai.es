@@ -43,6 +43,10 @@ interface BaseActionTileProps {
   disabled?: boolean;
   /** Click handler for the entire row */
   onClick?: () => void;
+  /** Custom className for the icon container */
+  iconContainerClassName?: string;
+  /** Custom className for the icon itself */
+  iconClassName?: string;
 }
 
 // Switch variant props
@@ -159,6 +163,8 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
     className,
     disabled = false,
     onClick,
+    iconContainerClassName,
+    iconClassName,
   } = props;
 
   // ============================================================================
@@ -171,6 +177,8 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       <IconBadge 
         icon={Icon} 
         iconColor={iconColor}
+        className={cn("h-9 w-9 rounded-lg shrink-0", iconContainerClassName)}
+        iconClassName={cn("h-5 w-5", iconClassName)}
       />
     );
   };
@@ -210,7 +218,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
             onValueChange={selectProps.onSelectChange}
             disabled={disabled}
           >
-            <SelectTrigger className="w-full min-w-0 h-10 border-none bg-muted/50 text-xs">
+            <SelectTrigger>
               <SelectValue placeholder={selectProps.selectPlaceholder} />
             </SelectTrigger>
             <SelectContent>
@@ -275,33 +283,30 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
                 qProps.onDecrease();
               }}
             >
-              <Minus />
+              <Minus className="h-4 w-4" />
             </Button>
-            <span className="w-8 text-center text-sm font-bold tabular-nums">
+            <span className="w-6 text-center text-sm font-bold tabular-nums">
               {qProps.quantity}
             </span>
             <Button
               variant="ghost"
               size="md"
-              
               onClick={(e) => {
                 e.stopPropagation();
                 qProps.onIncrease();
               }}
             >
-              <Plus  />
+              <Plus className="h-4 w-4" />
             </Button>
-            <div className="w-0.5 h-8 bg-background" />
             <Button
-              variant="ghost"
+              variant="ghost-destructive"
               size="md"
-              
               onClick={(e) => {
                 e.stopPropagation();
                 qProps.onRemove();
               }}
             >
-              <Trash />
+              <Trash className="h-4 w-4" />
             </Button>
           </div>
         );
@@ -389,7 +394,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-1 flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3 min-w-0",
+        "flex flex-1 flex-col sm:flex-row sm:items-center justify-between py-2 px-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-2 min-w-0",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className

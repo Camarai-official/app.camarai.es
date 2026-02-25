@@ -13,6 +13,12 @@ export type Table = {
   reservedFor?: string;
   reservedName?: string;
   maintenanceSince?: string;
+  chairs?: {
+    top: number[];
+    bottom: number[];
+    left: number[];
+    right: number[];
+  };
 };
 
 export type EnvironmentStatus = 'Abierto' | 'Cerrado';

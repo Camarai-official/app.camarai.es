@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Badge, IconBadge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ActionTile } from '@/components/ui/action-tile';
-import { ConfigToggle, ConfigItem } from '@/components/ui/config-item';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { Input } from '@/components/ui/input';
