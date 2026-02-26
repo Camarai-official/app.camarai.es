@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { H3, TextSM } from './typography';
 
 interface EmptyStateProps {
   /** Optional icon to display */
@@ -33,32 +34,31 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed rounded-[2rem] border-muted/60 bg-muted/5 transition-all duration-300",
+        "flex flex-col items-center justify-center py-12 px-6 text-center border-2 border-dashed rounded-xl border-border bg-card transition-all duration-300",
         className
       )}
     >
       {Icon && (
         <div className="relative mb-4">
-           {/* Subtle glow effect */}
-          <div className="absolute inset-0 bg-muted-foreground/5 blur-xl rounded-full" />
+           
           <Icon 
             className={cn(
-                "h-12 w-12 text-muted-foreground/30 relative z-10", 
+                "h-12 w-12 text-muted-foreground relative z-10", 
                 iconClassName
             )} 
           />
         </div>
       )}
-      <h3 className="text-sm font-bold text-muted-foreground tracking-tight">
+      <H3>
         {title}
-      </h3>
+      </H3>
       {description && (
-        <p className="text-xs text-muted-foreground/60 mt-1.5 max-w-[220px] leading-relaxed">
+        <TextSM className="text-muted-foreground max-w-[300px] leading-relaxed">
           {description}
-        </p>
+        </TextSM>
       )}
       {action && (
-        <div className="mt-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
+        <div className="flex flex-col gap-4 p-4 w-full animate-in fade-in slide-in-from-bottom-2 duration-700">
           {action}
         </div>
       )}
