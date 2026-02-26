@@ -31,13 +31,14 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogWindow size="sm">
+            <DialogWindow size="md">
                 <DialogHeader icon={Settings} title={`Editar Mesa ${editingTable.number}`} description="Ajusta los parámetros físicos y operativos." />
                 <DialogContent>
                     <ActionTile
                         icon={Hash}
+                        iconColor="muted-foreground"
                         title="Número de Mesa"
-                        description="Identificador visual para clientes y tickets"
+                        description="Identificador visual para clientes y tickets."
                         rightContentType="custom"
                         rightContentClassName="w-20"
                         customContent={
@@ -52,8 +53,9 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
 
                     <ActionTile
                         icon={Users}
+                        iconColor="muted-foreground"
                         title="Capacidad"
-                        description="Basado en las sillas configuradas"
+                        description="Basado en las sillas configuradas."
                         rightContentType="custom"
                         rightContentClassName="w-20"
                         customContent={
@@ -61,7 +63,8 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                                 {((editingTable.chairs?.top?.length || 0) + 
                                   (editingTable.chairs?.bottom?.length || 0) + 
                                   (editingTable.chairs?.left?.length || 0) + 
-                                  (editingTable.chairs?.right?.length || 0))}
+                                  (editingTable.chairs?.right?.length || 0) +
+                                  (editingTable.chairs?.round?.length || 0))}
                             </div>
                         }
                     />
@@ -80,8 +83,9 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
 
                     <ActionTile
                         icon={QrCode}
+                        iconColor="muted-foreground"
                         title="Código QR"
-                        description="Enlace directo a la carta autogestionada"
+                        description="Enlace directo a la carta autogestionada."
                         rightContentType="custom"
                         customContent={
                             <div className="flex items-center gap-3">

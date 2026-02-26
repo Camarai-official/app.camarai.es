@@ -56,9 +56,11 @@ const CHAIR_SPACING = 48;
 
 const generateAllChairs = (width: number, height: number, shape: 'rectangle' | 'round' = 'rectangle') => {
     if (shape === 'round') {
-        const radius = Math.min(width, height) / 2;
-        const circumference = 2 * Math.PI * radius;
-        const maxChairs = Math.floor(circumference / CHAIR_SPACING);
+        const ROUND_CHAIR_SPACING = 56;
+        const rx = width / 2;
+        const ry = height / 2;
+        const circumference = Math.PI * (rx + ry);
+        const maxChairs = Math.floor(circumference / ROUND_CHAIR_SPACING);
         return {
             top: [], bottom: [], left: [], right: [],
             round: Array.from({ length: maxChairs }, (_, i) => i)
@@ -127,7 +129,43 @@ export default function PlanoMesasPage() {
 
     const updateTable = (tableId: number, updates: Partial<Table>) => {
         setEnvironments(prev => prev.map(env => env.id === activeEnvId 
-            ? { ...env, tables: env.tables.map(t => t.id === tableId ? { ...t, ...updates } : t) }
+            ? { ...env, tables: env.tables.map(t => {
+                if (t.id !== tableId) return t;
+                const newTable = { ...t, ...updates };
+                
+                // Recalcular capacidad y limpiar sillas si hay cambios en dimensiones o sillas
+                if (updates.width !== undefined || updates.height !== undefined || updates.chairs) {
+                    if (newTable.chairs) {
+                        const ROUND_CHAIR_SPACING = 56;
+                        
+                        if (newTable.shape === 'round') {
+                            const rx = newTable.width / 2;
+                            const ry = newTable.height / 2;
+                            const circumference = Math.PI * (rx + ry);
+                            const maxRound = Math.floor(circumference / ROUND_CHAIR_SPACING);
+                            newTable.chairs.round = (newTable.chairs.round || []).filter(i => i < maxRound);
+                        } else {
+                            const maxTopBottom = Math.floor(newTable.width / CHAIR_SPACING);
+                            const maxLeftRight = Math.floor(newTable.height / CHAIR_SPACING);
+                            
+                            newTable.chairs.top = (newTable.chairs.top || []).filter(i => i < maxTopBottom);
+                            newTable.chairs.bottom = (newTable.chairs.bottom || []).filter(i => i < maxTopBottom);
+                            newTable.chairs.left = (newTable.chairs.left || []).filter(i => i < maxLeftRight);
+                            newTable.chairs.right = (newTable.chairs.right || []).filter(i => i < maxLeftRight);
+                        }
+                    }
+
+                    newTable.capacity = (
+                        (newTable.chairs?.top?.length || 0) + 
+                        (newTable.chairs?.bottom?.length || 0) + 
+                        (newTable.chairs?.left?.length || 0) + 
+                        (newTable.chairs?.right?.length || 0) +
+                        (newTable.chairs?.round?.length || 0)
+                    );
+                }
+                
+                return newTable;
+            }) }
             : env
         ));
     };
@@ -160,6 +198,15 @@ export default function PlanoMesasPage() {
             height = 60;
         }
 
+        const chairs = isObject ? undefined : generateAllChairs(width, height, shape);
+        const capacity = chairs ? (
+            (chairs.top?.length || 0) + 
+            (chairs.bottom?.length || 0) + 
+            (chairs.left?.length || 0) + 
+            (chairs.right?.length || 0) +
+            (chairs.round?.length || 0)
+        ) : 0;
+
         setEnvironments(prev => prev.map(env => env.id === activeEnvId 
             ? { ...env, tables: [...env.tables, { 
                 id: newId, 
@@ -168,12 +215,12 @@ export default function PlanoMesasPage() {
                 y: 20, 
                 width, 
                 height, 
-                capacity: isObject ? 0 : 4, 
+                capacity, 
                 status: isObject ? 'Inactiva' : 'Libre',
                 shape,
                 isObject,
                 objectType,
-                chairs: isObject ? undefined : generateAllChairs(width, height, shape)
+                chairs
             }] }
             : env
         ));
@@ -229,6 +276,9 @@ export default function PlanoMesasPage() {
             const col = i % cols;
             const width = 100;
             const height = 80;
+            const chairs = generateAllChairs(width, height);
+            const capacity = (chairs.top?.length || 0) + (chairs.bottom?.length || 0) + (chairs.left?.length || 0) + (chairs.right?.length || 0);
+
             newTables.push({
                 id: Date.now() + i,
                 number: i + 1,
@@ -236,9 +286,9 @@ export default function PlanoMesasPage() {
                 y: 50 + row * spacing,
                 width,
                 height,
-                capacity: 4,
+                capacity,
                 status: 'Libre' as TableStatus,
-                chairs: generateAllChairs(width, height)
+                chairs
             });
         }
         

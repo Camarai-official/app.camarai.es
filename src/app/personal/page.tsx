@@ -303,10 +303,10 @@ export default function PersonalPage() {
                             </TabsList>
                         </div>
                         <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }} startIcon={<Clock />}>
+                            <Button variant="outline" size="md" onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }} startIcon={<Clock />}>
                                 Fichaje Manual
                             </Button>
-                            <Button onClick={() => handleOpenEmployeeDialog()} size="sm" startIcon={<PlusCircle />}>
+                            <Button onClick={() => handleOpenEmployeeDialog()} size="md" startIcon={<PlusCircle />}>
                                 Añadir Empleado
                             </Button>
                         </div>
