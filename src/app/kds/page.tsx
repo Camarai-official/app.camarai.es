@@ -48,14 +48,14 @@ export default function KdsPage() {
           title="Kitchen Display System"
           description="Sistema de visualización de comandas para la cocina. Gestiona pedidos y tiempos de preparación en tiempo real."
           action={
-            <>
+            <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
               <Button fullWidth startIcon={<ExternalLink />} onClick={handleLaunchKDS}>
                 Iniciar KDS
               </Button>
               <Button fullWidth variant="outline" startIcon={<Settings />} onClick={() => setIsConfigDialogOpen(true)}>
                 Configurar Pantallas
               </Button>
-            </>
+            </div>
           }
         />
       </PageContent>
