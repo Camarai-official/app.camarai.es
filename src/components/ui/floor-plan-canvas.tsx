@@ -332,7 +332,7 @@ export function FloorPlanCanvas({
     };
 
     return (
-        <Card className="flex-none h-[600px] w-full border-none shadow-2xl relative overflow-hidden group/canvas ring-1 ring-border/50 bg-white/50 dark:bg-black/50">
+        <Card className="flex-none h-[600px] w-full border-none relative overflow-hidden group/canvas ring-1 ring-border/50 bg-white/50 dark:bg-black/50">
             {/* Patron de Puntos Background */}
             <div 
                 className="absolute inset-0 select-none text-zinc-400 dark:text-zinc-600"
@@ -641,7 +641,7 @@ export function FloorPlanCanvas({
 
             {/* Table Selection HUD - Arriba a la derecha */}
             {selectedTableId && (
-                <div className="absolute top-6 right-6 flex items-center gap-1 p-1 bg-background border rounded-xl z-40 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-6 right-6 flex items-center gap-1 p-1 bg-background border rounded-xl z-40 animate-in fade-in slide-in-from-top-2 duration-200">
                     {(() => {
                         const table = activeEnv.tables.find(t => t.id === selectedTableId);
                         if (!table) return null;
@@ -669,7 +669,6 @@ export function FloorPlanCanvas({
                                             size="md" 
                                             startIcon={<Armchair />} 
                                             onClick={() => onEditChairs(table)}
-                                            className={cn(editingChairsId === table.id && "bg-primary/10 text-primary hover:bg-primary/20")}
                                         >
                                             {editingChairsId === table.id ? "Listo" : "Sillas"}
                                         </Button>
