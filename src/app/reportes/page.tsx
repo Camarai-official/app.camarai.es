@@ -189,11 +189,11 @@ export default function ReportesPage() {
                 <Tabs defaultValue="billing">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
-                            <TabsTrigger value="billing"><DollarSign className="mr-2 h-4 w-4" />Facturación</TabsTrigger>
-                            <TabsTrigger value="performance"><TrendingUp className="mr-2 h-4 w-4" />Ventas</TabsTrigger>
-                            <TabsTrigger value="staff"><Users2 className="mr-2 h-4 w-4" />Personal</TabsTrigger>
-                            <TabsTrigger value="inventory"><Archive className="mr-2 h-4 w-4" />Inventario</TabsTrigger>
-                            <TabsTrigger value="whatsapp"><MessageSquare className="mr-2 h-4 w-4 text-brand-whatsapp" />WhatsApp</TabsTrigger>
+                            <TabsTrigger value="billing" icon={DollarSign}>Facturación</TabsTrigger>
+                            <TabsTrigger value="performance" icon={TrendingUp}>Ventas</TabsTrigger>
+                            <TabsTrigger value="staff" icon={Users2}>Personal</TabsTrigger>
+                            <TabsTrigger value="inventory" icon={Archive}>Inventario</TabsTrigger>
+                            <TabsTrigger value="whatsapp" icon={MessageSquare} iconClassName="text-brand-whatsapp">WhatsApp</TabsTrigger>
                             <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
                         </TabsList>
                     </div>

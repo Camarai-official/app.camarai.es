@@ -285,24 +285,19 @@ export default function PersonalPage() {
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div className="w-full overflow-x-auto pb-1 scrollbar-hide">
                             <TabsList>
-                                <TabsTrigger value="team">
-                                    <Users className="h-4 w-4 mr-2" />
+                                <TabsTrigger value="team" icon={Users}>
                                     Equipo
                                 </TabsTrigger>
-                                <TabsTrigger value="time-tracking">
-                                    <Clock className="h-4 w-4 mr-2" />
+                                <TabsTrigger value="time-tracking" icon={Clock}>
                                     Control Horario
                                 </TabsTrigger>
-                                <TabsTrigger value="absences">
-                                    <Calendar className="h-4 w-4 mr-2" />
+                                <TabsTrigger value="absences" icon={Calendar}>
                                     Ausencias
                                 </TabsTrigger>
-                                <TabsTrigger value="incidencias">
-                                    <AlertCircle className="h-4 w-4 mr-2" />
+                                <TabsTrigger value="incidencias" icon={AlertCircle}>
                                     Incidencias
                                 </TabsTrigger>
-                                <TabsTrigger value="fichaje">
-                                    <Smartphone className="h-4 w-4 mr-2" />
+                                <TabsTrigger value="fichaje" icon={Smartphone}>
                                     Métodos Fichaje
                                 </TabsTrigger>
                             </TabsList>
