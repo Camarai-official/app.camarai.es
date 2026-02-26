@@ -113,6 +113,7 @@ export function ViewConfigDialog({
 
               <ActionTile
                 icon={ListOrdered}
+                iconColor="muted-foreground"
                 title="Items por página"
                 description="Cantidad de registros a mostrar por vista"
                 rightContentType="select"
@@ -124,7 +125,6 @@ export function ViewConfigDialog({
                   { value: "20", label: "20 registros" },
                   { value: "50", label: "50 registros" },
                 ]}
-                iconColor="cyan-500"
               />
             </div>
           </ScrollArea>
@@ -132,7 +132,6 @@ export function ViewConfigDialog({
 
         <DialogFooter
           onCancel={() => onOpenChange(false)}
-          onConfirm={onSave}
         />
       </DialogWindow>
     </Dialog>

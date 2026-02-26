@@ -471,14 +471,14 @@ export function FloorPlanCanvas({
                                     <Separator orientation="vertical" className="h-5 mx-1" />
                                     {!table.isObject && (
                                         <><Tooltip><TooltipTrigger asChild>
-                                            <Button variant={editingChairsId === table.id ? "secondary" : "ghost"} size="md" onClick={() => onEditChairs(table)}><Armchair  /></Button>
+                                            <Button variant={editingChairsId === table.id ? "secondary" : "ghost"} size="md" onClick={() => onEditChairs(table)}><Armchair className="h-4 w-4" /></Button>
                                         </TooltipTrigger><TooltipContent>Sillas</TooltipContent></Tooltip>
                                         <Tooltip><TooltipTrigger asChild>
-                                            <Button variant="ghost" size="md" onClick={() => onOpenEdit(table)}><Settings  /></Button>
+                                            <Button variant="ghost" size="md" onClick={() => onOpenEdit(table)}><Settings className="h-4 w-4" /></Button>
                                         </TooltipTrigger><TooltipContent>Configuración</TooltipContent></Tooltip></>
                                     )}
                                     <Tooltip><TooltipTrigger asChild>
-                                        <Button variant="ghost" size="md" onClick={() => onDuplicateTable(table)}><Copy /></Button>
+                                        <Button variant="ghost" size="md" onClick={() => onDuplicateTable(table)}><Copy className="h-4 w-4" /></Button>
                                     </TooltipTrigger><TooltipContent>Duplicar</TooltipContent></Tooltip>
                                     <Separator orientation="vertical" className="h-5 mx-1" />
                                     <Tooltip><TooltipTrigger asChild>
@@ -495,7 +495,7 @@ export function FloorPlanCanvas({
                 <Button variant="ghost" size="md" onClick={() => setZoom(prev => Math.max(0.2, Math.round((prev - 0.1) * 10) / 10))}><Minus className="h-4 w-4" /></Button>
                 <div className="px-2 min-w-[50px] text-center"><TextSM className="font-bold tabular-nums">{Math.round(zoom * 100)}%</TextSM></div>
                 <Button variant="ghost" size="md" onClick={() => setZoom(prev => Math.min(2, Math.round((prev + 0.1) * 10) / 10))}><Plus className="h-4 w-4" /></Button>
-                <Separator orientation="verticmd" />
+                <Separator orientation="vertical" className="h-5 mx-1" />
                 <Button variant="ghost" size="md" onClick={handleFitContent} title="Ajustar zoom"><Maximize className="h-4 w-4" /></Button>
             </div>
         </Card>

@@ -3,9 +3,7 @@
 import * as React from 'react';
 import { Settings, Activity, Users, Clock, Calendar, AlertCircle, Smartphone } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { ActionTile } from '@/components/ui/action-tile';
 
 export type PersonalConfig = { 
     kpis: boolean; 
@@ -37,93 +35,77 @@ export function PersonalConfigDialog({
                     title="Configurar Vista Personal"
                     description="Personaliza qué secciones quieres ver en tu panel de gestión de equipo."
                 />
-                <DialogContent className="p-6">
-                    <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                <Activity className="h-4 w-4 text-primary" />
-                            </div>
-                            <div>
-                                <Label className="text-sm font-semibold">Resumen de KPIs</Label>
-                                <p className="text-xs text-muted-foreground">Estadísticas generales del equipo</p>
-                            </div>
-                        </div>
-                        <Switch checked={config.kpis} onCheckedChange={() => onToggle('kpis')} />
-                    </div>
+                <DialogContent>
+                    <ActionTile
+                        icon={Activity}
+                        iconColor="primary"
+                        title="Resumen de KPIs"
+                        description="Estadísticas generales del equipo"
+                        rightContentType="switch"
+                        switchId="kpis"
+                        switchChecked={config.kpis}
+                        onSwitchChange={() => onToggle('kpis')}
+                    />
 
-                    <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
-                                <Users className="h-4 w-4 text-green-500" />
-                            </div>
-                            <div>
-                                <Label className="text-sm font-semibold">Gestión de Equipo</Label>
-                                <p className="text-xs text-muted-foreground">Listado y edición de empleados</p>
-                            </div>
-                        </div>
-                        <Switch checked={config.equipo} onCheckedChange={() => onToggle('equipo')} />
-                    </div>
+                    <ActionTile
+                        icon={Users}
+                        iconColor="green-500"
+                        title="Gestión de Equipo"
+                        description="Listado y edición de empleados"
+                        rightContentType="switch"
+                        switchId="equipo"
+                        switchChecked={config.equipo}
+                        onSwitchChange={() => onToggle('equipo')}
+                    />
 
-                    <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
-                                <Clock className="h-4 w-4 text-blue-500" />
-                            </div>
-                            <div>
-                                <Label className="text-sm font-semibold">Control Horario</Label>
-                                <p className="text-xs text-muted-foreground">Registro de entradas y salidas</p>
-                            </div>
-                        </div>
-                        <Switch checked={config.controlHorario} onCheckedChange={() => onToggle('controlHorario')} />
-                    </div>
+                    <ActionTile
+                        icon={Clock}
+                        iconColor="blue-500"
+                        title="Control Horario"
+                        description="Registro de entradas y salidas"
+                        rightContentType="switch"
+                        switchId="controlHorario"
+                        switchChecked={config.controlHorario}
+                        onSwitchChange={() => onToggle('controlHorario')}
+                    />
 
-                    <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
-                                <Calendar className="h-4 w-4 text-purple-500" />
-                            </div>
-                            <div>
-                                <Label className="text-sm font-semibold">Gestión de Ausencias</Label>
-                                <p className="text-xs text-muted-foreground">Vacaciones y permisos</p>
-                            </div>
-                        </div>
-                        <Switch checked={config.ausencias} onCheckedChange={() => onToggle('ausencias')} />
-                    </div>
+                    <ActionTile
+                        icon={Calendar}
+                        iconColor="purple-500"
+                        title="Gestión de Ausencias"
+                        description="Vacaciones y permisos"
+                        rightContentType="switch"
+                        switchId="ausencias"
+                        switchChecked={config.ausencias}
+                        onSwitchChange={() => onToggle('ausencias')}
+                    />
 
-                    <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-red-500/10 rounded-lg group-hover:bg-red-500/20 transition-colors">
-                                <AlertCircle className="h-4 w-4 text-red-500" />
-                            </div>
-                            <div>
-                                <Label className="text-sm font-semibold">Incidencias de Fichaje</Label>
-                                <p className="text-xs text-muted-foreground">Errores y correcciones de registros</p>
-                            </div>
-                        </div>
-                        <Switch checked={config.incidencias} onCheckedChange={() => onToggle('incidencias')} />
-                    </div>
+                    <ActionTile
+                        icon={AlertCircle}
+                        iconColor="red-500"
+                        title="Incidencias de Fichaje"
+                        description="Errores y correcciones de registros"
+                        rightContentType="switch"
+                        switchId="incidencias"
+                        switchChecked={config.incidencias}
+                        onSwitchChange={() => onToggle('incidencias')}
+                    />
 
-                    <div className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-orange-500/10 rounded-lg group-hover:bg-orange-500/20 transition-colors">
-                                <Smartphone className="h-4 w-4 text-orange-500" />
-                            </div>
-                            <div>
-                                <Label className="text-sm font-semibold">Dispositivos de Fichaje</Label>
-                                <p className="text-xs text-muted-foreground">Gestión de tablets y terminales</p>
-                            </div>
-                        </div>
-                        <Switch checked={config.fichaje} onCheckedChange={() => onToggle('fichaje')} />
-                    </div>
-                    </div>
+                    <ActionTile
+                        icon={Smartphone}
+                        iconColor="orange-500"
+                        title="Dispositivos de Fichaje"
+                        description="Gestión de tablets y terminales"
+                        rightContentType="switch"
+                        switchId="fichaje"
+                        switchChecked={config.fichaje}
+                        onSwitchChange={() => onToggle('fichaje')}
+                    />
                 </DialogContent>
 
-                <DialogFooter>
-                    <Button variant="default" className="w-full" onClick={() => onOpenChange(false)}>
-                        Cerrar y Guardar
-                    </Button>
-                </DialogFooter>
+                <DialogFooter
+                    onCancel={() => onOpenChange(false)}
+                />
             </DialogWindow>
         </Dialog>
     );

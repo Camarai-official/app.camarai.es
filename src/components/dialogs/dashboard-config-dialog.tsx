@@ -173,7 +173,6 @@ export function DashboardConfigDialog({
                 
                 <DialogFooter
                     onCancel={() => onOpenChange(false)}
-                    onConfirm={onSave}
                 />
             </DialogWindow>
         </Dialog>

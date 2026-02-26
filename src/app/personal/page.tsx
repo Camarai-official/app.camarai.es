@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { 
-    PlusCircle, 
     Search, 
     User, 
     Calendar, 
@@ -24,7 +23,9 @@ import {
     TrendingDown,
     Zap,
     HeartPulse,
-    AlertCircle
+    AlertCircle,
+    Plus,
+    SmilePlus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -36,9 +37,11 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import { H3 } from '@/components/ui/typography';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Layout Components
 import { PageContainer } from '@/components/layout/page-container';
@@ -244,7 +247,47 @@ export default function PersonalPage() {
             <PageHeader
                 title="Gestión de Personal"
                 actions={
-                    <Button variant="outline" size="md" onClick={() => setIsConfigDialogOpen(true)} aria-label="Configurar vista" startIcon={<Settings />} />
+                    <div className="flex items-center gap-2">
+                        <TooltipProvider delayDuration={0}>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        variant="default"
+                                        onClick={() => handleOpenEmployeeDialog()} 
+                                        size="md" 
+                                        startIcon={<Plus/>}
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent>Añadir Nuevo Empleado</TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button 
+                                        variant="outline" 
+                                        size="md" 
+                                        onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }} 
+                                        startIcon={<Clock/>}
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent>Fichaje Manual</TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button 
+                                        variant="outline" 
+                                        size="md" 
+                                        onClick={() => setIsConfigDialogOpen(true)} 
+                                        aria-label="Configurar vista" 
+                                        startIcon={<Settings/>} 
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent>Configurar Vista</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
                 }
             />
             
@@ -282,8 +325,8 @@ export default function PersonalPage() {
                 )}
                 
                 <Tabs defaultValue="team" className="w-full">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                        <div className="w-full overflow-x-auto pb-1 scrollbar-hide">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div className="overflow-x-auto pb-1 scrollbar-hide">
                             <TabsList>
                                 <TabsTrigger value="team" icon={Users}>
                                     Equipo
@@ -298,34 +341,22 @@ export default function PersonalPage() {
                                     Incidencias
                                 </TabsTrigger>
                                 <TabsTrigger value="fichaje" icon={Smartphone}>
-                                    Métodos Fichaje
+                                    Métodos
                                 </TabsTrigger>
                             </TabsList>
                         </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="md" onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }} startIcon={<Clock />}>
-                                Fichaje Manual
-                            </Button>
-                            <Button onClick={() => handleOpenEmployeeDialog()} size="md" startIcon={<PlusCircle />}>
-                                Añadir Empleado
-                            </Button>
-                        </div>
+                        
+                        <SearchInput
+                            containerClassName="md:w-64"
+                            placeholder="Buscar empleado..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
 
                     <TabsContent value="team" className="space-y-4">
                         {personalConfig.equipo && (
-                            <div className="space-y-4">
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                                    <h2 className="text-xl font-semibold tracking-tight">Mi Equipo</h2>
-                                    <SearchInput
-                                        containerClassName="sm:w-64"
-                                        placeholder="Buscar empleado..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                                
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {filteredStaff.length === 0 && staffMembers.length === 0 ? (
                                         <EmptyState 
                                             icon={User}
@@ -354,7 +385,6 @@ export default function PersonalPage() {
                                     ))}
                                     <CreateActionCard label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
                                 </div>
-                            </div>
                         )}
                     </TabsContent>
 
@@ -362,12 +392,8 @@ export default function PersonalPage() {
                         {personalConfig.controlHorario && (
                             <Card>
                                 <CardHeader>
-                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                        <div>
-                                            <H3>Registro de Actividad Reciente</H3>
-                                            <CardDescription>Últimos fichajes y movimientos del personal.</CardDescription>
-                                        </div>
-                                    </div>
+                                    <H3>Registro de Actividad Reciente</H3>
+                                    <CardDescription>Últimos fichajes y movimientos del personal.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="overflow-x-auto">
@@ -419,14 +445,7 @@ export default function PersonalPage() {
                     <TabsContent value="absences">
                         {personalConfig.ausencias && (
                             <Card>
-                                <CardHeader className="flex flex-row items-center justify-between">
-                                    <div>
-                                        <H3>Solicitudes de Ausencia</H3>
-                                        <CardDescription>Gestiona vacaciones y bajas del personal.</CardDescription>
-                                    </div>
-                                    <Button startIcon={<Calendar />} onClick={() => setIsAbsenceRequestDialogOpen(true)}>Nueva Solicitud</Button>
-                                </CardHeader>
-                                <CardContent>
+                                <CardContent className="pt-6">
                                     <div className="overflow-x-auto">
                                         <Table>
                                             <TableHeader>
@@ -599,18 +618,12 @@ export default function PersonalPage() {
                                         </div>
                                     </CardContent>
                                 </Card>
-                                
                                 <Card>
-                                    <CardHeader className="flex flex-row items-center justify-between">
-                                        <div>
-                                            <H3>Dispositivos de Fichaje</H3>
-                                            <CardDescription>Gestiona tablets y terminales para el fichaje del personal.</CardDescription>
-                                        </div>
-                                        <Button onClick={() => { setEditingDevice(null); setIsDeviceDialogOpen(true); }} startIcon={<PlusCircle />}>
-                                            Añadir Dispositivo
-                                        </Button>
-                                    </CardHeader>
-                                    <CardContent>
+                                    <CardHeader>
+                                        <H3>Dispositivos de Fichaje</H3>
+                                    <CardDescription>Gestiona tablets y terminales para el fichaje del personal.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {dispositivos.map(device => (
                                                 <Card key={device.id} className="relative">

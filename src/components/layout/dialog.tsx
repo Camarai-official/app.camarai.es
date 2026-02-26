@@ -166,7 +166,6 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
 const DialogFooter = ({
   className,
   children,
-  hint,
   onCancel,
   cancelText = "Cerrar",
   onConfirm,
@@ -176,12 +175,12 @@ const DialogFooter = ({
   actions,
   ...props
 }: DialogFooterProps) => {
-  const hasSmartProps = onCancel !== undefined || onConfirm !== undefined;
+  const hasSmartProps = onCancel !== undefined || onConfirm !== undefined || actions !== undefined;
 
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-3 bg-muted/40 border-t border-border/50 p-6 shrink-0",
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-3 bg-muted/40 border-t border-border/50 p-6 shrink-0",
         flush ? "mt-0" : "-mx-6 -mb-6 mt-6",
         className
       )}
@@ -189,22 +188,17 @@ const DialogFooter = ({
     >
       {hasSmartProps ? (
         <>
-          <p className="text-xs text-muted-foreground">
-            {hint ?? "Los cambios se aplicarán instantáneamente."}
-          </p>
-          <div className="flex gap-3">
-            {onCancel && (
-              <Button variant="ghost" onClick={onCancel}>
-                {cancelText}
-              </Button>
-            )}
-            {onConfirm && (
-              <Button variant="default" onClick={onConfirm} disabled={confirmDisabled}>
-                {confirmText}
-              </Button>
-            )}
-            {actions}
-          </div>
+          {onCancel && (
+            <Button variant="ghost" onClick={onCancel}>
+              {cancelText}
+            </Button>
+          )}
+          {onConfirm && (
+            <Button variant="default" onClick={onConfirm} disabled={confirmDisabled}>
+              {confirmText}
+            </Button>
+          )}
+          {actions}
         </>
       ) : (
         children
