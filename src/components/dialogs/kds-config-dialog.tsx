@@ -55,8 +55,8 @@ export function KDSConfigDialog({
                     title="Configuración del KDS"
                     description="Configura el ambiente, categorías y opciones de visualización para la cocina."
                 />
-                <DialogContent>
-                    <ScrollArea className="h-full">
+                <DialogContent className="p-0 overflow-hidden flex flex-col">
+                    <ScrollArea className="flex-1 w-full">
                         <div className="space-y-6 p-1">
                             {/* Visualización y Ambiente */}
                             <div className="space-y-3">

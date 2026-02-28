@@ -69,9 +69,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         {...props}
       >
-        {startIcon && <span className={cn(children && "mr-2", "inline-flex shrink-0")}>{startIcon}</span>}
+        {startIcon && <span className={cn(children && "mr-2", "inline-flex shrink-0", (variant === 'outline' || variant === 'ghost' || !variant) && "text-muted-foreground")}>{startIcon}</span>}
         {children}
-        {endIcon && <span className="ml-2 inline-flex shrink-0">{endIcon}</span>}
+        {endIcon && <span className={cn("ml-2 inline-flex shrink-0", (variant === 'outline' || variant === 'ghost' || !variant) && "text-muted-foreground")}>{endIcon}</span>}
       </Comp>
     )
   }

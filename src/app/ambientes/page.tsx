@@ -146,7 +146,7 @@ export default function AmbientesPage() {
                     <CreateActionCard
                         label="Crear Nuevo Ambiente"
                         onClick={addEnvironment}
-                        className="h-full border-dashed border-2 bg-card transition-all rounded-xl"
+                        className="h-56"
                     />
                 </div>
                 </div>

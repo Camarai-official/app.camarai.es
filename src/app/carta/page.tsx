@@ -155,7 +155,7 @@ export default function CartaPage() {
                             categories={mockCategories}
                         />
                     ))}
-                    <CreateActionCard label="Crear Nueva Carta" onClick={addCarta} />
+                    <CreateActionCard className="h-80" label="Crear Nueva Carta" onClick={addCarta} />
                 </div>
 
                 <Dialog open={isCartaDialogOpen} onOpenChange={(open) => { setIsCartaDialogOpen(open); if (!open) setDialogTab('general'); }}>

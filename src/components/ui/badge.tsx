@@ -58,15 +58,18 @@ export interface BadgeProps
   endIcon?: React.ReactNode
 }
 
-function Badge({ className, variant, size, startIcon, endIcon, children, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant, size }), className)} {...props}>
-      {startIcon && <span className="inline-flex shrink-0">{startIcon}</span>}
-      {children}
-      {endIcon && <span className="inline-flex shrink-0">{endIcon}</span>}
-    </div>
-  )
-}
+const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
+  ({ className, variant, size, startIcon, endIcon, children, ...props }, ref) => {
+    return (
+      <div ref={ref} className={cn(badgeVariants({ variant, size }), className)} {...props}>
+        {startIcon && <span className={cn("inline-flex shrink-0", !variant && "text-muted-foreground")}>{startIcon}</span>}
+        {children}
+        {endIcon && <span className={cn("inline-flex shrink-0", !variant && "text-muted-foreground")}>{endIcon}</span>}
+      </div>
+    )
+  }
+)
+Badge.displayName = "Badge"
 
 // ============================================================================
 // ICON BADGE COMPONENT (Standalone Icon Container)
@@ -95,7 +98,7 @@ export const IconBadge = React.forwardRef<HTMLDivElement, IconBadgeProps>(
         className={cn(
           "flex-shrink-0 h-10 w-10 rounded-xl transition-all duration-300 flex items-center justify-center",
           "bg-[color-mix(in_srgb,currentColor,transparent_90%)]",
-          !iconColor && "text-primary",
+          !iconColor && "text-muted-foreground",
           isTailwindColor && `text-${iconColor}`,
           className
         )}

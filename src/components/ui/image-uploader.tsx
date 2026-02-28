@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge, IconBadge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Camera, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Camera, Upload, X, Image as ImageIcon, Plus } from 'lucide-react';
 
 interface ImageUploaderProps {
   value?: string;
@@ -17,10 +18,10 @@ interface ImageUploaderProps {
 }
 
 const aspectRatioClasses = {
-  square: 'aspect-square',
-  '16:9': 'aspect-video',
-  '4:3': 'aspect-[4/3]',
-  auto: '',
+  square: 'aspect-square rounded-xl',
+  '16:9': 'aspect-video rounded-xl',
+  '4:3': 'aspect-[4/3] rounded-xl',
+  auto: 'rounded-xl',
 };
 
 export function ImageUploader({
@@ -109,7 +110,7 @@ export function ImageUploader({
   };
 
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative group', className)}>
       <input
         ref={inputRef}
         type="file"
@@ -125,13 +126,12 @@ export function ImageUploader({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          'relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors cursor-pointer',
+          'relative flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 overflow-hidden bg-muted/5',
           aspectRatioClasses[aspectRatio],
-          !value && 'min-h-[120px]',
-          isDragging && 'border-primary bg-primary/5',
-          error && 'border-destructive',
+          isDragging && 'border-primary bg-primary/10',
+          error && 'border-destructive bg-destructive/5',
           disabled && 'cursor-not-allowed opacity-50',
-          !isDragging && !error && 'border-muted-foreground/25 hover:border-muted-foreground/50'
+          !isDragging && !error && 'border-muted-foreground/20 cursor-pointer'
         )}
       >
         {value ? (
@@ -139,56 +139,60 @@ export function ImageUploader({
             <img
               src={value}
               alt="Preview"
-              className={cn(
-                'h-full w-full object-cover rounded-lg',
-                aspectRatioClasses[aspectRatio]
-              )}
+              className="h-full w-full object-cover"
             />
             {!disabled && (
-              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
+              <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                 <Button
                   type="button"
                   variant="secondary"
-                  size="sm"
+                  size="md"
+                  className="rounded-full h-9 w-9 p-0 shadow-lg border-none hover:scale-110 transition-transform"
                   onClick={handleClick}
                 >
-                  <Camera className="h-4 w-4 mr-1" />
-                  Cambiar
+                  <Camera className="h-4 w-4" />
                 </Button>
                 <Button
                   type="button"
                   variant="destructive"
-                  size="sm"
+                  size="md"
+                  className="rounded-full h-9 w-9 p-0 shadow-lg border-none hover:scale-110 transition-transform"
                   onClick={handleRemove}
                 >
-                  <X className="h-4 w-4 mr-1" />
-                  Eliminar
+                  <X className="h-4 w-4" />
                 </Button>
               </div>
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center p-4 text-center">
-            {isDragging ? (
-              <Upload className="h-8 w-8 text-primary mb-2" />
-            ) : (
-              <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-            )}
-            <p className="text-sm font-medium">
-              {isDragging ? 'Suelta aquí' : placeholder}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Arrastra o haz clic para subir
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Máximo {maxSizeMB}MB
-            </p>
+          <div className="flex flex-col items-center justify-center p-4 text-center select-none">
+            <div className="relative mb-3">
+              <IconBadge 
+                icon={isDragging ? Upload : ImageIcon} 
+                iconColor={isDragging ? "primary" : "muted-foreground"}
+                className={cn(
+                  "h-10 w-10 transition-all duration-300 transform",
+                  isDragging && "scale-110"
+                )}
+              />
+              <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm border-2 border-background">
+                <Plus className="h-2.5 w-2.5" />
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
+                {isDragging ? 'Suelta aquí' : placeholder}
+              </p>
+            </div>
           </div>
         )}
       </div>
 
       {error && (
-        <p className="text-xs text-destructive mt-1">{error}</p>
+        <Badge variant="destructive" className="absolute -bottom-2 left-1/2 -translate-x-1/2 shadow-lg whitespace-nowrap px-2 py-0.5 text-[10px]">
+          {error}
+        </Badge>
       )}
     </div>
   );

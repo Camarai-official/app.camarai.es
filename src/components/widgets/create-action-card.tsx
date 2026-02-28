@@ -35,7 +35,7 @@ export function CreateActionCard({
       onKeyDown={handleKeyDown}
       aria-label={label}
       className={cn(
-        "col-span-1 flex items-center justify-center min-h-[200px] border-2 border-dashed bg-transparent hover:border-primary hover:text-primary transition-colors cursor-pointer",
+        "col-span-1 flex items-center justify-center border-dashed border-2 bg-card transition-all rounded-xl hover:border-primary hover:text-primary cursor-pointer",
         className
       )}
     >

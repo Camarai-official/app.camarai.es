@@ -45,8 +45,8 @@ export function DashboardConfigDialog({
                     description="Personaliza los widgets y visibilidad de tu panel de control para optimizar tu gestión."
                 />
                 
-                <DialogContent className="h-[60vh]">
-                    <ScrollArea className="h-full">
+                <DialogContent className="p-0 overflow-hidden flex flex-col">
+                    <ScrollArea className="flex-1 w-full">
                     <div className="space-y-6 p-6">
                         {/* Sección: Análisis de Ventas */}
                         <div className="space-y-4">

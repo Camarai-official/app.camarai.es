@@ -49,12 +49,12 @@ import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 
 // Feature Components
-import { StaffCardPro, type StaffStatus } from '@/components/features/staff-card-pro';
+import { StaffCard, type StaffStatus } from '@/components/ui/staff-card';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
-import { MetricCard } from '@/components/widgets/metric-card';
+import { ActionTile } from '@/components/ui/action-tile';
 
 // Dialog Components
-import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/employee-dialog';
+import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/staff-edit-dialog';
 import { TimeLogDialog } from '@/components/dialogs/time-log-dialog';
 import { AbsenceRequestDialog } from '@/components/dialogs/absence-request-dialog';
 import { DeviceDialog } from '@/components/dialogs/device-dialog';
@@ -249,31 +249,6 @@ export default function PersonalPage() {
                 actions={
                     <div className="flex items-center gap-2">
                         <TooltipProvider delayDuration={0}>
-
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="default"
-                                        onClick={() => handleOpenEmployeeDialog()} 
-                                        size="md" 
-                                        startIcon={<Plus/>}
-                                    />
-                                </TooltipTrigger>
-                                <TooltipContent>Añadir Nuevo Empleado</TooltipContent>
-                            </Tooltip>
-
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button 
-                                        variant="outline" 
-                                        size="md" 
-                                        onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }} 
-                                        startIcon={<Clock/>}
-                                    />
-                                </TooltipTrigger>
-                                <TooltipContent>Fichaje Manual</TooltipContent>
-                            </Tooltip>
-
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button 
@@ -292,40 +267,8 @@ export default function PersonalPage() {
             />
             
             <PageContent>
-                {/* KPIs */}
-                {personalConfig.kpis && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                        <MetricCard
-                            title="Total Empleados"
-                            value={stats.total.toString()}
-                            icon={Users}
-                        />
-                        <MetricCard
-                            title="Activos"
-                            value={stats.activos.toString()}
-                            icon={Check}
-                        />
-                        <MetricCard
-                            title="Trabajando Ahora"
-                            value={stats.trabajandoAhora.toString()}
-                            icon={Activity}
-                            badge="En línea"
-                        />
-                        <MetricCard
-                            title="En Descanso"
-                            value={stats.enDescanso.toString()}
-                            icon={Clock}
-                        />
-                        <MetricCard
-                            title="Horas Hoy"
-                            value={`${stats.horasHoy}h`}
-                            icon={Zap}
-                        />
-                    </div>
-                )}
-                
                 <Tabs defaultValue="team" className="w-full">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-start gap-4 mb-6">
                         <div className="overflow-x-auto pb-1 scrollbar-hide">
                             <TabsList>
                                 <TabsTrigger value="team" icon={Users}>
@@ -345,17 +288,70 @@ export default function PersonalPage() {
                                 </TabsTrigger>
                             </TabsList>
                         </div>
-                        
-                        <SearchInput
-                            containerClassName="md:w-64"
-                            placeholder="Buscar empleado..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
                     </div>
 
-                    <TabsContent value="team" className="space-y-4">
-                        {personalConfig.equipo && (
+                    <TabsContent value="team" className="space-y-6">
+                        {/* KPIs as ActionTiles */}
+                        {personalConfig.kpis && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                                <ActionTile
+                                    title={stats.total.toString()}
+                                    description="Total Empleados"
+                                    icon={Users}
+                                />
+                                <ActionTile
+                                    title={stats.activos.toString()}
+                                    description="Activos"
+                                    icon={Check}
+                                />
+                                <ActionTile
+                                    title={stats.trabajandoAhora.toString()}
+                                    description="Trabajando Ahora"
+                                    icon={Activity}
+                                />
+                                <ActionTile
+                                    title={stats.enDescanso.toString()}
+                                    description="En Descanso"
+                                    icon={Clock}
+                                />
+                                <ActionTile
+                                    title={`${stats.horasHoy}h`}
+                                    description="Horas Hoy"
+                                    icon={Zap}
+                                />
+                            </div>
+                        )}
+                        
+                        {/* New Actions Row */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
+                            <div className="flex items-center gap-2 w-full sm:w-auto">
+                                <Button 
+                                    variant="default" 
+                                    size="md" 
+                                    onClick={() => handleOpenEmployeeDialog()}
+                                    startIcon={<Plus />}
+                                >
+                                    Añadir nuevo empleado
+                                </Button>
+                                <Button 
+                                    variant="outline" 
+                                    size="md" 
+                                    onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}
+                                    startIcon={<Clock />}
+                                >
+                                    Fichaje manual
+                                </Button>
+                            </div>
+                            <SearchInput
+                                containerClassName="w-full sm:w-64"
+                                placeholder="Buscar empleado..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+
+                        <div className="space-y-4">
+                            {personalConfig.equipo && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {filteredStaff.length === 0 && staffMembers.length === 0 ? (
                                         <EmptyState 
@@ -374,19 +370,19 @@ export default function PersonalPage() {
                                         />
                                     ) : null}
                                     {filteredStaff.map(staff => (
-                                        <StaffCardPro
+                                        <StaffCard
                                             key={staff.id}
                                             staff={staff}
                                             status={getStaffMemberStatus(staff.id)}
                                             onEdit={() => handleOpenEmployeeDialog(staff)}
-                                            onDelete={() => handleRemoveStaff(staff.id)}
                                             onWhatsApp={() => window.open(`https://wa.me/${staff.telefono?.replace(/\D/g, '')}`, '_blank')}
                                         />
                                     ))}
-                                    <CreateActionCard label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
+                                    <CreateActionCard className="h-32" label="Añadir Empleado" onClick={() => handleOpenEmployeeDialog()} />
                                 </div>
                         )}
-                    </TabsContent>
+                    </div>
+                </TabsContent>
 
                     <TabsContent value="time-tracking">
                         {personalConfig.controlHorario && (
@@ -687,6 +683,7 @@ export default function PersonalPage() {
                 onOpenChange={setIsEmployeeDialogOpen}
                 employeeToEdit={editingEmployee}
                 onSave={handleSaveEmployee}
+                onDelete={handleRemoveStaff}
             />
 
             <TimeLogDialog

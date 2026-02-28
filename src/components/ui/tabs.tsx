@@ -37,7 +37,7 @@ const TabsTrigger = React.forwardRef<
     )}
     {...props}
   >
-    {Icon && <Icon className={cn("h-4 w-4 mr-2", iconClassName)} />}
+    {Icon && <Icon className={cn("h-4 w-4 mr-2 text-muted-foreground", iconClassName)} />}
     {children}
   </TabsPrimitive.Trigger>
 ))
