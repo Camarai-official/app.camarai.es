@@ -55,7 +55,7 @@ import { ActionTile } from '@/components/ui/action-tile';
 
 // Dialog Components
 import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/personal-edit-dialog';
-import { TimeLogDialog } from '@/components/dialogs/time-log-dialog';
+import { TimeLogDialog } from '@/components/dialogs/personal-fichaje-dialog';
 import { AbsenceRequestDialog } from '@/components/dialogs/absence-request-dialog';
 import { DeviceDialog } from '@/components/dialogs/device-dialog';
 import { PersonalConfigDialog, type PersonalConfig } from '@/components/dialogs/personal-config-dialog';

@@ -123,6 +123,12 @@
     -moz-appearance: textfield;
     appearance: textfield;
   }
+
+  /* Ensure date and time picker icons are visible in dark mode */
+  .dark input[type='date']::-webkit-calendar-picker-indicator,
+  .dark input[type='time']::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
 }
 
 @layer utilities {
