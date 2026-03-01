@@ -7,7 +7,7 @@ import { Badge, IconBadge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Trash, Minus, Plus } from 'lucide-react';
+import { Trash, Minus, Plus, MoreHorizontal } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 /**
@@ -195,12 +195,14 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       case 'switch': {
         const switchProps = props as BaseActionTileProps & SwitchProps;
         return (
-          <Switch
-            id={switchProps.switchId}
-            checked={switchProps.switchChecked}
-            onCheckedChange={switchProps.onSwitchChange}
-            disabled={disabled}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <Switch
+              id={switchProps.switchId}
+              checked={switchProps.switchChecked}
+              onCheckedChange={switchProps.onSwitchChange}
+              disabled={disabled}
+            />
+          </div>
         );
       }
 
@@ -216,22 +218,24 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       case 'select': {
         const selectProps = props as BaseActionTileProps & SelectProps;
         return (
-          <Select
-            value={selectProps.selectValue}
-            onValueChange={selectProps.onSelectChange}
-            disabled={disabled}
-          >
-            <SelectTrigger className="h-10">
-              <SelectValue placeholder={selectProps.selectPlaceholder} />
-            </SelectTrigger>
-            <SelectContent>
-              {selectProps.selectOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div onClick={(e) => e.stopPropagation()}>
+            <Select
+              value={selectProps.selectValue}
+              onValueChange={selectProps.onSelectChange}
+              disabled={disabled}
+            >
+              <SelectTrigger className="h-10">
+                <SelectValue placeholder={selectProps.selectPlaceholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {selectProps.selectOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         );
       }
 
@@ -239,11 +243,11 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
         const dropdownProps = props as BaseActionTileProps & DropdownProps;
         return (
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               {dropdownProps.dropdownTrigger || (
                 <Button variant="ghost" size="md" className="h-10 w-10">
                   <span className="sr-only">Abrir menú</span>
-                  •••
+                  <MoreHorizontal className="h-5 w-5" />
                 </Button>
               )}
             </DropdownMenuTrigger>
@@ -368,13 +372,13 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       >
         {renderIcon()}
         <div className="flex-1 flex flex-col gap-2 min-w-0">
-          <div className="flex items-baseline justify-between w-full gap-2">
-            <div className="flex items-baseline gap-2 min-w-0">
-              <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+          <div className="flex items-start justify-between w-full gap-2">
+            <div className="flex flex-col min-w-0">
+              <div className="text-sm font-bold text-foreground leading-tight">
                 {typeof title === 'string' ? <span>{title}</span> : title}
               </div>
               {description && (
-                <div className="text-sm font-bold text-foreground leading-tight">
+                <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
                   {description}
                 </div>
               )}

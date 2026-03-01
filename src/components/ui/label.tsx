@@ -12,7 +12,7 @@ const labelVariants = cva(
     variants: {
       variant: {
         default: "",
-        group: "text-[10px] font-bold uppercase tracking-wider ml-1",
+        group: "text-[10px] font-bold tracking-wider ml-1",
       },
     },
     defaultVariants: {

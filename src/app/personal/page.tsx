@@ -99,6 +99,7 @@ export default function PersonalPage() {
     
     // UI State
     const [searchTerm, setSearchTerm] = React.useState('');
+    const [metodosFichajeState, setMetodosFichajeState] = React.useState(metodosFichaje.map(m => ({ ...m, enabled: true })));
     const [personalConfig, setPersonalConfig] = React.useState<PersonalConfig>({
         kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true 
     });
@@ -554,136 +555,145 @@ export default function PersonalPage() {
                     
                     <TabsContent value="fichaje" className="space-y-6">
                         {personalConfig.fichaje && (
-                            <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    {metodosFichaje.map((metodo) => {
-                                        const Icon = metodo.icon;
-                                        const isWhatsApp = metodo.id === 'whatsapp';
-                                        return (
-                                            <Card key={metodo.id} className={cn("cursor-pointer hover:shadow-md transition-all group", isWhatsApp && "border-green-500/30")}>
-                                                <CardContent className="p-6 text-center">
-                                                    <div className={cn("mx-auto h-14 w-14 rounded-full flex items-center justify-center mb-4 transition-colors", isWhatsApp ? "bg-green-500/10 text-green-500" : "bg-primary/10 text-primary")}>
-                                                        <Icon className="h-7 w-7" />
-                                                    </div>
-                                                    <h3 className="font-semibold mb-1">{metodo.label}</h3>
-                                                    <p className="text-sm text-muted-foreground">{metodo.description}</p>
-                                                    {isWhatsApp && <Badge variant="outline" className="mt-3 text-green-600 border-green-500/30">Recomendado</Badge>}
-                                                </CardContent>
-                                            </Card>
-                                        );
-                                    })}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <H3>Canales de Fichaje</H3>
+                                            <CardDescription>Activa o desactiva los métodos disponibles para tu equipo.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-1">
+                                            {metodosFichajeState.map((metodo) => (
+                                                <ActionTile
+                                                    key={metodo.id}
+                                                    icon={metodo.icon}
+                                                    title={metodo.label}
+                                                    description={metodo.description}
+                                                    rightContentType="switch"
+                                                    switchId={`method-${metodo.id}`}
+                                                    switchChecked={metodo.enabled}
+                                                    onSwitchChange={() => {
+                                                        setMetodosFichajeState(prev => prev.map(m => 
+                                                            m.id === metodo.id ? { ...m, enabled: !m.enabled } : m
+                                                        ));
+                                                        toast({
+                                                            title: metodo.enabled ? "Método desactivado" : "Método activado",
+                                                            description: `${metodo.label} se ha ${metodo.enabled ? 'desactivado' : 'activado'} correctamente.`
+                                                        });
+                                                    }}
+                                                />
+                                            ))}
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card>
+                                        <CardHeader>
+                                            <H3>Dispositivos de Fichaje</H3>
+                                            <CardDescription>Tablets y terminales registrados en tus locales.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-1">
+                                            {dispositivos.map(device => (
+                                                <ActionTile
+                                                    key={device.id}
+                                                    icon={device.tipo === 'tablet' ? Tablet : device.tipo === 'terminal' ? Monitor : Smartphone}
+                                                    iconColor={device.estado === 'online' ? '#22c55e' : device.estado === 'offline' ? '#ef4444' : '#f59e0b'}
+                                                    title={device.nombre}
+                                                    description={device.ubicacion || 'Sin ubicación'}
+                                                    rightContentType="dropdown"
+                                                    dropdownItems={[
+                                                        { label: 'Configurar', onClick: () => { setEditingDevice(device); setIsDeviceDialogOpen(true); }, icon: <Settings className="h-4 w-4 mr-2" /> },
+                                                        { label: 'Eliminar', onClick: () => handleDeleteDevice(device.id), icon: <X className="h-4 w-4 mr-2" /> }
+                                                    ]}
+                                                />
+                                            ))}
+                                            <CreateActionCard 
+                                                variant="list"
+                                                label="Vincular nuevo dispositivo" 
+                                                onClick={() => setIsDeviceDialogOpen(true)} 
+                                            />
+                                        </CardContent>
+                                    </Card>
                                 </div>
-                                
-                                <Card>
-                                    <CardHeader>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <H3 className="flex items-center gap-2">
-                                                    <MessageSquare className="h-5 w-5 text-green-500" />
-                                                    Fichaje por WhatsApp
-                                                </H3>
-                                                <CardDescription>Permite que los empleados fichen enviando un mensaje al bot de WhatsApp.</CardDescription>
-                                            </div>
-                                            <Badge variant="default">Activo</Badge>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-4">
-                                                <h4 className="font-medium">Cómo funciona</h4>
-                                                <div className="space-y-3">
-                                                    {[
-                                                        { step: 1, title: 'Enviar mensaje', desc: 'El empleado escribe "Fichar" al número del bot' },
-                                                        { step: 2, title: 'Seleccionar acción', desc: 'Entrada, Salida, Inicio Pausa o Fin Pausa' },
-                                                        { step: 3, title: 'Confirmación', desc: 'Recibe confirmación instantánea del registro' }
-                                                    ].map((item, i) => (
-                                                        <div key={i} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
-                                                            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">{item.step}</div>
-                                                            <div>
-                                                                <p className="font-medium text-sm">{item.title}</p>
-                                                                <p className="text-xs text-muted-foreground">{item.desc}</p>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col items-center justify-center p-6 border rounded-lg">
-                                                <div className="p-3 bg-white rounded-lg border mb-4">
+
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <H3>Integración WhatsApp</H3>
+                                            <CardDescription>Configuración del bot de asistencia automática.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <ActionTile
+                                                icon={MessageSquare}
+                                                iconColor="#25D366"
+                                                title="Estado del Servicio"
+                                                description="Bot configurado y activo"
+                                                rightContentType="badge"
+                                                badgeText="Conectado"
+                                                badgeVariant="success"
+                                            />
+                                            
+                                            <div className="p-4 bg-muted/50 rounded-xl flex items-center gap-6">
+                                                <div className="p-2 bg-white rounded-lg border shrink-0">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                                     <img 
                                                         src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/34600000000?text=Fichar"
                                                         alt="QR WhatsApp Fichaje"
-                                                        width={120}
-                                                        height={120}
+                                                        width={100}
+                                                        height={100}
                                                     />
                                                 </div>
-                                                <p className="text-sm font-medium">Escanea para añadir el número</p>
-                                                <p className="text-xs text-muted-foreground mt-1">+34 600 000 000</p>
-                                                <Button variant="outline" size="sm" className="mt-4" startIcon={<Download />}>
-                                                    Descargar QR
-                                                </Button>
+                                                <div className="space-y-1">
+                                                    <p className="font-bold text-sm">Escanea el código QR</p>
+                                                    <p className="text-xs text-muted-foreground">Comparte este código con tus empleados para que añadan el bot rápidamente.</p>
+                                                    <Button variant="link" size="sm" className="p-0 h-auto" startIcon={<Download className="h-3.5 w-3.5" />}>
+                                                        Descargar Imagen QR
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card>
-                                    <CardHeader>
-                                        <H3>Dispositivos de Fichaje</H3>
-                                    <CardDescription>Gestiona tablets y terminales para el fichaje del personal.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {dispositivos.map(device => (
-                                                <Card key={device.id} className="relative">
-                                                    <CardContent className="p-4">
-                                                        <div className="flex items-start justify-between">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className={cn(
-                                                                    "h-10 w-10 rounded-lg flex items-center justify-center",
-                                                                    device.estado === 'online' ? "bg-green-100 text-green-600" :
-                                                                    device.estado === 'offline' ? "bg-red-100 text-red-600" : "bg-yellow-100 text-yellow-600"
-                                                                )}>
-                                                                    {device.tipo === 'tablet' ? <Tablet className="h-5 w-5" /> :
-                                                                     device.tipo === 'terminal' ? <Monitor className="h-5 w-5" /> : <Smartphone className="h-5 w-5" />}
-                                                                </div>
-                                                                <div>
-                                                                    <p className="font-medium">{device.nombre}</p>
-                                                                    <p className="text-xs text-muted-foreground">{device.ubicacion || 'Sin ubicación'}</p>
-                                                                </div>
-                                                            </div>
-                                                            <Badge variant={device.estado === 'online' ? 'default' : device.estado === 'offline' ? 'destructive' : 'secondary'} className="gap-1 px-1.5 h-6">
-                                                                {device.estado === 'online' ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-                                                                {estadoDispositivoLabels[device.estado]}
-                                                            </Badge>
-                                                        </div>
-                                                        <div className="mt-3 flex gap-2">
-                                                            <Button variant="outline" size="sm" fullWidth onClick={() => { setEditingDevice(device); setIsDeviceDialogOpen(true); }}>Configurar</Button>
-                                                            <Button variant="outline" size="md" onClick={() => handleDeleteDevice(device.id)} startIcon={<X />} />
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
 
-                                <Card>
-                                    <CardHeader><H3>Resumen de Fichajes por Método</H3></CardHeader>
-                                    <CardContent className="space-y-4">
-                                        {[
-                                            { label: 'WhatsApp', value: 45 },
-                                            { label: 'App Móvil', value: 30 },
-                                            { label: 'QR Code', value: 15 },
-                                            { label: 'Panel Web', value: 10 }
-                                        ].map((item, i) => (
-                                            <div key={i} className="space-y-2">
-                                                <div className="flex justify-between text-sm"><span>{item.label}</span><span className="font-medium">{item.value}%</span></div>
-                                                <Progress value={item.value} className="h-2" />
+                                            <div className="space-y-3">
+                                                {[
+                                                    { step: 1, title: 'Enviar "Fichar"', desc: 'Al +34 600 000 000' },
+                                                    { step: 2, title: 'Elegir Acción', desc: 'Entrada / Salida / Pausa' },
+                                                    { step: 3, title: 'Confirmado', desc: 'Sincronización instantánea' }
+                                                ].map((item, i) => (
+                                                    <div key={i} className="flex items-center gap-3">
+                                                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">{item.step}</div>
+                                                        <div className="min-w-0">
+                                                            <p className="text-xs font-bold leading-none">{item.title}</p>
+                                                            <p className="text-[10px] text-muted-foreground">{item.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </CardContent>
-                                </Card>
-                            </>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card>
+                                        <CardHeader>
+                                            <H3>Uso por Canal</H3>
+                                            <CardDescription>Distribución de fichajes en los últimos 30 días.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-1">
+                                            {[
+                                                { label: 'WhatsApp', value: 45, icon: MessageSquare, color: '#25D366' },
+                                                { label: 'App Móvil', value: 30, icon: Smartphone, color: '#9B6EFD' },
+                                                { label: 'QR Code', value: 15, icon: Smartphone, color: '#78A3ED' },
+                                                { label: 'Panel Web', value: 10, icon: Monitor, color: '#F7B731' }
+                                            ].map((item, i) => (
+                                                <ActionTile
+                                                    key={i}
+                                                    icon={item.icon}
+                                                    iconColor={item.color}
+                                                    title={item.label}
+                                                    rightContentType="progress"
+                                                    progressValue={item.value}
+                                                />
+                                            ))}
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
                         )}
                     </TabsContent>
                 </Tabs>
