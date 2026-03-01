@@ -8,7 +8,7 @@ import {
     Clock, 
     Settings, 
     Activity, 
-    Edit, 
+    MoreHorizontal, 
     MessageSquare, 
     Smartphone, 
     Users, 
@@ -424,8 +424,14 @@ export default function PersonalPage() {
                                                                     </Badge>
                                                                 </TableCell>
                                                                 <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
-                                                                <TableCell>
-                                                                    <Button variant="ghost" size="md" onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }} startIcon={<Edit />} />
+                                                                 <TableCell>
+                                                                    <Button 
+                                                                        variant="ghost" 
+                                                                        size="md" 
+                                                                        onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }}
+                                                                    >
+                                                                        <MoreHorizontal />
+                                                                    </Button>
                                                                 </TableCell>
                                                             </TableRow>
                                                         );
@@ -441,7 +447,11 @@ export default function PersonalPage() {
                     <TabsContent value="absences">
                         {personalConfig.ausencias && (
                             <Card>
-                                <CardContent className="pt-6">
+                                <CardHeader>
+                                    <H3>Gestión de Ausencias</H3>
+                                    <CardDescription>Solicitudes de vacaciones, permisos y bajas médicas.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
                                     <div className="overflow-x-auto">
                                         <Table>
                                             <TableHeader>
@@ -460,16 +470,18 @@ export default function PersonalPage() {
                                                         <TableRow key={req.id}>
                                                             <TableCell className="font-medium">{staff?.nombre}</TableCell>
                                                             <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
-                                                            <TableCell className="text-xs sm:text-sm">{req.startDate} - {req.endDate}</TableCell>
+                                                            <TableCell className="text-xs sm:text-sm">
+                                                                {new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}
+                                                            </TableCell>
                                                             <TableCell className="text-center">
-                                                                <Badge variant={req.status === 'approved' ? 'default' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                                                <Badge variant={req.status === 'approved' ? 'success' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
                                                                     {req.status === 'approved' ? 'Aprobado' : req.status === 'rejected' ? 'Rechazado' : 'Pendiente'}
                                                                 </Badge>
                                                             </TableCell>
                                                             <TableCell className="text-right">
                                                                 {req.status === 'pending' && (
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Button size="md" variant="ghost-primary" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
+                                                                        <Button size="md" variant="ghost-success" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
                                                                         <Button size="md" variant="ghost-destructive" onClick={() => updateAbsenceStatus(req.id, 'rejected')} startIcon={<X />} />
                                                                     </div>
                                                                 )}
@@ -517,14 +529,14 @@ export default function PersonalPage() {
                                                             <TableCell className="text-xs sm:text-sm">{inc.fecha} {inc.hora}</TableCell>
                                                             <TableCell className="hidden md:table-cell max-w-[200px] truncate">{inc.motivo || '-'}</TableCell>
                                                             <TableCell className="text-center">
-                                                                <Badge variant={inc.estado === 'aprobada' ? 'default' : inc.estado === 'rechazada' ? 'destructive' : 'secondary'}>
+                                                                <Badge variant={inc.estado === 'aprobada' ? 'success' : inc.estado === 'rechazada' ? 'destructive' : 'secondary'}>
                                                                     {estadoIncidenciaLabels[inc.estado]}
                                                                 </Badge>
                                                             </TableCell>
                                                             <TableCell className="text-right">
                                                                 {inc.estado === 'pendiente' && (
                                                                     <div className="flex justify-end gap-2">
-                                                                        <Button size="md" variant="ghost-primary" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')} startIcon={<Check />} />
+                                                                        <Button size="md" variant="ghost-success" onClick={() => handleIncidenciaAction(inc.id, 'aprobada')} startIcon={<Check />} />
                                                                         <Button size="md" variant="ghost-destructive" onClick={() => handleIncidenciaAction(inc.id, 'rechazada')} startIcon={<X />} />
                                                                     </div>
                                                                 )}
