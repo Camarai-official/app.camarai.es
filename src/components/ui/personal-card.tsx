@@ -23,6 +23,7 @@ import { ActionTile } from '@/components/ui/action-tile';
 import { Progress } from '@/components/ui/progress';
 import { H5, TextXS, TextSM } from '@/components/ui/typography';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { iconMap } from '@/components/ui/icon-picker';
 import { cn } from '@/lib/utils';
 import { getRoleColors } from '@/lib/role-colors';
 import type { MetodoFichaje } from '@/types/fichaje';
@@ -42,6 +43,8 @@ export interface StaffCardData {
   horasContratadas: number;
   horasTrabajadas?: number;
   metodos_fichaje_permitidos?: MetodoFichaje[];
+  color?: string;
+  icon?: string;
 }
 
 export type StaffStatus = 'active' | 'inactive' | 'break';
@@ -137,15 +140,28 @@ export function StaffCard({
         {/* Header: Avatar + Name/Role + Status Badge & Actions */}
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0 flex-1">
-            <IconBadge
-              icon={User}
-              className={cn(roleStyles.chipBg, roleStyles.text)}
-            >
-            
-            </IconBadge>
+            {staff.fotoUrl ? (
+              <div className="h-10 w-10 shrink-0 rounded-xl overflow-hidden border">
+                <img 
+                  src={staff.fotoUrl} 
+                  alt={staff.nombre} 
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <IconBadge
+                icon={iconMap[staff.icon || 'User'] || User}
+                iconColor={staff.color}
+                className={cn(
+                  "h-10 w-10 shrink-0",
+                  !staff.color && roleStyles.chipBg,
+                  !staff.color && roleStyles.text
+                )}
+              />
+            )}
 
             <div className="min-w-0 flex-1">
-              <H5>{staff.nombre}</H5>
+              <H5 className="truncate">{staff.nombre}</H5>
               <TextXS className="text-muted-foreground leading-none" >{formatRole(staff.rol)}</TextXS>
             </div>
           </div>

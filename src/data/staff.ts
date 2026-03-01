@@ -8,7 +8,7 @@ export const mockUser: User = {
     firstName: 'Fenix',
     lastName: 'Admin',
     email: 'admin@camarai.es',
-    avatar: 'https://res.cloudinary.com/dxh2i2rjo/image/upload/v1770056762/image_1_1_npkwog.png'
+    avatar: ''
 };
 
 export const mockStaffMembers: StaffMember[] = [
@@ -21,9 +21,11 @@ export const mockStaffMembers: StaffMember[] = [
         estado: 'Activo',
         pin: '1234',
         telefono: '600000001',
-        fotoUrl: 'https://i.pravatar.cc/150?u=laura',
+        fotoUrl: '',
         horasContratadas: 40,
-        salarioPorHora: 12
+        salarioPorHora: 12,
+        color: 'rose-500',
+        icon: 'Utensils'
     },
     {
         id: 'staff-2',
@@ -34,9 +36,11 @@ export const mockStaffMembers: StaffMember[] = [
         estado: 'Activo',
         pin: '5678',
         telefono: '600000002',
-        fotoUrl: 'https://i.pravatar.cc/150?u=carlos',
+        fotoUrl: '',
         horasContratadas: 40,
-        salarioPorHora: 15
+        salarioPorHora: 15,
+        color: 'amber-500',
+        icon: 'ChefHat'
     },
     {
         id: 'staff-3',
@@ -47,9 +51,11 @@ export const mockStaffMembers: StaffMember[] = [
         estado: 'Inactivo',
         pin: '9012',
         telefono: '600000003',
-        fotoUrl: 'https://i.pravatar.cc/150?u=ana',
+        fotoUrl: '',
         horasContratadas: 20,
-        salarioPorHora: 13
+        salarioPorHora: 13,
+        color: 'violet-500',
+        icon: 'Wine'
     },
 ];
 

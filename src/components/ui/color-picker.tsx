@@ -39,7 +39,7 @@ export function ColorPicker({
               
               color.startsWith('#') ? "" : `bg-${color} hover:bg-${color}`,
               value === color
-                ? "border-2 border-primary scale-110"
+                ? "border-2 border-foreground scale-110"
                 : "opacity-80 hover:opacity-100"
             )}
             style={color.startsWith('#') ? { backgroundColor: color } : undefined}

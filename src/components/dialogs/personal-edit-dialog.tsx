@@ -1,7 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield, Building2, Upload, Eye, EyeOff, Trash, Check } from 'lucide-react';
+import { 
+    User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield, 
+    Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette, 
+    ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer, 
+    Zap, Gem, Target, Camera, Smile
+} from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +15,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ImageUploader } from '@/components/ui/image-uploader';
 import { ActionTile } from '@/components/ui/action-tile';
+import { ColorPicker } from '@/components/ui/color-picker';
+import { IconPicker, iconMap } from '@/components/ui/icon-picker';
 import { cn } from '@/lib/utils';
 import type { StaffMember } from '@/data/mock-data';
 
@@ -32,6 +39,9 @@ export interface ExtendedStaffMember extends StaffMember {
     // Campos para fichaje
     metodos_fichaje_permitidos?: ('app' | 'whatsapp' | 'qr' | 'web')[];
     dispositivo_asignado?: string;
+    // Identidad visual
+    color?: string;
+    icon?: string;
 }
 
 interface StaffDocument {
@@ -61,7 +71,9 @@ const emptyEmployee: ExtendedStaffMember = {
     horas_extra_habilitadas: false,
     documentos: [],
     metodos_fichaje_permitidos: ['app', 'qr'],
-    dispositivo_asignado: undefined 
+    dispositivo_asignado: undefined,
+    color: 'blue-500',
+    icon: 'User'
 };
 
 const permisosDisponibles = [
@@ -114,6 +126,8 @@ const mockEstablecimientos = [
     { id: 'est-2', nombre: 'Terraza de Verano' },
     { id: 'est-3', nombre: 'Local Centro' },
 ];
+
+const availableColors = ['violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
 
 interface EmployeeDialogProps {
     open: boolean;
@@ -204,7 +218,7 @@ export function EmployeeDialog({
         const employeeToSave = {
             ...employee,
             id: employee.id || `staff-${Date.now()}`,
-            fotoUrl: employee.fotoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${employee.nombre}`,
+            fotoUrl: employee.fotoUrl,
             roles: employee.rol ? [employee.rol] : [] 
         };
         onSave(employeeToSave);
@@ -247,38 +261,74 @@ export function EmployeeDialog({
                                         
                                         <div className="flex-1 flex flex-col justify-between gap-4 py-1">
                                             <div className="grid gap-2">
-                                                <Label htmlFor="nombre" className="text-xs font-bold text-muted-foreground uppercase tracking-wider ml-1">Nombre Completo</Label>
+                                                <Label htmlFor="nombre">Nombre Completo</Label>
                                                 <Input 
                                                     id="nombre" 
                                                     value={employee.nombre} 
                                                     onChange={(e) => handleInputChange('nombre', e.target.value)}
                                                     placeholder="Ej. Juan Pérez García"
-                                                    className="h-11 rounded-xl bg-muted/5"
+                                                    className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
                                                 />
                                             </div>
                                             <div className="grid sm:grid-cols-2 gap-4">
                                                 <div className="grid gap-2">
-                                                    <Label htmlFor="email" className="text-xs font-bold text-muted-foreground uppercase tracking-wider ml-1">Email de Contacto</Label>
+                                                    <Label htmlFor="email">Email de Contacto</Label>
                                                     <Input 
                                                         id="email" 
                                                         type="email"
                                                         value={employee.email} 
                                                         onChange={(e) => handleInputChange('email', e.target.value)}
                                                         placeholder="juan@camarai.com"
-                                                        className="h-11 rounded-xl bg-muted/5"
+                                                        className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
                                                     />
                                                 </div>
                                                 <div className="grid gap-2">
-                                                    <Label htmlFor="telefono" className="text-xs font-bold text-muted-foreground uppercase tracking-wider ml-1">Teléfono</Label>
+                                                    <Label htmlFor="telefono">Teléfono</Label>
                                                     <Input 
                                                         id="telefono" 
                                                         value={employee.telefono} 
                                                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                                                         placeholder="+34 600 000 000"
-                                                        className="h-11 rounded-xl bg-muted/5"
+                                                        className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
                                                     />
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    {/* SECCIÓN: IDENTIDAD VISUAL */}
+                                        <div className="grid gap-3 pt-2">
+                                            <Label>Identidad Visual</Label>
+                                        
+                                        <div className="grid gap-3">
+                                            <ActionTile
+                                                icon={Palette}
+                                                title="Color de Identidad"
+                                                description="Se usará para el perfil y reportes."
+                                                rightContentType="custom"
+                                                customContent={
+                                                    <ColorPicker
+                                                        availableColors={availableColors}
+                                                        value={employee.color}
+                                                        onChange={(color) => handleInputChange('color', color)}
+                                                    />
+                                                }
+                                            />
+
+                                            <ActionTile
+                                                icon={iconMap[employee.icon || 'User']}
+                                                iconColor={employee.color}
+                                                title="Icono de Representación"
+                                                description="Icono personalizado del empleado."
+                                                rightContentType="custom"
+                                                customContent={
+                                                    <IconPicker
+                                                        value={employee.icon}
+                                                        onChange={(icon) => handleInputChange('icon', icon)}
+                                                        className="w-48"
+                                                    />
+                                                }
+                                            />
                                         </div>
                                     </div>
                                 </TabsContent>
@@ -380,9 +430,7 @@ export function EmployeeDialog({
                                         />
 
                                         <div className="space-y-3">
-                                            <Label className="flex items-center gap-2 text-muted-foreground ml-1">
-                                                <Building2 className="h-3.5 w-3.5" /> Establecimientos Asignados
-                                            </Label>
+                                            <Label icon={Building2}>Establecimientos Asignados</Label>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 {mockEstablecimientos.map(est => (
                                                     <ActionTile
@@ -401,9 +449,7 @@ export function EmployeeDialog({
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="flex items-center gap-2 text-muted-foreground ml-1">
-                                            <Smartphone className="h-3.5 w-3.5" /> Métodos de Fichaje Permitidos
-                                        </Label>
+                                        <Label icon={Smartphone}>Métodos de Fichaje Permitidos</Label>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                             {metodosFichaje.map(metodo => (
                                                 <ActionTile

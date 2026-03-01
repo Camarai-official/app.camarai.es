@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge, IconBadge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Camera, Upload, X, Image as ImageIcon, Plus } from 'lucide-react';
+import { Camera, Upload, X, Plus } from 'lucide-react';
 
 interface ImageUploaderProps {
   value?: string;
@@ -126,7 +126,7 @@ export function ImageUploader({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          'relative flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 overflow-hidden bg-muted/5',
+          'relative flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 overflow-hidden bg-muted',
           aspectRatioClasses[aspectRatio],
           isDragging && 'border-primary bg-primary/10',
           error && 'border-destructive bg-destructive/5',
@@ -165,26 +165,13 @@ export function ImageUploader({
             )}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center p-4 text-center select-none">
-            <div className="relative mb-3">
-              <IconBadge 
-                icon={isDragging ? Upload : ImageIcon} 
-                iconColor={isDragging ? "primary" : "muted-foreground"}
-                className={cn(
-                  "h-10 w-10 transition-all duration-300 transform",
-                  isDragging && "scale-110"
-                )}
-              />
-              <div className="absolute -bottom-1 -right-1 bg-primary text-primary-foreground rounded-full p-0.5 shadow-sm border-2 border-background">
-                <Plus className="h-2.5 w-2.5" />
-              </div>
+          <div className="flex flex-col items-center justify-center w-full h-full">
+            <div className="h-12 w-12 rounded-full border-2 border-dashed border-muted-foreground/40 flex items-center justify-center text-muted-foreground/60 transition-colors group-hover:border-primary group-hover:text-primary">
+              <Plus className="h-6 w-6" />
             </div>
-            
-            <div className="space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
-                {isDragging ? 'Suelta aquí' : placeholder}
-              </p>
-            </div>
+            <p className="mt-2 text-[10px] tracking-wider text-muted-foreground transition-colors">
+              {isDragging ? 'Soltar imagen' : 'Añadir foto'}
+            </p>
           </div>
         )}
       </div>

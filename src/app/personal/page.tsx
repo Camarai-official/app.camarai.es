@@ -49,12 +49,12 @@ import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 
 // Feature Components
-import { StaffCard, type StaffStatus } from '@/components/ui/staff-card';
+import { StaffCard, type StaffStatus } from '@/components/ui/personal-card';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { ActionTile } from '@/components/ui/action-tile';
 
 // Dialog Components
-import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/staff-edit-dialog';
+import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/personal-edit-dialog';
 import { TimeLogDialog } from '@/components/dialogs/time-log-dialog';
 import { AbsenceRequestDialog } from '@/components/dialogs/absence-request-dialog';
 import { DeviceDialog } from '@/components/dialogs/device-dialog';
