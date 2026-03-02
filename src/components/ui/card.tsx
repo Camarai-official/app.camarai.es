@@ -34,22 +34,18 @@ const CardHeader = React.forwardRef<
       ref={ref}
       className={cn(
         "flex flex-row items-center justify-between gap-4 p-4 w-full",
-        !hasSubtitle && !actions && "justify-center text-center",
         className
       )}
       {...props}
     >
       <div className={cn(
-        "flex gap-3",
-        hasSubtitle || actions ? "flex-row items-start" : "flex-row items-center mx-auto"
+        "flex flex-row gap-3",
+        hasSubtitle ? "items-start" : "items-center"
       )}>
         {Icon && (
           <IconBadge icon={Icon} iconColor="muted-foreground" />
         )}
-        <div className={cn(
-          "flex flex-col gap-0.5",
-          !hasSubtitle && !actions && "items-center"
-        )}>
+        <div className="flex flex-col gap-0.5">
           {title && (
             <H4 className="text-foreground">
               {title}
