@@ -42,6 +42,10 @@ import { H3 } from '@/components/ui/typography';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 // Layout Components
 import { PageContainer } from '@/components/layout/page-container';
@@ -276,7 +280,7 @@ export default function PersonalPage() {
                                     Equipo
                                 </TabsTrigger>
                                 <TabsTrigger value="time-tracking" icon={Clock}>
-                                    Control Horario
+                                    Personal
                                 </TabsTrigger>
                                 <TabsTrigger value="absences" icon={Calendar}>
                                     Ausencias
@@ -385,116 +389,194 @@ export default function PersonalPage() {
                     </div>
                 </TabsContent>
 
-                    <TabsContent value="time-tracking">
+                    <TabsContent value="time-tracking" className="space-y-6">
                         {personalConfig.controlHorario && (
-                            <Card>
-                                <CardHeader>
-                                    <H3>Registro de Actividad Reciente</H3>
-                                    <CardDescription>Últimos fichajes y movimientos del personal.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="overflow-x-auto">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Empleado</TableHead>
-                                                    <TableHead className="hidden sm:table-cell">Fecha</TableHead>
-                                                    <TableHead>Hora</TableHead>
-                                                    <TableHead className="text-center">Acción</TableHead>
-                                                    <TableHead className="hidden md:table-cell">Método</TableHead>
-                                                    <TableHead className="w-[60px]"><span className="sr-only">Acciones</span></TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {timeLogs
-                                                    .filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff)
-                                                    .filter(log => timeLogFilterAction === 'all' || log.action === timeLogFilterAction)
-                                                    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                                                    .slice(0, 20)
-                                                    .map(log => {
-                                                        const staff = staffMembers.find(s => s.id === log.staffId);
-                                                        const date = new Date(log.timestamp);
+                            <>
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
+                                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                        <Select value={timeLogFilterStaff} onValueChange={setTimeLogFilterStaff}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Empleado" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Todos</SelectItem>
+                                                {staffMembers.map(staff => (
+                                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Select value={timeLogFilterAction} onValueChange={setTimeLogFilterAction}>
+                                            <SelectTrigger className="w-[150px]">
+                                                <SelectValue placeholder="Acción" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Todas las acciones</SelectItem>
+                                                <SelectItem value="clock-in">Entrada</SelectItem>
+                                                <SelectItem value="clock-out">Salida</SelectItem>
+                                                <SelectItem value="start-break">Descanso</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Button 
+                                            variant="outline" 
+                                            size="md" 
+                                            onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}
+                                            startIcon={<Plus />}
+                                        >
+                                            Añadir registro manual
+                                        </Button>
+                                    </div>
+                                    
+                                    <Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />}>
+                                        Exportar
+                                    </Button>
+                                </div>
+
+                                <Card>
+                                    <CardHeader>
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <H3>Registro de Actividad</H3>
+                                                <CardDescription>Últimos fichajes y movimientos del personal.</CardDescription>
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="overflow-x-auto">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Empleado</TableHead>
+                                                        <TableHead className="hidden sm:table-cell">Fecha</TableHead>
+                                                        <TableHead>Hora</TableHead>
+                                                        <TableHead className="text-center">Acción</TableHead>
+                                                        <TableHead className="hidden md:table-cell">Método</TableHead>
+                                                        <TableHead className="w-[60px]"><span className="sr-only">Acciones</span></TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {timeLogs
+                                                        .filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff)
+                                                        .filter(log => timeLogFilterAction === 'all' || log.action === timeLogFilterAction)
+                                                        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+                                                        .slice(0, 20)
+                                                        .map(log => {
+                                                            const staff = staffMembers.find(s => s.id === log.staffId);
+                                                            const date = new Date(log.timestamp);
+                                                            return (
+                                                                <TableRow key={log.id}>
+                                                                    <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
+                                                                    <TableCell className="hidden sm:table-cell">{date.toLocaleDateString()}</TableCell>
+                                                                    <TableCell>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
+                                                                    <TableCell className="text-center">
+                                                                        <Badge variant="outline" className="capitalize">
+                                                                            {log.action.replace('-', ' ')}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
+                                                                    <TableCell>
+                                                                        <Button 
+                                                                            variant="ghost" 
+                                                                            size="md" 
+                                                                            onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }}
+                                                                        >
+                                                                            <MoreHorizontal />
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </>
+                        )}
+                    </TabsContent>
+
+                    <TabsContent value="absences" className="space-y-6">
+                        {personalConfig.ausencias && (
+                            <>
+                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
+                                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                                        <Select value={timeLogFilterStaff} onValueChange={setTimeLogFilterStaff}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Empleado" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">Todos</SelectItem>
+                                                {staffMembers.map(staff => (
+                                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+
+                                        <Button 
+                                            variant="default" 
+                                            size="md" 
+                                            onClick={() => setIsAbsenceRequestDialogOpen(true)}
+                                            startIcon={<Plus />}
+                                        >
+                                            Nueva Solicitud
+                                        </Button>
+                                    </div>
+                                    
+                                    <Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />}>
+                                        Exportar
+                                    </Button>
+                                </div>
+
+                                <Card>
+                                    <CardHeader>
+                                        <H3>Gestión de Ausencias</H3>
+                                        <CardDescription>Solicitudes de vacaciones, permisos y bajas médicas.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="overflow-x-auto">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Empleado</TableHead>
+                                                        <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+                                                        <TableHead>Fechas</TableHead>
+                                                        <TableHead className="text-center">Estado</TableHead>
+                                                        <TableHead className="text-right">Acciones</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {absenceRequests.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map(req => {
+                                                        const staff = staffMembers.find(s => s.id === req.staffId);
                                                         return (
-                                                            <TableRow key={log.id}>
-                                                                <TableCell className="font-medium">{staff?.nombre || 'Desconocido'}</TableCell>
-                                                                <TableCell className="hidden sm:table-cell">{date.toLocaleDateString()}</TableCell>
-                                                                <TableCell>{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
+                                                            <TableRow key={req.id}>
+                                                                <TableCell className="font-medium">{staff?.nombre}</TableCell>
+                                                                <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
+                                                                <TableCell className="text-xs sm:text-sm">
+                                                                    {new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}
+                                                                </TableCell>
                                                                 <TableCell className="text-center">
-                                                                    <Badge variant="outline" className="capitalize">
-                                                                        {log.action.replace('-', ' ')}
+                                                                    <Badge variant={req.status === 'approved' ? 'success' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
+                                                                        {req.status === 'approved' ? 'Aprobado' : req.status === 'rejected' ? 'Rechazado' : 'Pendiente'}
                                                                     </Badge>
                                                                 </TableCell>
-                                                                <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
-                                                                 <TableCell>
-                                                                    <Button 
-                                                                        variant="ghost" 
-                                                                        size="md" 
-                                                                        onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }}
-                                                                    >
-                                                                        <MoreHorizontal />
-                                                                    </Button>
+                                                                <TableCell className="text-right">
+                                                                    {req.status === 'pending' && (
+                                                                        <div className="flex justify-end gap-2">
+                                                                            <Button size="sm" variant="ghost-success" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
+                                                                            <Button size="sm" variant="ghost-destructive" onClick={() => updateAbsenceStatus(req.id, 'rejected')} startIcon={<X />} />
+                                                                        </div>
+                                                                    )}
                                                                 </TableCell>
                                                             </TableRow>
                                                         );
                                                     })}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-                    </TabsContent>
-
-                    <TabsContent value="absences">
-                        {personalConfig.ausencias && (
-                            <Card>
-                                <CardHeader>
-                                    <H3>Gestión de Ausencias</H3>
-                                    <CardDescription>Solicitudes de vacaciones, permisos y bajas médicas.</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="overflow-x-auto">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Empleado</TableHead>
-                                                    <TableHead className="hidden sm:table-cell">Tipo</TableHead>
-                                                    <TableHead>Fechas</TableHead>
-                                                    <TableHead className="text-center">Estado</TableHead>
-                                                    <TableHead className="text-right">Acciones</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {absenceRequests.sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime()).map(req => {
-                                                    const staff = staffMembers.find(s => s.id === req.staffId);
-                                                    return (
-                                                        <TableRow key={req.id}>
-                                                            <TableCell className="font-medium">{staff?.nombre}</TableCell>
-                                                            <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
-                                                            <TableCell className="text-xs sm:text-sm">
-                                                                {new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}
-                                                            </TableCell>
-                                                            <TableCell className="text-center">
-                                                                <Badge variant={req.status === 'approved' ? 'success' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
-                                                                    {req.status === 'approved' ? 'Aprobado' : req.status === 'rejected' ? 'Rechazado' : 'Pendiente'}
-                                                                </Badge>
-                                                            </TableCell>
-                                                            <TableCell className="text-right">
-                                                                {req.status === 'pending' && (
-                                                                    <div className="flex justify-end gap-2">
-                                                                        <Button size="md" variant="ghost-success" onClick={() => updateAbsenceStatus(req.id, 'approved')} startIcon={<Check />} />
-                                                                        <Button size="md" variant="ghost-destructive" onClick={() => updateAbsenceStatus(req.id, 'rejected')} startIcon={<X />} />
-                                                                    </div>
-                                                                )}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    );
-                                                })}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </>
                         )}
                     </TabsContent>
                     

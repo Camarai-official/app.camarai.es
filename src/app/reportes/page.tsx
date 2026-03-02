@@ -1,11 +1,8 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
-
-
 import * as React from 'react';
 import { addDays } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone } from 'lucide-react';
+import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone, Clock, Calendar } from 'lucide-react';
 import {
     mockStaffMembers,
     mockProducts,
@@ -40,6 +37,8 @@ import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { MetricCard } from '@/components/widgets/metric-card';
+import { ActionTile } from '@/components/ui/action-tile';
 
 // Mock WhatsApp metrics
 const mockWhatsAppMetrics = {
@@ -191,9 +190,10 @@ export default function ReportesPage() {
                         <TabsList className="mb-4">
                             <TabsTrigger value="billing" icon={DollarSign}>Facturación</TabsTrigger>
                             <TabsTrigger value="performance" icon={TrendingUp}>Ventas</TabsTrigger>
-                            <TabsTrigger value="staff" icon={Users2}>Personal</TabsTrigger>
+                            <TabsTrigger value="hours" icon={Clock}>Personal</TabsTrigger>
+                            <TabsTrigger value="absences" icon={Calendar}>Ausencias</TabsTrigger>
                             <TabsTrigger value="inventory" icon={Archive}>Inventario</TabsTrigger>
-                            <TabsTrigger value="whatsapp" icon={MessageSquare} iconClassName="text-brand-whatsapp">WhatsApp</TabsTrigger>
+                            <TabsTrigger value="whatsapp" icon={MessageSquare}>WhatsApp</TabsTrigger>
                             <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
                         </TabsList>
                     </div>
@@ -216,6 +216,23 @@ export default function ReportesPage() {
                     />
                     <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
                     <StaffTab
+                        mode="hours"
+                        staffMembers={appData.staffMembers}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        date={date}
+                        onDateChange={setDate}
+                        timeReportData={timeReportData}
+                        staffTotals={mockStaffTotals}
+                        selectedAbsenceType={selectedAbsenceType}
+                        onAbsenceTypeChange={setSelectedAbsenceType}
+                        selectedAbsenceStatus={selectedAbsenceStatus}
+                        onAbsenceStatusChange={setSelectedAbsenceStatus}
+                        filteredAbsenceRequests={filteredAbsenceRequests}
+                        onUpdateRequest={handleUpdateRequest}
+                    />
+                    <StaffTab
+                        mode="absences"
                         staffMembers={appData.staffMembers}
                         selectedStaffId={selectedStaffId}
                         onStaffChange={setSelectedStaffId}
@@ -251,39 +268,33 @@ export default function ReportesPage() {
 
                     {/* WhatsApp Metrics Tab */}
                     <TabsContent value="whatsapp" className="space-y-4">
-                        {/* KPI Cards - design system: sin iconos, limpio */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Mensajes Enviados</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Tasa de Lectura</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{Math.round((mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100)}%</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Pedidos WhatsApp</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.pedidosViaWhatsApp}</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Tiempo Respuesta</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.tiempoRespuestaPromedio}</p>
-                                </CardContent>
-                            </Card>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <MetricCard 
+                                title="Mensajes Enviados" 
+                                value={new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}
+                                icon={Send} 
+                            />
+                            <MetricCard 
+                                title="Enviados/Leidos" 
+                                value={`${Math.round((mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100)}%`}
+                                icon={Eye} 
+                            />
+                            <MetricCard 
+                                title="Pedidos WhatsApp" 
+                                value={mockWhatsAppMetrics.pedidosViaWhatsApp.toString()}
+                                icon={MessageSquare} 
+                            />
+                            <MetricCard 
+                                title="Tiempo Respuesta" 
+                                value={mockWhatsAppMetrics.tiempoRespuestaPromedio}
+                                icon={Clock} 
+                            />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Delivery Stats */}
                             <Card>
-                                <CardHeader>
-                                    <H3 className="text-base">Estadísticas de Entrega</H3>
+                                <CardHeader title="Estadísticas de Entrega">
                                     <CardDescription>Rendimiento de mensajes del mes</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -313,31 +324,40 @@ export default function ReportesPage() {
 
                             {/* Conversions */}
                             <Card>
-                                <CardHeader>
-                                    <H3 className="text-base">Conversiones</H3>
+                                <CardHeader title="Conversiones">
                                     <CardDescription>Acciones generadas vía WhatsApp</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <span>Pedidos realizados</span>
-                                        <Badge variant="default">{mockWhatsAppMetrics.pedidosViaWhatsApp}</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <span>Reservas confirmadas</span>
-                                        <Badge variant="secondary">{mockWhatsAppMetrics.reservasViaWhatsApp}</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <span>Tasa de respuesta</span>
-                                        <Badge variant="outline">{mockWhatsAppMetrics.tasaRespuesta}%</Badge>
-                                    </div>
+                                <CardContent className="space-y-1">
+                                    <ActionTile 
+                                        icon={DollarSign}
+                                        title="Pedidos realizados"
+                                        description="Total de ventas concretadas"
+                                        rightContentType="badge"
+                                        badgeText={mockWhatsAppMetrics.pedidosViaWhatsApp.toString()}
+                                    />
+                                    <ActionTile 
+                                        icon={Calendar}
+                                        title="Reservas confirmadas"
+                                        description="Citas agendadas por el bot"
+                                        rightContentType="badge"
+                                        badgeText={mockWhatsAppMetrics.reservasViaWhatsApp.toString()}
+                                        badgeVariant="secondary"
+                                    />
+                                    <ActionTile 
+                                        icon={MessageSquare}
+                                        title="Tasa de respuesta"
+                                        description="Rendimiento del bot"
+                                        rightContentType="badge"
+                                        badgeText={`${mockWhatsAppMetrics.tasaRespuesta}%`}
+                                        badgeVariant="outline"
+                                    />
                                 </CardContent>
                             </Card>
                         </div>
 
                         {/* Recent Conversations */}
                         <Card>
-                            <CardHeader>
-                                <H3 className="text-base">Conversaciones Recientes</H3>
+                            <CardHeader title="Conversaciones Recientes">
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -346,7 +366,7 @@ export default function ReportesPage() {
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead>Cliente</TableHead>
-                                                <TableHead>Tipo</TableHead>
+                                                <TableHead className="text-center">Tipo</TableHead>
                                                 <TableHead>Fecha</TableHead>
                                                 <TableHead className="text-center">Estado</TableHead>
                                             </TableRow>
@@ -355,14 +375,17 @@ export default function ReportesPage() {
                                             {mockWhatsAppMetrics.conversaciones.map((conv) => (
                                                 <TableRow key={conv.id}>
                                                     <TableCell className="font-medium">{conv.cliente}</TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="text-center">
                                                         <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
                                                             {conv.tipo}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
                                                     <TableCell className="text-center">
-                                                        <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
+                                                        <Badge variant={
+                                                            conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'success' : 
+                                                            conv.estado === 'Pendiente' ? 'warning' : 'info'
+                                                        }>
                                                             {conv.estado}
                                                         </Badge>
                                                     </TableCell>

@@ -28,15 +28,7 @@ type PerformanceTabProps = {
 export function PerformanceTab({ products, orders, getCategoryName }: PerformanceTabProps) {
     return (
         <TabsContent value="performance" className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <H3>Ventas por hora</H3>
-                    <CardDescription>Rendimiento de ventas de las comandas completadas o en progreso durante el día.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <SalesChart />
-                </CardContent>
-            </Card>
+            <SalesChart />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
                     <TopProductsCard products={products} />

@@ -26,32 +26,46 @@ const CardHeader = React.forwardRef<
     icon?: React.ElementType;
     actions?: React.ReactNode;
   }
->(({ className, title, icon: Icon, actions, children, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex flex-row items-start justify-between gap-4 p-4 text-left w-full", className)}
-    {...props}
-  >
-    <div className="flex flex-row items-start gap-3">
-      {Icon && (
-        <IconBadge icon={Icon} iconColor="muted-foreground" />
+>(({ className, title, icon: Icon, actions, children, ...props }, ref) => {
+  const hasSubtitle = !!children;
+  
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        "flex flex-row items-center justify-between gap-4 p-4 w-full",
+        !hasSubtitle && !actions && "justify-center text-center",
+        className
       )}
-      <div className="flex flex-col gap-0.5">
-        {title && (
-          <H4 className="text-muted-foreground">
-            {title}
-          </H4>
+      {...props}
+    >
+      <div className={cn(
+        "flex gap-3",
+        hasSubtitle || actions ? "flex-row items-start" : "flex-row items-center mx-auto"
+      )}>
+        {Icon && (
+          <IconBadge icon={Icon} iconColor="muted-foreground" />
         )}
-        {children}
+        <div className={cn(
+          "flex flex-col gap-0.5",
+          !hasSubtitle && !actions && "items-center"
+        )}>
+          {title && (
+            <H4 className="text-foreground">
+              {title}
+            </H4>
+          )}
+          {children}
+        </div>
       </div>
+      {actions && (
+        <div className="flex items-center gap-2 shrink-0">
+          {actions}
+        </div>
+      )}
     </div>
-    {actions && (
-      <div className="flex items-center gap-2 shrink-0">
-        {actions}
-      </div>
-    )}
-  </div>
-))
+  )
+})
 CardHeader.displayName = "CardHeader"
 
 const CardDescription = React.forwardRef<

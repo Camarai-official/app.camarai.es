@@ -1,4 +1,3 @@
-import { H3 } from '@/components/ui/typography';
 import * as React from 'react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
@@ -51,89 +50,76 @@ export function BillingTab({
     onViewDetails }: BillingTabProps) {
     return (
         <TabsContent value="billing" className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                id="date"
+                                variant="outline"
+                                size="md"
+                                className={cn('justify-start text-left font-normal truncate min-w-[240px]', !date && 'text-muted-foreground')}
+                                startIcon={<CalendarIcon />}
+                            >
+                                {date?.from ? (
+                                    date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>)
+                                        : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)
+                                }
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={date?.from}
+                                selected={date}
+                                onSelect={onDateChange}
+                                numberOfMonths={1}
+                            />
+                        </PopoverContent>
+                    </Popover>
+
+                    <Select value={selectedStaffId} onValueChange={onStaffChange}>
+                        <SelectTrigger id="staff-select" className="w-[180px]">
+                            <SelectValue placeholder="Empleado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos</SelectItem>
+                            {staffMembers.map(staff => (
+                                <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={reportType} onValueChange={onReportTypeChange}>
+                        <SelectTrigger id="report-type" className="w-[200px]">
+                            <SelectValue placeholder="Tipo de Informe" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="accounts">Reporte de Cuentas</SelectItem>
+                            <SelectItem value="billing">Reporte de Facturación</SelectItem>
+                            <SelectItem value="cash-drawer">Reporte de Cajas</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="default" size="md" className="w-full sm:w-auto" startIcon={<Download />}>
+                                Exportar
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem><FileSpreadsheet className="h-4 w-4 mr-2" />Exportar a CSV</DropdownMenuItem>
+                            <DropdownMenuItem><FileText className="h-4 w-4 mr-2" />Exportar a PDF</DropdownMenuItem>
+                            <DropdownMenuItem><FileSpreadsheet className="h-4 w-4 mr-2" />Exportar a Excel</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            </div>
             <Card>
-                <CardHeader>
-                    <H3 className="text-base font-bold text-muted-foreground">Filtros del Informe</H3>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div className="space-y-2 lg:col-span-2">
-                        <Label htmlFor="date-range">Rango de Fechas</Label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    id="date"
-                                    variant="outline"
-                                    className={cn('w-full justify-start text-left font-normal truncate', !date && 'text-muted-foreground')}
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date?.from ? (
-                                        date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>)
-                                            : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)
-                                    }
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar
-                                    initialFocus
-                                    mode="range"
-                                    defaultMonth={date?.from}
-                                    selected={date}
-                                    onSelect={onDateChange}
-                                    numberOfMonths={1}
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="staff-select">Empleado</Label>
-                        <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                            <SelectTrigger id="staff-select">
-                                <SelectValue placeholder="Seleccionar empleado..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos los empleados</SelectItem>
-                                {staffMembers.map(staff => (
-                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="report-type">Tipo de Informe</Label>
-                        <Select value={reportType} onValueChange={onReportTypeChange}>
-                            <SelectTrigger id="report-type">
-                                <SelectValue placeholder="Seleccionar tipo..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="accounts">Reporte de Cuentas</SelectItem>
-                                <SelectItem value="billing">Reporte de Facturación</SelectItem>
-                                <SelectItem value="cash-drawer">Reporte de Cajas</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="flex items-end">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="default" className="w-full">
-                                    <Download className="mr-2 h-4 w-4" />
-                                    <span>Exportar</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem><FileSpreadsheet />Exportar a CSV</DropdownMenuItem>
-                                <DropdownMenuItem><FileText />Exportar a PDF</DropdownMenuItem>
-                                <DropdownMenuItem><FileSpreadsheet />Exportar a Excel</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </div>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between px-6 pt-6 pb-4">
-                    <div>
-                        <H3 className="text-base font-bold text-muted-foreground">Reporte de Cuentas</H3>
-                    </div>
-                </CardHeader>
+                <CardHeader title="Reporte de Cuentas" />
                 <CardContent className="px-6 pb-2">
                     <div className="overflow-x-auto">
                         <Table>
