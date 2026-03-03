@@ -209,7 +209,7 @@ export function WasteReportCard() {
     <Card>
       <CardHeader 
         title="Informe de Mermas" 
-        actions={<Button variant="outline" size="sm" startIcon={<Download />}>Exportar</Button>}
+        actions={<Button variant="outline" size="md" startIcon={<Download />}>Exportar</Button>}
       >
         <CardDescription>Seguimiento de productos desechados en el período.</CardDescription>
       </CardHeader>

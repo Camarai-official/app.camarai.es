@@ -31,7 +31,7 @@ import { PerformanceTab } from '@/components/ui/performance-tab';
 import { StaffTab } from '@/components/ui/staff-tab';
 import { InventoryTab } from '@/components/ui/inventory-tab';
 import { CashClosingTab } from '@/components/ui/cash-closing-tab';
-import { OrderDetailsDialog } from '@/components/dialogs/reportes-order-details-dialog';
+import { OrderDetailsDialog } from '@/components/dialogs/reportes-orderdetails-dialog';
 import { MovementsDetailsDialog } from '@/components/dialogs/movements-details-dialog';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
