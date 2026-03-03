@@ -13,6 +13,7 @@ import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/comp
 import { ConfigItem } from '@/components/ui/config-item';
 import { CheckCircle2 } from 'lucide-react';
 import type { User } from '@/data/mock-data';
+import { ActionTile } from '@/components/ui/action-tile';
 
 type ProfileTabProps = {
     localUser: Partial<User> | null;
@@ -52,7 +53,7 @@ export function ProfileTab({
                                         <AvatarImage src={localUser.avatar} alt="@user" data-ai-hint="profile user" />
                                         <AvatarFallback>{localUser.firstName?.charAt(0)}</AvatarFallback>
                                     </Avatar>
-                                    <Button size="md" className="absolute bottom-0 right-0 rounded-full h-8 w-8" onClick={() => profileFileInputRef.current?.click()}>
+                                    <Button size="md" className="absolute bottom-0 right-0 rounded-full" onClick={() => profileFileInputRef.current?.click()}>
                                         <Camera className="h-4 w-4" />
                                         <span className="sr-only">Cambiar foto</span>
                                     </Button>
@@ -92,23 +93,21 @@ export function ProfileTab({
                                     <Label htmlFor="pin">PIN de seguridad</Label>
                                     <Input id="pin" type="password" maxLength={4} placeholder="••••" />
                                 </div>
-                                <ConfigItem
+                                <ActionTile
                                     icon={CheckCircle2}
-                                    label="Estado de la Cuenta"
+                                    iconColor="#22c55e"
+                                    title="Estado de la Cuenta"
                                     description="Estado actual de tu perfil de usuario."
-                                    iconClassName="text-green-500"
-                                    iconContainerClassName="bg-green-500/10"
-                                >
-                                    <Select defaultValue="activo">
-                                        <SelectTrigger className="w-28 h-8 border-none bg-muted/50">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="activo">Activo</SelectItem>
-                                            <SelectItem value="inactivo">Inactivo</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </ConfigItem>
+                                    variant="outline"
+                                    padding="md"
+                                    rightContentType="select"
+                                    selectValue="activo"
+                                    onSelectChange={() => {}}
+                                    selectOptions={[
+                                        { value: 'activo', label: 'Activo' },
+                                        { value: 'inactivo', label: 'Inactivo' }
+                                    ]}
+                                />
                             </div>
                         </>
                     ) : (

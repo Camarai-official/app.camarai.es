@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent as InnerTabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConfigItem } from '@/components/ui/config-item';
+import { ActionTile } from '@/components/ui/action-tile';
 
 // Provider type definition
 interface Provider {
@@ -156,12 +157,12 @@ export function ProvidersTab() {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <Button onClick={() => handleOpenDialog()} size="sm">
+                    <Button onClick={() => handleOpenDialog()} size="md">
                         <Plus className="mr-2 h-4 w-4" />
                         Añadir Proveedor
                     </Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent>
                     {providers.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                             <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -169,50 +170,58 @@ export function ProvidersTab() {
                             <p className="text-sm">Añade tu primer proveedor para empezar.</p>
                         </div>
                     ) : (
-                        providers.map(provider => (
-                            <ConfigItem
-                                key={provider.id}
-                                icon={Building2}
-                                label={
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-semibold">{provider.name}</span>
-                                        <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{getCategoryLabel(provider.category)}</Badge>
-                                    </div>
-                                }
-                                description={`Contacto: ${provider.contactName}`}
-                            >
-                                <div className="flex items-center gap-4 mr-4">
-                                    <div className="hidden md:flex flex-col items-end gap-1">
-                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                            <Mail className="h-3 w-3" />
-                                            <span>{provider.email}</span>
+                        <div className="flex flex-col gap-4">
+                            {providers.map(provider => (
+                                <ActionTile
+                                    key={provider.id}
+                                    icon={Building2}
+                                    title={
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold">{provider.name}</span>
+                                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{getCategoryLabel(provider.category)}</Badge>
                                         </div>
-                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                            <Phone className="h-3 w-3" />
-                                            <span>{provider.phone}</span>
+                                    }
+                                    description={`Contacto: ${provider.contactName}`}
+                                    variant="outline"
+                                    padding="md"
+                                    rightContentType="custom"
+                                    customContent={
+                                        <div className="flex items-center gap-4">
+                                            <div className="hidden md:flex flex-col items-end gap-1">
+                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground leading-none">
+                                                    <Mail className="h-3 w-3" />
+                                                    <span>{provider.email}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground leading-none">
+                                                    <Phone className="h-3 w-3" />
+                                                    <span>{provider.phone}</span>
+                                                </div>
+                                            </div>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="md" className="h-10 w-10">
+                                                        <MoreVertical className="h-5 w-5" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onSelect={() => handleOpenDialog(provider)}>
+                                                        <Pencil />Editar
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem 
+                                                        onSelect={() => {
+                                                            setProviderToDelete(provider);
+                                                            setIsDeleteDialogOpen(true);
+                                                        }}
+                                                    >
+                                                        <Trash />Eliminar
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </div>
-                                    </div>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="md" className="h-8 w-8" startIcon={<MoreVertical />} />
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onSelect={() => handleOpenDialog(provider)}>
-                                                <Pencil />Editar
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem 
-                                                onSelect={() => {
-                                                    setProviderToDelete(provider);
-                                                    setIsDeleteDialogOpen(true);
-                                                }}
-                                            >
-                                                <Trash />Eliminar
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </div>
-                            </ConfigItem>
-                        ))
+                                    }
+                                />
+                            ))}
+                        </div>
                     )}
                 </CardContent>
             </Card>

@@ -190,7 +190,7 @@ export default function PromocionesPage() {
         <PageContainer>
             <PageHeader 
                 title="Gestión de Promociones y Campañas" 
-                description="Crea y gestiona tus campañas de marketing por WhatsApp."
+                subtitle="Crea y gestiona tus campañas de marketing por WhatsApp."
             />
             
             <PageContent>
@@ -265,16 +265,16 @@ export default function PromocionesPage() {
                                 <Button variant="outline" responsiveWidth="auto-sm" startIcon={<FileDown />}>
                                     Exportar
                                 </Button>
-                                <Button onClick={() => handleOpenDialog()} responsiveWidth="auto-sm" startIcon={<PlusCircle />}>
+                                <Button variant="default" size="md" onClick={() => handleOpenDialog()} responsiveWidth="auto-sm" startIcon={<PlusCircle />}>
                                     Nueva Campaña
                                 </Button>
                             </div>
                         </div>
-                        <Card>
-                            <CardHeader>
-                                <H3>Listado de Campañas</H3>
-                                <CardDescription>Gestiona tus campañas de marketing enviadas por WhatsApp</CardDescription>
-                            </CardHeader>
+                        <Card flex>
+                            <CardHeader 
+                                title="Listado de Campañas" 
+                                description="Gestiona tus campañas de marketing enviadas por WhatsApp"
+                            />
                             <CardContent padding="none">
                                 {/* Mobile View - Cards */}
                                 <div className="grid grid-cols-1 gap-0 md:hidden divide-y">
@@ -283,7 +283,7 @@ export default function PromocionesPage() {
                                             icon={PlusCircle}
                                             title="No hay campañas"
                                             description="Crea tu primera campaña para empezar a atraer clientes"
-                                            action={<Button onClick={() => handleOpenDialog()}>Crear primera campaña</Button>}
+                                            action={<Button variant="default" size="md" onClick={() => handleOpenDialog()}>Crear primera campaña</Button>}
                                         />
                                     ) : (
                                         campaigns.map((campaign) => (
@@ -317,7 +317,7 @@ export default function PromocionesPage() {
                                                 <TableHead align="center">Estado</TableHead>
                                                 <TableHead>Audiencia</TableHead>
                                                 <TableHead>Lanzamiento</TableHead>
-                                                <TableHead width="110" align="right">Acciones</TableHead>
+                                                <TableHead width="120" align="right">Acciones</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -328,33 +328,33 @@ export default function PromocionesPage() {
                                                             icon={PlusCircle}
                                                             title="No hay campañas"
                                                             description="Crea tu primera campaña para empezar a atraer clientes"
-                                                            action={<Button onClick={() => handleOpenDialog()}>Crear campaña</Button>}
+                                                            action={<Button variant="default" size="md" onClick={() => handleOpenDialog()}>Crear campaña</Button>}
                                                         />
                                                     </TableCell>
                                                 </TableRow>
                                             ) : (
                                                 campaigns.map((campaign) => (
                                             <TableRow key={campaign.id}>
-                                                <TableCell height="md" align="center">
+                                                <TableCell height="md" align="center" textSize="sm">
                                                     <Switch
                                                         checked={campaign.status === 'Activa'}
                                                         onCheckedChange={(checked) => handleStatusChange(campaign.id, checked)}
                                                         disabled={campaign.status === 'Finalizada' || campaign.status === 'Borrador'}
                                                     />
                                                 </TableCell>
-                                                <TableCell height="md" variant="medium">{campaign.name}</TableCell>
-                                                <TableCell height="md">{campaign.type}</TableCell>
-                                                <TableCell height="md" align="center">
+                                                <TableCell height="md" variant="medium" textSize="sm">{campaign.name}</TableCell>
+                                                <TableCell height="md" textSize="sm">{campaign.type}</TableCell>
+                                                <TableCell height="md" align="center" textSize="sm">
                                                     <Badge variant={getStatusVariant(campaign.status)}>{campaign.status}</Badge>
                                                 </TableCell>
-                                                <TableCell height="md">{campaign.audience} clientes</TableCell>
-                                                <TableCell height="md">{campaign.launchDate} a las {campaign.launchTime}</TableCell>
-                                                <TableCell height="md" align="right">
+                                                <TableCell height="md" textSize="sm">{campaign.audience} clientes</TableCell>
+                                                <TableCell height="md" textSize="sm">{campaign.launchDate} a las {campaign.launchTime}</TableCell>
+                                                <TableCell height="md" align="right" textSize="sm">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button size="md" variant="ghost">
-                                                                <MoreHorizontal />
-                                                            </Button>
+                                                             <Button size="md" variant="ghost">
+                                                                 <MoreHorizontal />
+                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent align="end">
                                                             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
@@ -391,11 +391,11 @@ export default function PromocionesPage() {
                     {/* Stats Tab */}
                     <TabsContent value="stats" spaced>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <Card>
-                                <CardHeader>
-                                    <H3 variant="medium">Rendimiento por Campaña</H3>
-                                    <CardDescription>Métricas de las últimas campañas enviadas</CardDescription>
-                                </CardHeader>
+                            <Card flex>
+                                <CardHeader 
+                                    title="Rendimiento por Campaña" 
+                                    description="Métricas de las últimas campañas enviadas" 
+                                />
                                 <CardContent padding="none">
                                     <Table>
                                         <TableHeader>
@@ -409,7 +409,7 @@ export default function PromocionesPage() {
                                         <TableBody>
                                             {campaigns.slice(0, 5).map(campaign => (
                                                 <TableRow key={campaign.id}>
-                                                    <TableCell height="md" variant="medium">{campaign.name}</TableCell>
+                                                    <TableCell height="md" variant="medium" textSize="sm">{campaign.name}</TableCell>
                                                     <TableCell height="md" align="center">{campaign.audience}</TableCell>
                                                     <TableCell height="md" align="center">{Math.round(campaign.audience * 0.78)}</TableCell>
                                                     <TableCell height="md" align="center">{(Math.random() * 15 + 5).toFixed(1)}%</TableCell>
@@ -420,11 +420,11 @@ export default function PromocionesPage() {
                                 </CardContent>
                             </Card>
                             
-                            <Card>
-                                <CardHeader>
-                                    <H3 variant="medium">Métricas WhatsApp</H3>
-                                    <CardDescription>Estadísticas globales del canal de comunicación</CardDescription>
-                                </CardHeader>
+                            <Card flex>
+                                <CardHeader 
+                                    title="Métricas WhatsApp" 
+                                    description="Estadísticas globales del canal de comunicación" 
+                                />
                                 <CardContent gap="md">
                                     <ActionTile
                                         variant="none"

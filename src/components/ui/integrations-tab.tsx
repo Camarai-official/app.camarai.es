@@ -15,7 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { EvolutionAPIConfigForm, defaultEvolutionConfig, type EvolutionAPIConfig } from '@/components/features/evolution-api-config';
 import { Separator } from '@/components/ui/separator';
-import { ConfigItem } from '@/components/ui/config-item';
+import { ActionTile } from '@/components/ui/action-tile';
+import { FaWhatsapp } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 
 // Integration type
 interface Integration {
@@ -29,25 +31,14 @@ interface Integration {
     lastSync?: string;
 }
 
-// SVG Icons as components for cleaner code
-const WhatsAppIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-brand-whatsapp" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M19.6,4.4C17.7,2.4,15,1.2,12,1.2C5.9,1.2,1,6.1,1,12.2c0,2,0.5,3.8,1.5,5.5L1,23l5.6-1.5c1.7,0.9,3.6,1.4,5.4,1.4h0l0,0 c6.1,0,11-4.9,11-11c0-3-1.2-5.7-3.2-7.6z M12,21.1c-1.8,0-3.5-0.5-5-1.4l-0.4-0.2l-3.7,1l1-3.6l-0.2-0.4C3,15.2,2.5,13.7,2.5,12.2 c0-5.2,4.2-9.4,9.4-9.4c2.6,0,5,1,6.6,2.7c1.7,1.7,2.7,4,2.7,6.6C21.4,16.9,17.2,21.1,12,21.1z M17,13.4c-0.2-0.1-1.2-0.6-1.4-0.7 c-0.2-0.1-0.3-0.1-0.5,0.1c-0.1,0.2-0.5,0.7-0.7,0.8c-0.1,0.1-0.2,0.2-0.4,0.1c-0.2-0.1-0.8-0.3-1.5-0.9c-0.6-0.5-1-1.1-1.1-1.3 c-0.1-0.2,0-0.3,0.1-0.4c0.1-0.1,0.2-0.2,0.3-0.3c0.1-0.1,0.1-0.2,0.2-0.4c0.1-0.1,0-0.3-0.1-0.4c-0.1-0.1-0.5-1.1-0.6-1.5 c-0.2-0.4-0.3-0.3-0.5-0.3c-0.1,0-0.3,0-0.5,0C9.9,7.6,9.6,7.7,9.4,8c-0.2,0.3-0.8,0.7-0.8,1.8c0,1.1,0.8,2,0.9,2.2 c0.1,0.2,1.6,2.5,3.9,3.4c0.6,0.2,1,0.3,1.3,0.4c0.6,0.2,1.1,0.1,1.5-0.1c0.5-0.2,1.2-0.8,1.3-1.6c0.1-0.7,0.1-1.4-0.1-1.5 C17.3,13.5,17.2,13.5,17,13.4z" />
-    </svg>
-);
-
-const GoogleIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" viewBox="0 0 24 24">
-        <path fill="currentColor" d="M21.35 11.1H12v2.8h5.3c-.5 1.9-2.1 3.2-4.1 3.2-2.4 0-4.4-2-4.4-4.4s2-4.4 4.4-4.4c1.1 0 2.1.4 2.9 1.2l2.2-2.2C17.2 4.8 15 4 12.2 4 7.7 4 4 7.7 4 12.2s3.7 8.2 8.2 8.2c4.4 0 7.9-3.6 7.9-8.2-.1-.5-1.1-1.1-1.1-1.1z" />
-    </svg>
-);
+// Icons integrated from react-icons in the initialIntegrations array below
 
 const initialIntegrations: Integration[] = [
     {
         id: 'whatsapp',
         name: 'WhatsApp Business',
         description: 'Notificaciones de reservas y pedidos.',
-        icon: <WhatsAppIcon />,
+        icon: <FaWhatsapp />,
         enabled: true,
         connected: true,
         config: { phone: '+34612345678', notifyReservations: true, notifyOrders: true },
@@ -56,7 +47,7 @@ const initialIntegrations: Integration[] = [
         id: 'google',
         name: 'Reservas de Google',
         description: 'Sincroniza tus reservas con Google.',
-        icon: <GoogleIcon />,
+        icon: <FcGoogle />,
         enabled: false,
         connected: false,
         config: { calendarId: '', autoSync: false } },
@@ -158,69 +149,77 @@ export function IntegrationsTab() {
                         </Tooltip>
                     </TooltipProvider>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    {integrations.map(integration => (
-                        <ConfigItem
-                            key={integration.id}
-                            icon={integration.icon}
-                            noIconContainer
-                            label={
-                                <div className="flex items-center gap-2">
-                                    <span className="font-semibold">{integration.name}</span>
-                                    {integration.connected ? (
-                                        <Badge variant="secondary" className="text-green-600 h-5 px-1.5 text-[10px]">
-                                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                                            Conectado
-                                        </Badge>
-                                    ) : (
-                                        <Badge variant="outline" className="text-muted-foreground h-5 px-1.5 text-[10px]">
-                                            <XCircle className="h-3 w-3 mr-1" />
-                                            No conectado
-                                        </Badge>
-                                    )}
-                                </div>
-                            }
-                            description={
-                                <div className="space-y-0.5">
-                                    <p>{integration.description}</p>
-                                    {integration.lastSync && (
-                                        <p className="text-[10px] text-muted-foreground">
-                                            Última sincronización: {integration.lastSync}
-                                        </p>
-                                    )}
-                                </div>
-                            }
-                        >
-                            <div className="flex items-center gap-2">
-                                <Switch 
-                                    checked={integration.enabled}
-                                    onCheckedChange={(checked) => handleToggle(integration.id, checked)}
-                                />
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" size="md" className="h-8 w-8" startIcon={<MoreVertical />} />
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        <DropdownMenuItem onSelect={() => openConfigDialog(integration)}>
-                                            <Pencil />Configurar
-                                        </DropdownMenuItem>
-                                        {integration.connected && (
-                                            <DropdownMenuItem onSelect={() => handleSync(integration)}>
-                                                <RefreshCw />Sincronizar
-                                            </DropdownMenuItem>
+                <CardContent>
+                    <div className="flex flex-col gap-4">
+                        {integrations.map(integration => (
+                            <ActionTile
+                                key={integration.id}
+                                icon={integration.icon}
+                                iconColor={integration.id === 'whatsapp' ? '#25D366' : undefined}
+                                title={
+                                    <div className="flex items-center gap-2">
+                                        <span>{integration.name}</span>
+                                        {integration.connected ? (
+                                            <Badge variant="secondary" className="text-green-600 h-5 px-1.5 text-[10px]">
+                                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                Conectado
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="text-muted-foreground h-5 px-1.5 text-[10px]">
+                                                <XCircle className="h-3 w-3 mr-1" />
+                                                No conectado
+                                            </Badge>
                                         )}
-                                        {integration.connected && (
-                                            <DropdownMenuItem 
-                                                onSelect={() => handleDisconnect(integration.id)}
-                                            >
-                                                <Trash />Desconectar
-                                            </DropdownMenuItem>
+                                    </div>
+                                }
+                                description={
+                                    <div className="space-y-0.5">
+                                        <p>{integration.description}</p>
+                                        {integration.lastSync && (
+                                            <p className="text-[10px] text-muted-foreground">
+                                                Última sincronización: {integration.lastSync}
+                                            </p>
                                         )}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
-                        </ConfigItem>
-                    ))}
+                                    </div>
+                                }
+                                variant="outline"
+                                padding="md"
+                                rightContentType="custom"
+                                customContent={
+                                    <div className="flex items-center gap-2">
+                                        <Switch 
+                                            checked={integration.enabled}
+                                            onCheckedChange={(checked) => handleToggle(integration.id, checked)}
+                                        />
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="md" className="h-10 w-10">
+                                                    <MoreVertical className="h-5 w-5" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onSelect={() => openConfigDialog(integration)}>
+                                                    <Pencil />Configurar
+                                                </DropdownMenuItem>
+                                                {integration.connected && (
+                                                    <DropdownMenuItem onSelect={() => handleSync(integration)}>
+                                                        <RefreshCw />Sincronizar
+                                                    </DropdownMenuItem>
+                                                )}
+                                                {integration.connected && (
+                                                    <DropdownMenuItem 
+                                                        onSelect={() => handleDisconnect(integration.id)}
+                                                    >
+                                                        <Trash />Desconectar
+                                                    </DropdownMenuItem>
+                                                )}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                }
+                            />
+                        ))}
+                    </div>
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">
                     <Button variant="outline">

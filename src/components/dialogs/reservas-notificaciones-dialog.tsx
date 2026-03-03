@@ -61,9 +61,9 @@ export function WhatsAppNotificationsDialog({ open, onOpenChange }: WhatsAppNoti
                 
                 <DialogContent>
                     <Tabs defaultValue="config" className="flex-1 flex flex-col overflow-hidden">
-                        <TabsList className="px-6 border-b">
-                            <TabsTrigger value="config">Configuración</TabsTrigger>
-                            <TabsTrigger value="templates">Templates</TabsTrigger>
+                        <TabsList className="px-6" marginBottom="md">
+                            <TabsTrigger value="config" icon={Bell}>Configuración</TabsTrigger>
+                            <TabsTrigger value="templates" icon={MessageSquare}>Templates</TabsTrigger>
                         </TabsList>
 
                         <ScrollArea>

@@ -304,26 +304,31 @@ export default function PersonalPage() {
                                     title={stats.total.toString()}
                                     description="Total Empleados"
                                     icon={Users}
+                                    iconColor="#3b82f6"
                                 />
                                 <ActionTile
                                     title={stats.activos.toString()}
                                     description="Activos"
                                     icon={Check}
+                                    iconColor="#22c55e"
                                 />
                                 <ActionTile
                                     title={stats.trabajandoAhora.toString()}
                                     description="Trabajando Ahora"
                                     icon={Activity}
+                                    iconColor="#a855f7"
                                 />
                                 <ActionTile
                                     title={stats.enDescanso.toString()}
                                     description="En Descanso"
                                     icon={Clock}
+                                    iconColor="#f59e0b"
                                 />
                                 <ActionTile
                                     title={`${stats.horasHoy}h`}
                                     description="Horas Hoy"
                                     icon={Zap}
+                                    iconColor="#ef4444"
                                 />
                             </div>
                         )}

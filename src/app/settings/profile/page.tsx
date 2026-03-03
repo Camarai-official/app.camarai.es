@@ -13,7 +13,7 @@ import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 import { ProfileTab } from '@/components/ui/profile-tab';
 import { EstablishmentTab } from '@/components/ui/establishment-tab';
-import { DevicesTab } from '@/components/ui/devices-tab';
+import { DevicesTab } from '@/components/dialogs/configuracion-dispositivos-dialog';
 import { CompanyTab } from '@/components/ui/company-tab';
 import { ProvidersTab } from '@/components/ui/providers-tab';
 import { IntegrationsTab } from '@/components/ui/integrations-tab';
