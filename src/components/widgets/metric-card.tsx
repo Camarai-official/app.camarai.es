@@ -18,10 +18,7 @@ export function MetricCard({ title, value, change, changeType, badge, icon: Icon
   const isIncrease = changeType === 'increase';
 
   return (
-    <Card className={cn(
-      "relative",
-      className
-    )}>
+    <Card position="relative">
       <CardHeader 
         title={title} 
         icon={Icon} 
@@ -36,7 +33,7 @@ export function MetricCard({ title, value, change, changeType, badge, icon: Icon
               </H1>
             )}
             {badge && (
-              <Badge variant="completed" className="text-[10px] px-1.5 h-5">
+              <Badge variant="completed" size="xs">
                 {badge}
               </Badge>
             )}

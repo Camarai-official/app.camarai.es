@@ -9,12 +9,18 @@ const Tabs = TabsPrimitive.Root
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & { 
+    marginBottom?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  }
+>(({ className, marginBottom = 'none', ...props }, ref) => (
   <TabsPrimitive.List
     ref={ref}
     className={cn(
       "inline-flex h-auto items-center justify-start bg-transparent p-0 gap-2 text-muted-foreground",
+      marginBottom === 'sm' && "mb-2",
+      marginBottom === 'md' && "mb-4",
+      marginBottom === 'lg' && "mb-6",
+      marginBottom === 'xl' && "mb-8",
       className
     )}
     {...props}
@@ -45,12 +51,13 @@ TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
 
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content> & { spaced?: boolean }
+>(({ className, spaced = false, ...props }, ref) => (
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      "mt-2",
+      "focus-visible:outline-none",
+      spaced && "space-y-6",
       className
     )}
     {...props}

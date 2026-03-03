@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/co
 import { Button } from '@/components/ui/button';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
-import { MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair  } from 'lucide-react';
+import { MoreHorizontal, MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair  } from 'lucide-react';
+import { ActionTile } from '@/components/ui/action-tile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
@@ -26,8 +27,8 @@ import { PageContainer } from '@/components/layout/page-container';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
-import { ReservationDialog, type Reservation } from '@/components/dialogs/reservation-dialog';
-import { WhatsAppNotificationsDialog } from '@/components/dialogs/whatsapp-notifications-dialog';
+import { ReservationDialog, type Reservation } from '@/components/dialogs/reservas-edit-dialog';
+import { WhatsAppNotificationsDialog } from '@/components/dialogs/reservas-notificaciones-dialog';
 
 const initialReservations: { [key: string]: Reservation[] } = {
     [format(new Date(), 'yyyy-MM-dd')]: [
@@ -177,16 +178,16 @@ export default function ReservasPage() {
         }
     }
 
-    const handleNextMonth = () => setDisplayMonth(current => addMonths(current, 2));
-    const handlePrevMonth = () => setDisplayMonth(current => addMonths(current, -2));
+    const handleNextMonth = () => setDisplayMonth(current => addMonths(current, 1));
+    const handlePrevMonth = () => setDisplayMonth(current => addMonths(current, -1));
 
 
     return (
-        <PageContainer>
+        <PageContainer className="h-full overflow-hidden">
             <PageHeader title="Gestión de Reservas" />
-            <PageContent className="lg:flex-row">
-                <Card className="w-full lg:w-auto flex-grow flex justify-center items-start p-2 md:p-4">
-                    <div className="w-full">
+            <PageContent className="lg:flex-row flex-1 min-h-0" gap="lg">
+                <Card padding="md" flex className="flex-1 h-full overflow-hidden">
+                    <div className="w-full h-full">
                         <UICalendar
                             mode="single"
                             selected={selectedDate}
@@ -194,19 +195,9 @@ export default function ReservasPage() {
                             locale={es}
                             month={displayMonth}
                             onMonthChange={(month) => setDisplayMonth(startOfMonth(month))}
-                            numberOfMonths={2}
-                            className="p-0 flex flex-col"
-                            classNames={{
-                                months: 'flex flex-col space-y-4 w-full',
-                                month: 'space-y-4 w-full',
-                                caption: 'flex justify-center pt-1 relative items-center',
-                                head_row: "grid grid-cols-7",
-                                head_cell: "w-full",
-                                row: 'grid grid-cols-7 w-full mt-2',
-                                cell: 'w-full',
-                                day: "h-14 w-full text-base",
-                                day_selected: "bg-background text-background-foreground hover:bg-background hover:text-background-foreground"
-                            }}
+                            numberOfMonths={1}
+                            variant="grid"
+                            className="h-full w-full p-0"
                             components={{
                                 Caption: ({ ...props }) => {
                                     return (
@@ -228,9 +219,11 @@ export default function ReservasPage() {
                                     return (
                                         <div className="relative flex flex-col items-center justify-center h-full w-full">
                                             <span>{format(date, 'd')}</span>
-                                            {dayReservationsCount > 0 && (
-                                                <Badge variant="default" className="mt-1 h-5 px-2 text-[10px] rounded-full">{dayReservationsCount}</Badge>
-                                            )}
+                                            <div className="absolute bottom-1 sm:bottom-1.5">
+                                                {dayReservationsCount > 0 && (
+                                                    <Badge variant="default" className="h-5 px-2 text-[10px] rounded-full">{dayReservationsCount}</Badge>
+                                                )}
+                                            </div>
                                         </div>
                                     )
                                 }
@@ -238,25 +231,22 @@ export default function ReservasPage() {
                         />
                     </div>
                 </Card>
-                <div className="lg:w-1/3 xl:w-1/3 flex flex-col gap-4">
-                    <Card className="flex-grow">
-                        <CardHeader>
-                            <div>
-                                <H3>
-                                    {format(selectedDate, "PPP", { locale: es })}
-                                </H3>
-                                <CardDescription>{dayReservations.length} reservas</CardDescription>
-                            </div>
-                            <div className="mt-4 flex gap-2">
-                                <Button onClick={handleOpenNewReservation} size="sm">
-                                    <PlusCircle />Añadir Reserva
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => setIsWhatsAppConfigOpen(true)}>
-                                    <MessageSquare />
-                                </Button>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="flex-grow p-4 pt-0 overflow-y-auto custom-scrollbar">
+                <div className="lg:w-1/3 xl:w-1/3 flex flex-col gap-4 h-full overflow-hidden">
+                    <Card flex padding="none" className="h-full overflow-hidden">
+                        <CardHeader
+                            title={format(selectedDate, "PPP", { locale: es })}
+                            description={`${dayReservations.length} reservas`}
+                            actions={
+                                <div className="flex gap-2">
+                                    <Button variant='default' onClick={handleOpenNewReservation} size="md" startIcon={<PlusCircle />}>
+                                    </Button>
+                                    <Button variant="outline" size="md" onClick={() => setIsWhatsAppConfigOpen(true)}>
+                                        <MessageSquare />
+                                    </Button>
+                                </div>
+                            }
+                        />
+                        <CardContent flex padding="sm" gap="sm" className="flex-1 overflow-y-auto custom-scrollbar">
                             {dayReservations.length > 0 ? (
                                 <div className="space-y-3">
                                     {dayReservations.map(res => {
@@ -264,72 +254,77 @@ export default function ReservasPage() {
                                         const availableEnvironments = getAvailableTablesForReservation(res);
                                         const assignedEnv = res.environmentId ? environments.find(e => e.id === res.environmentId) : null;
                                         const assignedTable = assignedEnv ? assignedEnv.tables.find(t => t.id === res.tableId) : null;
-                                        return (
-                                            <div key={res.id} className="p-3 border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <p className="font-semibold">{res.customerName}</p>
-                                                        <p className="text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
-                                                            <span className="flex items-center gap-1"><Clock className="h-4 w-4" />{res.startTime} - {res.endTime}</span>
-                                                            <span className="flex items-center gap-1"><Users className="h-4 w-4" />{res.guests} pers.</span>
-                                                        </p>
-                                                        {assignedTable && assignedEnv && (
-                                                            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                                                                <MapPin className="h-4 w-4 text-primary" />
-                                                                <span className="font-medium text-primary">{assignedEnv.name} - Mesa {assignedTable.number}</span>
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="md" startIcon={<MoreVertical />} />
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                            <DropdownMenuItem onClick={() => handleEditReservation(res)}>
-                                                                <Edit />
-                                                                Editar reserva
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Confirmada')} disabled={res.status === 'Confirmada'}>
-                                                                <Check />
-                                                                Confirmar
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSub>
-                                                                <DropdownMenuSubTrigger><LayoutGrid />Asignar Mesa</DropdownMenuSubTrigger>
-                                                                <DropdownMenuSubContent>
-                                                                    {availableEnvironments.map(env => (
-                                                                        env.tables.length > 0 && (
-                                                                            <DropdownMenuSub key={env.id}>
-                                                                                <DropdownMenuSubTrigger className='w-full'>{env.name}</DropdownMenuSubTrigger>
-                                                                                <DropdownMenuSubContent>
-                                                                                    {env.tables.map(table => (
-                                                                                        <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, table.id)}>
-                                                                                            <Armchair />
-                                                                                            Mesa {table.number} (Cap: {table.capacity})
-                                                                                        </DropdownMenuItem>
-                                                                                    ))}
-                                                                                </DropdownMenuSubContent>
-                                                                            </DropdownMenuSub>
-                                                                        )
-                                                                    ))}
-                                                                </DropdownMenuSubContent>
-                                                            </DropdownMenuSub>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Cancelada')}>
-                                                                <X />
-                                                                Cancelar
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                        
+                                        const description = (
+                                            <div className="flex flex-col gap-1">
+                                                <div className="flex items-center gap-3 text-xs opacity-80">
+                                                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{res.startTime} - {res.endTime}</span>
+                                                    <span className="flex items-center gap-1"><Users className="h-3 w-3" />{res.guests}</span>
                                                 </div>
-                                                <div className="mt-2 flex justify-between items-end">
-                                                    <Badge variant={statusProps.variant}>{statusProps.text}</Badge>
-                                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                        <Phone className="h-3 w-3" />
-                                                        <span>{res.phone}</span>
+                                                {assignedTable && assignedEnv && (
+                                                    <div className="flex items-center gap-1 text-primary font-medium text-xs">
+                                                        <MapPin className="h-3 w-3" />
+                                                        {assignedEnv.name} - Mesa {assignedTable.number}
                                                     </div>
-                                                </div>
+                                                )}
                                             </div>
+                                        );
+
+                                        return (
+                                            <ActionTile
+                                                key={res.id}
+                                                title={res.customerName}
+                                                description={description}
+                                                variant="outline"
+                                                rightContent={
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant={statusProps.variant} size="xs">{statusProps.text}</Badge>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="md" className="h-10 w-10">
+                                                                    <MoreHorizontal className="h-5 w-5" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem onClick={() => handleEditReservation(res)}>
+                                                                    <Edit />
+                                                                    Editar reserva
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Confirmada')} disabled={res.status === 'Confirmada'}>
+                                                                    <Check />
+                                                                    Confirmar
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSub>
+                                                                    <DropdownMenuSubTrigger><LayoutGrid />Asignar Mesa</DropdownMenuSubTrigger>
+                                                                    <DropdownMenuSubContent>
+                                                                        {availableEnvironments.map(env => (
+                                                                            env.tables.length > 0 && (
+                                                                                <DropdownMenuSub key={env.id}>
+                                                                                    <DropdownMenuSubTrigger className='w-full'>{env.name}</DropdownMenuSubTrigger>
+                                                                                    <DropdownMenuSubContent>
+                                                                                        {env.tables.map(table => (
+                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, table.id)}>
+                                                                                                <Armchair />
+                                                                                                Mesa {table.number} (Cap: {table.capacity})
+                                                                                            </DropdownMenuItem>
+                                                                                        ))}
+                                                                                    </DropdownMenuSubContent>
+                                                                                </DropdownMenuSub>
+                                                                            )
+                                                                        ))}
+                                                                    </DropdownMenuSubContent>
+                                                                </DropdownMenuSub>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Cancelada')}>
+                                                                    <X />
+                                                                    Cancelar
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                }
+                                            />
                                         )
                                     })}
                                 </div>

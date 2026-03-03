@@ -387,14 +387,17 @@ SidebarInput.displayName = "SidebarInput"
 
 const SidebarHeader = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { padding?: 'none' | 'sm' | 'md' }
+>(({ className, padding = 'md', ...props }, ref) => {
   return (
     <div
       ref={ref}
       data-sidebar="header"
       className={cn(
-        "flex flex-col gap-2 p-3 pt-4 sm:p-4 sm:pt-6 lg:pt-8",
+        "flex flex-col gap-2 sm:p-4 sm:pt-6 lg:pt-8",
+        padding === 'none' && "p-0",
+        padding === 'sm' && "p-2",
+        padding === 'md' && "p-3 pt-4",
         className
       )}
       {...props}
@@ -405,14 +408,17 @@ SidebarHeader.displayName = "SidebarHeader"
 
 const SidebarFooter = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { padding?: 'none' | 'sm' | 'md' }
+>(({ className, padding = 'md', ...props }, ref) => {
   return (
     <div
       ref={ref}
       data-sidebar="footer"
       className={cn(
-        "mt-auto flex flex-col gap-2 p-3 pb-4 sm:p-4 sm:pb-5 border-t border-sidebar-border/60",
+        "mt-auto flex flex-col gap-2 sm:p-4 sm:pb-5 border-t border-sidebar-border/60",
+        padding === 'none' && "p-0",
+        padding === 'sm' && "p-2",
+        padding === 'md' && "p-3 pb-4",
         className
       )}
       {...props}
@@ -438,14 +444,18 @@ SidebarSeparator.displayName = "SidebarSeparator"
 
 const SidebarContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"div"> & { padding?: 'none' | 'sm' | 'md', scrollbar?: boolean }
+>(({ className, padding = 'none', scrollbar = false, ...props }, ref) => {
   return (
     <div
       ref={ref}
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        padding === 'none' && "p-0",
+        padding === 'sm' && "p-2",
+        padding === 'md' && "p-4",
+        scrollbar && "custom-scrollbar",
         className
       )}
       {...props}

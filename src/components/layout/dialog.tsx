@@ -68,13 +68,14 @@ DialogWindow.displayName = "DialogWindow"
 
 const DialogContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & { spaced?: boolean }
+>(({ className, spaced = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
       "flex-1 overflow-y-auto p-6 scrollbar-subtle", 
-      "flex flex-col gap-4",
+      "flex flex-col",
+      spaced ? "gap-6" : "gap-4",
       className
     )}
     {...props}

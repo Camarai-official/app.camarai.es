@@ -56,7 +56,7 @@ export function POSConfigDialog({
                     description="Configura el terminal, impresora y opciones de operación para el punto de venta."
                 />
                 <DialogContent>
-                    <ScrollArea className="h-full">
+                    <ScrollArea height="full">
                         <div className="space-y-6 p-1">
                             {/* Conectividad */}
                             <div className="space-y-3">
@@ -89,7 +89,7 @@ export function POSConfigDialog({
                                 />
                             </div>
 
-                            <Separator className="opacity-50" />
+                            <Separator variant="muted" />
 
                             {/* Operación */}
                             <div className="space-y-3">
@@ -110,7 +110,7 @@ export function POSConfigDialog({
                                 />
                             </div>
 
-                            <Separator className="opacity-50" />
+                            <Separator variant="muted" />
 
                             {/* Pagos */}
                             <div className="space-y-3">

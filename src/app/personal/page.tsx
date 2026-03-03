@@ -25,7 +25,8 @@ import {
     HeartPulse,
     AlertCircle,
     Plus,
-    SmilePlus
+    SmilePlus,
+    QrCode
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -87,7 +88,7 @@ import {
 const metodosFichaje = [
     { id: 'app', label: 'App Móvil', icon: Smartphone, description: 'Fichaje desde la app' },
     { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, description: 'Envía "Fichar" al bot' },
-    { id: 'qr', label: 'Código QR', icon: Smartphone, description: 'Escanea el QR del local' },
+    { id: 'qr', label: 'Código QR', icon: QrCode, description: 'Escanea el QR del local' },
     { id: 'web', label: 'Panel Web', icon: User, description: 'Desde el ordenador' },
 ];
 
@@ -760,7 +761,7 @@ export default function PersonalPage() {
                                             {[
                                                 { label: 'WhatsApp', value: 45, icon: MessageSquare, color: '#25D366' },
                                                 { label: 'App Móvil', value: 30, icon: Smartphone, color: '#9B6EFD' },
-                                                { label: 'QR Code', value: 15, icon: Smartphone, color: '#78A3ED' },
+                                                { label: 'QR Code', value: 15, icon: QrCode, color: '#78A3ED' },
                                                 { label: 'Panel Web', value: 10, icon: Monitor, color: '#F7B731' }
                                             ].map((item, i) => (
                                                 <ActionTile

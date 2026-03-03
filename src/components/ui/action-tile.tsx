@@ -43,10 +43,17 @@ interface BaseActionTileProps {
   disabled?: boolean;
   /** Click handler for the entire row */
   onClick?: () => void;
+  /** Variant of the tile */
+  variant?: 'outline' | 'ghost' | 'accent' | 'none';
+  /** Padding for the tile */
+  padding?: 'none' | 'sm' | 'md';
   /** Custom className for the icon container */
   iconContainerClassName?: string;
   /** Custom className for the icon itself */
   iconClassName?: string;
+  /** Custom className for the right content container */
+  /** Custom content to render on the right, overrides rightContentType */
+  rightContent?: React.ReactNode;
   /** Custom className for the right content container */
   rightContentClassName?: string;
 }
@@ -165,8 +172,11 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
     className,
     disabled = false,
     onClick,
+    variant = 'outline',
+    padding = 'md',
     iconContainerClassName,
     iconClassName,
+    rightContent,
     rightContentClassName,
   } = props;
 
@@ -191,6 +201,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
   // ============================================================================
   
   const renderRightContent = () => {
+    if (rightContent) return rightContent;
     switch (rightContentType) {
       case 'switch': {
         const switchProps = props as BaseActionTileProps & SwitchProps;
@@ -364,7 +375,14 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
         ref={ref}
         onClick={onClick}
         className={cn(
-          "flex flex-1 items-center p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
+          "flex flex-1 items-center transition-colors group gap-3",
+          variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
+          variant === 'ghost' && "bg-transparent hover:bg-muted/30",
+          variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
+          variant === 'none' && "bg-transparent border-none p-0 shadow-none hover:bg-transparent",
+          padding === 'none' && "p-0",
+          padding === 'sm' && "p-2",
+          padding === 'md' && "p-3",
           disabled && "opacity-50 cursor-not-allowed",
           onClick && "cursor-pointer",
           className
@@ -405,7 +423,14 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between py-1.5 px-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-2 h-16",
+        "flex flex-col sm:flex-row sm:items-center justify-between transition-colors group gap-2 min-h-16",
+        variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
+        variant === 'ghost' && "bg-transparent hover:bg-muted/30",
+        variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
+        variant === 'none' && "bg-transparent border-none p-0 shadow-none hover:bg-transparent",
+        padding === 'none' && "p-0",
+        padding === 'sm' && "p-2",
+        padding === 'md' && "py-1.5 px-3",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className

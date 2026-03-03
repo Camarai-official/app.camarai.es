@@ -114,38 +114,64 @@ export function ReservationDialog({
                     title={isEditing ? 'Editar Reserva' : 'Añadir Nueva Reserva'}
                     description={isEditing ? 'Modifica los datos de la reserva.' : 'Introduce los datos para crear una reserva manualmente.'}
                 />
-                <DialogContent>
-                    <div className="grid gap-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                <DialogContent spaced>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="customerName">Nombre del Cliente</Label>
-                            <Input id="customerName" value={reservation.customerName} onChange={e => setReservation(p => ({...p, customerName: e.target.value}))}/>
+                            <Input 
+                                id="customerName" 
+                                placeholder="Ej: Juan Pérez"
+                                value={reservation.customerName} 
+                                onChange={e => setReservation(p => ({...p, customerName: e.target.value}))}
+                            />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="phone">Teléfono</Label>
-                            <Input id="phone" type="tel" value={reservation.phone} onChange={e => setReservation(p => ({...p, phone: e.target.value}))}/>
+                            <Input 
+                                id="phone" 
+                                type="tel" 
+                                placeholder="Ej: +34 600 000 000"
+                                value={reservation.phone} 
+                                onChange={e => setReservation(p => ({...p, phone: e.target.value}))}
+                            />
                         </div>
                     </div>
-                     <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2">
+
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="guests">Comensales</Label>
-                            <Input id="guests" type="number" min="1" value={reservation.guests} onChange={e => setReservation(p => ({...p, guests: parseInt(e.target.value) || 1}))}/>
+                            <Input 
+                                id="guests" 
+                                type="number" 
+                                min="1" 
+                                value={reservation.guests} 
+                                onChange={e => setReservation(p => ({...p, guests: parseInt(e.target.value) || 1}))}
+                            />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="startTime">Hora de Inicio</Label>
-                            <Input id="startTime" type="time" value={reservation.startTime} onChange={e => setReservation(p => ({...p, startTime: e.target.value}))}
-                            className="dark:[color-scheme:dark]" />
+                            <Input 
+                                id="startTime" 
+                                type="time" 
+                                value={reservation.startTime} 
+                                onChange={e => setReservation(p => ({...p, startTime: e.target.value}))}
+                            />
                         </div>
-                         <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="endTime">Hora de Fin</Label>
-                            <Input id="endTime" type="time" value={reservation.endTime} onChange={e => setReservation(p => ({...p, endTime: e.target.value}))}
-                            className="dark:[color-scheme:dark]" />
+                            <Input 
+                                id="endTime" 
+                                type="time" 
+                                value={reservation.endTime} 
+                                onChange={e => setReservation(p => ({...p, endTime: e.target.value}))}
+                            />
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                             <Label htmlFor="environment-select">Ambiente</Label>
-                             <Select value={selectedEnvId} onValueChange={setSelectedEnvId}>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="environment-select">Ambiente</Label>
+                            <Select value={selectedEnvId} onValueChange={setSelectedEnvId}>
                                 <SelectTrigger id="environment-select">
                                     <SelectValue placeholder="Seleccionar ambiente..." />
                                 </SelectTrigger>
@@ -154,15 +180,15 @@ export function ReservationDialog({
                                         <SelectItem key={env.id} value={env.id}>{env.name}</SelectItem>
                                     ))}
                                 </SelectContent>
-                             </Select>
+                            </Select>
                         </div>
-                        <div className="space-y-2">
-                             <Label htmlFor="table-select">Mesa</Label>
-                             <Select 
+                        <div className="flex flex-col gap-2">
+                            <Label htmlFor="table-select">Mesa</Label>
+                            <Select 
                                 value={reservation.tableId?.toString()} 
                                 onValueChange={(val) => setReservation(p => ({...p, tableId: parseInt(val), environmentId: selectedEnvId }))}
                                 disabled={!selectedEnvId || availableTablesByEnv.length === 0}
-                             >
+                            >
                                 <SelectTrigger id="table-select">
                                     <SelectValue placeholder={!selectedEnvId ? 'Elige un ambiente' : 'Mesas disponibles...'} />
                                 </SelectTrigger>
@@ -170,21 +196,28 @@ export function ReservationDialog({
                                     {availableTablesByEnv.map(table => (
                                         <SelectItem key={table.id} value={table.id.toString()}>Mesa {table.number} (Cap: {table.capacity})</SelectItem>
                                     ))}
-                                    {selectedEnvId && availableTablesByEnv.length === 0 && <p className="text-sm text-muted-foreground p-2">No hay mesas disponibles.</p>}
                                 </SelectContent>
-                             </Select>
+                            </Select>
                         </div>
                     </div>
-                     <div className="space-y-2">
+
+                    <div className="flex flex-col gap-2">
                         <Label htmlFor="notes">Notas (Opcional)</Label>
-                        <Textarea id="notes" placeholder="Alergias, preferencias de mesa, celebración, etc." value={reservation.notes} onChange={e => setReservation(p => ({...p, notes: e.target.value}))}/>
-                    </div>
+                        <Textarea 
+                            id="notes" 
+                            placeholder="Alergias, preferencias de mesa, celebración, etc." 
+                            value={reservation.notes} 
+                            onChange={e => setReservation(p => ({...p, notes: e.target.value}))}
+                            rows={4}
+                        />
                     </div>
                 </DialogContent>
-                <DialogFooter>
-                    <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
-                    <Button variant="default" onClick={handleSave}>{isEditing ? 'Guardar Cambios' : 'Crear Reserva'}</Button>
-                </DialogFooter>
+                <DialogFooter
+                    onCancel={() => onOpenChange(false)}
+                    cancelText="Cancelar"
+                    onConfirm={handleSave}
+                    confirmText={isEditing ? 'Guardar Cambios' : 'Crear Reserva'}
+                />
             </DialogWindow>
         </Dialog>
     );

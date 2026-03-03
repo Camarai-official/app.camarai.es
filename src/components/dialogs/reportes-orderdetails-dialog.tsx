@@ -3,6 +3,7 @@ import { FileText, Users2, Clock, CheckCircle, XCircle, AlertCircle, Download } 
 import { Dialog, DialogWindow, DialogContent, DialogHeader, DialogFooter, DialogClose } from '@/components/layout/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ActionTile } from '@/components/ui/action-tile';
@@ -61,28 +62,28 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                         />
                     </div>
 
-                    <Separator className="my-2" />
+                    <Separator margin="sm" />
 
-                    <div className="rounded-xl border bg-card overflow-hidden">
+                    <Card padding="none">
                         <Table>
-                            <TableHeader className="bg-muted/50">
+                            <TableHeader>
                                 <TableRow>
-                                    <TableHead className="pl-4">Producto</TableHead>
-                                    <TableHead className="text-center">Cant.</TableHead>
-                                    <TableHead className="text-right pr-4">Precio</TableHead>
+                                    <TableHead align="left">Producto</TableHead>
+                                    <TableHead align="center">Cant.</TableHead>
+                                    <TableHead align="right">Precio</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {order.items.map(item => (
                                     <TableRow key={item.name}>
-                                        <TableCell className="pl-4 font-medium">{item.name}</TableCell>
-                                        <TableCell className="text-center">{item.quantity}</TableCell>
-                                        <TableCell className="text-right pr-4">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                        <TableCell variant="medium">{item.name}</TableCell>
+                                        <TableCell align="center">{item.quantity}</TableCell>
+                                        <TableCell align="right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
-                    </div>
+                    </Card>
 
                     <div className="flex flex-col gap-2 pt-2">
                         <div className="flex justify-between text-sm text-muted-foreground">
@@ -93,7 +94,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                             <span>Impuestos</span>
                             <span>€{order.tax.toFixed(2)}</span>
                         </div>
-                        <Separator className="my-1" />
+                        <Separator margin="xs" />
                         <div className="flex justify-between items-center">
                             <span className="font-bold text-lg">Total</span>
                             <span className="font-bold text-xl text-primary">{order.total}</span>

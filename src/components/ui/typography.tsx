@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils"
 import React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
 
 export function H1({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (<h1 className={cn("text-2xl md:text-3xl font-semibold tracking-tight", className)} {...props}> {children} </h1>)
@@ -9,8 +10,24 @@ export function H2({ className, children, ...props }: React.HTMLAttributes<HTMLH
   return (<h2 className={cn("text-xl md:text-2xl font-semibold tracking-tight", className)} {...props}> {children} </h2>)
 }
 
-export function H3({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
-  return (<h3 className={cn("text-lg md:text-xl font-semibold tracking-tight", className)} {...props}> {children} </h3>)
+const h3Variants = cva(
+  "text-lg md:text-xl font-semibold tracking-tight",
+  {
+    variants: {
+      variant: {
+        default: "",
+        medium: "text-base font-bold text-muted-foreground",
+        large: "text-xl md:text-2xl font-bold",
+      }
+    },
+    defaultVariants: {
+      variant: "default",
+    }
+  }
+)
+
+export function H3({ className, variant, children, ...props }: React.HTMLAttributes<HTMLHeadingElement> & VariantProps<typeof h3Variants>) {
+  return (<h3 className={cn(h3Variants({ variant }), className)} {...props}> {children} </h3>)
 }
 
 export function H4({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {

@@ -54,7 +54,7 @@ export default function PosPage() {
           description="Accede al sistema de punto de venta para gestionar ventas, cobros y comandas en tiempo real."
           action={
             <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
-              <Button fullWidth startIcon={<ExternalLink />} onClick={handleLaunchPOS}>
+              <Button variant="default" fullWidth startIcon={<ExternalLink />} onClick={handleLaunchPOS}>
                 Iniciar sesión en POS
               </Button>
               <Button fullWidth variant="outline" startIcon={<Settings />} onClick={() => setIsConfigDialogOpen(true)}>

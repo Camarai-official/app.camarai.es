@@ -129,13 +129,13 @@ export function WhatsAppPreview({
 }: WhatsAppPreviewProps) {
   return (
     <div className={cn(
-      'w-full max-w-sm mx-auto rounded-xl overflow-hidden border shadow-lg',
+      'flex flex-col w-full h-full rounded-xl overflow-hidden border shadow-lg',
       'bg-stone-100 dark:bg-gray-950',
       className
     )}>
       {/* Header */}
       {showHeader && (
-        <div className="bg-emerald-800 dark:bg-slate-800 px-4 py-3 flex items-center gap-3">
+        <div className="bg-emerald-800 dark:bg-slate-800 px-4 py-3 flex items-center gap-3 shrink-0">
           <Avatar className="h-10 w-10">
             <AvatarImage src={businessLogo} alt={businessName} />
             <AvatarFallback className="bg-emerald-500 text-foreground">
@@ -151,7 +151,7 @@ export function WhatsAppPreview({
       
       {/* Chat Background Pattern */}
       <div 
-        className="p-4 space-y-3 min-h-[200px] max-h-[400px] overflow-y-auto"
+        className="p-4 space-y-3 flex-1 overflow-y-auto"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}
@@ -170,7 +170,7 @@ export function WhatsAppPreview({
       </div>
       
       {/* Input Bar (Decorative) */}
-      <div className="bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2">
+      <div className="bg-slate-100 dark:bg-slate-800 px-3 py-2 flex items-center gap-2 shrink-0">
         <div className="flex-1 bg-foreground dark:bg-slate-700 rounded-full px-4 py-2">
           <p className="text-sm text-gray-400">Escribe un mensaje</p>
         </div>

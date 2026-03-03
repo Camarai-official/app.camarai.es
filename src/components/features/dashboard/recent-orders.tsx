@@ -54,14 +54,14 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
     }
 
     return (
-        <Card className={cn("h-full", className)}>
+        <Card height="full" className={className}>
             <CardHeader 
                 title="Comandas Recientes" 
                 icon={ShoppingBag}
                 actions={
                     <div className="flex gap-2">
                         <Select defaultValue="csv">
-                            <SelectTrigger className="w-[100px]">
+                            <SelectTrigger width="xs">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -76,12 +76,12 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                     </div>
                 }
             />
-            <CardContent className="flex-grow">
+            <CardContent flex>
                 <div className="relative w-full overflow-auto">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="hidden md:table-cell text-center">
+                                <TableHead visibility="hidden-mobile" align="center">
                                     <Checkbox aria-label="Seleccionar todo" />
                                 </TableHead>
                                 <TableHead>Orden</TableHead>
@@ -89,27 +89,27 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                                 <TableHead>Mesa</TableHead>
                                 <TableHead>Nombre</TableHead>
                                 <TableHead>Total</TableHead>
-                                <TableHead className="text-center">Estado</TableHead>
-                                <TableHead className="w-[60px] text-center">Acciones</TableHead>
+                                <TableHead align="center">Estado</TableHead>
+                                <TableHead align="center">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody isAnimating={isAnimating}>
                             {currentOrders.map((order) => (
                                 <TableRow key={order.order}>
-                                    <TableCell className="hidden md:table-cell text-center">
+                                    <TableCell visibility="hidden-mobile" align="center">
                                         <Checkbox />
                                     </TableCell>
-                                    <TableCell className="font-medium">{order.order}</TableCell>
+                                    <TableCell variant="medium">{order.order}</TableCell>
                                     <TableCell>{order.time}</TableCell>
                                     <TableCell>{order.table}</TableCell>
                                     <TableCell>{order.name}</TableCell>
                                     <TableCell>{order.total}</TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell align="center">
                                         <Badge variant={order.status === 'Completado' ? 'completed' : order.status === 'En Progreso' ? 'in-progress' : 'cancelled'}>
                                             {order.status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell align="center">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size='md'>
@@ -160,7 +160,7 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                     </Table>
                 </div>
             </CardContent>
-            <CardFooter className="justify-end gap-2">
+            <CardFooter justify="end" gap="sm">
                 <Button variant="outline" size="md" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
                     <ChevronLeft />
                 </Button>

@@ -40,6 +40,7 @@ const badgeVariants = cva(
       },
       size: {
         default: "rounded-sm border px-2 py-0.5 text-[11px] font-normal gap-1 [&_svg]:h-3 [&_svg]:w-3",
+        xs: "text-[10px] px-1.5 h-5 rounded-sm border gap-1 font-bold",
         md: "h-10 px-4 rounded-xl border text-xs font-normal gap-2 [&_svg]:h-4 [&_svg]:w-4",
         sm: "h-8 w-8 rounded-full p-0 flex items-center justify-center border-none [&_svg]:h-3 [&_svg]:w-3",
       }

@@ -146,7 +146,7 @@ export default function AIChatPage() {
                                 >
                                     <div className="flex items-center gap-2 mb-1">
                                         <item.icon className="h-3.5 w-3.5 text-primary" />
-                                        <span className="text-[11px] font-bold uppercase tracking-wider">{item.title}</span>
+                                        <span className="text-[11px] font-bold  tracking-wider">{item.title}</span>
                                     </div>
                                     <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                                         {item.prompt}
@@ -197,7 +197,7 @@ export default function AIChatPage() {
                         <ScrollArea ref={scrollRef} className="flex-1 p-6">
                             <div className="space-y-8 max-w-4xl mx-auto">
                                 <div className="flex justify-center">
-                                    <Badge variant="outline" className="text-[10px] font-bold opacity-30 uppercase tracking-widest border-none">Conexión Segura con el Establecimiento</Badge>
+                                    <Badge variant="outline" className="text-[10px] font-bold opacity-30  tracking-widest border-none">Conexión Segura con el Establecimiento</Badge>
                                 </div>
                                 
                                 {messages.map((msg) => (
@@ -286,7 +286,7 @@ export default function AIChatPage() {
                                 </Button>
                             </form>
                             <div className="flex justify-center mt-3">
-                                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider">
+                                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 font-bold  tracking-wider">
                                     <Sparkles className="h-3 w-3" /> Camarai Engine v2.4
                                 </div>
                             </div>

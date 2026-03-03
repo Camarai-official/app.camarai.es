@@ -203,11 +203,10 @@ export function SidebarNav() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="ghost"
-                className={cn(
-                  "w-full bg-card hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent px-2 py-2 flex items-center transition-all duration-200 h-14",
-                  isCollapsed ? "justify-center" : "justify-start gap-3"
-                )}
+                variant="card"
+                size="lg"
+                width="full"
+                justify={isCollapsed ? "center" : "start"}
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                   <img
@@ -234,7 +233,7 @@ export function SidebarNav() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-[var(--radix-dropdown-menu-trigger-width)] bg-card"
+              width="trigger"
               align="start"
               sideOffset={8}
             >
@@ -250,7 +249,7 @@ export function SidebarNav() {
               </DropdownMenuLabel>
               <DropdownMenuGroup>
                 {establishments.map(est => (
-                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} className="p-0 overflow-hidden">
+                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} padding="none" overflow="hidden">
                     <ActionTile
                       key={est.id}
                       icon={
@@ -260,7 +259,8 @@ export function SidebarNav() {
                         </Avatar>
                       }
                       title={est.name}
-                      className="w-full border-none bg-transparent hover:bg-transparent p-2 shadow-none"
+                      variant="none"
+                      padding="sm"
                       rightContentType="custom"
                       customContent={
                         <AlertDialogTrigger asChild>
@@ -294,7 +294,7 @@ export function SidebarNav() {
           </Button>
         )}
       </SidebarHeader>
-      <SidebarContent className="p-2 custom-scrollbar">
+      <SidebarContent padding="sm" scrollbar>
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
@@ -312,11 +312,10 @@ export function SidebarNav() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
-                variant="ghost" 
-                className={cn(
-                  "w-full bg-card hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent px-2 py-2 flex items-center transition-all duration-200 h-14",
-                  isCollapsed ? "justify-center" : "justify-start gap-3"
-                )}
+                variant="card" 
+                size="lg"
+                width="full"
+                justify={isCollapsed ? "center" : "start"}
             >
               <Avatar className="h-10 w-10 shrink-0 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.firstName} />
@@ -339,7 +338,7 @@ export function SidebarNav() {
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[var(--sidebar-width)] max-w-[calc(100vw-1.5rem)] mb-2 bg-card" side="top" align="start">
+          <DropdownMenuContent width="lg" side="top" align="start" margin="sm">
             <DropdownMenuItem asChild>
               <Link href="/settings/profile">
                 <User />
@@ -356,9 +355,9 @@ export function SidebarNav() {
                   {totalNotifications > 0 && <Badge variant="destructive">{totalNotifications}</Badge>}
                 </div>
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="p-2 w-64 sm:w-80">
+              <DropdownMenuSubContent width="md" padding="sm">
                 <div className="mb-4">
-                  <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
+                  <DropdownMenuLabel variant="primary">
                     <Users className="h-4 w-4" />
                     Solicitudes de Ausencia
                   </DropdownMenuLabel>
@@ -372,7 +371,8 @@ export function SidebarNav() {
                             key={req.id}
                             title={employee?.nombre || ''}
                             description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
-                            className="border-none bg-accent/50 hover:bg-accent p-2 rounded-md shadow-none"
+                            variant="accent"
+                            padding="sm"
                             rightContentType="custom"
                             customContent={
                                <div className="flex gap-1">
@@ -390,7 +390,7 @@ export function SidebarNav() {
                 </div>
 
                 <div className="pt-2 border-t">
-                  <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
+                  <DropdownMenuLabel variant="primary">
                     <CalendarCheck className="h-4 w-4" />
                     Nuevas Reservas
                   </DropdownMenuLabel>
@@ -421,7 +421,7 @@ export function SidebarNav() {
               <span>Enviar comentarios</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="p-0 overflow-hidden">
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()} padding="none" overflow="hidden">
               <ActionTile
                 rightContentType="switch"
                 switchId="dark-mode"
@@ -429,7 +429,8 @@ export function SidebarNav() {
                 title={isDarkMode ? 'Modo noche' : 'Modo claro'}
                 switchChecked={isDarkMode}
                 onSwitchChange={setIsDarkMode}
-                className="w-full border-none bg-transparent hover:bg-transparent p-2 shadow-none"
+                variant="none"
+                padding="sm"
               />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -458,7 +459,7 @@ export function SidebarNav() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setEstablishmentToDelete(null)}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={confirmDelete} className={buttonVariants({ variant: "destructive" })}>
+          <AlertDialogAction onClick={confirmDelete} variant="destructive">
             Sí, eliminar
           </AlertDialogAction>
         </AlertDialogFooter>

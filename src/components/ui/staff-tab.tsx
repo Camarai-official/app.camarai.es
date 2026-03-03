@@ -69,11 +69,11 @@ export function StaffTab({
     
     if (mode === 'hours') {
         return (
-            <TabsContent value="hours" className="space-y-6">
+            <TabsContent value="hours" spaced>
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                            <SelectTrigger id="staff-select-personal" className="w-[200px]">
+                            <SelectTrigger id="staff-select-personal" width="lg">
                                 <SelectValue placeholder="Empleado" />
                             </SelectTrigger>
                             <SelectContent>
@@ -90,7 +90,9 @@ export function StaffTab({
                                     id="date-personal"
                                     variant="outline"
                                     size="md"
-                                    className="justify-start text-left font-normal truncate min-w-[240px]"
+                                    width="lg"
+                                    justify="start"
+                                    truncate
                                     startIcon={<CalendarIcon />}
                                 >
                                     {date?.from ? (
@@ -99,7 +101,7 @@ export function StaffTab({
                                     }
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
+                            <PopoverContent padding="none" align="start">
                                 <Calendar
                                     initialFocus
                                     mode="range"
@@ -112,7 +114,7 @@ export function StaffTab({
                         </Popover>
                     </div>
 
-                    <Button variant="default" size="md" className="w-full sm:w-auto" startIcon={<Download />}>
+                    <Button variant="default" size="md" responsiveWidth="auto-sm" startIcon={<Download />}>
                         Exportar CSV
                     </Button>
                 </div>
@@ -123,34 +125,34 @@ export function StaffTab({
                             <CardDescription>Total de horas regulares y extra para el periodo seleccionado.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Table className="hidden md:table">
+                            <Table showOnDesktop>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead>Empleado</TableHead>
-                                        <TableHead className="text-right">Horas Regulares</TableHead>
-                                        <TableHead className="text-right">Horas Extra</TableHead>
-                                        <TableHead className="text-right">Total Horas</TableHead>
+                                        <TableHead align="right">Horas Regulares</TableHead>
+                                        <TableHead align="right">Horas Extra</TableHead>
+                                        <TableHead align="right">Total Horas</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {Object.entries(staffTotals).map(([staffId, data]) => (
                                         <TableRow key={staffId}>
-                                            <TableCell className="font-medium">{data.name}</TableCell>
-                                            <TableCell className="text-right">{data.regular.toFixed(2)}h</TableCell>
-                                            <TableCell className="text-right">{data.extra.toFixed(2)}h</TableCell>
-                                            <TableCell className="text-right font-bold">{(data.regular + data.extra).toFixed(2)}h</TableCell>
+                                            <TableCell variant="medium">{data.name}</TableCell>
+                                            <TableCell align="right">{data.regular.toFixed(2)}h</TableCell>
+                                            <TableCell align="right">{data.extra.toFixed(2)}h</TableCell>
+                                            <TableCell align="right" variant="medium">{(data.regular + data.extra).toFixed(2)}h</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
                             </Table>
                             <div className="md:hidden space-y-4">
                                 {Object.entries(staffTotals).map(([staffId, data]) => (
-                                    <Card key={staffId} className="p-4">
+                                    <Card key={staffId} padding="md">
                                         <p className="font-bold mb-2">{data.name}</p>
                                         <div className="space-y-1 text-sm">
                                             <div className="flex justify-between"><span>Horas Regulares:</span> <span>{data.regular.toFixed(2)}h</span></div>
                                             <div className="flex justify-between"><span>Horas Extra:</span> <span>{data.extra.toFixed(2)}h</span></div>
-                                            <Separator className="my-1" />
+                                            <Separator margin="xs" />
                                             <div className="flex justify-between font-bold"><span>Total:</span> <span>{(data.regular + data.extra).toFixed(2)}h</span></div>
                                         </div>
                                     </Card>
@@ -165,37 +167,37 @@ export function StaffTab({
                         <CardDescription>Lista detallada de todos los registros de entrada y salida para el periodo seleccionado.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Table className="hidden md:table">
+                        <Table showOnDesktop>
                             <TableHeader>
                                 <TableRow>
                                     {selectedStaffId === 'all' && <TableHead>Empleado</TableHead>}
                                     <TableHead>Fecha</TableHead>
-                                    <TableHead className="text-center">Entrada</TableHead>
-                                    <TableHead className="text-center">Salida</TableHead>
-                                    <TableHead className="text-center">Horas Regulares</TableHead>
-                                    <TableHead className="text-center">Horas Extra</TableHead>
-                                    <TableHead className="text-center font-bold">Total</TableHead>
+                                    <TableHead align="center">Entrada</TableHead>
+                                    <TableHead align="center">Salida</TableHead>
+                                    <TableHead align="center">Horas Regulares</TableHead>
+                                    <TableHead align="center">Horas Extra</TableHead>
+                                    <TableHead align="center" variant="medium">Total</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {timeReportData.map(({ log, regularHours, extraHours }) => (
                                     <TableRow key={log.id}>
                                         {selectedStaffId === 'all' && (
-                                            <TableCell className="font-medium">
+                                            <TableCell variant="medium">
                                                 {staffMembers.find(s => s.id === log.staffMemberId)?.nombre || 'Desconocido'}
                                             </TableCell>
                                         )}
                                         <TableCell>{format(new Date(log.entrada), 'dd/MM/yyyy')}</TableCell>
-                                        <TableCell className="text-center font-mono">{format(new Date(log.entrada), 'HH:mm')}</TableCell>
-                                        <TableCell className="text-center font-mono">{log.salida ? format(new Date(log.salida), 'HH:mm') : <Badge variant="secondary">En Turno</Badge>}</TableCell>
-                                        <TableCell className="text-center">{regularHours.toFixed(2)}h</TableCell>
-                                        <TableCell className="text-center">{extraHours > 0 ? <Badge variant="warning">{extraHours.toFixed(2)}h</Badge> : '0.00h'}</TableCell>
-                                        <TableCell className="text-center font-bold">{(regularHours + extraHours).toFixed(2)}h</TableCell>
+                                        <TableCell align="center" variant="mono">{format(new Date(log.entrada), 'HH:mm')}</TableCell>
+                                        <TableCell align="center" variant="mono">{log.salida ? format(new Date(log.salida), 'HH:mm') : <Badge variant="secondary">En Turno</Badge>}</TableCell>
+                                        <TableCell align="center">{regularHours.toFixed(2)}h</TableCell>
+                                        <TableCell align="center">{extraHours > 0 ? <Badge variant="warning">{extraHours.toFixed(2)}h</Badge> : '0.00h'}</TableCell>
+                                        <TableCell align="center" variant="medium">{(regularHours + extraHours).toFixed(2)}h</TableCell>
                                     </TableRow>
                                 ))}
                                 {timeReportData.length === 0 && (
                                     <TableRow>
-                                        <TableCell colSpan={selectedStaffId === 'all' ? 7 : 6} className="h-24 text-center">
+                                        <TableCell colSpan={selectedStaffId === 'all' ? 7 : 6} height="xl" align="center">
                                             No se encontraron registros de fichajes para los filtros seleccionados.
                                         </TableCell>
                                     </TableRow>
@@ -204,13 +206,13 @@ export function StaffTab({
                         </Table>
                         <div className="md:hidden space-y-4">
                             {timeReportData.map(({ log, regularHours, extraHours }) => (
-                                <Card key={log.id} className="p-4">
+                                <Card key={log.id} padding="md">
                                     {selectedStaffId === 'all' && <p className="font-bold mb-2">{staffMembers.find(s => s.id === log.staffMemberId)?.nombre || 'Desconocido'}</p>}
                                     <div className="space-y-1 text-sm">
                                         <div className="flex justify-between"><span>Fecha:</span> <span>{format(new Date(log.entrada), 'dd/MM/yyyy')}</span></div>
                                         <div className="flex justify-between"><span>Entrada:</span> <span>{format(new Date(log.entrada), 'HH:mm')}</span></div>
                                         <div className="flex justify-between"><span>Salida:</span> <span>{log.salida ? format(new Date(log.salida), 'HH:mm') : <Badge variant="in-progress">En Turno</Badge>}</span></div>
-                                        <Separator className="my-2" />
+                                        <Separator margin="sm" />
                                         <div className="flex justify-between"><span>H. Regulares:</span> <span>{regularHours.toFixed(2)}h</span></div>
                                         <div className="flex justify-between"><span>H. Extra:</span> <span>{extraHours > 0 ? <Badge variant="warning">{extraHours.toFixed(2)}h</Badge> : '0.00h'}</span></div>
                                         <div className="flex justify-between font-bold"><span>Total:</span> <span>{(regularHours + extraHours).toFixed(2)}h</span></div>
@@ -228,11 +230,11 @@ export function StaffTab({
     }
 
     return (
-        <TabsContent value="absences" className="space-y-6">
+        <TabsContent value="absences" spaced>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
                 <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                     <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                        <SelectTrigger id="absence-staff-select" className="w-[180px]">
+                        <SelectTrigger id="absence-staff-select" width="md">
                             <SelectValue placeholder="Empleado" />
                         </SelectTrigger>
                         <SelectContent>
@@ -245,17 +247,17 @@ export function StaffTab({
 
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button id="absence-date-range" variant="outline" size="md" className="justify-start text-left font-normal truncate min-w-[240px]" startIcon={<CalendarIcon />}>
+                            <Button id="absence-date-range" variant="outline" size="md" width="lg" justify="start" truncate startIcon={<CalendarIcon />}>
                                 {date?.from ? (date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>) : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent padding="none" align="start">
                             <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={date} onSelect={onDateChange} numberOfMonths={1} />
                         </PopoverContent>
                     </Popover>
 
                     <Select value={selectedAbsenceType} onValueChange={onAbsenceTypeChange}>
-                        <SelectTrigger id="absence-type-select" className="w-[180px]">
+                        <SelectTrigger id="absence-type-select" width="md">
                             <SelectValue placeholder="Tipo" />
                         </SelectTrigger>
                         <SelectContent>
@@ -268,7 +270,7 @@ export function StaffTab({
                     </Select>
 
                     <Select value={selectedAbsenceStatus} onValueChange={onAbsenceStatusChange}>
-                        <SelectTrigger id="absence-status-select" className="w-[150px]">
+                        <SelectTrigger id="absence-status-select" width="md">
                             <SelectValue placeholder="Estado" />
                         </SelectTrigger>
                         <SelectContent>
@@ -286,14 +288,14 @@ export function StaffTab({
                     <CardDescription>Busca y gestiona todas las solicitudes de ausencia de tu equipo.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Table className="hidden md:table">
+                    <Table showOnDesktop>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Empleado</TableHead>
-                                <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+                                <TableHead visibility="hidden-mobile">Tipo</TableHead>
                                 <TableHead>Fechas</TableHead>
-                                <TableHead className="text-center">Estado</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead align="center">Estado</TableHead>
+                                <TableHead align="right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -302,17 +304,17 @@ export function StaffTab({
                                 const employee = staffMembers.find(s => s.id === req.staffId);
                                 return (
                                     <TableRow key={req.id}>
-                                        <TableCell className="font-medium">{employee?.nombre || 'Desconocido'}</TableCell>
-                                        <TableCell className="hidden sm:table-cell capitalize">{(absenceTypeLabels[req.type] || req.type).replace('_', ' ')}</TableCell>
-                                        <TableCell className="text-xs sm:text-sm">
+                                        <TableCell variant="medium">{employee?.nombre || 'Desconocido'}</TableCell>
+                                        <TableCell visibility="hidden-mobile" textTransform="capitalize">{(absenceTypeLabels[req.type] || req.type).replace('_', ' ')}</TableCell>
+                                        <TableCell textSize="sm">
                                             {format(new Date(req.startDate), 'dd/MM/yyyy')} - {req.endDate ? format(new Date(req.endDate), 'dd/MM/yyyy') : format(new Date(req.startDate), 'dd/MM/yyyy')}
                                         </TableCell>
-                                        <TableCell className="text-center">
+                                        <TableCell align="center">
                                             <Badge variant={statusProps.variant}>
                                                 {statusProps.label}
                                             </Badge>
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell align="right">
                                             {req.status === 'pending' && (
                                                 <div className="flex justify-end gap-2">
                                                     <Button size="sm" variant="ghost-success" onClick={() => onUpdateRequest(req, 'approved')} startIcon={<Check />} />
@@ -325,7 +327,7 @@ export function StaffTab({
                             })}
                             {filteredAbsenceRequests.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center">
+                                    <TableCell colSpan={5} align="center" height="xl">
                                         No se encontraron solicitudes con los filtros seleccionados.
                                     </TableCell>
                                 </TableRow>
@@ -337,7 +339,7 @@ export function StaffTab({
                             const statusProps = getRequestStatusProps(req.status);
                             const employee = staffMembers.find(s => s.id === req.staffId);
                             return (
-                                <Card key={req.id} className="p-4">
+                                <Card key={req.id} padding="md">
                                     <p className="font-bold mb-2">{employee?.nombre || 'Desconocido'}</p>
                                     <div className="space-y-1 text-sm">
                                         <div className="flex justify-between"><span>Fecha:</span> <span>{req.startDate}</span></div>
@@ -346,7 +348,7 @@ export function StaffTab({
                                     </div>
                                     {req.status === 'pending' && (
                                         <>
-                                            <Separator className="my-3" />
+                                            <Separator margin="md" />
                                             <div className="flex gap-2 justify-end">
                                                 <Button size="sm" variant="ghost-destructive" fullWidth onClick={() => onUpdateRequest(req, 'rejected')} startIcon={<XCircle />}>
                                                     Rechazar
