@@ -1,91 +1,47 @@
 "use client"
 
+import * as React from "react"
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { format, parseISO } from "date-fns"
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
+  Home, ClipboardList, View, LayoutGrid, BookOpen, Layers,
+  Package, Beaker, Archive, Monitor, Laptop, Users,
+  Bell, BarChart3, CalendarCheck, BadgePercent,
+  Settings, ChevronDown, PlusCircle, Trash, User, Shield,
+  MessageSquareText, Sun, Moon, LogOut, Check, X
+} from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import {
+  Avatar, AvatarFallback, AvatarImage,
 } from "@/components/ui/avatar"
 import {
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  useSidebar,
+  SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, 
+  SidebarMenuItem, SidebarMenuButton, useSidebar, SidebarGroup,
+  SidebarGroupLabel, SidebarGroupContent, SidebarMenuBadge
 } from "@/components/ui/sidebar"
 import {
-  ChevronDown,
-  Home,
-  LayoutGrid,
-  ShoppingBag,
-  QrCode,
-  MapPin,
-  FileText,
-  Tags,
-  BadgePercent,
-  Clock,
-  Laptop,
-  MessageSquare,
-  Instagram,
-  Facebook,
-  Bot,
-  Map,
-  Printer,
-  Users,
-  Calendar,
-  ClipboardList,
-  Settings,
-  PlusCircle,
-  User,
-  Shield,
-  MessageSquareText,
-  Sun,
-  Moon,
-  LogOut,
-  View,
-  BookOpen,
-  BarChart3,
-  Archive,
-  CalendarCheck,
-  Trash,
-  Layers,
-  Package,
-  Beaker,
-  Contact,
-  Monitor,
-  Bell,
-  Check,
-  X,
-} from "lucide-react"
-import { usePathname, useRouter } from 'next/navigation';
-import Link from 'next/link';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, 
+  DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, 
+  DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, 
   DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import React from "react"
-import { cn } from "@/lib/utils"
-import { useEstablishments } from "@/hooks/useEstablishments"
-import type { Establishment } from "@/data/establishments"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/dialogs/global-alert-dialog"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { format, parseISO } from "date-fns"
-import { useToast } from "@/hooks/use-toast"
-import { ActionTile } from "@/components/ui/action-tile"
-import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest, StaffMember } from "@/data/mock-data"
+import { Switch } from "@/components/ui/switch"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/dialogs/global-alert-dialog"
 
-const menuItems = [
+import { useToast } from "@/hooks/use-toast"
+import { useEstablishments } from "@/hooks/useEstablishments"
+import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest } from "@/data/mock-data"
+import type { Establishment } from "@/data/establishments"
+
+// ============================================================================
+// CONFIGURATION
+// ============================================================================
+
+const navItems = [
   { href: "/", label: "Inicio", icon: Home },
   { href: "/comandas", label: "Comandas", icon: ClipboardList },
   { href: "/ambientes", label: "Ambientes", icon: View },
@@ -98,8 +54,6 @@ const menuItems = [
   { href: "/pos", label: "POS", icon: Monitor },
   { href: "/kds", label: "KDS", icon: Laptop },
   { href: "/personal", label: "Personal", icon: Users },
-  { href: "/clientes", label: "Clientes", icon: Contact },
-  { href: "/chat", label: "Chat", icon: MessageSquare },
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/reservas", label: "Reservas", icon: CalendarCheck },
@@ -107,363 +61,305 @@ const menuItems = [
   { href: "/settings", label: "Configuración", icon: Settings },
 ];
 
+// ============================================================================
+// COMPONENTS
+// ============================================================================
+
 export function SidebarNav() {
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
-  const pathname = usePathname();
-  const router = useRouter();
-  const { toast } = useToast();
-  const [isDarkMode, setIsDarkMode] = React.useState(true);
-  const { establishments, activeEstablishment, setActiveEstablishmentId, addEstablishment, removeEstablishment } = useEstablishments();
+  const { state } = useSidebar()
+  const isCollapsed = state === "collapsed"
+  const pathname = usePathname()
+  const router = useRouter()
+  const { toast } = useToast()
+  const [isDarkMode, setIsDarkMode] = React.useState(true)
+  const { establishments, activeEstablishment, setActiveEstablishmentId, addEstablishment, removeEstablishment } = useEstablishments()
+  const [absenceRequests, setAbsenceRequests] = React.useState<AbsenceRequest[]>(mockAbsenceRequests)
+  const [establishmentToDelete, setEstablishmentToDelete] = React.useState<Establishment | null>(null)
 
-  // Use local mock user
-  const user = mockUser;
+  const pendingRequests = React.useMemo(() => absenceRequests.filter(req => req.status === 'pending'), [absenceRequests])
+  const pendingReservationsCount = 0 // Placeholder
+  const totalNotifications = pendingRequests.length + pendingReservationsCount
 
-  // Local state for absence requests to simulate updates
-  const [absenceRequests, setAbsenceRequests] = React.useState<AbsenceRequest[]>(mockAbsenceRequests);
-  const [establishmentToDelete, setEstablishmentToDelete] = React.useState<Establishment | null>(null);
-
-  const pendingRequests = React.useMemo(() => {
-    return absenceRequests.filter(req => req.status === 'pending');
-  }, [absenceRequests]);
-
-  const pendingReservations = 0; // Placeholder
-
-  const totalNotifications = pendingRequests.length + pendingReservations;
+  // Sync dark mode class
+  React.useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark')
+    setIsDarkMode(isDark)
+  }, [])
 
   React.useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark');
-    setIsDarkMode(isDark);
-  }, []);
-
-  React.useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
+    if (isDarkMode) document.documentElement.classList.add('dark')
+    else document.documentElement.classList.remove('dark')
+  }, [isDarkMode])
 
   const handleSelectEstablishment = (id: string) => {
-    setActiveEstablishmentId(id);
-    router.push('/settings/profile?tab=establishment');
-  };
+    setActiveEstablishmentId(id)
+    router.push('/settings/profile?tab=establishment')
+  }
 
   const handleAddEstablishment = () => {
-    const newEstablishmentId = addEstablishment();
-    handleSelectEstablishment(newEstablishmentId);
-  };
+    const newId = addEstablishment()
+    handleSelectEstablishment(newId)
+  }
 
-  const handleDeleteClick = (e: React.MouseEvent, est: Establishment) => {
-    e.stopPropagation();
-    e.preventDefault();
-    setEstablishmentToDelete(est);
-  };
-
-  const confirmDelete = () => {
+  const handleDeleteEstablishment = () => {
     if (establishmentToDelete) {
-      const newActiveId = removeEstablishment(establishmentToDelete.id);
-      setEstablishmentToDelete(null);
+      const newActiveId = removeEstablishment(establishmentToDelete.id)
+      setEstablishmentToDelete(null)
       if (pathname.includes('/settings/profile')) {
-        if (newActiveId) {
-          router.push('/settings/profile?tab=establishment');
-        } else {
-          router.push('/settings/profile');
-        }
+        router.push(newActiveId ? '/settings/profile?tab=establishment' : '/settings/profile')
       }
     }
-  };
+  }
 
   const handleUpdateRequest = (requestId: string, status: 'approved' | 'rejected') => {
-    setAbsenceRequests(prev => prev.map(req =>
-      req.id === requestId ? { ...req, status } : req
-    ));
-
-    const request = absenceRequests.find(r => r.id === requestId);
-    const employee = mockStaffMembers.find(s => s.id === request?.staffId);
-
-    // Translate status for display
-    const statusEs = status === 'approved' ? 'Aprobada' : 'Rechazada';
+    setAbsenceRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req))
+    const request = absenceRequests.find(r => r.id === requestId)
+    const employee = mockStaffMembers.find(s => s.id === request?.staffId)
+    const statusEs = status === 'approved' ? 'Aprobada' : 'Rechazada'
 
     toast({
       title: `Solicitud ${statusEs}`,
-      description: `La solicitud de ${employee?.nombre || 'empleado'} para el ${request ? format(parseISO(request.startDate), 'dd/MM/yy') : ''} ha sido ${statusEs.toLowerCase()}.`
-    });
-  };
-
-
-  if (!user) {
-    return null; // Or a loading skeleton
+      description: `La solicitud de ${employee?.nombre || 'empleado'} ha sido ${statusEs.toLowerCase()}.`
+    })
   }
 
   return (
-    <AlertDialog open={!!establishmentToDelete} onOpenChange={(open) => !open && setEstablishmentToDelete(null)}>
-      <SidebarHeader>
-        {activeEstablishment ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="card"
-                size="lg"
-                width="full"
-                justify={isCollapsed ? "center" : "start"}
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <img
-                    src={activeEstablishment.id === 'camarai' 
-                      ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" 
-                      : activeEstablishment.image}
-                    alt={activeEstablishment.name}
-                    className="h-6 w-auto object-contain"
-                  />
-                </div>
-                {!isCollapsed && (
-                  <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
-                    <span className="truncate font-bold text-sm text-foreground">
-                      {activeEstablishment.name}
-                    </span>
-                    <span className="truncate text-[11px] text-muted-foreground">
-                      {activeEstablishment.type}
-                    </span>
-                  </div>
-                )}
-                {!isCollapsed && (
-                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              width="trigger"
-              align="start"
-              sideOffset={8}
-            >
-              <DropdownMenuItem asChild>
-                <Link href="/settings/profile">
-                  <Settings />
-                  <span>Ajustes</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-muted-foreground">
-                TUS ESTABLECIMIENTOS
-              </DropdownMenuLabel>
-              <DropdownMenuGroup>
-                {establishments.map(est => (
-                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} padding="none" overflow="hidden">
-                    <ActionTile
-                      key={est.id}
-                      icon={
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={est.image} alt={est.name} />
-                          <AvatarFallback className="text-[10px]">{est.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                      }
-                      title={est.name}
-                      variant="none"
-                      padding="sm"
-                      rightContentType="custom"
-                      customContent={
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost-destructive"
-                            size="md"
-                            onClick={(e) => handleDeleteClick(e, est)}
-                            startIcon={<Trash />}
-                          />
-                        </AlertDialogTrigger>
-                      }
-                    />
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={handleAddEstablishment}>
-                <PlusCircle />
-                <span>Añadir nuevo establecimiento</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button
-            variant="outline"
-            fullWidth
-            onClick={handleAddEstablishment}
-            startIcon={<PlusCircle />}
-          >
-            Crear Establecimiento
-          </Button>
-        )}
+    <>
+      <SidebarHeader padding="md">
+        <NavEstablishments 
+          active={activeEstablishment}
+          list={establishments}
+          isCollapsed={isCollapsed}
+          onSelect={handleSelectEstablishment}
+          onAdd={handleAddEstablishment}
+          onDelete={(est: any) => setEstablishmentToDelete(est)}
+        />
       </SidebarHeader>
-      <SidebarContent padding="sm" scrollbar>
-        <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.label}>
-              <Link href={item.href}>
-                <SidebarMenuButton isActive={pathname === item.href} tooltip={item.label}>
-                  <item.icon />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button 
-                variant="card" 
-                size="lg"
-                width="full"
-                justify={isCollapsed ? "center" : "start"}
-            >
-              <Avatar className="h-10 w-10 shrink-0 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.firstName} />
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">
-                  {user.firstName?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              {!isCollapsed && (
-                <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
-                  <span className="truncate font-bold text-sm text-foreground">
-                    {user.firstName}
-                  </span>
-                  <span className="truncate text-[11px] text-muted-foreground">
-                    {user.email}
-                  </span>
-                </div>
-              )}
-              {!isCollapsed && (
-                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent width="lg" side="top" align="start" margin="sm">
-            <DropdownMenuItem asChild>
-              <Link href="/settings/profile">
-                <User />
-                <span>Mi cuenta</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center">
-                    <Bell />
-                    Notificaciones
-                  </div>
-                  {totalNotifications > 0 && <Badge variant="destructive">{totalNotifications}</Badge>}
-                </div>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent width="md" padding="sm">
-                <div className="mb-4">
-                  <DropdownMenuLabel variant="primary">
-                    <Users className="h-4 w-4" />
-                    Solicitudes de Ausencia
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator variant="label" />
-                  <div className="space-y-1 px-1">
-                    {pendingRequests.length > 0 ? (
-                      pendingRequests.map(req => {
-                        const employee = mockStaffMembers.find(s => s.id === req.staffId);
-                        return (
-                          <ActionTile
-                            key={req.id}
-                            title={employee?.nombre || ''}
-                            description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
-                            variant="accent"
-                            padding="sm"
-                            rightContentType="custom"
-                            customContent={
-                               <div className="flex gap-1">
-                                  <Button size="md" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
-                                  <Button size="md" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
-                                </div>
-                            }
-                          />
-                        )
-                      })
-                    ) : (
-                      <p className="p-2 text-xs text-muted-foreground italic">No hay solicitudes de ausencia pendiente.</p>
-                    )}
-                  </div>
-                </div>
 
-                <div className="pt-2 border-t">
-                  <DropdownMenuLabel variant="primary">
-                    <CalendarCheck className="h-4 w-4" />
-                    Nuevas Reservas
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator variant="label" />
-                  <div className="space-y-1 px-1">
-                    {pendingReservations > 0 ? (
-                      <p className="p-2 text-xs text-muted-foreground">...</p> // Placeholder
-                    ) : (
-                      <p className="p-2 text-xs text-muted-foreground italic">No hay nuevas reservas por revisar.</p>
-                    )}
-                  </div>
-                </div>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuItem asChild>
-              <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer">
-                <Shield />
-                <span>Política de privacidad</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => {
-              toast({
-                title: 'Enviar comentarios',
-                description: 'Puedes enviarnos tus comentarios a soporte@camarai.es',
-              });
-            }}>
-              <MessageSquareText />
-              <span>Enviar comentarios</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()} padding="none" overflow="hidden">
-              <ActionTile
-                rightContentType="switch"
-                switchId="dark-mode"
-                icon={isDarkMode ? Moon : Sun}
-                title={isDarkMode ? 'Modo noche' : 'Modo claro'}
-                switchChecked={isDarkMode}
-                onSwitchChange={setIsDarkMode}
-                variant="none"
-                padding="sm"
+      <SidebarContent scrollbar>
+        <NavMain items={navItems} pathname={pathname} />
+      </SidebarContent>
+
+      <SidebarFooter padding="md">
+        <NavUser 
+          user={mockUser}
+          isCollapsed={isCollapsed}
+          isDarkMode={isDarkMode}
+          onDarkModeChange={setIsDarkMode}
+          notifications={{
+            total: totalNotifications,
+            pendingRequests,
+            onUpdateRequest: handleUpdateRequest
+          }}
+        />
+      </SidebarFooter>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!establishmentToDelete} onOpenChange={(open) => !open && setEstablishmentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar establecimiento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Eliminarás <strong>{establishmentToDelete?.name}</strong> permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEstablishmentToDelete(null)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteEstablishment} variant="destructive">Sí, eliminar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}
+
+// ----------------------------------------------------------------------------
+// SUB-COMPONENTS
+// ----------------------------------------------------------------------------
+
+function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelete }: any) {
+  if (!active) return (
+    <Button variant="outline" size="sm" width="full" onClick={onAdd} startIcon={<PlusCircle />}>
+      Crear Establecimiento
+    </Button>
+  )
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton size="lg" variant="outline" className="h-14">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
+            <img 
+              src={active.id === 'camarai' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : active.image} 
+              alt={active.name} 
+              className={cn(
+                "w-full h-full",
+                active.id === 'camarai' ? "object-contain p-1.5" : "object-cover"
+              )}
+            />
+          </div>
+          <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
+            <span className="truncate font-bold text-sm text-foreground">{active.name}</span>
+            <span className="truncate text-[11px] text-muted-foreground">{active.type}</span>
+          </div>
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent width="trigger" align="start" sideOffset={8}>
+        <DropdownMenuGroup>
+          {list.map((est: any) => (
+            <DropdownMenuItem key={est.id} onSelect={() => onSelect(est.id)} className="gap-3 py-2">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
+                <img 
+                  src={est.id === 'camarai' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : est.image} 
+                  alt={est.name} 
+                  className={cn(
+                    "w-full h-full",
+                    est.id === 'camarai' ? "object-contain p-1.5" : "object-cover"
+                  )}
+                />
+              </div>
+              <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
+                <span className="truncate font-bold text-sm text-foreground">{est.name}</span>
+                <span className="truncate text-[10px] text-muted-foreground">{est.type}</span>
+              </div>
+              <Button 
+                variant="ghost-destructive" 
+                size="sm" 
+                className="h-8 w-8 p-0"
+                onClick={(e) => { e.stopPropagation(); onDelete(est); }} 
+                startIcon={<Trash className="h-4 w-4" />} 
               />
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={() => {
-                toast({
-                  title: 'Cerrando sesión',
-                  description: 'Has cerrado sesión correctamente. Redirigiendo...',
-                });
-                // In a real app, this would clear auth state and redirect
-                // router.push('/login');
-              }}
-            >
-              <LogOut />
-              <span>Cerrar sesión</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarFooter>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Estás seguro que quieres eliminar este establecimiento?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Esta acción no se puede deshacer. Esto eliminará permanentemente el establecimiento <strong>{establishmentToDelete?.name}</strong>.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setEstablishmentToDelete(null)}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={confirmDelete} variant="destructive">
-            Sí, eliminar
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          ))}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={onAdd}>
+          <PlusCircle />
+          <span>Añadir nuevo local</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+function NavMain({ items, pathname }: any) {
+  return (
+    <SidebarGroup>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item: any) => {
+            const isActive = pathname === item.href
+            return (
+              <SidebarMenuItem key={item.label}>
+                <Link href={item.href} passHref legacyBehavior>
+                  <SidebarMenuButton isActive={isActive} tooltip={item.label} asChild>
+                    <a>
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            )
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  )
+}
+
+function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notifications }: any) {
+  const { toast } = useToast()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton size="lg" variant="outline" className="h-14">
+          <Avatar className="h-10 w-10 shrink-0 rounded-lg">
+            <AvatarImage src={user.avatar} alt={user.firstName} className="object-cover" />
+            <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">{user.firstName[0]}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
+            <span className="truncate font-bold text-sm text-foreground">{user.firstName}</span>
+            <span className="truncate text-[11px] text-muted-foreground">{user.email}</span>
+          </div>
+          {notifications.total > 0 && <Badge variant="destructive" className="h-5 min-w-5 p-0 flex items-center justify-center text-[10px]">{notifications.total}</Badge>}
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent width="lg" side="top" align="start" margin="sm">
+        <DropdownMenuItem asChild>
+          <Link href="/settings/profile">
+            <User />
+            <span>Mi cuenta</span>
+          </Link>
+        </DropdownMenuItem>
+        
+        {/* Notifications Submenu */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <Bell />
+            <span>Notificaciones</span>
+            {notifications.total > 0 && (
+              <Badge variant="destructive" className="ml-auto h-5 px-1.5 text-[10px]">
+                {notifications.total}
+              </Badge>
+            )}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent width="md">
+            <DropdownMenuLabel variant="primary">SOLICITUDES DE AUSENCIA</DropdownMenuLabel>
+            <DropdownMenuGroup>
+              {notifications.pendingRequests.length > 0 ? (
+                notifications.pendingRequests.map((req: any) => {
+                  const employee = mockStaffMembers.find(s => s.id === req.staffId)
+                  return (
+                    <DropdownMenuItem key={req.id} className="gap-3 py-2">
+                       <Avatar className="h-8 w-8 rounded-full">
+                        <AvatarFallback className="text-[10px] font-bold">{employee?.nombre[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 flex flex-col min-w-0">
+                        <span className="text-sm font-bold truncate">{employee?.nombre || 'Empleado'}</span>
+                        <span className="text-[10px] text-muted-foreground truncate">{req.type} - {format(parseISO(req.startDate), 'dd/MM/yy')}</span>
+                      </div>
+                      <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <Button size="sm" variant="ghost-destructive" className="h-7 w-7 p-0" onClick={() => notifications.onUpdateRequest(req.id, 'rejected')} startIcon={<X className="h-4 w-4" />} />
+                        <Button size="sm" variant="ghost-success" className="h-7 w-7 p-0" onClick={() => notifications.onUpdateRequest(req.id, 'approved')} startIcon={<Check className="h-4 w-4" />} />
+                      </div>
+                    </DropdownMenuItem>
+                  )
+                })
+              ) : (
+                <p className="p-4 text-xs text-muted-foreground italic text-center">Sin solicitudes pendientes</p>
+              )}
+            </DropdownMenuGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+
+        <DropdownMenuItem asChild>
+          <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer">
+            <Shield />
+            <span>Privacidad</span>
+          </Link>
+        </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+        
+        <div className="flex items-center justify-between px-2 py-1.5">
+          <div className="flex items-center gap-2">
+            {isDarkMode ? <Moon className="h-4 w-4 text-muted-foreground" /> : <Sun className="h-4 w-4 text-muted-foreground" />}
+            <span className="text-sm font-medium">{isDarkMode ? 'Modo noche' : 'Modo claro'}</span>
+          </div>
+          <Switch checked={isDarkMode} onCheckedChange={onDarkModeChange} />
+        </div>
+        
+        <DropdownMenuSeparator />
+        
+        <DropdownMenuItem onSelect={() => toast({ title: 'Saliendo...', description: 'Hasta pronto.' })} textVariant="destructive">
+          <LogOut />
+          <span className="font-bold">Cerrar sesión</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
