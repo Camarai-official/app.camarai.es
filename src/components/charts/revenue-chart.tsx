@@ -6,7 +6,7 @@ import { getDaysInMonth } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DateRange } from "react-day-picker";
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { H4 } from '@/components/ui/typography';
+import { H4, TextMD, TextXS } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -64,7 +64,7 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" size="md" className="w-[130px] justify-between">
-                  <span>{selectedMonth}</span>
+                  <TextMD>{selectedMonth}</TextMD>
                   <ChevronDown />
                 </Button>
               </PopoverTrigger>
@@ -137,14 +137,14 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
                     return (
                       <div className="rounded-xl border border-border bg-background p-3 shadow-xl animate-in fade-in zoom-in duration-200">
                         <div className="flex flex-col gap-1.5">
-                          <span className="text-xs text-muted-foreground">
+                          <TextXS className="text-muted-foreground">
                             Día {label}
-                          </span>
+                          </TextXS>
                           <div className="flex items-baseline gap-1.5">
-                            <span className="text-xl font-black text-foreground">
+                            <H4 className="text-foreground">
                               {payload[0].value}
-                            </span>
-                            <span className="text-xs font-bold text-muted-foreground">Reservas</span>
+                            </H4>
+                            <TextXS className="text-muted-foreground">Reservas</TextXS>
                           </div>
                         </div>
                       </div>

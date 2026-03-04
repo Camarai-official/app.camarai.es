@@ -39,7 +39,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { H3 } from '@/components/ui/typography';
+import { H3, H5, H6, TextXS } from '@/components/ui/typography';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SearchInput } from '@/components/ui/search-input';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -61,7 +61,7 @@ import { ActionTile } from '@/components/ui/action-tile';
 // Dialog Components
 import { EmployeeDialog, type ExtendedStaffMember } from '@/components/dialogs/personal-edit-dialog';
 import { TimeLogDialog } from '@/components/dialogs/personal-fichaje-dialog';
-import { AbsenceRequestDialog } from '@/components/dialogs/absence-request-dialog';
+import { AbsenceRequestDialog } from '@/components/dialogs/personal-solicitudausencia-dialog';
 import { DeviceDialog } from '@/components/dialogs/device-dialog';
 import { PersonalConfigDialog, type PersonalConfig } from '@/components/dialogs/personal-config-dialog';
 
@@ -731,8 +731,8 @@ export default function PersonalPage() {
                                                     />
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <p className="font-bold text-sm">Escanea el código QR</p>
-                                                    <p className="text-xs text-muted-foreground">Comparte este código con tus empleados para que añadan el bot rápidamente.</p>
+                                                    <H5>Escanea el código QR</H5>
+                                                    <TextXS className="text-muted-foreground">Comparte este código con tus empleados para que añadan el bot rápidamente.</TextXS>
                                                     <Button variant="link" size="sm" className="p-0 h-auto" startIcon={<Download className="h-3.5 w-3.5" />}>
                                                         Descargar Imagen QR
                                                     </Button>
@@ -748,8 +748,8 @@ export default function PersonalPage() {
                                                     <div key={i} className="flex items-center gap-3">
                                                         <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary shrink-0">{item.step}</div>
                                                         <div className="min-w-0">
-                                                            <p className="text-xs font-bold leading-none">{item.title}</p>
-                                                            <p className="text-[10px] text-muted-foreground">{item.desc}</p>
+                                                            <H6>{item.title}</H6>
+                                                            <TextXS className="text-muted-foreground">{item.desc}</TextXS>
                                                         </div>
                                                     </div>
                                                 ))}

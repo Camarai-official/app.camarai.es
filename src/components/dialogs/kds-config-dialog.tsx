@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TextSM, TextMD } from "@/components/ui/typography";
 import { Settings, LayoutGrid, Volume2, Timer, Soup, Boxes } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { ActionTile } from '@/components/ui/action-tile';
@@ -131,36 +132,28 @@ export function KDSConfigDialog({
                             <div className="space-y-4 px-1">
                                 <div className="flex items-center gap-2">
                                     <Soup className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm font-bold">Filtrar por Categorías</span>
+                                    <TextSM>Filtrar por Categorías</TextSM>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     {categories.map((category) => (
-                                        <div 
+                                        <ActionTile 
                                             key={category.id} 
-                                            className="flex items-center gap-3 p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors cursor-pointer"
+                                            title={category.nombre_categoria}
+                                            rightContentType="checkbox"
+                                            checkboxId={`kds-cat-${category.id}`}
+                                            checkboxChecked={config.selectedCategories.includes(category.id)}
+                                            onCheckboxChange={() => toggleCategory(category.id)}
+                                            variant="outline"
+                                            padding="sm"
                                             onClick={() => toggleCategory(category.id)}
-                                        >
-                                            <Checkbox
-                                                id={`kds-cat-${category.id}`}
-                                                checked={config.selectedCategories.includes(category.id)}
-                                                onCheckedChange={() => toggleCategory(category.id)}
-                                                onClick={(e) => e.stopPropagation()}
-                                            />
-                                            <Label 
-                                                htmlFor={`kds-cat-${category.id}`} 
-                                                className="text-xs font-medium cursor-pointer flex-1"
-                                                onClick={(e) => e.stopPropagation()}
-                                            >
-                                                {category.nombre_categoria}
-                                            </Label>
-                                        </div>
+                                        />
                                     ))}
                                 </div>
-                                <p className="text-[11px] text-muted-foreground">
+                                <TextMD className="text-muted-foreground">
                                     {config.selectedCategories.length === 0 
                                         ? 'Mostrando todas las categorías' 
                                         : `${config.selectedCategories.length} categorías seleccionadas`}
-                                </p>
+                                </TextMD>
                             </div>
                         </div>
                     </ScrollArea>

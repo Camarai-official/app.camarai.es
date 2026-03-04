@@ -6,6 +6,7 @@ import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { TextSM, TextXS, TextMD } from "@/components/ui/typography";
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { ActionTile } from '@/components/ui/action-tile';
@@ -127,8 +128,8 @@ export function DeviceDialog({
                             <div className="space-y-4">
                                 <div className="flex justify-between items-end">
                                     <div className="space-y-0.5">
-                                        <p className="text-sm font-bold">Frecuencia de Rotación</p>
-                                        <p className="text-xs text-muted-foreground">Regenerar código cada {intervalo} segundos</p>
+                                        <TextSM>Frecuencia de Rotación</TextSM>
+                                        <TextXS className="text-muted-foreground">Regenerar código cada {intervalo} segundos</TextXS>
                                     </div>
                                     <Badge variant="outline" className="h-6 tabular-nums">{intervalo}s</Badge>
                                 </div>
@@ -141,7 +142,7 @@ export function DeviceDialog({
                                 />
                                 <div className="flex items-start gap-2 text-[10px] text-muted-foreground leading-tight">
                                     <Info className="h-3 w-3 shrink-0" />
-                                    <span>Un intervalo más bajo aumenta la seguridad pero requiere una conexión a internet más estable.</span>
+                                    <TextMD>Un intervalo más bajo aumenta la seguridad pero requiere una conexión a internet más estable.</TextMD>
                                 </div>
                             </div>
                         </div>

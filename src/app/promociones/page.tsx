@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, TextXS } from '@/components/ui/typography';
 
 
 import * as React from 'react';
@@ -380,9 +380,9 @@ export default function PromocionesPage() {
                             </CardContent>
                             {campaigns.length > 0 && (
                                 <CardFooter padding="md">
-                                    <p className="text-xs text-muted-foreground">
+                                    <TextXS className="text-muted-foreground">
                                         Mostrando <strong>{campaigns.length}</strong> campañas registradas.
-                                    </p>
+                                    </TextXS>
                                 </CardFooter>
                             )}
                         </Card>

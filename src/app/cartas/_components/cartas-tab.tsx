@@ -35,7 +35,7 @@ interface CartaWhatsAppConfig {
 
 
 
-export default function CartaPage() {
+export function CartasTab() {
     const { toast } = useToast();
     const [cartas, setCartas] = React.useState<Carta[]>(mockCartas);
     const [editingCarta, setEditingCarta] = React.useState<Partial<Carta> | null>(null);
@@ -135,13 +135,9 @@ export default function CartaPage() {
 
 
     return (
-        <PageContainer>
-            <PageHeader
-                title="Gestión de Cartas"
-                subtitle="Diseña y organiza las cartas digitales de tu restaurante."
-            />
+        <div className="space-y-6">
 
-            <PageContent className="space-y-6">
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {cartas.map(carta => (
                         <CartaCard
@@ -347,8 +343,7 @@ export default function CartaPage() {
                     </DialogWindow>
                 </Dialog>
 
-            </PageContent>
-        </PageContainer>
+        </div>
     );
 }
 

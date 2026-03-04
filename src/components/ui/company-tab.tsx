@@ -1,4 +1,4 @@
-import { H3 } from '@/components/ui/typography';
+import { H2, H3, H4, TextSM, TextXS } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
 import { Camera, Check, AlertCircle, Loader2 } from 'lucide-react';
@@ -130,7 +130,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                                 <H3 className="font-bold text-muted-foreground">Información de la Empresa</H3>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Datos fiscales y de facturación.</p>
+                                <TextSM>Datos fiscales y de facturación.</TextSM>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -148,8 +148,8 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                             <Input ref={companyFileInputRef} type="file" accept="image/*" className="hidden" onChange={onCompanyImageChange} />
                         </div>
                         <div className="grid gap-1.5 flex-grow text-center md:text-left">
-                            <h2 className="text-xl sm:text-2xl font-bold">{formData.companyName}</h2>
-                            <p className="text-sm text-muted-foreground">{formData.legalName}</p>
+                            <H2>{formData.companyName}</H2>
+                            <TextSM className="text-muted-foreground">{formData.legalName}</TextSM>
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -192,15 +192,14 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                                 )}
                             </div>
                             {nifValidation && (
-                                <p className={cn(
-                                    'text-xs',
+                                <TextXS className={cn(
                                     nifValidation.valid ? 'text-green-600' : 'text-destructive'
                                 )}>
                                     {nifValidation.valid 
                                         ? `${nifValidation.type} válido` 
                                         : 'NIF/CIF no válido. Verifica el número y letra de control.'
                                     }
-                                </p>
+                                </TextXS>
                             )}
                         </div>
                         <div className="space-y-2">
@@ -221,8 +220,8 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                         </div>
                         <div className="space-y-2">
                             <Label>Plan Actual</Label>
-                            <p className="text-lg font-semibold text-primary">Profesional</p>
-                            <p className="text-xs text-muted-foreground">Renueva el: 31/12/2024</p>
+                            <H4 className="text-primary">Profesional</H4>
+                            <TextXS className="text-muted-foreground">Renueva el: 31/12/2024</TextXS>
                         </div>
                         <div className="space-y-2 self-end">
                             <Button variant="outline">Cambiar de Plan</Button>
@@ -241,7 +240,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                         )}
                     </Button>
                     {hasChanges && (
-                        <p className="ml-4 text-sm text-muted-foreground">Tienes cambios sin guardar</p>
+                        <TextSM className="text-muted-foreground">Tienes cambios sin guardar</TextSM>
                     )}
                 </CardFooter>
             </Card>

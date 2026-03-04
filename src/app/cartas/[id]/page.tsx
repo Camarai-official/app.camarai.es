@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, H5, TextXS, TextSM } from '@/components/ui/typography';
 
 
 import * as React from 'react';
@@ -193,7 +193,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                 title: "Menú guardado",
                 description: `El menú ${activeMenu.nombre_carta} ha sido actualizado correctamente.`
             });
-            router.push('/carta');
+            router.push('/cartas');
         }
     };
 
@@ -226,7 +226,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
 
     return (
         <div className="flex flex-1 flex-col h-full">
-            <Link href="/carta">
+            <Link href="/cartas">
                 <PageHeader
                     className="cursor-pointer"
                     title={<>Gestionar Menú/Combo: &quot;{activeMenu.nombre_carta}&quot;</>}
@@ -317,17 +317,17 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
                                     <div className="flex items-center gap-3">
                                         {el.tipo === 'producto' ? <Package className="h-5 w-5 text-blue-500" /> : <Layers className="h-5 w-5 text-purple-500" />}
                                         <div>
-                                            <p className="font-semibold">{getElementName(el)}</p>
-                                            <p className="text-xs text-muted-foreground">
+                                            <H5>{getElementName(el)}</H5>
+                                            <TextXS className="text-muted-foreground">
                                                 {el.tipo === 'producto' ? `Cantidad: ${el.cantidad} ` : `Elegir: ${el.max_seleccion} de la categoría`}
-                                            </p>
+                                            </TextXS>
                                         </div>
                                     </div>
                                     <Button variant="ghost-destructive" size="md" onClick={() => removeElementFromMenuCombo(menuId, el.id)} startIcon={<Trash />} />
                                 </div>
                             ))}
                             {activeMenu.elementos_menu.length === 0 && (
-                                <p className="text-sm text-center text-muted-foreground py-10">Este menú todavía no tiene elementos.</p>
+                                <TextSM className="text-muted-foreground">Este menú todavía no tiene elementos.</TextSM>
                             )}
                         </CardContent>
                         <CardFooter className="flex-col sm:flex-row justify-end gap-2 border-t pt-6">

@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, TextXS } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { AlertCircle, Check, Loader2, RefreshCw, Send, Wifi, WifiOff } from 'lucide-react';
@@ -243,9 +243,9 @@ export function EvolutionAPIConfigForm({
             onChange={(e) => handleChange('webhookUrl', e.target.value)}
             disabled={readOnly}
           />
-          <p className="text-xs text-muted-foreground">
+          <TextXS className="text-muted-foreground">
             URL donde se recibirán los eventos de WhatsApp
-          </p>
+          </TextXS>
         </div>
 
         {/* Test Connection */}

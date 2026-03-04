@@ -11,7 +11,8 @@ import {
   Pencil, 
   Trash,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  LayoutGrid
 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ interface EnvironmentCardProps {
     occupiedCapacity: number;
     occupancyPercentage: number;
   };
+  onViewPlan: (id: string) => void;
 }
 
 const colorMap: Record<string, string> = {
@@ -64,7 +66,8 @@ export function EnvironmentCard({
   onUpdate,
   onRemove,
   onOpenQR,
-  calculateStats
+  calculateStats,
+  onViewPlan
 }: EnvironmentCardProps) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [editingName, setEditingName] = React.useState(env.name);
@@ -235,6 +238,16 @@ export function EnvironmentCard({
           />
         </div>
         </div>
+        
+        <Button 
+          variant="outline" 
+          fullWidth 
+          className="mt-4 rounded-xl h-11 font-bold group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all flex items-center justify-center gap-2"
+          onClick={() => onViewPlan(env.id)}
+        >
+          <LayoutGrid className="h-4 w-4" />
+          Ver Plano de Mesas
+        </Button>
       </div>
 
     </Card>

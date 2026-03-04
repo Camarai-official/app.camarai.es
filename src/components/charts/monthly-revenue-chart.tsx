@@ -1,3 +1,5 @@
+import { TextSM, H4 } from "@/components/ui/typography";
+
 'use client';
 
 import * as React from 'react';
@@ -12,10 +14,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="rounded-lg border bg-background p-2 shadow-sm">
         <div className="grid grid-cols-1 gap-1 text-center">
-          <span className="text-sm font-bold text-muted-foreground">Día {label}</span>
-          <span className="font-bold text-primary">
+          <TextSM className="text-muted-foreground">Día {label}</TextSM>
+          <H4 className="text-primary">
             €{payload[0].value.toFixed(0)}
-          </span>
+          </H4>
         </div>
       </div>
     );

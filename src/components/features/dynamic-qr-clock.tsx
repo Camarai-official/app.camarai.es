@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, TextSM, TextMD } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -190,7 +190,7 @@ export function DynamicQRClock({
                                             strokeLinecap="round"
                                         />
                                     </svg>
-                                    <span className="text-sm font-bold">{countdown}</span>
+                                    <TextSM>{countdown}</TextSM>
                                 </div>
                             </div>
                         </div>
@@ -207,16 +207,16 @@ export function DynamicQRClock({
                     </div>
 
                     {/* Instrucciones */}
-                    <div className="text-center text-sm text-muted-foreground">
+                    <TextSM className="text-muted-foreground">
                         Escanea el código QR para fichar
-                    </div>
+                    </TextSM>
 
                     {/* Cola offline */}
                     {offlineQueue.length > 0 && (
                         <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                             <div className="flex items-center gap-2 text-sm text-yellow-800 dark:text-yellow-200">
                                 <RefreshCw className="h-4 w-4 animate-spin" />
-                                <span>{offlineQueue.length} fichaje(s) pendiente(s) de sincronizar</span>
+                                <TextMD>{offlineQueue.length} fichaje(s) pendiente(s) de sincronizar</TextMD>
                             </div>
                         </div>
                     )}

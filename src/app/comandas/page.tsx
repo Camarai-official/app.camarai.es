@@ -242,9 +242,16 @@ export default function ComandasPage() {
 
 
                 <Card>
-                    <CardHeader
-                        actions={
-                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
+                    <CardHeader className="space-y-0">
+                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                            <SearchInput
+                                containerClassName="w-full lg:w-[400px]"
+                                placeholder="Buscar por orden, mesa, cliente..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+
+                            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
                                 <CalendarDateRangePicker date={date} setDate={setDate} />
 
                                 {selectedOrders.size > 0 && (
@@ -258,14 +265,7 @@ export default function ComandasPage() {
                                     Exportar
                                 </Button>
                             </div>
-                        }
-                    >
-                        <SearchInput
-                            containerClassName="md:w-[400px]"
-                            placeholder="Buscar por orden, mesa, cliente..."
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)}
-                        />
+                        </div>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">

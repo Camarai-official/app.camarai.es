@@ -5,7 +5,7 @@ import {
     PlusCircle, Trash, Users, CheckSquare, 
     Clock, AlertTriangle, XSquare, FolderOpen, LayoutGrid, Power,
     ChevronLeft, ChevronRight, Utensils, Sun, Beer, Wine, Coffee, Building,
-    Square, Circle, MoreHorizontal
+    Square, Circle, MoreHorizontal, Lock, Unlock
 } from 'lucide-react';
 
 // UI Components
@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import { 
     DropdownMenu, 
@@ -81,8 +82,12 @@ const generateAllChairs = (width: number, height: number, shape: 'rectangle' | '
 
 export default function PlanoMesasPage() {
     const { toast } = useToast();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const envIdParam = searchParams.get('envId');
+    
     const [environments, setEnvironments] = React.useState<Environment[]>(initialEnvironments);
-    const [activeEnvId, setActiveEnvId] = React.useState<string>(initialEnvironments[0]?.id || '');
+    const [activeEnvId, setActiveEnvId] = React.useState<string>(envIdParam || initialEnvironments[0]?.id || '');
 
 
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
@@ -124,6 +129,7 @@ export default function PlanoMesasPage() {
     const [isQRDialogOpen, setIsQRDialogOpen] = React.useState(false);
     const [isTemplatesOpen, setIsTemplatesOpen] = React.useState(false);
     const [editingChairsId, setEditingChairsId] = React.useState<number | null>(null);
+    const [isLocked, setIsLocked] = React.useState(false);
 
     const activeEnv = environments.find(e => e.id === activeEnvId);
 
@@ -307,12 +313,30 @@ export default function PlanoMesasPage() {
                 subtitle="Diseña y organiza la disposición de tu salón"
                 actions={
                     <div className="flex gap-2">
-                        <Button variant="outline" size="md" onClick={() => setIsTemplatesOpen(true)} startIcon={<FolderOpen />}>
+                        <Button 
+                            variant={isLocked ? "secondary" : "outline"} 
+                            size="md" 
+                            onClick={() => setIsLocked(!isLocked)} 
+                            title={isLocked ? 'Desbloquear edición' : 'Bloquear edición'}
+                        >
+                            {isLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+                        </Button>
+
+                        <Button variant="outline" size="md" onClick={() => router.push('/ambientes')} startIcon={<ChevronLeft />}>
+                            Volver a Ambientes
+                        </Button>
+                        <Button 
+                            variant="outline" 
+                            size="md" 
+                            onClick={() => setIsTemplatesOpen(true)} 
+                            startIcon={<FolderOpen />}
+                            disabled={isLocked}
+                        >
                             Plantillas
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button size="md" startIcon={<PlusCircle />}>
+                                <Button size="md" startIcon={<PlusCircle />} disabled={isLocked}>
                                     Añadir
                                 </Button>
                             </DropdownMenuTrigger>
@@ -491,6 +515,7 @@ export default function PlanoMesasPage() {
                             onDuplicateTable={duplicateTable}
                             onEditChairs={editChairs}
                             editingChairsId={editingChairsId}
+                            isLocked={isLocked}
                         />
                     )}
                 </div>

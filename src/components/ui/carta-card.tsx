@@ -12,6 +12,7 @@ import {
   Settings
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { TextXS } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Badge, IconBadge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -235,7 +236,7 @@ export function CartaCard({
               })}
               {carta.elementos_carta.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 text-center bg-background/50 rounded-lg border border-dashed">
-                  <p className="text-[11px] text-muted-foreground">Esta carta no tiene contenido todavía.</p>
+                  <TextXS className="text-muted-foreground">Esta carta no tiene contenido todavía.</TextXS>
                 </div>
               )}
             </div>

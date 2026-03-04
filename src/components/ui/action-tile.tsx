@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Badge, IconBadge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,7 @@ import { Progress } from '@/components/ui/progress';
 // TYPES
 // ============================================================================
 
-type RightContentType = 'switch' | 'badge' | 'select' | 'dropdown' | 'button' | 'quantity' | 'progress' | 'custom' | 'empty';
+type RightContentType = 'switch' | 'checkbox' | 'badge' | 'select' | 'dropdown' | 'button' | 'quantity' | 'progress' | 'custom' | 'empty';
 
 interface BaseActionTileProps {
   /** Icon component from lucide-react or any React node */
@@ -67,6 +68,17 @@ interface SwitchProps {
   switchChecked: boolean;
   /** Switch change handler */
   onSwitchChange: (checked: boolean) => void;
+}
+
+// Checkbox variant props
+interface CheckboxProps {
+  rightContentType: 'checkbox';
+  /** Checkbox ID for accessibility */
+  checkboxId: string;
+  /** Checkbox checked state */
+  checkboxChecked: boolean;
+  /** Checkbox change handler */
+  onCheckboxChange: (checked: boolean) => void;
 }
 
 // Badge variant props
@@ -156,7 +168,7 @@ interface EmptyProps {
 }
 
 // Union type for all variants
-export type ActionTileProps = BaseActionTileProps & (SwitchProps | BadgeProps | SelectProps | DropdownProps | ButtonProps | QuantityProps | ProgressProps | CustomProps | EmptyProps);
+export type ActionTileProps = BaseActionTileProps & (SwitchProps | CheckboxProps | BadgeProps | SelectProps | DropdownProps | ButtonProps | QuantityProps | ProgressProps | CustomProps | EmptyProps);
 
 // ============================================================================
 // COMPONENT
@@ -211,6 +223,20 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
               id={switchProps.switchId}
               checked={switchProps.switchChecked}
               onCheckedChange={switchProps.onSwitchChange}
+              disabled={disabled}
+            />
+          </div>
+        );
+      }
+
+      case 'checkbox': {
+        const checkboxProps = props as BaseActionTileProps & CheckboxProps;
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              id={checkboxProps.checkboxId}
+              checked={checkboxProps.checkboxChecked}
+              onCheckedChange={checkboxProps.onCheckboxChange}
               disabled={disabled}
             />
           </div>

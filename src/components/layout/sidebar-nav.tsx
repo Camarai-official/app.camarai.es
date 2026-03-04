@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { TextXS } from "@/components/ui/typography"
 import {
   Avatar, AvatarFallback, AvatarImage,
 } from "@/components/ui/avatar"
@@ -45,14 +46,9 @@ const navItems = [
   { href: "/", label: "Inicio", icon: Home },
   { href: "/comandas", label: "Comandas", icon: ClipboardList },
   { href: "/ambientes", label: "Ambientes", icon: View },
-  { href: "/plano-mesas", label: "Plano de mesas", icon: LayoutGrid },
-  { href: "/carta", label: "Carta", icon: BookOpen },
-  { href: "/categorias", label: "Categorías", icon: Layers },
-  { href: "/productos", label: "Productos", icon: Package },
-  { href: "/ingredientes", label: "Ingredientes", icon: Beaker },
+  { href: "/cartas", label: "Cartas", icon: BookOpen },
   { href: "/inventario", label: "Inventario", icon: Archive },
-  { href: "/pos", label: "POS", icon: Monitor },
-  { href: "/kds", label: "KDS", icon: Laptop },
+  { href: "/pos-kds", label: "POS y KDS", icon: Monitor },
   { href: "/personal", label: "Personal", icon: Users },
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
@@ -208,7 +204,7 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelet
       <DropdownMenuContent width="trigger" align="start" sideOffset={8}>
         <DropdownMenuGroup>
           {list.map((est: any) => (
-            <DropdownMenuItem key={est.id} onSelect={() => onSelect(est.id)} className="gap-3 py-2">
+            <DropdownMenuItem key={est.id} onSelect={() => onSelect(est.id)}>
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
                 <img 
                   src={est.id === 'camarai' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : est.image} 
@@ -223,13 +219,6 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelet
                 <span className="truncate font-bold text-sm text-foreground">{est.name}</span>
                 <span className="truncate text-[10px] text-muted-foreground">{est.type}</span>
               </div>
-              <Button 
-                variant="ghost-destructive" 
-                size="sm" 
-                className="h-8 w-8 p-0"
-                onClick={(e) => { e.stopPropagation(); onDelete(est); }} 
-                startIcon={<Trash className="h-4 w-4" />} 
-              />
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
@@ -302,35 +291,35 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
             <Bell />
             <span>Notificaciones</span>
             {notifications.total > 0 && (
-              <Badge variant="destructive" className="ml-auto h-5 px-1.5 text-[10px]">
+              <Badge className="ml-1">
                 {notifications.total}
               </Badge>
             )}
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent width="md">
-            <DropdownMenuLabel variant="primary">SOLICITUDES DE AUSENCIA</DropdownMenuLabel>
+            <DropdownMenuLabel>Solicitudes de ausencia</DropdownMenuLabel>
             <DropdownMenuGroup>
               {notifications.pendingRequests.length > 0 ? (
                 notifications.pendingRequests.map((req: any) => {
                   const employee = mockStaffMembers.find(s => s.id === req.staffId)
                   return (
-                    <DropdownMenuItem key={req.id} className="gap-3 py-2">
-                       <Avatar className="h-8 w-8 rounded-full">
-                        <AvatarFallback className="text-[10px] font-bold">{employee?.nombre[0]}</AvatarFallback>
+                    <DropdownMenuItem key={req.id}>
+                       <Avatar>
+                        <AvatarFallback>{employee?.nombre[0]}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 flex flex-col min-w-0">
-                        <span className="text-sm font-bold truncate">{employee?.nombre || 'Empleado'}</span>
-                        <span className="text-[10px] text-muted-foreground truncate">{req.type} - {format(parseISO(req.startDate), 'dd/MM/yy')}</span>
+                        <span >{employee?.nombre || 'Empleado'}</span>
+                        <span >{req.type} - {format(parseISO(req.startDate), 'dd/MM/yy')}</span>
                       </div>
                       <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button size="sm" variant="ghost-destructive" className="h-7 w-7 p-0" onClick={() => notifications.onUpdateRequest(req.id, 'rejected')} startIcon={<X className="h-4 w-4" />} />
-                        <Button size="sm" variant="ghost-success" className="h-7 w-7 p-0" onClick={() => notifications.onUpdateRequest(req.id, 'approved')} startIcon={<Check className="h-4 w-4" />} />
+                        <Button size="sm" variant="ghost-destructive" onClick={() => notifications.onUpdateRequest(req.id, 'rejected')} startIcon={<X  />} />
+                        <Button size="sm" variant="ghost-success" onClick={() => notifications.onUpdateRequest(req.id, 'approved')} startIcon={<Check  />} />
                       </div>
                     </DropdownMenuItem>
                   )
                 })
               ) : (
-                <p className="p-4 text-xs text-muted-foreground italic text-center">Sin solicitudes pendientes</p>
+                <TextXS>Sin solicitudes pendientes</TextXS>
               )}
             </DropdownMenuGroup>
           </DropdownMenuSubContent>
@@ -339,25 +328,19 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
         <DropdownMenuItem asChild>
           <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer">
             <Shield />
-            <span>Privacidad</span>
+            Privacidad
           </Link>
         </DropdownMenuItem>
         
-        <DropdownMenuSeparator />
-        
-        <div className="flex items-center justify-between px-2 py-1.5">
-          <div className="flex items-center gap-2">
-            {isDarkMode ? <Moon className="h-4 w-4 text-muted-foreground" /> : <Sun className="h-4 w-4 text-muted-foreground" />}
-            <span className="text-sm font-medium">{isDarkMode ? 'Modo noche' : 'Modo claro'}</span>
-          </div>
+        <DropdownMenuItem onSelect={(e) => { e.preventDefault(); onDarkModeChange(!isDarkMode); }}>
+          {isDarkMode ? <Moon /> : <Sun />}
+          <span>{isDarkMode ? 'Modo noche' : 'Modo claro'}</span>
           <Switch checked={isDarkMode} onCheckedChange={onDarkModeChange} />
-        </div>
+        </DropdownMenuItem>
         
-        <DropdownMenuSeparator />
-        
-        <DropdownMenuItem onSelect={() => toast({ title: 'Saliendo...', description: 'Hasta pronto.' })} textVariant="destructive">
+        <DropdownMenuItem onSelect={() => toast({ title: 'Saliendo...', description: 'Hasta pronto.' })}>
           <LogOut />
-          <span className="font-bold">Cerrar sesión</span>
+          Cerrar sesión
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

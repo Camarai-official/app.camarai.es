@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { H5, TextSM } from '@/components/ui/typography';
 import type { StaffMember, AbsenceRequest } from '@/data/mock-data';
 import type { TimeReportEntry } from '@/data/reportes';
 
@@ -148,7 +149,7 @@ export function StaffTab({
                             <div className="md:hidden space-y-4">
                                 {Object.entries(staffTotals).map(([staffId, data]) => (
                                     <Card key={staffId} padding="md">
-                                        <p className="font-bold mb-2">{data.name}</p>
+                                        <H5>{data.name}</H5>
                                         <div className="space-y-1 text-sm">
                                             <div className="flex justify-between"><span>Horas Regulares:</span> <span>{data.regular.toFixed(2)}h</span></div>
                                             <div className="flex justify-between"><span>Horas Extra:</span> <span>{data.extra.toFixed(2)}h</span></div>
@@ -207,7 +208,7 @@ export function StaffTab({
                         <div className="md:hidden space-y-4">
                             {timeReportData.map(({ log, regularHours, extraHours }) => (
                                 <Card key={log.id} padding="md">
-                                    {selectedStaffId === 'all' && <p className="font-bold mb-2">{staffMembers.find(s => s.id === log.staffMemberId)?.nombre || 'Desconocido'}</p>}
+                                    {selectedStaffId === 'all' && <H5>{staffMembers.find(s => s.id === log.staffMemberId)?.nombre || 'Desconocido'}</H5>}
                                     <div className="space-y-1 text-sm">
                                         <div className="flex justify-between"><span>Fecha:</span> <span>{format(new Date(log.entrada), 'dd/MM/yyyy')}</span></div>
                                         <div className="flex justify-between"><span>Entrada:</span> <span>{format(new Date(log.entrada), 'HH:mm')}</span></div>
@@ -220,7 +221,7 @@ export function StaffTab({
                                 </Card>
                             ))}
                             {timeReportData.length === 0 && (
-                                <p className="text-center text-muted-foreground py-8">No se encontraron registros.</p>
+                                <TextSM className="text-muted-foreground">No se encontraron registros.</TextSM>
                             )}
                         </div>
                     </CardContent>
@@ -340,7 +341,7 @@ export function StaffTab({
                             const employee = staffMembers.find(s => s.id === req.staffId);
                             return (
                                 <Card key={req.id} padding="md">
-                                    <p className="font-bold mb-2">{employee?.nombre || 'Desconocido'}</p>
+                                    <H5>{employee?.nombre || 'Desconocido'}</H5>
                                     <div className="space-y-1 text-sm">
                                         <div className="flex justify-between"><span>Fecha:</span> <span>{req.startDate}</span></div>
                                         <div className="flex justify-between"><span>Tipo:</span> <span>{req.type}</span></div>
@@ -361,7 +362,7 @@ export function StaffTab({
                             );
                         })}
                         {filteredAbsenceRequests.length === 0 && (
-                            <p className="text-center text-muted-foreground py-8">No se encontraron solicitudes.</p>
+                            <TextSM className="text-muted-foreground">No se encontraron solicitudes.</TextSM>
                         )}
                     </div>
                 </CardContent>

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TextMD } from "@/components/ui/typography";
 import { MessageSquare, Bell, Clock, X } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader, DialogClose } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
@@ -142,9 +143,9 @@ export function WhatsAppNotificationsDialog({ open, onOpenChange }: WhatsAppNoti
                                                     onChange={(e) => setTemplates(p => ({ ...p, confirmation: e.target.value }))}
                                                     rows={4}
                                                 />
-                                                <p className="text-[11px] text-muted-foreground px-1">
+                                                <TextMD className="text-muted-foreground">
                                                     Variables: <code className="text-primary">{'{nombre}'}</code>, <code className="text-primary">{'{fecha}'}</code>, <code className="text-primary">{'{hora}'}</code>, <code className="text-primary">{'{comensales}'}</code>
-                                                </p>
+                                                </TextMD>
                                             </div>
 
                                             <div className="space-y-3">

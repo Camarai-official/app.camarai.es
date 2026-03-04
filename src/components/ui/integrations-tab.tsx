@@ -1,4 +1,4 @@
-import { H3 } from '@/components/ui/typography';
+import { H3, TextSM, TextXS } from '@/components/ui/typography';
 import * as React from 'react';
 import { MoreVertical, Pencil, Trash, CheckCircle2, XCircle, ExternalLink, RefreshCw, Zap, Settings } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
@@ -144,7 +144,7 @@ export function IntegrationsTab() {
                                 <H3 className="font-bold text-muted-foreground">Integraciones</H3>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Conecta con tus herramientas favoritas para potenciar tu restaurante.</p>
+                                <TextSM>Conecta con tus herramientas favoritas para potenciar tu restaurante.</TextSM>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -173,13 +173,8 @@ export function IntegrationsTab() {
                                     </div>
                                 }
                                 description={
-                                    <div className="space-y-0.5">
-                                        <p>{integration.description}</p>
-                                        {integration.lastSync && (
-                                            <p className="text-[10px] text-muted-foreground">
-                                                Última sincronización: {integration.lastSync}
-                                            </p>
-                                        )}
+                                    <div>
+                                        <TextSM>{integration.description}{integration.lastSync && <TextXS className="text-muted-foreground"> · Última sincronización: {integration.lastSync}</TextXS>}</TextSM>
                                     </div>
                                 }
                                 variant="outline"
@@ -276,23 +271,29 @@ export function IntegrationsTab() {
                                             onChange={(e) => setConfigForm(prev => ({ ...prev, phone: e.target.value }))}
                                         />
                                     </div>
-                                    <div className="space-y-3">
+                                    <div className="space-y-2">
                                         <Label>Notificaciones</Label>
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox 
-                                                id="wa-reservations"
-                                                checked={configForm.notifyReservations}
-                                                onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, notifyReservations: c }))}
+                                        <div className="grid gap-2">
+                                            <ActionTile
+                                                title="Notificar reservas"
+                                                description="Recibir avisos de nuevas reservas por WhatsApp"
+                                                rightContentType="checkbox"
+                                                checkboxId="wa-reservations"
+                                                checkboxChecked={configForm.notifyReservations}
+                                                onCheckboxChange={(c) => setConfigForm(prev => ({ ...prev, notifyReservations: c }))}
+                                                variant="outline"
+                                                padding="sm"
                                             />
-                                            <Label htmlFor="wa-reservations" className="font-normal">Notificar reservas</Label>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox 
-                                                id="wa-orders"
-                                                checked={configForm.notifyOrders}
-                                                onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, notifyOrders: c }))}
+                                            <ActionTile
+                                                title="Notificar pedidos"
+                                                description="Recibir avisos de nuevos pedidos por WhatsApp"
+                                                rightContentType="checkbox"
+                                                checkboxId="wa-orders"
+                                                checkboxChecked={configForm.notifyOrders}
+                                                onCheckboxChange={(c) => setConfigForm(prev => ({ ...prev, notifyOrders: c }))}
+                                                variant="outline"
+                                                padding="sm"
                                             />
-                                            <Label htmlFor="wa-orders" className="font-normal">Notificar pedidos</Label>
                                         </div>
                                     </div>
                                 </div>
@@ -309,14 +310,16 @@ export function IntegrationsTab() {
                                             onChange={(e) => setConfigForm(prev => ({ ...prev, calendarId: e.target.value }))}
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <Checkbox 
-                                            id="google-autosync"
-                                            checked={configForm.autoSync}
-                                            onCheckedChange={(c) => setConfigForm(prev => ({ ...prev, autoSync: c }))}
-                                        />
-                                        <Label htmlFor="google-autosync" className="font-normal">Sincronización automática</Label>
-                                    </div>
+                                    <ActionTile
+                                        title="Sincronización automática"
+                                        description="Mantener Google Calendar siempre actualizado"
+                                        rightContentType="checkbox"
+                                        checkboxId="google-autosync"
+                                        checkboxChecked={configForm.autoSync}
+                                        onCheckboxChange={(c) => setConfigForm(prev => ({ ...prev, autoSync: c }))}
+                                        variant="outline"
+                                        padding="sm"
+                                    />
                                     <Button variant="outline" className="w-full">
                                         <ExternalLink className="mr-2 h-4 w-4" />
                                         Conectar con Google
