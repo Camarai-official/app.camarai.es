@@ -1,5 +1,6 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { addDays, format, isWithinInterval, parse } from 'date-fns';
@@ -20,17 +21,16 @@ import {
     XCircle,
     FileText,
     CreditCard,
-    Ban,
-} from 'lucide-react';
+    Ban } from 'lucide-react';
 
 import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
 import { mockOrderDetails, mockOrderProducts, mockOrderTables, mockOrders } from '@/data/orders';
 import { exportFields, defaultViewConfig, type ViewConfig } from '@/app/comandas/_data/config';
-import { EditOrderDialog } from '@/app/comandas/_components/edit-order-dialog';
-import { OrderDetailsDialog } from '@/app/comandas/_components/order-details-dialog';
-import { ViewConfigDialog } from '@/app/comandas/_components/view-config-dialog';
+import { EditOrderDialog } from '@/components/dialogs/comandas-edit-order-dialog';
+import { OrderDetailsDialog } from '@/components/dialogs/comandas-order-details-dialog';
+import { ViewConfigDialog } from '@/components/dialogs/comandas-config-dialog';
 
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -38,13 +38,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/dialogs/global-alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
-import { ExportModal } from '@/components/features/export-modal';
+import { ExportModal } from '@/components/dialogs/comandas-export-dialog';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 
 export default function ComandasPage() {
     const { toast } = useToast();
@@ -56,8 +68,7 @@ export default function ComandasPage() {
     // Estados para los filtros y la paginación.
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -7),
-        to: new Date(),
-    });
+        to: new Date() });
     const [searchTerm, setSearchTerm] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage, setItemsPerPage] = React.useState(defaultViewConfig.itemsPerPage);
@@ -79,6 +90,10 @@ export default function ComandasPage() {
     const [isConfigOpen, setIsConfigOpen] = React.useState(false);
     const [viewConfig, setViewConfig] = React.useState<ViewConfig>(defaultViewConfig);
 
+    // Estado para el diálogo de confirmación de anulación
+    const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
+    const [orderToCancel, setOrderToCancel] = React.useState<Order | null>(null);
+
     type ExportOptions = { format: string; fields: string[]; dateRange?: DateRange };
 
     // Export handler
@@ -99,8 +114,7 @@ export default function ComandasPage() {
     const handleSaveConfig = () => {
         toast({
             title: 'Configuración guardada',
-            description: 'Los ajustes de visualización se han aplicado.',
-        });
+            description: 'Los ajustes de visualización se han aplicado.' });
         setIsConfigOpen(false);
     };
 
@@ -132,8 +146,7 @@ export default function ComandasPage() {
     const handlePrintSelected = () => {
         toast({
             title: "Imprimiendo tickets",
-            description: `Enviando ${selectedOrders.size} tickets a la impresora...`,
-        });
+            description: `Enviando ${selectedOrders.size} tickets a la impresora...` });
         // Aquí iría la lógica real de impresión
     };
 
@@ -164,8 +177,7 @@ export default function ComandasPage() {
 
         toast({
             title: "Comanda actualizada",
-            description: `La comanda #${updatedOrder.order} ha sido modificada correctamente.`,
-        });
+            description: `La comanda #${updatedOrder.order} ha sido modificada correctamente.` });
     };
 
     const handleStatusChange = (orderOrder: string, newStatus: OrderStatus) => {
@@ -175,8 +187,20 @@ export default function ComandasPage() {
 
         toast({
             title: "Estado Actualizado",
-            description: `La comanda #${orderOrder} ahora está ${newStatus}.`,
-        });
+            description: `La comanda #${orderOrder} ahora está ${newStatus}.` });
+    };
+
+    const handleAnularComanda = (order: Order) => {
+        setOrderToCancel(order);
+        setIsCancelDialogOpen(true);
+    };
+
+    const confirmAnularComanda = () => {
+        if (orderToCancel) {
+            handleStatusChange(orderToCancel.order, 'Cancelado');
+            setIsCancelDialogOpen(false);
+            setOrderToCancel(null);
+        }
     };
 
     const filteredOrders = orders.filter(order => {
@@ -212,37 +236,36 @@ export default function ComandasPage() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Historial de Pedidos" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
 
 
                 <Card>
-                    <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <CardHeader
+                        actions={
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
+                                <CalendarDateRangePicker date={date} setDate={setDate} />
+
+                                {selectedOrders.size > 0 && (
+                                    <Button variant="secondary" startIcon={<Printer/>} onClick={handlePrintSelected}>
+                                        Imprimir ({selectedOrders.size})
+                                    </Button>
+                                )}
+
+                                <Button variant="outline" size="md" startIcon={<Settings/>} onClick={() => setIsConfigOpen(true)} />
+                                <Button variant='default' size='md' startIcon={<Download/>} onClick={() => setIsExportOpen(true)}>
+                                    Exportar
+                                </Button>
+                            </div>
+                        }
+                    >
                         <SearchInput
-                            containerClassName="md:w-1/3"
+                            containerClassName="md:w-[400px]"
                             placeholder="Buscar por orden, mesa, cliente..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
                         />
-                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
-                            <CalendarDateRangePicker date={date} setDate={setDate} />
-
-                            {selectedOrders.size > 0 && (
-                                <Button variant="secondary" onClick={handlePrintSelected}>
-                                    <Printer className="mr-2 h-4 w-4" />
-                                    Imprimir ({selectedOrders.size})
-                                </Button>
-                            )}
-
-                            <Button variant="outline" size="icon" onClick={() => setIsConfigOpen(true)}>
-                                <Settings className="h-4 w-4" />
-                            </Button>
-                            <Button onClick={() => setIsExportOpen(true)}>
-                                <Download className="mr-2 h-4 w-4" />
-                                Exportar
-                            </Button>
-                        </div>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto">
@@ -261,16 +284,12 @@ export default function ComandasPage() {
                                         {viewConfig.showTable && <TableHead>Mesa</TableHead>}
                                         {viewConfig.showName && <TableHead>Nombre</TableHead>}
                                         {viewConfig.showTotal && <TableHead>Total</TableHead>}
-                                        {viewConfig.showStatus && <TableHead>Estado</TableHead>}
+                                        {viewConfig.showStatus && <TableHead className="text-center">Estado</TableHead>}
                                         <TableHead><span className="sr-only">Acciones</span></TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody
                                     key={currentPage}
-                                    className={cn(
-                                        'transition-opacity duration-300',
-                                        isAnimating ? 'opacity-0' : 'opacity-100'
-                                    )}
                                 >
                                     {false && (
                                         <TableRow>
@@ -295,7 +314,7 @@ export default function ComandasPage() {
                                             {viewConfig.showTable && <TableCell>{order.table}</TableCell>}
                                             {viewConfig.showName && <TableCell>{order.name}</TableCell>}
                                             {viewConfig.showTotal && <TableCell>{order.total}</TableCell>}
-                                            {viewConfig.showStatus && <TableCell>
+                                            {viewConfig.showStatus && <TableCell className="text-center">
                                                 <Badge
                                                     variant={
                                                         order.status === 'Completado'
@@ -311,52 +330,51 @@ export default function ComandasPage() {
                                             <TableCell>
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                                            <span className="sr-only">Abrir menú</span>
-                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        <Button variant="ghost" size='md'>
+                                                            <MoreHorizontal/>
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                         <DropdownMenuItem onClick={() => handleViewDetails(order)}>
-                                                            <Eye className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <Eye />
                                                             Ver detalles
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem onClick={() => handleEditOrder(order)}>
-                                                            <Pencil className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <Pencil />
                                                             Editar comanda
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSub>
                                                             <DropdownMenuSubTrigger>
-                                                                <Activity className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                <Activity />
                                                                 Cambiar Estado
                                                             </DropdownMenuSubTrigger>
                                                             <DropdownMenuSubContent>
                                                                 <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>
-                                                                    <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    <PlayCircle />
                                                                     En Progreso
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>
-                                                                    <CheckCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    <CheckCircle />
                                                                     Completado
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>
-                                                                    <XCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                                    <XCircle />
                                                                     Cancelado
                                                                 </DropdownMenuItem>
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
                                                         <DropdownMenuItem>
-                                                            <FileText className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <FileText />
                                                             Exportar a PDF
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>
-                                                            <CreditCard className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                            <CreditCard />
                                                             Marcar como pagada
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuItem>
-                                                            <Ban className="mr-2 h-4 w-4 text-muted-foreground" />
+                                                        <DropdownMenuItem onClick={() => handleAnularComanda(order)}>
+                                                            <Ban />
                                                             Anular comanda
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
@@ -373,27 +391,22 @@ export default function ComandasPage() {
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredOrders.length)}-{Math.min(indexOfLastItem, filteredOrders.length)}</strong> de <strong>{filteredOrders.length}</strong> comandas.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
+                            <Button variant="outline" size="md" startIcon={<ChevronLeft />} onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
                             {pageNumbers.map(number => (
                                 <Button
                                     key={number}
                                     variant={currentPage === number ? "default" : "outline"}
-                                    size="icon"
-                                    className="h-8 w-8"
+                                    size="md"
                                     onClick={() => paginate(number)}
                                 >
                                     {number}
                                 </Button>
                             ))}
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
+                            <Button variant="outline" size="md" startIcon={<ChevronRight />} onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
                         </div>
                     </CardFooter>
                 </Card>
-            </main>
+            </PageContent>
             <OrderDetailsDialog
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
@@ -405,8 +418,7 @@ export default function ComandasPage() {
                 onPrint={(order) => {
                     toast({
                         title: "Imprimiendo ticket",
-                        description: `Enviando ticket #${order.order} a la impresora...`,
-                    });
+                        description: `Enviando ticket #${order.order} a la impresora...` });
                 }}
             />
 
@@ -436,6 +448,27 @@ export default function ComandasPage() {
                 onConfigChange={handleConfigChange}
                 onSave={handleSaveConfig}
             />
-        </div>
+
+            <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Esta acción anulará la comanda #{orderToCancel?.order}. No podrás deshacer esta acción una vez confirmada.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Volver</AlertDialogCancel>
+                        <AlertDialogAction 
+                            onClick={confirmAnularComanda}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                            Anular Comanda
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+        </PageContainer>
     );
 }
+

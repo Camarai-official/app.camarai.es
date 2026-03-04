@@ -1,16 +1,17 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose, DialogWindow } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/dialogs/global-alert-dialog';
 import { buttonVariants } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -21,7 +22,9 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContainer } from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -72,8 +75,7 @@ function CategoryDialog({
     orden: 0,
     categoria_padre_id: '',
     visible_en_carta: true,
-    impresora_destino: '',
-  });
+    impresora_destino: '' });
   const [assignedProducts, setAssignedProducts] = React.useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [isSearchPopoverOpen, setIsSearchPopoverOpen] = React.useState(false);
@@ -90,8 +92,7 @@ function CategoryDialog({
         orden: category.orden || 0,
         categoria_padre_id: category.categoria_padre_id || '',
         visible_en_carta: category.visible_en_carta !== false,
-        impresora_destino: category.impresora_destino || '',
-      });
+        impresora_destino: category.impresora_destino || '' });
       const currentProducts = (products || []).filter(p => p.id_categoria === category.id);
       setAssignedProducts(currentProducts);
     } else {
@@ -104,8 +105,7 @@ function CategoryDialog({
         orden: allCategories.length,
         categoria_padre_id: '',
         visible_en_carta: true,
-        impresora_destino: '',
-      });
+        impresora_destino: '' });
       setAssignedProducts([]);
     }
     setSearchTerm('');
@@ -145,24 +145,24 @@ function CategoryDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle icon={SelectedIcon}>
-            {category ? 'Editar' : 'Crear'} Categoría
-          </DialogTitle>
-          <DialogDescription>
-            Configura los detalles de la categoría y gestiona los productos asignados.
-          </DialogDescription>
-        </DialogHeader>
+      <DialogWindow size="lg">
+        <DialogHeader
+          icon={SelectedIcon}
+          title={`${category ? 'Editar' : 'Crear'} Categoría`}
+          description="Configura los detalles de la categoría y gestiona los productos asignados."
+        />
+        <DialogContent className='p-0'>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+          <div className="px-6 bg-muted/20 border-b">
+            <TabsList className="bg-transparent h-12 w-full justify-start gap-4">
+              <TabsTrigger value="general" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">General</TabsTrigger>
+              <TabsTrigger value="apariencia" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Apariencia</TabsTrigger>
+              <TabsTrigger value="productos" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1">Productos</TabsTrigger>
+            </TabsList>
+          </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="apariencia">Apariencia</TabsTrigger>
-            <TabsTrigger value="productos">Productos</TabsTrigger>
-          </TabsList>
-
-          <ScrollArea className="flex-1 mt-4 pr-4">
+          <ScrollArea className="flex-1">
+            <div className="p-6">
             {/* Tab General */}
             <TabsContent value="general" className="space-y-6 mt-0">
               <div className="space-y-2">
@@ -275,7 +275,7 @@ function CategoryDialog({
               {/* Preview */}
               <Card className="bg-muted/50">
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm">Vista Previa</CardTitle>
+                  <H3 className="text-sm">Vista Previa</H3>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-3 p-3 bg-background rounded-lg border">
@@ -283,7 +283,7 @@ function CategoryDialog({
                       className="h-10 w-10 rounded-md flex items-center justify-center shrink-0"
                       style={{ backgroundColor: categoryData.color || '#9B6EFD' }}
                     >
-                      <SelectedIcon className="h-5 w-5 text-white" />
+                      <SelectedIcon className="h-5 w-5 text-foreground" />
                     </div>
                     <div>
                       <p className="font-medium">{categoryData.nombre_categoria || 'Nombre de categoría'}</p>
@@ -334,7 +334,7 @@ function CategoryDialog({
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className='text-base'>Productos Asignados ({assignedProducts.length})</CardTitle>
+                    <H3 className='text-base'>Productos Asignados ({assignedProducts.length})</H3>
                     <CardDescription>Productos que pertenecen a esta categoría.</CardDescription>
                   </CardHeader>
                     <CardContent className="p-0">
@@ -362,7 +362,7 @@ function CategoryDialog({
                               </div>
                               <Button 
                                 variant="ghost" 
-                                size="icon" 
+                                size="md" 
                                 className="h-8 w-8 hover:bg-destructive/10 transition-colors" 
                                 onClick={() => handleRemoveProduct(p.id)}
                               >
@@ -381,16 +381,16 @@ function CategoryDialog({
                 </Card>
               </div>
             </TabsContent>
-          </ScrollArea>
+          </div>
+        </ScrollArea>
         </Tabs>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Cancelar</Button>
-          </DialogClose>
-          <Button variant="brand" onClick={handleSaveClick}>Guardar Categoría</Button>
-        </DialogFooter>
-      </DialogContent>
+        </DialogContent>
+        <DialogFooter
+          onCancel={() => onOpenChange(false)}
+          onConfirm={handleSaveClick}
+          confirmText="Guardar Categoría"
+        />
+      </DialogWindow>
     </Dialog>
   );
 }
@@ -415,8 +415,7 @@ export default function CategoriasPage() {
     const newCategory: ExtendedCategory = {
       id: `cat-${Date.now()}`,
       nombre_categoria: categoryData.nombre_categoria || '',
-      ...categoryData,
-    };
+      ...categoryData };
     setCategories(prev => [...prev, newCategory]);
     return newCategory.id;
   }
@@ -486,8 +485,7 @@ export default function CategoriasPage() {
     syncProductsWithCategory(categoryId, assignedProductIds);
     toast({
       title: `Categoría ${isEditing ? 'Actualizada' : 'Creada'}`,
-      description: `La categoría "${categoryData.nombre_categoria}" ha sido guardada correctamente.`,
-    });
+      description: `La categoría "${categoryData.nombre_categoria}" ha sido guardada correctamente.` });
   };
 
   const handleRemove = (id: string, name: string) => {
@@ -495,8 +493,7 @@ export default function CategoriasPage() {
     toast({
       variant: "destructive",
       title: "Categoría Eliminada",
-      description: `La categoría "${name}" ha sido eliminada.`,
-    });
+      description: `La categoría "${name}" ha sido eliminada.` });
   }
 
   const getProductsInCategoryCount = (categoryId: string) => {
@@ -504,9 +501,9 @@ export default function CategoriasPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Librería de Categorías" />
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+      <PageContent>
         <Card className="min-h-[70vh]">
           <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
             <SearchInput 
@@ -526,8 +523,8 @@ export default function CategoriasPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre Categoría</TableHead>
-                    <TableHead>Productos</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
+                    <TableHead className="text-center">Productos</TableHead>
+                    <TableHead className="text-center">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody
@@ -544,28 +541,28 @@ export default function CategoriasPage() {
                             className="h-8 w-8 rounded-md flex items-center justify-center shrink-0"
                             style={{ backgroundColor: cat.color || '#9B6EFD' }}
                           >
-                            <CatIcon className="h-4 w-4 text-white" />
+                            <CatIcon className="h-4 w-4 text-foreground" />
                           </div>
                           <span>{cat.nombre_categoria}</span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <Badge variant="secondary">{getProductsInCategoryCount(cat.id)} productos</Badge>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-center">
                         <AlertDialog>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="md" startIcon={<MoreHorizontal />} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <DropdownMenuItem onClick={() => handleOpenDialog(cat)}>
-                                <Edit className="mr-2 h-4 w-4 text-muted-foreground transition-colors" />
+                                <Edit />
                                 Editar
                               </DropdownMenuItem>
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem>
-                                  <Trash className="mr-2 h-4 w-4 text-muted-foreground transition-colors" />
+                                  <Trash />
                                   Eliminar
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
@@ -603,27 +600,26 @@ export default function CategoriasPage() {
               Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredCategories.length)}-{Math.min(indexOfLastItem, filteredCategories.length)}</strong> de <strong>{filteredCategories.length}</strong> categorías.
             </div>
             <div className="flex justify-end items-center gap-2">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                <ChevronLeft className="h-4 w-4" />
+              <Button variant="outline" size="md" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                <ChevronLeft />
               </Button>
               {pageNumbers.map(number => (
                 <Button
                   key={number}
                   variant={currentPage === number ? "default" : "outline"}
-                  size="icon"
-                  className="h-8 w-8"
+                  size="md"
                   onClick={() => paginate(number)}
                 >
                   {number}
                 </Button>
               ))}
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                <ChevronRight className="h-4 w-4" />
+              <Button variant="outline" size="md" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                <ChevronRight />
               </Button>
             </div>
           </CardFooter>
         </Card>
-      </main>
+      </PageContent>
       <CategoryDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
@@ -632,8 +628,9 @@ export default function CategoriasPage() {
         products={products}
         allCategories={categories}
       />
-    </div>
-  );
+    </PageContainer>
+    );
 }
+
 
 

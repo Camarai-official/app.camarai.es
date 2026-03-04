@@ -1,4 +1,4 @@
-import type { ExportField } from '@/components/features/export-modal';
+import type { ExportField } from '@/components/dialogs/comandas-export-dialog';
 
 export const exportFields: ExportField[] = [
   { id: 'order', label: 'Número de Orden', checked: true },

@@ -11,6 +11,7 @@ type CreateActionCardProps = {
   onClick?: () => void;
   className?: string;
   icon?: ElementType;
+  variant?: 'grid' | 'list';
 };
 
 export function CreateActionCard({
@@ -18,6 +19,7 @@ export function CreateActionCard({
   onClick,
   className,
   icon: Icon = PlusCircle,
+  variant = 'grid',
 }: CreateActionCardProps) {
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!onClick) return;
@@ -35,13 +37,17 @@ export function CreateActionCard({
       onKeyDown={handleKeyDown}
       aria-label={label}
       className={cn(
-        "col-span-1 flex items-center justify-center min-h-[340px] border-2 border-dashed bg-transparent hover:border-primary hover:text-primary transition-colors cursor-pointer",
+        "col-span-1 border-dashed border-2 bg-card transition-all rounded-xl hover:border-primary hover:bg-primary/5 hover:text-primary cursor-pointer flex items-center justify-center",
+        variant === 'list' ? "h-16 flex-row" : "h-32 flex-col",
         className
       )}
     >
-      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-        <Icon className="h-8 w-8" />
-        <p className="font-semibold">{label}</p>
+      <div className={cn(
+        "flex items-center text-muted-foreground",
+        variant === 'list' ? "flex-row gap-3 px-4 w-full" : "flex-col gap-2"
+      )}>
+        <Icon className={cn(variant === 'list' ? "h-5 w-5" : "h-8 w-8")} />
+        <p className="font-semibold text-sm">{label}</p>
       </div>
     </Card>
   );

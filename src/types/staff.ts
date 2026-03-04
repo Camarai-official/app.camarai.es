@@ -28,6 +28,8 @@ export type StaffMember = {
   fecha_contratacion?: string;
   salarioPorHora: number;
   estado: 'Activo' | 'Inactivo';
+  color?: string;
+  icon?: string;
 };
 
 export type User = {

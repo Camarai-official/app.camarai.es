@@ -1,15 +1,96 @@
-
 'use client';
 
+import { format } from 'date-fns';
 import * as React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { Ingredient, IngredientCategory } from '@/data/mock-data';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Wallet, AlertTriangle, PackageX, PackageSearch } from 'lucide-react';
+import { MetricCard } from '@/components/widgets/metric-card';
 
+
+// --- InventoryMetrics ---
+export function InventoryMetrics({ ingredients }: { ingredients: Ingredient[] }) {
+  const totalValue = ingredients.reduce((acc, ing) => acc + (ing.costo_unitario * ing.stock_actual), 0);
+  const lowStock = ingredients.filter(ing => ing.stock_actual > 0 && ing.stock_actual <= ing.stock_minimo_alerta).length;
+  const outOfStock = ingredients.filter(ing => ing.stock_actual <= 0).length;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <MetricCard 
+        title="Valor Inventario" 
+        value={`€${totalValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        icon={Wallet}
+      />
+      <MetricCard 
+        title="Stock Bajo" 
+        value={lowStock.toString()}
+        icon={AlertTriangle}
+      />
+      <MetricCard 
+        title="Agotados" 
+        value={outOfStock.toString()}
+        icon={PackageX}
+      />
+      <MetricCard 
+        title="Total Items" 
+        value={ingredients.length.toString()}
+        icon={PackageSearch}
+      />
+    </div>
+  );
+}
+
+// --- LowStockCard ---
+export function LowStockCard({ ingredients }: { ingredients: Ingredient[] }) {
+  const lowStockItems = ingredients.filter(ing => ing.stock_actual <= ing.stock_minimo_alerta)
+    .sort((a,b) => (a.stock_actual/a.stock_minimo_alerta) - (b.stock_actual/b.stock_minimo_alerta));
+
+  return (
+    <Card className="h-full">
+      <CardHeader 
+        title="Alertas de Stock" 
+        actions={<Badge variant="destructive">{lowStockItems.length}</Badge>}
+      >
+        <CardDescription>Productos que requieren reposición inmediata.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Producto</TableHead>
+              <TableHead className="text-center">Actual</TableHead>
+              <TableHead className="text-right">Mínimo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {lowStockItems.slice(0, 5).map(item => (
+              <TableRow key={item.id}>
+                <TableCell>{item.nombre_ingrediente}</TableCell>
+                <TableCell className="text-center">
+                  <Badge variant={item.stock_actual <= 0 ? "danger" : "warning"}>
+                    {item.stock_actual} {item.unidad_medida}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                  {item.stock_minimo_alerta} {item.unidad_medida}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {lowStockItems.length === 0 && (
+          <div className="text-center py-6 text-muted-foreground text-sm">
+            Todo el stock está en niveles correctos.
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 // --- InventoryValuationCard ---
 const COLORS = [
@@ -27,7 +108,7 @@ const CustomTooltip = ({ active, payload }: any) => {
     return (
       <div className="rounded-lg border bg-background p-2 shadow-sm">
         <div className="flex flex-col">
-          <span className="font-bold text-foreground">{payload[0].name}</span>
+          <span className="font-bold">{payload[0].name}</span>
           <span className="text-sm text-primary">€{payload[0].value.toFixed(2)}</span>
         </div>
       </div>
@@ -57,54 +138,57 @@ export function InventoryValuationCard({ ingredients, ingredientCategories }: In
       .slice(0, 7);
   }, [ingredients, ingredientCategories]);
 
-  const totalValue = valuationByCategory.reduce((acc, curr) => acc + curr.value, 0);
-
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Valoración de Inventario</CardTitle>
-        <CardDescription>Valor total del stock actual y desglose por categoría.</CardDescription>
+      <CardHeader title="Valoración de Inventario">
+        <CardDescription>Valor total por categoría.</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div className="h-[250px] w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Tooltip content={<CustomTooltip />} />
-              <Pie
-                data={valuationByCategory}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={110}
-                innerRadius={50}
-                fill="hsl(var(--primary))"
-                dataKey="value"
-                stroke="hsl(var(--card))"
-                strokeWidth={4}
-              >
-                {valuationByCategory.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="space-y-4">
-          <div className='text-center md:text-left'>
-            <p className="text-sm text-muted-foreground">Valor Total del Inventario</p>
-            <p className="text-3xl font-bold text-primary">€{totalValue.toFixed(2)}</p>
-          </div>
-          <div className="w-full space-y-2">
-            {valuationByCategory.map((entry, index) => (
-              <div key={`legend-${index}`} className="flex items-center text-sm justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                  <span className="text-muted-foreground truncate flex-1">{entry.name}</span>
-                </div>
-                <span className="font-semibold text-foreground ml-2">€{entry.value.toFixed(2)}</span>
-              </div>
-            ))}
-          </div>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+            <div className="h-[250px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                <Tooltip content={<CustomTooltip />} />
+                <Pie
+                    data={valuationByCategory}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={100}
+                    innerRadius={60}
+                    fill="hsl(var(--primary))"
+                    dataKey="value"
+                    stroke="hsl(var(--card))"
+                    strokeWidth={4}
+                >
+                    {valuationByCategory.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                </Pie>
+                </PieChart>
+            </ResponsiveContainer>
+            </div>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Categoría</TableHead>
+                        <TableHead className="text-right">Valor</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {valuationByCategory.map((entry, index) => (
+                    <TableRow key={entry.name}>
+                        <TableCell>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                                {entry.name}
+                            </div>
+                        </TableCell>
+                        <TableCell className="text-right font-medium">€{entry.value.toFixed(2)}</TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
         </div>
       </CardContent>
     </Card>
@@ -123,14 +207,11 @@ const mockWasteData = [
 export function WasteReportCard() {
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <CardTitle>Informe de Mermas</CardTitle>
-            <CardDescription>Seguimiento de productos desechados o caducados en el período.</CardDescription>
-          </div>
-          <Button variant="outline"><Download className="mr-2 h-4 w-4" />Exportar</Button>
-        </div>
+      <CardHeader 
+        title="Informe de Mermas" 
+        actions={<Button variant="outline" size="md" startIcon={<Download />}>Exportar</Button>}
+      >
+        <CardDescription>Seguimiento de productos desechados en el período.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -138,23 +219,23 @@ export function WasteReportCard() {
             <TableRow>
               <TableHead>Fecha</TableHead>
               <TableHead>Producto</TableHead>
-              <TableHead>Cantidad</TableHead>
-              <TableHead>Motivo</TableHead>
-              <TableHead>Usuario</TableHead>
+              <TableHead className="text-center">Cantidad</TableHead>
+              <TableHead className="text-center">Motivo</TableHead>
               <TableHead className="text-right">Coste</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {mockWasteData.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.date}</TableCell>
-                <TableCell className="font-medium">{item.item}</TableCell>
-                <TableCell>{item.quantity}</TableCell>
-                <TableCell>
-                  <Badge variant="warning">{item.reason}</Badge>
+                <TableCell>{format(new Date(item.date), 'dd/MM/yyyy')}</TableCell>
+                <TableCell>{item.item}</TableCell>
+                <TableCell className="text-center">{item.quantity}</TableCell>
+                <TableCell className="text-center">
+                  <Badge variant="outline">
+                    {item.reason}
+                  </Badge>
                 </TableCell>
-                <TableCell>{item.user}</TableCell>
-                <TableCell className="text-right text-destructive font-semibold">€{item.cost.toFixed(2)}</TableCell>
+                <TableCell className="text-right">€{item.cost.toFixed(2)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -163,4 +244,5 @@ export function WasteReportCard() {
     </Card>
   );
 }
+
 

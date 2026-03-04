@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/dialogs/global-alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
@@ -60,7 +60,7 @@ function EditableCell<T>({
 }) {
   const cellClass = cn(
     'transition-all',
-    isModified && 'ring-2 ring-yellow-400 ring-offset-1 rounded',
+    isModified && 'bg-yellow-50 dark:bg-yellow-900/20 rounded',
     column.align === 'center' && 'text-center',
     column.align === 'right' && 'text-right'
   );
@@ -413,7 +413,7 @@ export function EditableTable<T extends { id: string }>({
                         <div className="flex items-center gap-1">
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-8 w-8 text-green-600"
                             onClick={() => handleSaveClick(row)}
                             disabled={isSaving}
@@ -422,7 +422,7 @@ export function EditableTable<T extends { id: string }>({
                           </Button>
                           <Button
                             variant="ghost"
-                            size="icon"
+                            size="md"
                             className="h-8 w-8 hover:bg-destructive/10"
                             onClick={cancelEditing}
                             disabled={isSaving}
@@ -433,7 +433,7 @@ export function EditableTable<T extends { id: string }>({
                       ) : (
                         <Button
                           variant="ghost"
-                          size="icon"
+                          size="md"
                           className="h-8 w-8"
                           onClick={(e) => {
                             e.stopPropagation();

@@ -1,20 +1,18 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, Beaker, AlertTriangle, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
-    DialogTitle,
     DialogTrigger,
-    DialogClose,
-} from '@/components/ui/dialog';
+    DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -28,8 +26,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+    AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -47,7 +44,9 @@ import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContainer } from '@/components/layout/page-container';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -104,8 +103,7 @@ const emptyExtendedIngredient: ExtendedIngredient = {
     ubicacion_almacen: '',
     dias_caducidad: 0,
     conversiones: [],
-    historial_precios: [],
-};
+    historial_precios: [] };
 
 function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { open: boolean, onOpenChange: (open: boolean) => void, ingredientToEdit: Ingredient | null, onSave: (ingredientData: Omit<Ingredient, 'id'> | Ingredient) => void }) {
     const taxes = mockTaxes;
@@ -129,8 +127,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                 ubicacion_almacen: (ingredientToEdit as any).ubicacion_almacen || '',
                 dias_caducidad: (ingredientToEdit as any).dias_caducidad || 0,
                 conversiones: (ingredientToEdit as any).conversiones || [],
-                historial_precios: (ingredientToEdit as any).historial_precios || generateMockPriceHistory(ingredientToEdit.costo_unitario),
-            });
+                historial_precios: (ingredientToEdit as any).historial_precios || generateMockPriceHistory(ingredientToEdit.costo_unitario) });
         } else {
             const defaultTaxId = taxes.length > 0 ? taxes[0].id : '';
             const defaultCategoryId = ingredientCategories.length > 0 ? ingredientCategories[0].id : '';
@@ -152,8 +149,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                 id: `ph-${i}`,
                 fecha: date.toISOString().split('T')[0],
                 precio: parseFloat(price.toFixed(2)),
-                proveedor: mockProveedores[Math.floor(Math.random() * mockProveedores.length)].nombre,
-            });
+                proveedor: mockProveedores[Math.floor(Math.random() * mockProveedores.length)].nombre });
         }
         return history;
     }
@@ -199,8 +195,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
 
     const handleSaveClick = () => {
         const ingredientToSave = {
-            ...ingredient,
-        };
+            ...ingredient };
         if (ingredientToEdit) {
             onSave({ ...ingredientToSave, id: ingredientToEdit.id } as Ingredient);
         } else {
@@ -222,10 +217,11 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-3xl max-h-[90vh]">
-                <DialogHeader>
-                    <DialogTitle icon={Beaker}>{ingredientToEdit ? 'Editar' : 'Crear'} Ingrediente</DialogTitle>
-                    <DialogDescription>Configura todos los detalles del ingrediente para tu inventario.</DialogDescription>
-                </DialogHeader>
+                <DialogHeader
+                    icon={Beaker}
+                    title={`${ingredientToEdit ? 'Editar' : 'Crear'} Ingrediente`}
+                    description="Configura todos los detalles del ingrediente para tu inventario."
+                />
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-4">
@@ -360,7 +356,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                         <TabsContent value="conversiones" className="space-y-6 mt-0">
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-base">Conversiones de Unidades</CardTitle>
+                                    <H3 className="text-base">Conversiones de Unidades</H3>
                                     <CardDescription>Define equivalencias entre unidades de medida.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -368,7 +364,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                         <div className="space-y-1 flex-1">
                                             <Label className="text-xs">Unidad origen</Label>
                                             <Select value={newConversion.unidad_origen} onValueChange={(v) => setNewConversion(prev => ({ ...prev, unidad_origen: v }))}>
-                                                <SelectTrigger className="h-9"><SelectValue placeholder="Origen" /></SelectTrigger>
+                                                <SelectTrigger className="h-10"><SelectValue placeholder="Origen" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="kg">Kilos (kg)</SelectItem>
                                                     <SelectItem value="g">Gramos (g)</SelectItem>
@@ -385,14 +381,14 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                                 type="number"
                                                 value={newConversion.factor}
                                                 onChange={(e) => setNewConversion(prev => ({ ...prev, factor: parseFloat(e.target.value) || 1 }))}
-                                                className="h-9"
+                                                className="h-10"
                                                 step="0.01"
                                             />
                                         </div>
                                         <div className="space-y-1 flex-1">
                                             <Label className="text-xs">Unidad destino</Label>
                                             <Select value={newConversion.unidad_destino} onValueChange={(v) => setNewConversion(prev => ({ ...prev, unidad_destino: v }))}>
-                                                <SelectTrigger className="h-9"><SelectValue placeholder="Destino" /></SelectTrigger>
+                                                <SelectTrigger className="h-10"><SelectValue placeholder="Destino" /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="kg">Kilos (kg)</SelectItem>
                                                     <SelectItem value="g">Gramos (g)</SelectItem>
@@ -402,7 +398,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <Button size="sm" onClick={handleAddConversion} className="h-9">Añadir</Button>
+                                        <Button size="sm" onClick={handleAddConversion} className="h-10">Añadir</Button>
                                     </div>
 
                                     <Separator />
@@ -411,7 +407,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                         {ingredient.conversiones.map(conv => (
                                             <div key={conv.id} className="flex items-center justify-between p-2 border rounded-md bg-background text-sm">
                                                 <span>1 {conv.unidad_origen} = {conv.factor} {conv.unidad_destino}</span>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRemoveConversion(conv.id)}>
+                                                <Button variant="ghost" size="md" className="h-7 w-7" onClick={() => handleRemoveConversion(conv.id)}>
                                                     <Trash className="h-4 w-4 text-muted-foreground" />
                                                 </Button>
                                             </div>
@@ -430,7 +426,7 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                                 <CardHeader className="pb-2">
                                     <div className="flex items-center justify-between">
                                         <div>
-                                            <CardTitle className="text-base">Historial de Precios</CardTitle>
+                                            <H3 className="text-base">Historial de Precios</H3>
                                             <CardDescription>Evolución del costo unitario en el tiempo.</CardDescription>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -484,8 +480,8 @@ function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave }: { op
                 </Tabs>
 
                 <DialogFooter>
-                    <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                    <Button variant="brand" onClick={handleSaveClick}>Guardar Ingrediente</Button>
+                    <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+                    <Button variant="default" onClick={handleSaveClick}>Guardar Ingrediente</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -513,8 +509,7 @@ export default function IngredientesPage() {
     const addIngredient = (ingredientData: Omit<Ingredient, 'id'>) => {
         const newIngredient: Ingredient = {
             ...ingredientData,
-            id: `ing-${Date.now()}`,
-        };
+            id: `ing-${Date.now()}` };
         setIngredients(prev => [...prev, newIngredient]);
     };
 
@@ -570,8 +565,7 @@ export default function IngredientesPage() {
         }
         toast({
             title: `Ingrediente ${isEditing ? 'Actualizado' : 'Creado'}`,
-            description: `El ingrediente "${ingredientData.nombre_ingrediente}" se ha guardado.`,
-        });
+            description: `El ingrediente "${ingredientData.nombre_ingrediente}" se ha guardado.` });
     };
 
     const handleRemove = (id: string, name: string) => {
@@ -579,8 +573,7 @@ export default function IngredientesPage() {
         toast({
             variant: "destructive",
             title: "Ingrediente Eliminado",
-            description: `El ingrediente "${name}" ha sido eliminado.`,
-        });
+            description: `El ingrediente "${name}" ha sido eliminado.` });
     }
 
     const getStockStatus = (current: number, min: number): 'ok' | 'warning' | 'low' => {
@@ -609,9 +602,9 @@ export default function IngredientesPage() {
     const isSomeOnPageSelected = numSelected > 0 && !isAllOnPageSelected;
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Librería de Ingredientes" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Card className="min-h-[70vh]">
                     <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <SearchInput 
@@ -630,7 +623,7 @@ export default function IngredientesPage() {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="w-[40px]">
+                                        <TableHead className="w-[40px] text-center">
                                             <Checkbox
                                                 checked={isAllOnPageSelected}
                                                 onCheckedChange={(checked) => handleSelectAll(Boolean(checked))}
@@ -639,10 +632,10 @@ export default function IngredientesPage() {
                                             />
                                         </TableHead>
                                         <TableHead>Ingrediente</TableHead>
-                                        <TableHead>Stock</TableHead>
-                                        <TableHead>Costo Unitario</TableHead>
-                                        <TableHead>Impuesto</TableHead>
-                                        <TableHead className="text-right">Acciones</TableHead>
+                                        <TableHead className="text-center">Stock</TableHead>
+                                        <TableHead className="text-center">Costo Unitario</TableHead>
+                                        <TableHead className="text-center">Impuesto</TableHead>
+                                        <TableHead className="text-center">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody
@@ -656,7 +649,7 @@ export default function IngredientesPage() {
                                         const stockStatus = getStockStatus(ing.stock_actual, ing.stock_minimo_alerta);
                                         return (
                                             <TableRow key={ing.id} data-state={selectedRows[ing.id] && 'selected'}>
-                                                <TableCell>
+                                                <TableCell className="text-center">
                                                     <Checkbox
                                                         checked={!!selectedRows[ing.id]}
                                                         onCheckedChange={() => handleRowSelect(ing.id)}
@@ -664,7 +657,7 @@ export default function IngredientesPage() {
                                                     />
                                                 </TableCell>
                                                 <TableCell className="font-medium">{ing.nombre_ingrediente}</TableCell>
-                                                <TableCell>
+                                                <TableCell className="text-center">
                                                     <TooltipProvider>
                                                         <Tooltip>
                                                             <TooltipTrigger>
@@ -683,18 +676,18 @@ export default function IngredientesPage() {
                                                         </Tooltip>
                                                     </TooltipProvider>
                                                 </TableCell>
-                                                <TableCell>€{ing.costo_unitario.toFixed(2)}</TableCell>
-                                                <TableCell>{getTaxName(ing.id_impuesto)}</TableCell>
-                                                <TableCell className="text-right">
+                                                <TableCell className="text-center font-medium text-sm">€{ing.costo_unitario.toFixed(2)}</TableCell>
+                                                <TableCell className="text-center text-muted-foreground text-xs">{getTaxName(ing.id_impuesto)}</TableCell>
+                                                <TableCell className="text-center">
                                                     <AlertDialog>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                                                <Button variant="ghost" size="md" startIcon={<MoreHorizontal />} />
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent>
-                                                                <DropdownMenuItem onClick={() => handleOpenDialog(ing)}><Edit className="mr-2 h-4 w-4 text-muted-foreground" />Editar</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleOpenDialog(ing)}><Edit />Editar</DropdownMenuItem>
                                                                 <AlertDialogTrigger asChild>
-                                                                    <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                                                    <DropdownMenuItem><Trash />Eliminar</DropdownMenuItem>
                                                                 </AlertDialogTrigger>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
@@ -730,30 +723,30 @@ export default function IngredientesPage() {
                             Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredIngredients.length)}-{Math.min(indexOfLastItem, filteredIngredients.length)}</strong> de <strong>{filteredIngredients.length}</strong> ingredientes.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                                <ChevronLeft className="h-4 w-4" />
+                            <Button variant="outline" size="md" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                                <ChevronLeft />
                             </Button>
                             {pageNumbers.map(number => (
                                 <Button
                                     key={number}
                                     variant={currentPage === number ? "default" : "outline"}
-                                    size="icon"
-                                    className="h-8 w-8"
+                                    size="md"
                                     onClick={() => paginate(number)}
                                 >
                                     {number}
                                 </Button>
                             ))}
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                                <ChevronRight className="h-4 w-4" />
+                            <Button variant="outline" size="md" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                                <ChevronRight />
                             </Button>
                         </div>
                     </CardFooter>
                 </Card>
-            </main>
+            </PageContent>
             <IngredientDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} ingredientToEdit={editingIngredient} onSave={handleSave} />
-        </div>
+        </PageContainer>
     );
 }
+
 
 

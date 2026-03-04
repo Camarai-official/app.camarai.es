@@ -1,6 +1,4 @@
-
 'use client';
-
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Store, Building2, Users, Plug, Percent, Printer } from 'lucide-react';
@@ -11,13 +9,15 @@ import { mockUser, User } from '@/data/mock-data';
 import { useDevices } from '@/hooks/useDevices';
 import type { Device, DeviceType } from '@/data/devices';
 import { PageHeader } from '@/components/layout/page-header';
-import { ProfileTab } from '@/app/settings/profile/_components/profile-tab';
-import { EstablishmentTab } from '@/app/settings/profile/_components/establishment-tab';
-import { DevicesTab } from '@/app/settings/profile/_components/devices-tab';
-import { CompanyTab } from '@/app/settings/profile/_components/company-tab';
-import { ProvidersTab } from '@/app/settings/profile/_components/providers-tab';
-import { IntegrationsTab } from '@/app/settings/profile/_components/integrations-tab';
-import { TaxesTab } from '@/app/settings/profile/_components/taxes-tab';
+import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
+import { ProfileTab } from '@/components/ui/profile-tab';
+import { EstablishmentTab } from '@/components/ui/establishment-tab';
+import { DevicesTab } from '@/components/dialogs/configuracion-dispositivos-dialog';
+import { CompanyTab } from '@/components/ui/company-tab';
+import { ProvidersTab } from '@/components/ui/providers-tab';
+import { IntegrationsTab } from '@/components/ui/integrations-tab';
+import { TaxesTab } from '@/components/ui/taxes-tab';
 
 const VALID_TABS = new Set([
     'profile',
@@ -209,9 +209,9 @@ function ProfileSettingsPageContent() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Ajustes Generales" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Tabs value={activeTab} onValueChange={(value) => router.push(`/settings/profile?tab=${value}`)} className="w-full">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
@@ -287,8 +287,8 @@ function ProfileSettingsPageContent() {
                     <IntegrationsTab />
                     <TaxesTab />
                 </Tabs>
-            </main>
-        </div>
+            </PageContent>
+        </PageContainer>
     );
 }
 

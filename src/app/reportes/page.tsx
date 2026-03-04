@@ -1,10 +1,8 @@
-
 'use client';
-
 import * as React from 'react';
 import { addDays } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone } from 'lucide-react';
+import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone, Clock, Calendar } from 'lucide-react';
 import {
     mockStaffMembers,
     mockProducts,
@@ -19,6 +17,8 @@ import type { AbsenceRequest } from '@/data/mock-data';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 import {
     allOrders,
     mockReportOrderDetails as mockOrderDetails,
@@ -26,17 +26,19 @@ import {
     mockTimeReportData
 } from '@/data/reportes';
 import type { OrderDetails } from '@/data/reportes';
-import { BillingTab } from '@/app/reportes/_components/billing-tab';
-import { PerformanceTab } from '@/app/reportes/_components/performance-tab';
-import { StaffTab } from '@/app/reportes/_components/staff-tab';
-import { InventoryTab } from '@/app/reportes/_components/inventory-tab';
-import { CashClosingTab } from '@/app/reportes/_components/cash-closing-tab';
-import { OrderDetailsDialog } from '@/app/reportes/_components/order-details-dialog';
-import { MovementsDetailsDialog } from '@/app/reportes/_components/movements-details-dialog';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { BillingTab } from '@/components/ui/billing-tab';
+import { PerformanceTab } from '@/components/ui/performance-tab';
+import { StaffTab } from '@/components/ui/staff-tab';
+import { InventoryTab } from '@/components/ui/inventory-tab';
+import { CashClosingTab } from '@/components/ui/cash-closing-tab';
+import { OrderDetailsDialog } from '@/components/dialogs/reportes-orderdetails-dialog';
+import { MovementsDetailsDialog } from '@/components/dialogs/movements-details-dialog';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { MetricCard } from '@/components/widgets/metric-card';
+import { ActionTile } from '@/components/ui/action-tile';
 
 // Mock WhatsApp metrics
 const mockWhatsAppMetrics = {
@@ -53,8 +55,7 @@ const mockWhatsAppMetrics = {
         { id: 'conv-3', cliente: 'Luis P.', tipo: 'Consulta', fecha: '2024-01-29 12:00', estado: 'Pendiente' },
         { id: 'conv-4', cliente: 'María R.', tipo: 'Pedido', fecha: '2024-01-29 11:45', estado: 'En preparación' },
         { id: 'conv-5', cliente: 'Pedro S.', tipo: 'Pedido', fecha: '2024-01-29 10:30', estado: 'Completado' },
-    ],
-};
+    ] };
 
 export default function ReportesPage() {
     // Local state for absence requests to simulate updates
@@ -73,8 +74,7 @@ export default function ReportesPage() {
         taxes: mockTaxes,
         ingredients: mockIngredients,
         ingredientCategories: mockIngredientCategories,
-        absenceRequests: absenceRequests,
-    };
+        absenceRequests: absenceRequests };
 
     const updateAbsenceRequest = (id: string, data: Partial<AbsenceRequest>) => {
         setAbsenceRequests(prev => prev.map(req => req.id === id ? { ...req, ...data } : req));
@@ -86,8 +86,7 @@ export default function ReportesPage() {
     const [selectedStaffId, setSelectedStaffId] = React.useState<string>('all');
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
-        to: new Date(),
-    });
+        to: new Date() });
     const [reportType, setReportType] = React.useState<string>('accounts');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [ordersPerPage] = React.useState(11);
@@ -120,8 +119,7 @@ export default function ReportesPage() {
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'No se encontraron los detalles para esta comanda.',
-            })
+                description: 'No se encontraron los detalles para esta comanda.' })
         }
     }
 
@@ -175,8 +173,7 @@ export default function ReportesPage() {
         updateAbsenceRequest(req.id, { status: newStatus });
         toast({
             title: `Solicitud ${newStatus === 'approved' ? 'aprobada' : 'rechazada'}`,
-            description: `La solicitud de ${appData.staffMembers.find(s => s.id === req.staffId)?.nombre} ha sido actualizada.`,
-        });
+            description: `La solicitud de ${appData.staffMembers.find(s => s.id === req.staffId)?.nombre} ha sido actualizada.` });
     };
 
 
@@ -185,17 +182,18 @@ export default function ReportesPage() {
     }
 
     return (
-        <div className="flex flex-1 flex-col h-full">
+        <PageContainer>
             <PageHeader title="Panel de Reportes & Cierre de Caja" />
-            <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+            <PageContent>
                 <Tabs defaultValue="billing">
                     <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
-                            <TabsTrigger value="billing"><DollarSign className="mr-2 h-4 w-4" />Facturación</TabsTrigger>
-                            <TabsTrigger value="performance"><TrendingUp className="mr-2 h-4 w-4" />Ventas</TabsTrigger>
-                            <TabsTrigger value="staff"><Users2 className="mr-2 h-4 w-4" />Personal</TabsTrigger>
-                            <TabsTrigger value="inventory"><Archive className="mr-2 h-4 w-4" />Inventario</TabsTrigger>
-                            <TabsTrigger value="whatsapp"><MessageSquare className="mr-2 h-4 w-4 text-brand-whatsapp" />WhatsApp</TabsTrigger>
+                            <TabsTrigger value="billing" icon={DollarSign}>Facturación</TabsTrigger>
+                            <TabsTrigger value="performance" icon={TrendingUp}>Ventas</TabsTrigger>
+                            <TabsTrigger value="hours" icon={Clock}>Personal</TabsTrigger>
+                            <TabsTrigger value="absences" icon={Calendar}>Ausencias</TabsTrigger>
+                            <TabsTrigger value="inventory" icon={Archive}>Inventario</TabsTrigger>
+                            <TabsTrigger value="whatsapp" icon={MessageSquare}>WhatsApp</TabsTrigger>
                             <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
                         </TabsList>
                     </div>
@@ -218,6 +216,23 @@ export default function ReportesPage() {
                     />
                     <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
                     <StaffTab
+                        mode="hours"
+                        staffMembers={appData.staffMembers}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        date={date}
+                        onDateChange={setDate}
+                        timeReportData={timeReportData}
+                        staffTotals={mockStaffTotals}
+                        selectedAbsenceType={selectedAbsenceType}
+                        onAbsenceTypeChange={setSelectedAbsenceType}
+                        selectedAbsenceStatus={selectedAbsenceStatus}
+                        onAbsenceStatusChange={setSelectedAbsenceStatus}
+                        filteredAbsenceRequests={filteredAbsenceRequests}
+                        onUpdateRequest={handleUpdateRequest}
+                    />
+                    <StaffTab
+                        mode="absences"
                         staffMembers={appData.staffMembers}
                         selectedStaffId={selectedStaffId}
                         onStaffChange={setSelectedStaffId}
@@ -253,39 +268,33 @@ export default function ReportesPage() {
 
                     {/* WhatsApp Metrics Tab */}
                     <TabsContent value="whatsapp" className="space-y-4">
-                        {/* KPI Cards - design system: sin iconos, limpio */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Mensajes Enviados</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Tasa de Lectura</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{Math.round((mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100)}%</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Pedidos WhatsApp</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.pedidosViaWhatsApp}</p>
-                                </CardContent>
-                            </Card>
-                            <Card className="border-none shadow-none rounded-lg p-4">
-                                <CardContent className="p-0">
-                                    <p className="text-sm font-medium text-muted-foreground">Tiempo Respuesta</p>
-                                    <p className="text-2xl font-bold text-primary mt-1">{mockWhatsAppMetrics.tiempoRespuestaPromedio}</p>
-                                </CardContent>
-                            </Card>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <MetricCard 
+                                title="Mensajes Enviados" 
+                                value={new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}
+                                icon={Send} 
+                            />
+                            <MetricCard 
+                                title="Enviados/Leidos" 
+                                value={`${Math.round((mockWhatsAppMetrics.mensajesLeidos / mockWhatsAppMetrics.mensajesEnviados) * 100)}%`}
+                                icon={Eye} 
+                            />
+                            <MetricCard 
+                                title="Pedidos WhatsApp" 
+                                value={mockWhatsAppMetrics.pedidosViaWhatsApp.toString()}
+                                icon={MessageSquare} 
+                            />
+                            <MetricCard 
+                                title="Tiempo Respuesta" 
+                                value={mockWhatsAppMetrics.tiempoRespuestaPromedio}
+                                icon={Clock} 
+                            />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Delivery Stats */}
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base">Estadísticas de Entrega</CardTitle>
+                                <CardHeader title="Estadísticas de Entrega">
                                     <CardDescription>Rendimiento de mensajes del mes</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
@@ -315,31 +324,40 @@ export default function ReportesPage() {
 
                             {/* Conversions */}
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-base">Conversiones</CardTitle>
+                                <CardHeader title="Conversiones">
                                     <CardDescription>Acciones generadas vía WhatsApp</CardDescription>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <span>Pedidos realizados</span>
-                                        <Badge variant="default">{mockWhatsAppMetrics.pedidosViaWhatsApp}</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <span>Reservas confirmadas</span>
-                                        <Badge variant="secondary">{mockWhatsAppMetrics.reservasViaWhatsApp}</Badge>
-                                    </div>
-                                    <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                                        <span>Tasa de respuesta</span>
-                                        <Badge variant="outline">{mockWhatsAppMetrics.tasaRespuesta}%</Badge>
-                                    </div>
+                                <CardContent className="space-y-1">
+                                    <ActionTile 
+                                        icon={DollarSign}
+                                        title="Pedidos realizados"
+                                        description="Total de ventas concretadas"
+                                        rightContentType="badge"
+                                        badgeText={mockWhatsAppMetrics.pedidosViaWhatsApp.toString()}
+                                    />
+                                    <ActionTile 
+                                        icon={Calendar}
+                                        title="Reservas confirmadas"
+                                        description="Citas agendadas por el bot"
+                                        rightContentType="badge"
+                                        badgeText={mockWhatsAppMetrics.reservasViaWhatsApp.toString()}
+                                        badgeVariant="secondary"
+                                    />
+                                    <ActionTile 
+                                        icon={MessageSquare}
+                                        title="Tasa de respuesta"
+                                        description="Rendimiento del bot"
+                                        rightContentType="badge"
+                                        badgeText={`${mockWhatsAppMetrics.tasaRespuesta}%`}
+                                        badgeVariant="outline"
+                                    />
                                 </CardContent>
                             </Card>
                         </div>
 
                         {/* Recent Conversations */}
                         <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base">Conversaciones Recientes</CardTitle>
+                            <CardHeader title="Conversaciones Recientes">
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
                             <CardContent>
@@ -348,23 +366,26 @@ export default function ReportesPage() {
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead>Cliente</TableHead>
-                                                <TableHead>Tipo</TableHead>
+                                                <TableHead className="text-center">Tipo</TableHead>
                                                 <TableHead>Fecha</TableHead>
-                                                <TableHead>Estado</TableHead>
+                                                <TableHead className="text-center">Estado</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {mockWhatsAppMetrics.conversaciones.map((conv) => (
                                                 <TableRow key={conv.id}>
                                                     <TableCell className="font-medium">{conv.cliente}</TableCell>
-                                                    <TableCell>
+                                                    <TableCell className="text-center">
                                                         <Badge variant={conv.tipo === 'Pedido' ? 'default' : conv.tipo === 'Reserva' ? 'secondary' : 'outline'}>
                                                             {conv.tipo}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-muted-foreground">{conv.fecha}</TableCell>
-                                                    <TableCell>
-                                                        <Badge variant={conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'default' : 'outline'}>
+                                                    <TableCell className="text-center">
+                                                        <Badge variant={
+                                                            conv.estado === 'Completado' || conv.estado === 'Confirmada' ? 'success' : 
+                                                            conv.estado === 'Pendiente' ? 'warning' : 'info'
+                                                        }>
                                                             {conv.estado}
                                                         </Badge>
                                                     </TableCell>
@@ -379,7 +400,8 @@ export default function ReportesPage() {
                 </Tabs>
                 <OrderDetailsDialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen} order={selectedOrder} />
                 <MovementsDetailsDialog open={isMovementsOpen} onOpenChange={setIsMovementsOpen} />
-            </main>
-        </div>
+            </PageContent>
+        </PageContainer>
     );
 }
+

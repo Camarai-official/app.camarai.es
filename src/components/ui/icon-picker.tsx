@@ -10,6 +10,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import { cn } from '@/lib/utils';
 import {
   Home,
+  User,
   Store,
   Building2,
   Coffee,
@@ -19,28 +20,24 @@ import {
   Beer,
   IceCream,
   Cake,
-  Cookie,
-  Apple,
-  Beef,
-  Fish,
-  Salad,
-  Sandwich,
-  Soup,
-  UtensilsCrossed,
   ChefHat,
   Flame,
   Snowflake,
-  Sun,
-  Moon,
   Star,
   Heart,
   Music,
   Palmtree,
   Umbrella,
   Waves,
-  Mountain,
   TreePine,
-  Flower2,
+  DoorOpen,
+  HandPlatter,
+  Bike,
+  Beef,
+  Notebook,
+  Brush,
+  Sandwich,
+  Martini,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -55,76 +52,90 @@ interface IconPickerProps {
 
 // Map of icon names to components
 const iconMap: Record<string, LucideIcon> = {
+ 
+  // Kitchen & Food
+  Utensils,
+  Sandwich,
+  Pizza,
+  Beef,
+  Cake,
+  IceCream,
+  
+  // Bar & Drinks
+  Coffee,
+  Wine,
+  Beer,
+  Martini,
+  
+  // Venue & Ambience
   Home,
   Store,
   Building2,
-  Coffee,
-  Utensils,
-  Pizza,
-  Wine,
-  Beer,
-  IceCream,
-  Cake,
-  Cookie,
-  Apple,
-  Beef,
-  Fish,
-  Salad,
-  Sandwich,
-  Soup,
-  UtensilsCrossed,
+  Palmtree,
+  TreePine,
+  Umbrella,
+  Waves,
+
+   // Staff & Roles
+  User,
   ChefHat,
-  Flame,
-  Snowflake,
-  Sun,
-  Moon,
+  HandPlatter,
+  DoorOpen,
+  Bike,
+  Notebook,
+  Brush,
+  
+  
+  // Atmosphere & States
   Star,
   Heart,
   Music,
-  Palmtree,
-  Umbrella,
-  Waves,
-  Mountain,
-  TreePine,
-  Flower2,
+  Flame,
+  Snowflake,
 };
 
 const iconNames = Object.keys(iconMap);
 
 // Spanish labels for icons
 const iconLabels: Record<string, string> = {
+  // Staff & Roles
+  User: 'Usuario',
+  ChefHat: 'Chef',
+  HandPlatter: 'Camarero',
+  DoorOpen: 'Host',
+  Bike: 'Delivery',
+  Notebook: 'Manager',
+  Brush: 'Limpieza',
+  
+  // Kitchen & Food
+  Utensils: 'Cubiertos',
+  Sandwich: 'Hamburguesa',
+  Pizza: 'Pizza',
+  Beef: 'Carne',
+  Cake: 'Pastel',
+  IceCream: 'Helado',
+  
+  // Bar & Drinks
+  Coffee: 'Café',
+  Wine: 'Vino',
+  Beer: 'Cerveza',
+  Martini: 'Cócteles',
+  
+  // Venue & Ambience
   Home: 'Inicio',
   Store: 'Tienda',
   Building2: 'Edificio',
-  Coffee: 'Café',
-  Utensils: 'Cubiertos',
-  Pizza: 'Pizza',
-  Wine: 'Vino',
-  Beer: 'Cerveza',
-  IceCream: 'Helado',
-  Cake: 'Pastel',
-  Cookie: 'Galleta',
-  Apple: 'Manzana',
-  Beef: 'Carne',
-  Fish: 'Pescado',
-  Salad: 'Ensalada',
-  Sandwich: 'Bocadillo',
-  Soup: 'Sopa',
-  UtensilsCrossed: 'Restaurante',
-  ChefHat: 'Chef',
-  Flame: 'Fuego',
-  Snowflake: 'Frío',
-  Sun: 'Sol',
-  Moon: 'Luna',
+  Palmtree: 'Palmera',
+  TreePine: 'Pino',
+  Umbrella: 'Sombrilla',
+  Waves: 'Olas',
+  
+  // Atmosphere & States
   Star: 'Estrella',
   Heart: 'Corazón',
   Music: 'Música',
-  Palmtree: 'Palmera',
-  Umbrella: 'Sombrilla',
-  Waves: 'Olas',
-  Mountain: 'Montaña',
-  TreePine: 'Pino',
-  Flower2: 'Flor',
+  Flame: 'Fuego',
+  Snowflake: 'Frío',
 };
 
 export function IconPicker({
@@ -172,19 +183,11 @@ export function IconPicker({
             <span className="flex-1 text-left">{iconLabels[value] || value || placeholder}</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-72 p-3" align="start">
-          <div className="grid gap-3">
-            {/* Search */}
-            <SearchInput
-              placeholder="Buscar icono..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="h-8"
-            />
-
-            {/* Icons Grid */}
-            <ScrollArea className="h-48">
-              <div className="grid grid-cols-5 gap-1.5">
+        <PopoverContent className="w-72 p-3 border-border" align="start">
+          <div className="grid gap-2">
+            
+            <ScrollArea>
+              <div className="grid grid-cols-5 gap-1">
                 {filteredIcons.map((iconName) => {
                   const Icon = iconMap[iconName];
                   return (
@@ -209,12 +212,6 @@ export function IconPicker({
                 </p>
               )}
             </ScrollArea>
-
-            {/* Selected Icon Info */}
-            <div className="flex items-center gap-2 pt-2 border-t text-sm text-muted-foreground">
-              <SelectedIcon className="h-4 w-4" />
-              <span>Seleccionado: {iconLabels[value] || value}</span>
-            </div>
           </div>
         </PopoverContent>
       </Popover>

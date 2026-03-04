@@ -109,20 +109,20 @@ export function StaffCardPro({
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 -mr-2 -mt-2">
+                                <Button variant="ghost" size="md" className="h-8 w-8 shrink-0 -mr-2 -mt-2">
                                     <MoreVertical className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 {onEdit && (
                                     <DropdownMenuItem onClick={onEdit}>
-                                        <Edit className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <Edit />
                                         Editar
                                     </DropdownMenuItem>
                                 )}
                                 {onWhatsApp && (
                                     <DropdownMenuItem onClick={onWhatsApp}>
-                                        <MessageSquare className="h-4 w-4 mr-2 text-muted-foreground" />
+                                        <MessageSquare />
                                         WhatsApp
                                     </DropdownMenuItem>
                                 )}
@@ -130,7 +130,7 @@ export function StaffCardPro({
                                     <>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem onClick={onDelete}>
-                                            <Trash className="h-4 w-4 mr-2 text-muted-foreground" />
+                                            <Trash />
                                             Eliminar
                                         </DropdownMenuItem>
                                     </>
@@ -205,8 +205,8 @@ export function StaffCardPro({
                             <TooltipTrigger asChild>
                                 <Button 
                                     variant="outline" 
-                                    size="icon" 
-                                    className="flex-1 h-9"
+                                    size="md" 
+                                    className="flex-1 h-10"
                                     onClick={() => window.location.href = `tel:${staff.telefono}`}
                                     disabled={!staff.telefono}
                                 >
@@ -222,8 +222,8 @@ export function StaffCardPro({
                             <TooltipTrigger asChild>
                                 <Button 
                                     variant="outline" 
-                                    size="icon" 
-                                    className="flex-1 h-9"
+                                    size="md" 
+                                    className="flex-1 h-10"
                                     onClick={() => window.location.href = `mailto:${staff.email}`}
                                 >
                                     <Mail className="h-4 w-4" />
@@ -239,8 +239,8 @@ export function StaffCardPro({
                                 <TooltipTrigger asChild>
                                     <Button 
                                         variant="outline" 
-                                        size="icon" 
-                                        className="flex-1 h-9 text-brand-whatsapp hover:text-brand-whatsapp hover:bg-brand-whatsapp/10"
+                                        size="md" 
+                                        className="flex-1 h-10 text-brand-whatsapp hover:text-brand-whatsapp hover:bg-brand-whatsapp/10"
                                         onClick={onWhatsApp}
                                     >
                                         <MessageSquare className="h-4 w-4" />
@@ -257,8 +257,8 @@ export function StaffCardPro({
                                 <TooltipTrigger asChild>
                                     <Button 
                                         variant="outline" 
-                                        size="icon" 
-                                        className="flex-1 h-9"
+                                        size="md" 
+                                        className="flex-1 h-10"
                                         onClick={onEdit}
                                     >
                                         <Edit className="h-4 w-4" />

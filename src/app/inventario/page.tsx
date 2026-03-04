@@ -1,9 +1,10 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
 import { MoreHorizontal, Package, PlusCircle, ChevronLeft, ChevronRight, FileDown, MoreVertical, ArrowDown, ArrowUp, X, Check, FileText, History, ShoppingCart, Repeat, ArrowRight, Settings, Download } from 'lucide-react';
-import { ExportModal, type ExportField } from '@/components/features/export-modal';
+import { ExportModal, type ExportField } from '@/components/dialogs/comandas-export-dialog';
 import { Switch } from '@/components/ui/switch';
 
 import { Badge } from '@/components/ui/badge';
@@ -13,9 +14,7 @@ import {
   CardContent,
   CardDescription,
   CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+  CardHeader } from '@/components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,17 +32,15 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
+  SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 // Removed useAppData
@@ -57,7 +54,9 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { PageContent } from '@/components/layout/page-content';
 import { SearchInput } from '@/components/ui/search-input';
+import { PageContainer } from '@/components/layout/page-container';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 
@@ -101,8 +100,7 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
 
     toast({
       title: "Stock Ajustado",
-      description: `El stock de "${item.nombre_ingrediente}" se ha ajustado a ${finalAmount} ${item.unidad_medida}.`,
-    });
+      description: `El stock de "${item.nombre_ingrediente}" se ha ajustado a ${finalAmount} ${item.unidad_medida}.` });
 
     onOpenChange(false);
   }
@@ -113,18 +111,18 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
     'add': { title: 'Entrada', description: 'Suma unidades al stock actual. Ideal para recepción de pedidos.', icon: ArrowDown },
     'subtract-sale': { title: 'Venta', description: 'Resta unidades por ventas no automatizadas.', icon: ArrowRight },
     'subtract-waste': { title: 'Merma', description: 'Resta unidades por productos caducados, rotos o en mal estado.', icon: X },
-    'set': { title: 'Fijar', description: 'Establece el número exacto de unidades tras un inventario físico.', icon: Check },
-  };
+    'set': { title: 'Fijar', description: 'Establece el número exacto de unidades tras un inventario físico.', icon: Check } };
 
   const currentConfig = adjustmentConfig[adjustmentType];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle icon={Package}>Ajustar Stock de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
-          <DialogDescription>Stock actual: {item.stock_actual} {item.unidad_medida}. Selecciona una operación.</DialogDescription>
-        </DialogHeader>
+        <DialogHeader
+          icon={Package}
+          title={`Ajustar Stock de "${item.nombre_ingrediente}"`}
+          description={`Stock actual: ${item.stock_actual} ${item.unidad_medida}. Selecciona una operación.`}
+        />
         <div className="grid grid-cols-4 gap-2 pt-4">
           {Object.entries(adjustmentConfig).map((key) => {
             const config = adjustmentConfig[key[1].title.toLowerCase().replace(/\s+/g, '-') as AdjustmentType] || adjustmentConfig[key[0] as AdjustmentType];
@@ -142,9 +140,9 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
             )
           })}
         </div>
-        <Card className="mt-4">
+        <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base font-medium"><currentConfig.icon className="h-5 w-5" />{currentConfig.title}</CardTitle>
+            <H3 className="flex items-center gap-2 text-base font-medium"><currentConfig.icon className="h-5 w-5" />{currentConfig.title}</H3>
             <CardDescription>{currentConfig.description}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -162,8 +160,8 @@ function StockAdjustmentDialog({ item, open, onOpenChange, onUpdateStock }: { it
           </CardContent>
         </Card>
         <DialogFooter>
-          <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-          <Button variant="brand" onClick={handleAdjust}>Ajustar Stock</Button>
+          <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+          <Button variant="default" onClick={handleAdjust}>Ajustar Stock</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -183,9 +181,10 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl">
-        <DialogHeader>
-          <DialogTitle icon={History}>Historial de &quot;{item.nombre_ingrediente}&quot;</DialogTitle>
-        </DialogHeader>
+        <DialogHeader
+          icon={History}
+          title={`Historial de "${item.nombre_ingrediente}"`}
+        />
         <Tabs defaultValue="movements" className="w-full pt-4">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="movements"><Repeat className="mr-2 h-4 w-4" />Movimientos</TabsTrigger>
@@ -195,7 +194,7 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
           <TabsContent value="movements" className="pt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Historial de Movimientos</CardTitle>
+                <H3>Historial de Movimientos</H3>
               </CardHeader>
               <CardContent>
                 <div className="overflow-x-auto">
@@ -230,19 +229,19 @@ function HistoryDialog({ item, open, onOpenChange }: { item: InventoryItem | nul
           </TabsContent>
           <TabsContent value="waste" className="pt-4">
             <Card>
-              <CardHeader><CardTitle>Historial de Mermas</CardTitle></CardHeader>
+              <CardHeader><H3>Historial de Mermas</H3></CardHeader>
               <CardContent><p className="text-center text-muted-foreground p-4">No hay datos de mermas para este producto.</p></CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="purchases" className="pt-4">
             <Card>
-              <CardHeader><CardTitle>Historial de Compras</CardTitle></CardHeader>
+              <CardHeader><H3>Historial de Compras</H3></CardHeader>
               <CardContent><p className="text-center text-muted-foreground p-4">No hay datos de compras para este producto.</p></CardContent>
             </Card>
           </TabsContent>
         </Tabs>
         <DialogFooter>
-          <DialogClose asChild><Button variant="secondary">Cerrar</Button></DialogClose>
+          <DialogClose asChild><Button variant="ghost">Cerrar</Button></DialogClose>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -345,12 +344,12 @@ export default function InventarioPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Gestión de Inventario" />
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+      <PageContent>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-bold text-muted-foreground">Filtros</CardTitle>
+            <H3 className="text-base font-bold text-muted-foreground">Filtros</H3>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -384,7 +383,7 @@ export default function InventarioPage() {
                   />
                   <Label htmlFor="low-stock-filter" className="text-sm whitespace-nowrap">Solo stock bajo</Label>
                 </div>
-                <Button variant="outline" size="icon" onClick={() => setIsConfigOpen(true)}>
+                <Button variant="outline" size="md" onClick={() => setIsConfigOpen(true)}>
                   <Settings className="h-4 w-4" />
                 </Button>
                 <Button onClick={() => setIsExportOpen(true)}>
@@ -397,7 +396,7 @@ export default function InventarioPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-bold text-muted-foreground">Componentes en Inventario</CardTitle>
+            <H3 className="text-base font-bold text-muted-foreground">Componentes en Inventario</H3>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -431,19 +430,18 @@ export default function InventarioPage() {
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button aria-haspopup="true" size="icon" variant="ghost">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Menú de acciones</span>
+                                <Button aria-haspopup="true" size="md" variant="ghost">
+                                  <MoreHorizontal />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                 <DropdownMenuItem onSelect={() => openStockDialog(item)}>
-                                  <Package className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  <Package />
                                   Ajustar Stock
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onSelect={() => openHistoryDialog(item)}>
-                                  <History className="mr-2 h-4 w-4 text-muted-foreground" />
+                                  <History />
                                   Ver historial
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -468,27 +466,26 @@ export default function InventarioPage() {
               Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredItems.length)}-{Math.min(indexOfLastItem, filteredItems.length)}</strong> de <strong>{filteredItems.length}</strong> componentes.
             </div>
             <div className="flex justify-end items-center gap-2">
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                <ChevronLeft className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
+                <ChevronLeft />
               </Button>
               {pageNumbers.map(number => (
                 <Button
                   key={number}
                   variant={currentPage === number ? "default" : "outline"}
-                  size="icon"
-                  className="h-8 w-8"
+                  size="sm"
                   onClick={() => paginate(number)}
                 >
                   {number}
                 </Button>
               ))}
-              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                <ChevronRight className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
+                <ChevronRight />
               </Button>
             </div>
           </CardFooter>
         </Card>
-      </main>
+      </PageContent>
       <StockAdjustmentDialog
         item={selectedItem}
         open={isStockDialogOpen}
@@ -515,14 +512,11 @@ export default function InventarioPage() {
       {/* Configuration Modal */}
       <Dialog open={isConfigOpen} onOpenChange={setIsConfigOpen}>
         <DialogContent className="sm:max-w-[450px]">
-          <DialogHeader>
-            <DialogTitle icon={Settings}>
-              Configurar Inventario
-            </DialogTitle>
-            <DialogDescription>
-              Configura alertas y opciones de visualización del inventario.
-            </DialogDescription>
-          </DialogHeader>
+          <DialogHeader
+            icon={Settings}
+            title="Configurar Inventario"
+            description="Configura alertas y opciones de visualización del inventario."
+          />
           <div className="grid gap-4 py-4">
             <div className="space-y-3">
               <Label className="text-sm font-medium">Umbrales de Alerta</Label>
@@ -558,7 +552,7 @@ export default function InventarioPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsConfigOpen(false)}>Cancelar</Button>
+            <Button variant="ghost" onClick={() => setIsConfigOpen(false)}>Cancelar</Button>
             <Button onClick={() => {
               toast({ title: 'Configuración guardada', description: 'Los ajustes del inventario se han aplicado.' });
               setIsConfigOpen(false);
@@ -566,6 +560,7 @@ export default function InventarioPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </PageContainer>
+    );
 }
+

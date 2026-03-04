@@ -1,42 +1,19 @@
 'use client';
 
 import * as React from 'react';
-import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { IconBadge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-/**
- * ConfigItem Component (The "Padre" Component)
- * 
- * A generic, premium base component for list items, settings, 
- * and interactive rows across the application.
- */
-
-export interface ConfigItemProps {
-  /** Icon can be a Lucide component or a pre-rendered ReactNode */
+interface ConfigItemProps {
   icon?: React.ElementType | React.ReactNode;
-  /** Main text label */
   label: React.ReactNode;
-  /** Subtext or helper description */
   description?: React.ReactNode;
-  /** Content to display on the right side (Actions) */
   children?: React.ReactNode;
-  /** Custom classes for the container */
-  className?: string;
-  /** Custom classes for the icon itself if using a Lucide component */
-  iconClassName?: string;
-  /** Custom classes for the icon container (e.g. for custom bg colors) */
-  iconContainerClassName?: string;
-  /** Custom color for the icon and its background (hex or CSS var) */
-  color?: string;
-  /** If true, the icon will not be wrapped in the standard background container */
   noIconContainer?: boolean;
-  /** Reduces opacity and prevents interaction */
-  disabled?: boolean;
-  /** Optional click handler for the whole row */
-  onClick?: () => void;
+  iconClassName?: string;
+  iconContainerClassName?: string;
+  className?: string;
 }
 
 export function ConfigItem({
@@ -44,156 +21,54 @@ export function ConfigItem({
   label,
   description,
   children,
-  className,
+  noIconContainer = false,
   iconClassName,
   iconContainerClassName,
-  color,
-  noIconContainer = false,
-  disabled = false,
-  onClick,
+  className
 }: ConfigItemProps) {
-  
-  // Helper to render the icon correctly whether it's a component or a node
-  const renderIcon = () => {
-    if (!Icon) return null;
-    
-    const isLucide = typeof Icon === 'function' || (typeof Icon === 'object' && 'render' in (Icon as any));
-    
-    // Check if color is a tailwind color name (doesn't start with #)
-    const isTailwindColor = color && !color.startsWith('#');
-    
-    // Default styles for the icon
-    const iconStyle = color && !isTailwindColor ? { color } : undefined;
-    const iconTailwindClass = isTailwindColor ? `text-${color}` : '';
-    
-    const iconContent = isLucide
-      ? React.createElement(Icon as React.ElementType, { 
-          className: cn("h-5 w-5 text-primary font-bold transition-all duration-300", iconTailwindClass, iconClassName),
-          style: iconStyle
-        })
-      : Icon;
-
-    if (noIconContainer) return iconContent;
-
-    // Background style: if color is provided, use it
-    let containerStyle = undefined;
-    let containerTailwindClass = '';
-
-    if (color) {
-      if (isTailwindColor) {
-        containerTailwindClass = `bg-${color}/10 text-${color}`;
-      } else {
-        containerStyle = { 
-          backgroundColor: `${color}1A`, // 1A is ~10% opacity in hex
-          color: color 
-        };
-      }
-    }
-
-    return (
-      <div 
-        className={cn(
-          "icon-container flex-shrink-0 p-2.5 bg-primary/10 rounded-xl transition-all duration-300", 
-          containerTailwindClass,
-          iconContainerClassName
-        )}
-        style={containerStyle}
-      >
-        {iconContent}
-      </div>
-    );
-  };
-
   return (
-    <div
-      onClick={onClick}
-      className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group gap-3",
-        disabled && "opacity-50 cursor-not-allowed",
-        onClick && "cursor-pointer",
-        className
-      )}
-    >
-      <div className="flex items-center gap-4 overflow-hidden min-w-0 flex-1">
-        {renderIcon()}
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-bold truncate pr-2 text-foreground">
-            {typeof label === 'string' ? <p>{label}</p> : label}
-          </div>
+    <div className={cn("flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0", className)}>
+      <div className="flex items-center gap-4 min-w-0">
+        {!noIconContainer && Icon ? (
+          <IconBadge 
+            icon={Icon} 
+            className={cn("h-10 w-10 rounded-xl shrink-0", iconContainerClassName)}
+            iconClassName={cn("h-5 w-5", iconClassName)}
+          />
+        ) : (
+          Icon && typeof Icon !== 'function' ? Icon : Icon && React.createElement(Icon as React.ElementType, { className: cn("h-5 w-5 shrink-0", iconClassName) })
+        )}
+        <div className="min-w-0">
+          <div className="text-sm font-medium leading-none">{label}</div>
           {description && (
-            <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+            <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
               {description}
             </div>
           )}
         </div>
       </div>
-      <div className="flex items-center gap-2 justify-end sm:ml-4 sm:flex-none">
+      <div className="flex items-center gap-2 shrink-0">
         {children}
       </div>
     </div>
   );
 }
 
-/**
- * Specialized Sub-component: Toggle (Switch)
- */
+interface ConfigToggleProps extends Omit<ConfigItemProps, 'children'> {
+  id: string;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}
+
 export function ConfigToggle({
   id,
   checked,
   onCheckedChange,
   ...props
-}: ConfigItemProps & { id: string; checked: boolean; onCheckedChange: (v: boolean) => void }) {
+}: ConfigToggleProps) {
   return (
     <ConfigItem {...props}>
-      <Switch
-        id={id}
-        checked={checked}
-        onCheckedChange={onCheckedChange}
-        disabled={props.disabled}
-      />
+      <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
     </ConfigItem>
-  );
-}
-
-/**
- * ConfigEntity Component
- * 
- * A variant of ConfigItem designed for entities with avatars/images (users, establishments).
- */
-export function ConfigEntity({
-  image,
-  fallback,
-  avatarClassName,
-  ...props
-}: ConfigItemProps & { image?: string; fallback?: string; avatarClassName?: string }) {
-  const renderEntityIcon = () => {
-    if (image && (image.startsWith('http') || image.startsWith('/'))) {
-      if (image.includes('camarailogo')) {
-        return (
-          <div className="flex-shrink-0">
-            <img
-              src={image}
-              alt={typeof props.label === 'string' ? props.label : 'Entity logo'}
-              className={cn("h-8 w-auto object-contain rounded-sm", props.iconClassName)}
-            />
-          </div>
-        );
-      }
-      return (
-        <Avatar className={cn("h-8 w-8", avatarClassName)}>
-          <AvatarImage src={image} alt={typeof props.label === 'string' ? props.label : 'Entity logo'} />
-          <AvatarFallback>{fallback || '?'}</AvatarFallback>
-        </Avatar>
-      );
-    }
-    return props.icon;
-  };
-
-  return (
-    <ConfigItem
-      {...props}
-      icon={renderEntityIcon()}
-      noIconContainer
-    />
   );
 }

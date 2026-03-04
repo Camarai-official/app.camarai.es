@@ -78,11 +78,11 @@ import React from "react"
 import { cn } from "@/lib/utils"
 import { useEstablishments } from "@/hooks/useEstablishments"
 import type { Establishment } from "@/data/establishments"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/dialogs/global-alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { format, parseISO } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
-import { ConfigEntity, ConfigItem, ConfigToggle } from "@/components/ui/config-item"
+import { ActionTile } from "@/components/ui/action-tile"
 import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest, StaffMember } from "@/data/mock-data"
 
 const menuItems = [
@@ -98,6 +98,9 @@ const menuItems = [
   { href: "/pos", label: "POS", icon: Monitor },
   { href: "/kds", label: "KDS", icon: Laptop },
   { href: "/personal", label: "Personal", icon: Users },
+  { href: "/clientes", label: "Clientes", icon: Contact },
+  { href: "/chat", label: "Chat", icon: MessageSquare },
+  { href: "/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/reservas", label: "Reservas", icon: CalendarCheck },
   { href: "/promociones", label: "Promociones", icon: BadgePercent },
@@ -200,13 +203,12 @@ export function SidebarNav() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="ghost"
-                className={cn(
-                  "w-full bg-card hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent px-2 py-2 flex items-center transition-all duration-200 h-14",
-                  isCollapsed ? "justify-center" : "justify-start gap-3"
-                )}
+                variant="card"
+                size="lg"
+                width="full"
+                justify={isCollapsed ? "center" : "start"}
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
                   <img
                     src={activeEstablishment.id === 'camarai' 
                       ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" 
@@ -231,13 +233,13 @@ export function SidebarNav() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="w-[var(--radix-dropdown-menu-trigger-width)] bg-card"
+              width="trigger"
               align="start"
               sideOffset={8}
             >
               <DropdownMenuItem asChild>
                 <Link href="/settings/profile">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings />
                   <span>Ajustes</span>
                 </Link>
               </DropdownMenuItem>
@@ -247,31 +249,36 @@ export function SidebarNav() {
               </DropdownMenuLabel>
               <DropdownMenuGroup>
                 {establishments.map(est => (
-                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} className="p-0 overflow-hidden">
-                    <ConfigEntity
-                      image={est.image}
-                      fallback={est.name.charAt(0)}
-                      label={est.name}
-                      className="w-full border-none bg-transparent hover:bg-transparent p-2"
-                      avatarClassName="h-6 w-6"
-                    >
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 hover:bg-destructive/10"
-                          onClick={(e) => handleDeleteClick(e, est)}
-                        >
-                          <Trash className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </AlertDialogTrigger>
-                    </ConfigEntity>
+                  <DropdownMenuItem key={est.id} onSelect={() => handleSelectEstablishment(est.id)} padding="none" overflow="hidden">
+                    <ActionTile
+                      key={est.id}
+                      icon={
+                        <Avatar className="h-6 w-6">
+                          <AvatarImage src={est.image} alt={est.name} />
+                          <AvatarFallback className="text-[10px]">{est.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                      }
+                      title={est.name}
+                      variant="none"
+                      padding="sm"
+                      rightContentType="custom"
+                      customContent={
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost-destructive"
+                            size="md"
+                            onClick={(e) => handleDeleteClick(e, est)}
+                            startIcon={<Trash />}
+                          />
+                        </AlertDialogTrigger>
+                      }
+                    />
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={handleAddEstablishment}>
-                <PlusCircle className="mr-2 h-4 w-4" />
+                <PlusCircle />
                 <span>Añadir nuevo establecimiento</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -279,15 +286,15 @@ export function SidebarNav() {
         ) : (
           <Button
             variant="outline"
-            className="w-full"
+            fullWidth
             onClick={handleAddEstablishment}
+            startIcon={<PlusCircle />}
           >
-            <PlusCircle className="mr-2 h-4 w-4" />
             Crear Establecimiento
           </Button>
         )}
       </SidebarHeader>
-      <SidebarContent className="p-2 custom-scrollbar">
+      <SidebarContent padding="sm" scrollbar>
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
@@ -305,13 +312,12 @@ export function SidebarNav() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button 
-                variant="ghost" 
-                className={cn(
-                  "w-full bg-card hover:bg-accent hover:text-accent-foreground data-[state=open]:bg-accent px-2 py-2 flex items-center transition-all duration-200 h-14",
-                  isCollapsed ? "justify-center" : "justify-start gap-3"
-                )}
+                variant="card" 
+                size="lg"
+                width="full"
+                justify={isCollapsed ? "center" : "start"}
             >
-              <Avatar className="h-9 w-9 shrink-0 rounded-lg">
+              <Avatar className="h-10 w-10 shrink-0 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.firstName} />
                 <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">
                   {user.firstName?.charAt(0) || 'U'}
@@ -332,10 +338,10 @@ export function SidebarNav() {
               )}
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[var(--sidebar-width)] max-w-[calc(100vw-1.5rem)] mb-2 bg-card" side="top" align="start">
+          <DropdownMenuContent width="lg" side="top" align="start" margin="sm">
             <DropdownMenuItem asChild>
               <Link href="/settings/profile">
-                <User className="mr-2 h-4 w-4" />
+                <User />
                 <span>Mi cuenta</span>
               </Link>
             </DropdownMenuItem>
@@ -343,15 +349,15 @@ export function SidebarNav() {
               <DropdownMenuSubTrigger>
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center">
-                    <Bell className="mr-2 h-4 w-4" />
+                    <Bell />
                     Notificaciones
                   </div>
-                  {totalNotifications > 0 && <Badge variant="destructive" className="h-5 w-5 p-0 justify-center">{totalNotifications}</Badge>}
+                  {totalNotifications > 0 && <Badge variant="destructive">{totalNotifications}</Badge>}
                 </div>
               </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="p-2 w-64 sm:w-80">
+              <DropdownMenuSubContent width="md" padding="sm">
                 <div className="mb-4">
-                  <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
+                  <DropdownMenuLabel variant="primary">
                     <Users className="h-4 w-4" />
                     Solicitudes de Ausencia
                   </DropdownMenuLabel>
@@ -361,18 +367,20 @@ export function SidebarNav() {
                       pendingRequests.map(req => {
                         const employee = mockStaffMembers.find(s => s.id === req.staffId);
                         return (
-                          <ConfigItem
+                          <ActionTile
                             key={req.id}
-                            label={employee?.nombre || ''}
+                            title={employee?.nombre || ''}
                             description={`${req.type} para el ${format(parseISO(req.startDate), 'dd/MM/yy')}`}
-                            className="border-none bg-accent/50 hover:bg-accent p-2 rounded-md"
-                            noIconContainer
-                          >
-                            <div className="flex gap-1">
-                              <Button size="icon" variant="ghost" className="h-7 w-7 hover:bg-destructive/10" onClick={() => handleUpdateRequest(req.id, 'rejected')}><X className="h-4 w-4 text-muted-foreground" /></Button>
-                              <Button size="icon" variant="ghost" className="h-7 w-7 text-primary hover:bg-primary/10" onClick={() => handleUpdateRequest(req.id, 'approved')}><Check className="h-4 w-4" /></Button>
-                            </div>
-                          </ConfigItem>
+                            variant="accent"
+                            padding="sm"
+                            rightContentType="custom"
+                            customContent={
+                               <div className="flex gap-1">
+                                  <Button size="md" variant="ghost-destructive" onClick={() => handleUpdateRequest(req.id, 'rejected')} startIcon={<X />} />
+                                  <Button size="md" variant="ghost-primary" onClick={() => handleUpdateRequest(req.id, 'approved')} startIcon={<Check />} />
+                                </div>
+                            }
+                          />
                         )
                       })
                     ) : (
@@ -382,7 +390,7 @@ export function SidebarNav() {
                 </div>
 
                 <div className="pt-2 border-t">
-                  <DropdownMenuLabel className="flex items-center gap-2 text-primary pb-1">
+                  <DropdownMenuLabel variant="primary">
                     <CalendarCheck className="h-4 w-4" />
                     Nuevas Reservas
                   </DropdownMenuLabel>
@@ -399,7 +407,7 @@ export function SidebarNav() {
             </DropdownMenuSub>
             <DropdownMenuItem asChild>
               <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer">
-                <Shield className="mr-2 h-4 w-4" />
+                <Shield />
                 <span>Política de privacidad</span>
               </Link>
             </DropdownMenuItem>
@@ -409,19 +417,20 @@ export function SidebarNav() {
                 description: 'Puedes enviarnos tus comentarios a soporte@camarai.es',
               });
             }}>
-              <MessageSquareText className="mr-2 h-4 w-4" />
+              <MessageSquareText />
               <span>Enviar comentarios</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="p-0 overflow-hidden">
-              <ConfigToggle
-                id="dark-mode"
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()} padding="none" overflow="hidden">
+              <ActionTile
+                rightContentType="switch"
+                switchId="dark-mode"
                 icon={isDarkMode ? Moon : Sun}
-                label={isDarkMode ? 'Modo noche' : 'Modo claro'}
-                checked={isDarkMode}
-                onCheckedChange={setIsDarkMode}
-                className="w-full border-none bg-transparent hover:bg-transparent p-2"
-                noIconContainer
+                title={isDarkMode ? 'Modo noche' : 'Modo claro'}
+                switchChecked={isDarkMode}
+                onSwitchChange={setIsDarkMode}
+                variant="none"
+                padding="sm"
               />
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -435,7 +444,7 @@ export function SidebarNav() {
                 // router.push('/login');
               }}
             >
-              <LogOut className="mr-2 h-4 w-4 text-muted-foreground" />
+              <LogOut />
               <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -450,7 +459,7 @@ export function SidebarNav() {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => setEstablishmentToDelete(null)}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={confirmDelete} className={buttonVariants({ variant: "destructive" })}>
+          <AlertDialogAction onClick={confirmDelete} variant="destructive">
             Sí, eliminar
           </AlertDialogAction>
         </AlertDialogFooter>

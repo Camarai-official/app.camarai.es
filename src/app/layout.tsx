@@ -9,6 +9,7 @@ import * as React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { MobileHeader } from '@/components/layout/mobile-header';
+import { useScrollbarCompensation } from '@/hooks/use-scrollbar-compensation';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -34,6 +35,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fix layout shift when modals/dropdowns open
+  useScrollbarCompensation();
+
   return (
     <html lang="es" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`}>

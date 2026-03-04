@@ -1,20 +1,19 @@
-
 'use client';
+import { H3 } from '@/components/ui/typography';
+
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash, ArrowLeft, Banknote } from 'lucide-react';
 import {
   Dialog,
+  DialogWindow,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
-  DialogClose,
-} from '@/components/ui/dialog';
+  DialogClose } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -30,11 +29,12 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  AlertDialogTrigger } from '@/components/dialogs/global-alert-dialog';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
+import { PageContent } from '@/components/layout/page-content';
+import { PageContainer } from '@/components/layout/page-container';
 
 export default function TaxesPage() {
   const [taxes, setTaxes] = React.useState<Tax[]>(mockTaxes);
@@ -97,12 +97,12 @@ export default function TaxesPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col h-full">
+    <PageContainer>
       <PageHeader title="Gestión de Impuestos" />
-      <main className="flex flex-1 flex-col gap-4 p-4 pt-2 md:gap-6 md:p-6 md:pt-3">
+      <PageContent>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Todos los Impuestos</CardTitle>
+            <H3>Todos los Impuestos</H3>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={() => handleOpenDialog()}>
@@ -110,14 +110,14 @@ export default function TaxesPage() {
                   Añadir Impuesto
                 </Button>
               </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle icon={Banknote}>{editingTax ? 'Editar' : 'Crear'} Impuesto</DialogTitle>
-                  <DialogDescription>
-                    Define un nuevo tipo impositivo para tus productos.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
+              <DialogWindow size="md">
+                <DialogHeader
+                  icon={Banknote}
+                  title={`${editingTax ? 'Editar' : 'Crear'} Impuesto`}
+                  description="Define un nuevo tipo impositivo para tus productos."
+                />
+                <DialogContent>
+                  <div className="space-y-4 p-6">
                   <div>
                     <Label htmlFor="tax-name">Nombre del Impuesto</Label>
                     <Input id="tax-name" value={taxName} onChange={(e) => setTaxName(e.target.value)} placeholder="Ej: IVA General, Tasa Turística..." />
@@ -126,12 +126,13 @@ export default function TaxesPage() {
                     <Label htmlFor="tax-rate">Porcentaje (%)</Label>
                     <Input id="tax-rate" type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} placeholder="Ej: 21" />
                   </div>
-                </div>
+                  </div>
+                </DialogContent>
                 <DialogFooter>
-                  <DialogClose asChild><Button variant="secondary">Cancelar</Button></DialogClose>
-                  <Button variant="brand" onClick={handleSave}>Guardar Impuesto</Button>
+                  <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
+                  <Button variant="default" onClick={handleSave}>Guardar Impuesto</Button>
                 </DialogFooter>
-              </DialogContent>
+              </DialogWindow>
             </Dialog>
           </CardHeader>
           <CardContent className="p-0 sm:p-6">
@@ -153,12 +154,12 @@ export default function TaxesPage() {
                         <AlertDialog>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="md" startIcon={<MoreHorizontal />} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
-                              <DropdownMenuItem onClick={() => handleOpenDialog(tax)}><Edit className="mr-2 h-4 w-4" />Editar</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleOpenDialog(tax)}><Edit />Editar</DropdownMenuItem>
                               <AlertDialogTrigger asChild>
-                                <DropdownMenuItem><Trash className="mr-2 h-4 w-4 text-muted-foreground" />Eliminar</DropdownMenuItem>
+                                <DropdownMenuItem><Trash />Eliminar</DropdownMenuItem>
                               </AlertDialogTrigger>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -189,7 +190,8 @@ export default function TaxesPage() {
             </div>
           </CardContent>
         </Card>
-      </main>
-    </div>
-  );
+      </PageContent>
+    </PageContainer>
+    );
 }
+

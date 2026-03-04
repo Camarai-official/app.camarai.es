@@ -1,7 +1,8 @@
 'use client';
+import { H3 } from '@/components/ui/typography';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Maximize2, Minimize2, Wifi, WifiOff, RefreshCw, Clock } from 'lucide-react';
@@ -106,8 +107,7 @@ export function DynamicQRClock({
     const handleSimulateFichaje = () => {
         const fichajeData = {
             timestamp: new Date().toISOString(),
-            qrToken: qrToken,
-        };
+            qrToken: qrToken };
 
         if (!isOnline) {
             setOfflineQueue(prev => [...prev, fichajeData]);
@@ -136,16 +136,16 @@ export function DynamicQRClock({
             )}>
                 <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
+                        <H3 className="text-lg flex items-center gap-2">
                             <Clock className="h-5 w-5" />
                             {establecimientoNombre}
-                        </CardTitle>
+                        </H3>
                         <div className="flex items-center gap-2">
                             <Badge variant={isOnline ? "default" : "destructive"} className="gap-1">
                                 {isOnline ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
                                 {isOnline ? 'Online' : 'Offline'}
                             </Badge>
-                            <Button variant="ghost" size="icon" onClick={toggleFullscreen} className="h-8 w-8">
+                            <Button variant="ghost" size="md" onClick={toggleFullscreen} className="h-8 w-8">
                                 {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
                             </Button>
                         </div>
@@ -155,7 +155,7 @@ export function DynamicQRClock({
                     {/* QR Code con countdown */}
                     <div className="flex justify-center">
                         <div className="relative inline-block">
-                            <div className="p-4 bg-white rounded-lg border shadow-sm">
+                            <div className="p-4 bg-foreground rounded-lg border shadow-sm">
                                 {qrUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img 
@@ -236,3 +236,4 @@ export function DynamicQRClock({
         </div>
     );
 }
+

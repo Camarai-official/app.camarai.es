@@ -29,8 +29,7 @@ export function DashboardToolbar({ date, setDate, onExport }: DashboardToolbarPr
                 {/* Placeholder for future specific filters */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-10 border-dashed">
-                            <Filter className="mr-2 h-4 w-4" />
+                        <Button variant="outline" size="md" className="border-dashed" startIcon={<Filter />}>
                             Filtros
                         </Button>
                     </DropdownMenuTrigger>
@@ -45,10 +44,9 @@ export function DashboardToolbar({ date, setDate, onExport }: DashboardToolbarPr
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-
+ 
             <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm" className="h-10" onClick={onExport}>
-                    <Download className="mr-2 h-4 w-4" />
+                <Button variant="outline" size="md" onClick={onExport} startIcon={<Download />}>
                     Exportar Informe Global (Excel)
                 </Button>
             </div>

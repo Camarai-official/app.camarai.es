@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { H1, TextSM } from "@/components/ui/typography";
 
 type PageHeaderProps = {
   title: React.ReactNode;
@@ -12,27 +13,22 @@ type PageHeaderProps = {
 
 export function PageHeader({ title, subtitle, className, actions }: PageHeaderProps) {
   return (
-    <header className="p-4 pb-2 md:p-6 md:pb-3">
-      <Card className={cn("w-full p-4", className)}>
-        <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col items-start">
-            <div className="flex flex-col items-start gap-1">
-              <h1 className="w-fit self-start text-2xl md:text-3xl font-semibold tracking-tight leading-tight text-transparent bg-clip-text brand-gradient-text">
-                {title}
-              </h1>
-              {subtitle ? (
-                <p className="text-sm text-muted-foreground">{subtitle}</p>
-              ) : null}
-            </div>
-            <div className="mt-2 h-1 w-8 rounded-sm brand-accent-bar" />
-          </div>
-          {actions ? (
-            <div className="flex w-full flex-wrap items-center justify-start gap-2 self-stretch sm:w-auto sm:justify-end">
-              {actions}
-            </div>
-          ) : null}
+    <header className={cn("mx-6 py-8", className)}>
+        <div className="flex flex-col h-16 gap-6 sm:flex-row sm:items-center sm:justify-between">
+                
+                <div className="space-y-1">
+                    <H1 className="text-3xl font-bold text-foreground">{title}</H1>
+                    {subtitle && (
+                        <TextSM className="text-muted-foreground font-medium">{subtitle}</TextSM>
+                    )}
+                </div>
+
+            {actions && (
+                <div className="flex flex-wrap items-center gap-3">
+                    {actions}
+                </div>
+            )}
         </div>
-      </Card>
     </header>
   );
 }

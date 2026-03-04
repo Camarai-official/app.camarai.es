@@ -1,0 +1,59 @@
+import * as React from 'react';
+import { ArrowUp, ArrowDown, ArrowLeftRight } from 'lucide-react';
+import { Dialog, DialogWindow, DialogContent, DialogHeader, DialogClose, DialogFooter } from '@/components/layout/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { mockMovements } from '@/data/reportes';
+
+type MovementsDetailsDialogProps = {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+};
+
+export function MovementsDetailsDialog({ open, onOpenChange }: MovementsDetailsDialogProps) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogWindow size="md">
+                <DialogHeader
+                    icon={ArrowLeftRight}
+                    title="Movimientos Detallados del Turno"
+                    description="Aquí se muestra un desglose de todas las transacciones del día."
+                />
+                <DialogContent className="p-6">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Concepto</TableHead>
+                                <TableHead>Tipo</TableHead>
+                                <TableHead className="text-right">Importe</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {mockMovements.map(mov => (
+                                <TableRow key={mov.id}>
+                                    <TableCell className="font-medium">{mov.concept}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={mov.type === 'Ingreso' ? 'completed' : 'destructive'} className="gap-1">
+                                            {mov.type === 'Ingreso' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                                            {mov.type}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className={cn("text-right font-mono", mov.type === 'Gasto' && 'text-destructive')}>
+                                        €{mov.amount.toFixed(2)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </DialogContent>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="ghost">Cerrar</Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogWindow>
+        </Dialog>
+    );
+}

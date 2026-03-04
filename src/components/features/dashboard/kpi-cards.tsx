@@ -1,9 +1,6 @@
-
-'use client';
-
 import * as React from 'react';
 import Image from 'next/image';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import type { Product } from '@/data/mock-data';
@@ -26,17 +23,18 @@ export function TopProductsCard({ products }: TopProductsCardProps) {
   }, [products]);
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader>
-        <CardTitle>Top 5 Productos Más Vendidos</CardTitle>
+    <Card height="full">
+      <CardHeader 
+        title="Top 5 Productos Más Vendidos"
+      >
         <CardDescription>Productos que más ingresos han generado en el período.</CardDescription>
       </CardHeader>
-      <CardContent className="flex-grow">
+      <CardContent flex>
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Producto</TableHead>
-              <TableHead className="text-right">Ingresos</TableHead>
+              <TableHead align="right">Ingresos</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -59,7 +57,7 @@ export function TopProductsCard({ products }: TopProductsCardProps) {
                   )}
                   <span className="font-medium truncate">{product.nombre_producto}</span>
                 </TableCell>
-                <TableCell className="text-right font-semibold">€{product.revenue.toFixed(2)}</TableCell>
+                <TableCell align="right" variant="medium">€{product.revenue.toFixed(2)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -128,10 +126,8 @@ export function PeakHoursCard({ orders }: PeakHoursCardProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-bold text-muted-foreground">Eficiencia y Horas Punta</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      <CardHeader title="Eficiencia y Horas Punta" />
+      <CardContent gap="md">
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground">Hora de Más Ventas</p>
           <p className="font-bold text-lg">{peakHours.peakRevenueHour}</p>
@@ -157,11 +153,12 @@ export function SalesChannelCard() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-bold text-muted-foreground">Rendimiento por Canal</CardTitle>
+      <CardHeader 
+        title="Rendimiento por Canal"
+      >
         <CardDescription className="text-xs">Comparativa de ventas automáticas vs. manuales.</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 pt-2">
+      <CardContent gap="md">
         <div>
           <div className="flex justify-between items-center mb-1">
           <span className="font-medium">Camarai (Automático)</span>
@@ -180,3 +177,4 @@ export function SalesChannelCard() {
     </Card>
   );
 }
+

@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { addDays, format } from "date-fns"
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 
@@ -17,31 +18,77 @@ import {
 interface CalendarDateRangePickerProps extends React.HTMLAttributes<HTMLDivElement> {
     date?: DateRange
     setDate?: (date: DateRange | undefined) => void
+    /** Number of months to show, defaults to 2 */
+    numberOfMonths?: number
+    /** Placeholder text when no date is selected */
+    placeholder?: string
+    /** Align of the popover content */
+    align?: "start" | "center" | "end"
+    /** Close popover on select (only works for single dates normally, but we can wrap it) */
+    closeOnSelect?: boolean
 }
 
 export function CalendarDateRangePicker({
     className,
     date,
     setDate,
+    numberOfMonths = 2,
+    placeholder = "Seleccionar fecha",
+    align = "end",
+    closeOnSelect = false,
+    ...props
 }: CalendarDateRangePickerProps) {
-    const [internalDate, setInternalDate] = React.useState<DateRange | undefined>({
-        from: new Date(2024, 5, 20), // June 2024 default for demo
-        to: addDays(new Date(2024, 5, 20), 20),
-    })
+    const [open, setOpen] = React.useState(false)
+    const [mounted, setMounted] = React.useState(false)
+    const [internalDate, setInternalDate] = React.useState<DateRange | undefined>()
+
+    React.useEffect(() => {
+        setMounted(true)
+    }, [])
 
     // Use props if provided, otherwise internal state
-    const selectedDate = date || internalDate
-    const setSelectedDate = setDate || setInternalDate
+    const selectedDate = date !== undefined ? date : internalDate
+    const setSelectedDate = (newDate: DateRange | undefined) => {
+        if (setDate) {
+            setDate(newDate)
+        } else {
+            setInternalDate(newDate)
+        }
+        
+        // Logic to close based on range completion if needed
+        if (closeOnSelect && newDate?.from && newDate?.to) {
+            setOpen(false)
+        }
+    }
+
+    // Return a simplified version for SSR/initial hydration to avoid ARIA mismatches
+    if (!mounted) {
+        return (
+            <div className={cn("grid gap-2", className)} {...props}>
+                <Button
+                    variant={"outline"}
+                    size="md"
+                    className={cn(
+                        "justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                    )}
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {placeholder}
+                </Button>
+            </div>
+        )
+    }
 
     return (
-        <div className={cn("grid gap-2", className)}>
-            <Popover>
+        <div className={cn("grid gap-2", className)} {...props}>
+            <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                     <Button
-                        id="date"
                         variant={"outline"}
+                        size="md"
                         className={cn(
-                            "w-full justify-start text-left font-normal sm:w-[260px]",
+                            "justify-start text-left font-normal",
                             !selectedDate && "text-muted-foreground"
                         )}
                     >
@@ -49,25 +96,26 @@ export function CalendarDateRangePicker({
                         {selectedDate?.from ? (
                             selectedDate.to ? (
                                 <>
-                                    {format(selectedDate.from, "LLL dd, y")} -{" "}
-                                    {format(selectedDate.to, "LLL dd, y")}
+                                    {format(selectedDate.from, "LLL dd", { locale: es })} -{" "}
+                                    {format(selectedDate.to, "LLL dd, y", { locale: es })}
                                 </>
                             ) : (
-                                format(selectedDate.from, "LLL dd, y")
+                                format(selectedDate.from, "PPP", { locale: es })
                             )
                         ) : (
-                            <span>Pick a date</span>
+                            <span>{placeholder}</span>
                         )}
                     </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
+                <PopoverContent className="w-auto p-0" align={align}>
                     <Calendar
                         initialFocus
                         mode="range"
                         defaultMonth={selectedDate?.from}
                         selected={selectedDate}
                         onSelect={setSelectedDate}
-                        numberOfMonths={2}
+                        numberOfMonths={numberOfMonths}
+                        locale={es}
                     />
                 </PopoverContent>
             </Popover>

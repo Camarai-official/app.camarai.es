@@ -431,7 +431,7 @@ Error:
  [2m222[0m |                                                 <div className="flex items-center gap-2">
  [2m223[0m |                                                     <Button 
  [2m224[0m |                                                         variant="outline" 
- [2m225[0m |                                                         size="icon" 
+ [2m225[0m |                                                         size="md" 
  [2m226[0m |                                                         className="h-7 w-7"
  [2m227[0m |                                                         onClick={() => handleQuantityChange(index, -1)}
  [2m228[0m |                                                     >
@@ -440,7 +440,7 @@ Error:
  [2m231[0m |                                                     <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
  [2m232[0m |                                                     <Button 
  [2m233[0m |                                                         variant="outline" 
- [2m234[0m |                                                         size="icon" 
+ [2m234[0m |                                                         size="md" 
  [2m235[0m |                                                         className="h-7 w-7"
  [2m236[0m |                                                         onClick={() => handleQuantityChange(index, 1)}
  [2m237[0m |                                                     >
@@ -448,7 +448,7 @@ Error:
  [2m239[0m |                                                     </Button>
  [2m240[0m |                                                     <Button 
  [2m241[0m |                                                         variant="ghost" 
- [2m242[0m |                                                         size="icon" 
+ [2m242[0m |                                                         size="md" 
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
@@ -758,7 +758,7 @@ Error:
  [2m222[0m |                                                 <div className="flex items-center gap-2">
  [2m223[0m |                                                     <Button 
  [2m224[0m |                                                         variant="outline" 
- [2m225[0m |                                                         size="icon" 
+ [2m225[0m |                                                         size="md" 
  [2m226[0m |                                                         className="h-7 w-7"
  [2m227[0m |                                                         onClick={() => handleQuantityChange(index, -1)}
  [2m228[0m |                                                     >
@@ -767,7 +767,7 @@ Error:
  [2m231[0m |                                                     <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
  [2m232[0m |                                                     <Button 
  [2m233[0m |                                                         variant="outline" 
- [2m234[0m |                                                         size="icon" 
+ [2m234[0m |                                                         size="md" 
  [2m235[0m |                                                         className="h-7 w-7"
  [2m236[0m |                                                         onClick={() => handleQuantityChange(index, 1)}
  [2m237[0m |                                                     >
@@ -775,7 +775,7 @@ Error:
  [2m239[0m |                                                     </Button>
  [2m240[0m |                                                     <Button 
  [2m241[0m |                                                         variant="ghost" 
- [2m242[0m |                                                         size="icon" 
+ [2m242[0m |                                                         size="md" 
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
@@ -1157,7 +1157,7 @@ Error:
  [2m222[0m |                                                 <div className="flex items-center gap-2">
  [2m223[0m |                                                     <Button 
  [2m224[0m |                                                         variant="outline" 
- [2m225[0m |                                                         size="icon" 
+ [2m225[0m |                                                         size="md" 
  [2m226[0m |                                                         className="h-7 w-7"
  [2m227[0m |                                                         onClick={() => handleQuantityChange(index, -1)}
  [2m228[0m |                                                     >
@@ -1166,7 +1166,7 @@ Error:
  [2m231[0m |                                                     <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
  [2m232[0m |                                                     <Button 
  [2m233[0m |                                                         variant="outline" 
- [2m234[0m |                                                         size="icon" 
+ [2m234[0m |                                                         size="md" 
  [2m235[0m |                                                         className="h-7 w-7"
  [2m236[0m |                                                         onClick={() => handleQuantityChange(index, 1)}
  [2m237[0m |                                                     >
@@ -1174,7 +1174,7 @@ Error:
  [2m239[0m |                                                     </Button>
  [2m240[0m |                                                     <Button 
  [2m241[0m |                                                         variant="ghost" 
- [2m242[0m |                                                         size="icon" 
+ [2m242[0m |                                                         size="md" 
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
@@ -1728,7 +1728,7 @@ Error:
  [2m222[0m |                                                 <div className="flex items-center gap-2">
  [2m223[0m |                                                     <Button 
  [2m224[0m |                                                         variant="outline" 
- [2m225[0m |                                                         size="icon" 
+ [2m225[0m |                                                         size="md" 
  [2m226[0m |                                                         className="h-7 w-7"
  [2m227[0m |                                                         onClick={() => handleQuantityChange(index, -1)}
  [2m228[0m |                                                     >
@@ -1737,7 +1737,7 @@ Error:
  [2m231[0m |                                                     <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
  [2m232[0m |                                                     <Button 
  [2m233[0m |                                                         variant="outline" 
- [2m234[0m |                                                         size="icon" 
+ [2m234[0m |                                                         size="md" 
  [2m235[0m |                                                         className="h-7 w-7"
  [2m236[0m |                                                         onClick={() => handleQuantityChange(index, 1)}
  [2m237[0m |                                                     >
@@ -1745,7 +1745,7 @@ Error:
  [2m239[0m |                                                     </Button>
  [2m240[0m |                                                     <Button 
  [2m241[0m |                                                         variant="ghost" 
- [2m242[0m |                                                         size="icon" 
+ [2m242[0m |                                                         size="md" 
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
@@ -2055,7 +2055,7 @@ Error:
  [2m222[0m |                                                 <div className="flex items-center gap-2">
  [2m223[0m |                                                     <Button 
  [2m224[0m |                                                         variant="outline" 
- [2m225[0m |                                                         size="icon" 
+ [2m225[0m |                                                         size="md" 
  [2m226[0m |                                                         className="h-7 w-7"
  [2m227[0m |                                                         onClick={() => handleQuantityChange(index, -1)}
  [2m228[0m |                                                     >
@@ -2064,7 +2064,7 @@ Error:
  [2m231[0m |                                                     <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
  [2m232[0m |                                                     <Button 
  [2m233[0m |                                                         variant="outline" 
- [2m234[0m |                                                         size="icon" 
+ [2m234[0m |                                                         size="md" 
  [2m235[0m |                                                         className="h-7 w-7"
  [2m236[0m |                                                         onClick={() => handleQuantityChange(index, 1)}
  [2m237[0m |                                                     >
@@ -2072,7 +2072,7 @@ Error:
  [2m239[0m |                                                     </Button>
  [2m240[0m |                                                     <Button 
  [2m241[0m |                                                         variant="ghost" 
- [2m242[0m |                                                         size="icon" 
+ [2m242[0m |                                                         size="md" 
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
@@ -2454,7 +2454,7 @@ Error:
  [2m222[0m |                                                 <div className="flex items-center gap-2">
  [2m223[0m |                                                     <Button 
  [2m224[0m |                                                         variant="outline" 
- [2m225[0m |                                                         size="icon" 
+ [2m225[0m |                                                         size="md" 
  [2m226[0m |                                                         className="h-7 w-7"
  [2m227[0m |                                                         onClick={() => handleQuantityChange(index, -1)}
  [2m228[0m |                                                     >
@@ -2463,7 +2463,7 @@ Error:
  [2m231[0m |                                                     <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
  [2m232[0m |                                                     <Button 
  [2m233[0m |                                                         variant="outline" 
- [2m234[0m |                                                         size="icon" 
+ [2m234[0m |                                                         size="md" 
  [2m235[0m |                                                         className="h-7 w-7"
  [2m236[0m |                                                         onClick={() => handleQuantityChange(index, 1)}
  [2m237[0m |                                                     >
@@ -2471,7 +2471,7 @@ Error:
  [2m239[0m |                                                     </Button>
  [2m240[0m |                                                     <Button 
  [2m241[0m |                                                         variant="ghost" 
- [2m242[0m |                                                         size="icon" 
+ [2m242[0m |                                                         size="md" 
  [2m243[0m |                                                         className="h-7 w-7 text-destructive"
  [2m244[0m |                                                         onClick={() => handleRemoveItem(index)}
  [2m245[0m |                                                     >
