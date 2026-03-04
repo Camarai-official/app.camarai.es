@@ -13,7 +13,7 @@ const labelVariants = cva(
       variant: {
         default: "",
         group: "text-[10px] font-bold tracking-wider ml-1",
-        medium: "text-xs font-bold uppercase tracking-wider text-muted-foreground",
+        medium: "text-xs font-bold  tracking-wider text-muted-foreground",
       },
     },
     defaultVariants: {

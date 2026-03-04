@@ -1,11 +1,13 @@
 'use client';
 
 import * as React from 'react';
+import { TextSM, TextXS } from "@/components/ui/typography";
 import { 
     User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield, 
     Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette, 
     ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer, 
-    Zap, Gem, Target, Camera, Smile
+    Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package, 
+    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle
 } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
@@ -18,7 +20,10 @@ import { ActionTile } from '@/components/ui/action-tile';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { IconPicker, iconMap } from '@/components/ui/icon-picker';
 import { cn } from '@/lib/utils';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import type { StaffMember } from '@/data/mock-data';
+import { mockEstablishments } from '@/data/mock-data';
 
 // Métodos de fichaje disponibles
 const metodosFichaje = [
@@ -77,47 +82,51 @@ const emptyEmployee: ExtendedStaffMember = {
 };
 
 const permisosDisponibles = [
-    { id: 'pos', label: 'Acceso a POS' },
-    { id: 'kds', label: 'Acceso a KDS' },
-    { id: 'reportes', label: 'Ver Reportes' },
-    { id: 'reportes_completos', label: 'Reportes Completos' },
-    { id: 'inventario', label: 'Gestionar Inventario' },
-    { id: 'personal', label: 'Gestionar Personal' },
-    { id: 'configuracion', label: 'Configuración del Sistema' },
-    { id: 'integraciones', label: 'Gestionar Integraciones' },
-    { id: 'cierre_caja', label: 'Cierre de Caja' },
-    { id: 'descuentos', label: 'Aplicar Descuentos' },
-    { id: 'anular_comandas', label: 'Anular Comandas' },
-    { id: 'editar_comandas', label: 'Editar Comandas de Otros' },
-    { id: 'whatsapp_config', label: 'Configurar WhatsApp' },
+    { id: 'pos', label: 'Acceso a POS', icon: Monitor, description: 'Ventas y cobros habituales.' },
+    { id: 'kds', label: 'Acceso a KDS', icon: ScreenShare, description: 'Visualización de comandas en cocina.' },
+    { id: 'reportes', label: 'Ver Reportes', icon: BarChart, description: 'Estadísticas de ventas diarias.' },
+    { id: 'reportes_completos', label: 'Reportes Completos', icon: PieChart, description: 'Auditorías y cierres avanzados.' },
+    { id: 'inventario', label: 'Gestionar Inventario', icon: Package, description: 'Control de stock y proveedores.' },
+    { id: 'personal', label: 'Gestionar Personal', icon: Users, description: 'Gestión de horarios y empleados.' },
+    { id: 'configuracion', label: 'Configuración del Sistema', icon: Settings, description: 'Ajustes globales del local.' },
+    { id: 'integraciones', label: 'Gestionar Integraciones', icon: Zap, description: 'Conexión con servicios externos.' },
+    { id: 'cierre_caja', label: 'Cierre de Caja', icon: Lock, description: 'Habilidad para cerrar el turno.' },
+    { id: 'descuentos', label: 'Aplicar Descuentos', icon: Percent, description: 'Rebajas y cortesías en tickets.' },
+    { id: 'anular_comandas', label: 'Anular Comandas', icon: Trash2, description: 'Eliminar comandas registradas.' },
+    { id: 'editar_comandas', label: 'Editar Comandas de Otros', icon: Edit, description: 'Modificar tickets de terceros.' },
+    { id: 'whatsapp_config', label: 'Configurar WhatsApp', icon: MessageSquare, description: 'Ajustes del bot de WhatsApp.' },
 ];
 
 type NivelAcceso = 'camarero' | 'encargado' | 'jefe' | 'personalizado';
 
-const nivelesAcceso: { id: NivelAcceso; label: string; description: string; permisos: string[] }[] = [
+const nivelesAcceso: { id: NivelAcceso; label: string; description: string; permisos: string[]; icon: React.ElementType }[] = [
     { 
         id: 'camarero', 
         label: 'Camarero', 
         description: 'Acceso básico: POS, KDS, comandas propias',
-        permisos: ['pos', 'kds', 'cierre_caja'] 
+        permisos: ['pos', 'kds', 'cierre_caja'],
+        icon: Utensils
     },
     { 
         id: 'encargado', 
         label: 'Encargado', 
-        description: 'Todo lo de camarero + reportes, personal, inventario',
-        permisos: ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'] 
+        description: 'Todo lo de camarero + funciones de gestión',
+        permisos: ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'],
+        icon: Shield
     },
     { 
         id: 'jefe', 
         label: 'Jefe / Admin', 
         description: 'Acceso total a todas las funciones',
-        permisos: permisosDisponibles.map(p => p.id) 
+        permisos: permisosDisponibles.map(p => p.id),
+        icon: Crown
     },
     { 
         id: 'personalizado', 
         label: 'Personalizado', 
         description: 'Selecciona permisos manualmente',
-        permisos: [] 
+        permisos: [],
+        icon: Palette
     },
 ];
 
@@ -227,7 +236,7 @@ export function EmployeeDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogWindow size="lg">
+            <DialogWindow size="xl">
                 <DialogHeader
                     icon={User}
                     title={employeeToEdit ? 'Editar Perfil de Empleado' : 'Añadir Nuevo Empleado'}
@@ -296,11 +305,15 @@ export function EmployeeDialog({
                                         </div>
                                     </div>
 
-                                    {/* SECCIÓN: IDENTIDAD VISUAL */}
-                                        <div className="grid gap-3 pt-2">
-                                            <Label>Identidad Visual</Label>
-                                        
-                                        <div className="grid gap-3">
+                                    <Card>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <Palette className="h-4 w-4" />
+                                                Identidad Visual
+                                            </CardTitle>
+                                            <CardDescription>Personaliza cómo se verá este perfil en la aplicación.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="grid gap-3">
                                             <ActionTile
                                                 icon={Palette}
                                                 title="Color de Identidad"
@@ -329,189 +342,312 @@ export function EmployeeDialog({
                                                     />
                                                 }
                                             />
-                                        </div>
-                                    </div>
+                                        </CardContent>
+                                    </Card>
                                 </TabsContent>
 
                                 {/* TAB: LABORAL */}
                                 <TabsContent value="laboral" className="mt-0 space-y-4">
-                                    <ActionTile
-                                        icon={Briefcase}
-                                        title="Puesto / Rol"
-                                        description="Cargo principal dentro del equipo."
-                                        rightContentType="select"
-                                        selectValue={employee.rol}
-                                        onSelectChange={(v) => handleInputChange('rol', v)}
-                                        selectOptions={[
-                                            { value: 'camarero', label: 'Camarero/a' },
-                                            { value: 'cocinero', label: 'Cocinero/a' },
-                                            { value: 'bartender', label: 'Bartender' },
-                                            { value: 'gerente', label: 'Gerente' },
-                                            { value: 'host', label: 'Host' },
-                                            { value: 'ayudante_cocina', label: 'Ayudante de Cocina' },
-                                        ]}
-                                    />
-                                    <ActionTile
-                                        icon={Building2}
-                                        title="Departamento"
-                                        description="Área de trabajo asignada."
-                                        rightContentType="select"
-                                        selectValue={employee.departamento || ''}
-                                        onSelectChange={(v) => handleInputChange('departamento', v)}
-                                        selectOptions={[
-                                            { value: 'sala', label: 'Sala' },
-                                            { value: 'cocina', label: 'Cocina' },
-                                            { value: 'barra', label: 'Barra' },
-                                            { value: 'administracion', label: 'Administración' },
-                                        ]}
-                                    />
-                                    <ActionTile
-                                        icon={FileText}
-                                        title="Tipo de Contrato"
-                                        description="Modalidad de contratación legal."
-                                        rightContentType="select"
-                                        selectValue={employee.tipo_contrato || ''}
-                                        onSelectChange={(v) => handleInputChange('tipo_contrato', v)}
-                                        selectOptions={[
-                                            { value: 'indefinido', label: 'Indefinido' },
-                                            { value: 'temporal', label: 'Temporal' },
-                                            { value: 'practicas', label: 'Prácticas' },
-                                            { value: 'autonomo', label: 'Autónomo' },
-                                        ]}
-                                    />
-                                    <ActionTile
-                                        icon={Shield}
-                                        title="Estado del Empleado"
-                                        description="Situación laboral actual."
-                                        rightContentType="select"
-                                        selectValue={employee.estado}
-                                        onSelectChange={(v) => handleInputChange('estado', v)}
-                                        selectOptions={[
-                                            { value: 'Activo', label: 'Activo' },
-                                            { value: 'Inactivo', label: 'Inactivo' },
-                                            { value: 'Vacaciones', label: 'Vacaciones' },
-                                            { value: 'Baja', label: 'Baja' },
-                                        ]}
-                                    />
+                                    <Card>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <Briefcase className="h-4 w-4" />
+                                                Configuración Laboral
+                                            </CardTitle>
+                                            <CardDescription>Detalles sobre el puesto y situación del empleado.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="grid gap-3">
+                                            <ActionTile
+                                                icon={Briefcase}
+                                                title="Puesto / Rol"
+                                                description="Cargo principal dentro del equipo."
+                                                rightContentType="select"
+                                                selectValue={employee.rol}
+                                                onSelectChange={(v) => handleInputChange('rol', v)}
+                                                variant="none"
+                                                padding="none"
+                                                selectOptions={[
+                                                    { value: 'camarero', label: 'Camarero/a' },
+                                                    { value: 'cocinero', label: 'Cocinero/a' },
+                                                    { value: 'bartender', label: 'Bartender' },
+                                                    { value: 'gerente', label: 'Gerente' },
+                                                    { value: 'host', label: 'Host' },
+                                                    { value: 'ayudante_cocina', label: 'Ayudante de Cocina' },
+                                                ]}
+                                            />
+                                            <ActionTile
+                                                icon={Building2}
+                                                title="Departamento"
+                                                description="Área de trabajo asignada."
+                                                rightContentType="select"
+                                                selectValue={employee.departamento || ''}
+                                                onSelectChange={(v) => handleInputChange('departamento', v)}
+                                                variant="none"
+                                                padding="none"
+                                                selectOptions={[
+                                                    { value: 'sala', label: 'Sala' },
+                                                    { value: 'cocina', label: 'Cocina' },
+                                                    { value: 'barra', label: 'Barra' },
+                                                    { value: 'administracion', label: 'Administración' },
+                                                ]}
+                                            />
+                                            <ActionTile
+                                                icon={FileText}
+                                                title="Tipo de Contrato"
+                                                description="Modalidad de contratación legal."
+                                                rightContentType="select"
+                                                selectValue={employee.tipo_contrato || ''}
+                                                onSelectChange={(v) => handleInputChange('tipo_contrato', v)}
+                                                variant="none"
+                                                padding="none"
+                                                selectOptions={[
+                                                    { value: 'indefinido', label: 'Indefinido' },
+                                                    { value: 'temporal', label: 'Temporal' },
+                                                    { value: 'practicas', label: 'Prácticas' },
+                                                    { value: 'autonomo', label: 'Autónomo' },
+                                                ]}
+                                            />
+                                            <ActionTile
+                                                icon={Shield}
+                                                title="Estado del Empleado"
+                                                description="Situación laboral actual."
+                                                rightContentType="select"
+                                                selectValue={employee.estado}
+                                                onSelectChange={(v) => handleInputChange('estado', v)}
+                                                variant="none"
+                                                padding="none"
+                                                selectOptions={[
+                                                    { value: 'Activo', label: 'Activo' },
+                                                    { value: 'Inactivo', label: 'Inactivo' },
+                                                    { value: 'Vacaciones', label: 'Vacaciones' },
+                                                    { value: 'Baja', label: 'Baja' },
+                                                ]}
+                                            />
+                                        </CardContent>
+                                    </Card>
                                 </TabsContent>
 
                                 {/* TAB: ACCESO */}
                                 <TabsContent value="acceso" className="mt-0 space-y-6">
-                                    <div className="space-y-4">
-                                        <ActionTile
-                                            icon={Key}
-                                            title="PIN de Acceso"
-                                            description="Código de seguridad de 4 dígitos."
-                                            rightContentType="custom"
-                                            customContent={
-                                                <div className="flex items-center gap-2">
-                                                    <Input
-                                                        type={showPin ? 'text' : 'password'}
-                                                        value={employee.pin}
-                                                        onChange={(e) => handleInputChange('pin', e.target.value.slice(0, 4))}
-                                                        className="w-20 text-center font-mono font-bold"
-                                                        maxLength={4}
-                                                    />
-                                                    <Button variant="ghost" size="sm" onClick={() => setShowPin(!showPin)} className="h-9 w-9 p-0">
-                                                        {showPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                                                    </Button>
-                                                </div>
-                                            }
-                                        />
-
-                                        <ActionTile
-                                            icon={Shield}
-                                            title="Nivel de Permisos"
-                                            description="Plantilla de acceso predefinida."
-                                            rightContentType="select"
-                                            selectValue={nivelAcceso}
-                                            onSelectChange={(v) => handleNivelAccesoChange(v as NivelAcceso)}
-                                            selectOptions={nivelesAcceso.map(n => ({ value: n.id, label: n.label }))}
-                                        />
-
-                                        <div className="space-y-3">
-                                            <Label icon={Building2}>Establecimientos Asignados</Label>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {mockEstablecimientos.map(est => (
-                                                    <ActionTile
-                                                        key={est.id}
-                                                        switchId={`est-${est.id}`}
-                                                        icon={Building2}
-                                                        title={est.nombre}
-                                                        description="Habilitar acceso"
-                                                        rightContentType="switch"
-                                                        switchChecked={employee.establecimientos_asignados?.includes(est.id)}
-                                                        onSwitchChange={() => handleToggleEstablecimiento(est.id)}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <Label icon={Smartphone}>Métodos de Fichaje Permitidos</Label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                            {metodosFichaje.map(metodo => (
+                                    <div className="space-y-6">
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base flex items-center gap-2">
+                                                    <Key className="h-4 w-4" />
+                                                    Seguridad
+                                                </CardTitle>
+                                                <CardDescription>Configura las credenciales de acceso físico al terminal.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
                                                 <ActionTile
-                                                    key={metodo.id}
-                                                    switchId={`metodo-${metodo.id}`}
-                                                    icon={metodo.icon}
-                                                    title={metodo.label}
-                                                    description={metodo.description}
-                                                    rightContentType="switch"
-                                                    switchChecked={employee.metodos_fichaje_permitidos?.includes(metodo.id as any)}
-                                                    onSwitchChange={() => {
-                                                        const m = metodo.id as any;
-                                                        const current = employee.metodos_fichaje_permitidos || [];
-                                                        handleInputChange('metodos_fichaje_permitidos', 
-                                                            current.includes(m) ? current.filter(x => x !== m) : [...current, m]
-                                                        );
-                                                    }}
+                                                    icon={Key}
+                                                    title="PIN de Acceso"
+                                                    description="Código de seguridad de 4 dígitos."
+                                                    rightContentType="custom"
+                                                    padding="none"
+                                                    variant="none"
+                                                    customContent={
+                                                        <div className="flex items-center gap-2">
+                                                            <Input
+                                                                type={showPin ? 'text' : 'password'}
+                                                                value={employee.pin}
+                                                                onChange={(e) => handleInputChange('pin', e.target.value.slice(0, 4))}
+                                                                className="w-24 text-center font-mono font-bold h-10 rounded-xl"
+                                                                maxLength={4}
+                                                            />
+                                                            <Button variant="ghost" size="sm" onClick={() => setShowPin(!showPin)} className="h-10 w-10 p-0 rounded-xl">
+                                                                {showPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                                            </Button>
+                                                        </div>
+                                                    }
                                                 />
-                                            ))}
-                                        </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base">Nivel de Acceso</CardTitle>
+                                                <CardDescription>Selecciona el tipo de usuario para aplicar permisos predefinidos.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {nivelesAcceso.map(nivel => (
+                                                        <ActionTile
+                                                            key={nivel.id}
+                                                            icon={nivel.icon}
+                                                            title={nivel.label}
+                                                            description={nivel.description}
+                                                            onClick={() => handleNivelAccesoChange(nivel.id)}
+                                                            variant={nivelAcceso === nivel.id ? 'accent' : 'outline'}
+                                                            className={cn(
+                                                                "transition-all",
+                                                                nivelAcceso === nivel.id && "border-primary ring-1 ring-primary/20"
+                                                            )}
+                                                            rightContentType="custom"
+                                                            customContent={
+                                                                <div className={cn(
+                                                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                                                                    nivelAcceso === nivel.id 
+                                                                        ? "border-primary bg-primary" 
+                                                                        : "border-muted-foreground/30"
+                                                                )}>
+                                                                    {nivelAcceso === nivel.id && <Check className="h-3 w-3 text-white" />}
+                                                                </div>
+                                                            }
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base">Permisos del Sistema</CardTitle>
+                                                <CardDescription>
+                                                    {nivelAcceso === 'personalizado' 
+                                                        ? 'Selecciona los permisos manualmente.' 
+                                                        : 'Permisos asignados automáticamente según el nivel de acceso.'}
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {permisosDisponibles.map(permiso => (
+                                                        <ActionTile
+                                                            key={permiso.id}
+                                                            icon={permiso.icon}
+                                                            title={permiso.label}
+                                                            description={permiso.description}
+                                                            rightContentType="switch"
+                                                            switchId={`permiso-${permiso.id}`}
+                                                            switchChecked={employee.permisos?.includes(permiso.id) || false}
+                                                            onSwitchChange={() => {
+                                                                if (nivelAcceso !== 'personalizado') {
+                                                                    setNivelAcceso('personalizado');
+                                                                }
+                                                                handleTogglePermiso(permiso.id);
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base flex items-center gap-2">
+                                                    <Building2 className="h-4 w-4" />
+                                                    Establecimientos Asignados
+                                                </CardTitle>
+                                                <CardDescription>Habilita los locales en los que este empleado puede operar.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {mockEstablishments.map(est => (
+                                                        <ActionTile
+                                                            key={est.id}
+                                                            switchId={`est-${est.id}`}
+                                                            icon={Building2}
+                                                            title={est.name}
+                                                            description="Habilitar acceso"
+                                                            rightContentType="switch"
+                                                            switchChecked={employee.establecimientos_asignados?.includes(est.id)}
+                                                            onSwitchChange={() => handleToggleEstablecimiento(est.id)}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base flex items-center gap-2">
+                                                    <Smartphone className="h-4 w-4" />
+                                                    Métodos de Fichaje Permitidos
+                                                </CardTitle>
+                                                <CardDescription>Selecciona los canales habilitados para el registro de jornada.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {metodosFichaje.map(metodo => (
+                                                        <ActionTile
+                                                            key={metodo.id}
+                                                            switchId={`metodo-${metodo.id}`}
+                                                            icon={metodo.icon}
+                                                            title={metodo.label}
+                                                            description={metodo.description}
+                                                            rightContentType="switch"
+                                                            switchChecked={employee.metodos_fichaje_permitidos?.includes(metodo.id as any)}
+                                                            onSwitchChange={() => {
+                                                                const m = metodo.id as any;
+                                                                const current = employee.metodos_fichaje_permitidos || [];
+                                                                handleInputChange('metodos_fichaje_permitidos', 
+                                                                    current.includes(m) ? current.filter(x => x !== m) : [...current, m]
+                                                                );
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
                                 </TabsContent>
 
                                 {/* TAB: NOMINA */}
                                 <TabsContent value="nomina" className="mt-0 space-y-4">
-                                    <ActionTile
-                                        icon={Wallet}
-                                        title="Salario por Hora (€)"
-                                        description="Base para cálculo de nómina."
-                                        rightContentType="custom"
-                                        customContent={
-                                            <Input 
-                                                type="number" 
-                                                className="w-24 text-right" 
-                                                value={employee.salarioPorHora}
-                                                onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value))}
+                                    <Card>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <Wallet className="h-4 w-4" />
+                                                Configuración Salarial
+                                            </CardTitle>
+                                            <CardDescription>Detalles económicos y de jornada contratada.</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="grid gap-4">
+                                            <ActionTile
+                                                icon={Wallet}
+                                                title="Salario por Hora (€)"
+                                                description="Base para cálculo de nómina."
+                                                rightContentType="custom"
+                                                variant="none"
+                                                padding="none"
+                                                customContent={
+                                                    <Input 
+                                                        type="number" 
+                                                        className="w-24 text-right h-10 rounded-xl" 
+                                                        value={employee.salarioPorHora}
+                                                        onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value))}
+                                                    />
+                                                }
                                             />
-                                        }
-                                    />
-                                    <ActionTile
-                                        icon={Smartphone}
-                                        title="Horas Contratadas"
-                                        description="Carga horaria semanal establecida."
-                                        rightContentType="custom"
-                                        customContent={
-                                            <Input 
-                                                type="number" 
-                                                className="w-24 text-right" 
-                                                value={employee.horasContratadas}
-                                                onChange={(e) => handleInputChange('horasContratadas', parseFloat(e.target.value))}
+                                            <ActionTile
+                                                icon={Smartphone}
+                                                title="Horas Contratadas"
+                                                description="Carga horaria semanal establecida."
+                                                rightContentType="custom"
+                                                variant="none"
+                                                padding="none"
+                                                customContent={
+                                                    <Input 
+                                                        type="number" 
+                                                        className="w-24 text-right h-10 rounded-xl" 
+                                                        value={employee.horasContratadas}
+                                                        onChange={(e) => handleInputChange('horasContratadas', parseFloat(e.target.value))}
+                                                    />
+                                                }
                                             />
-                                        }
-                                    />
-                                    <ActionTile
-                                        icon={Check}
-                                        switchId="horas-extras"
-                                        title="Horas Extras"
-                                        description="Permitir registro fuera de jornada."
-                                        rightContentType="switch"
-                                        switchChecked={employee.horas_extra_habilitadas}
-                                        onSwitchChange={(checked) => handleInputChange('horas_extra_habilitadas', checked)}
-                                    />
+                                            <ActionTile
+                                                icon={Check}
+                                                switchId="horas-extras"
+                                                title="Horas Extras"
+                                                description="Permitir registro fuera de jornada."
+                                                rightContentType="switch"
+                                                variant="none"
+                                                padding="none"
+                                                switchChecked={employee.horas_extra_habilitadas}
+                                                onSwitchChange={(checked) => handleInputChange('horas_extra_habilitadas', checked)}
+                                            />
+                                        </CardContent>
+                                    </Card>
                                 </TabsContent>
 
                                 {/* TAB: DOCUMENTOS */}
@@ -521,8 +657,8 @@ export function EmployeeDialog({
                                             <Upload className="h-6 w-6 text-primary" />
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-sm font-bold">Subir Documentos</p>
-                                            <p className="text-xs text-muted-foreground max-w-[200px]">DNI, Contratos, Seguros Sociales o Certificados (PDF, JPG).</p>
+                                            <TextSM>Subir Documentos</TextSM>
+                                            <TextXS className="text-muted-foreground">DNI, Contratos, Seguros Sociales o Certificados (PDF, JPG).</TextXS>
                                         </div>
                                         <Button size="sm" variant="outline" className="mt-2">Seleccionar Archivos</Button>
                                     </div>

@@ -1,3 +1,5 @@
+import { TextXS, H4 } from "@/components/ui/typography";
+
 'use client';
 
 import * as React from 'react';
@@ -160,13 +162,13 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
                     <div className="rounded-xl border-2 border-border p-2 shadow-xl bg-background">
                       <div className="flex flex-col gap-2">
                         <div className="flex items-center justify-between gap-8">
-                          <span className="text-xs text-muted-foreground">{label}</span>
+                          <TextXS className="text-muted-foreground">{label}</TextXS>
                         </div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-xl font-black text-foreground">
+                          <H4 className="text-foreground">
                             €{Number(payload[0].value).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-xs font-bold text-muted-foreground">EUR</span>
+                          </H4>
+                          <TextXS className="text-muted-foreground">EUR</TextXS>
                         </div>
                       </div>
                     </div>

@@ -1,4 +1,4 @@
-import { H3 } from '@/components/ui/typography';
+import { H3, TextMD, TextSM } from '@/components/ui/typography';
 import * as React from 'react';
 import { MoreVertical, Pencil, Trash, Plus, Building2, Phone, Mail, MapPin, FileText } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
@@ -153,7 +153,7 @@ export function ProvidersTab() {
                                 <H3 className="font-bold text-muted-foreground">Proveedores</H3>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Gestiona tus proveedores principales.</p>
+                                <TextSM>Gestiona tus proveedores principales.</TextSM>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -166,8 +166,8 @@ export function ProvidersTab() {
                     {providers.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                             <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p>No hay proveedores registrados.</p>
-                            <p className="text-sm">Añade tu primer proveedor para empezar.</p>
+                            <TextMD>No hay proveedores registrados.</TextMD>
+                            <TextSM>Añade tu primer proveedor para empezar.</TextSM>
                         </div>
                     ) : (
                         <div className="flex flex-col gap-4">

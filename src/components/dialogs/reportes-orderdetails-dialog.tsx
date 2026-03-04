@@ -1,3 +1,4 @@
+import { TextMD, H4 } from "@/components/ui/typography";
 import * as React from 'react';
 import { FileText, Users2, Clock, CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogHeader, DialogFooter, DialogClose } from '@/components/layout/dialog';
@@ -87,17 +88,17 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
 
                     <div className="flex flex-col gap-2 pt-2">
                         <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>Subtotal</span>
-                            <span>€{order.subtotal.toFixed(2)}</span>
+                            <TextMD>Subtotal</TextMD>
+                            <TextMD>€{order.subtotal.toFixed(2)}</TextMD>
                         </div>
                         <div className="flex justify-between text-sm text-muted-foreground">
-                            <span>Impuestos</span>
-                            <span>€{order.tax.toFixed(2)}</span>
+                            <TextMD>Impuestos</TextMD>
+                            <TextMD>€{order.tax.toFixed(2)}</TextMD>
                         </div>
                         <Separator margin="xs" />
                         <div className="flex justify-between items-center">
-                            <span className="font-bold text-lg">Total</span>
-                            <span className="font-bold text-xl text-primary">{order.total}</span>
+                            <H4>Total</H4>
+                            <H4 className="text-primary">{order.total}</H4>
                         </div>
                     </div>
                 </DialogContent>

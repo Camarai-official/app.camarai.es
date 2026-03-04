@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, H5, TextSM } from '@/components/ui/typography';
 
 
 import * as React from 'react';
@@ -59,7 +59,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
             toast({
                 title: "Carta Guardada",
                 description: `La carta "${activeCarta.nombre_carta}" se ha guardado correctamente.` });
-            router.push('/carta');
+            router.push('/cartas');
         }
     };
 
@@ -172,7 +172,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                                     <div key={el.id} className="flex items-center justify-between p-2 border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow">
                                         <div className="flex items-center gap-3">
                                             {el.tipo === 'categoria' ? <Layers className="h-5 w-5 text-purple-500" /> : <Package className="h-5 w-5 text-blue-500" />}
-                                            <p className="font-semibold">{getElementName(el)}</p>
+                                            <H5>{getElementName(el)}</H5>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             <Button variant="ghost" size="md" className="h-8 w-8" onClick={() => handleReorderElement(el.id, 'up')} disabled={index === 0}>
@@ -189,7 +189,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                                 ))}
                                 {activeCarta.elementos_carta.length === 0 && (
                                     <div className="h-full flex items-center justify-center">
-                                        <p className="text-sm text-center text-muted-foreground">Esta carta todavía no tiene contenido.<br />Añade categorías desde la derecha.</p>
+                                        <TextSM className="text-muted-foreground">Esta carta todavía no tiene contenido.<br />Añade categorías desde la derecha.</TextSM>
                                     </div>
                                 )}
                             </CardContent>
@@ -206,7 +206,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
                                     <div key={cat.id} className="flex items-center justify-between p-2 border rounded-lg bg-muted/50 hover:bg-muted transition-colors">
                                         <div className="flex items-center gap-3">
                                             <Layers className="h-5 w-5 text-purple-500" />
-                                            <p className="font-semibold">{cat.nombre_categoria}</p>
+                                            <H5>{cat.nombre_categoria}</H5>
                                         </div>
                                         <Button size="sm" onClick={() => handleAddElement('categoria', cat.id)}>Añadir</Button>
                                     </div>
@@ -220,7 +220,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
             <footer className="p-4 md:p-6 pt-0 sticky bottom-0">
                 <Card className="border-t bg-background/80 backdrop-blur-sm">
                     <div className="flex justify-between items-center">
-                        <Button variant="outline" onClick={() => router.push('/carta')}>
+                        <Button variant="outline" onClick={() => router.push('/cartas')}>
                             <ArrowLeft className="h-4 w-4 md:mr-2" />
                             <span className="hidden md:inline">Volver a Gestión de Cartas</span>
                         </Button>

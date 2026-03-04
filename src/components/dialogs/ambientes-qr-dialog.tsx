@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TextSM } from "@/components/ui/typography";
 import { QrCode, Maximize, FileType, Check, Download, Activity, Printer, Link as LinkIcon, ExternalLink } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
@@ -242,7 +243,7 @@ export function QRManagementDialog({
                                                     >
                                                         <CardContent className="p-3 space-y-3">
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-sm font-bold text-foreground">Mesa {table.number}</span>
+                                                                <TextSM className="text-foreground">Mesa {table.number}</TextSM>
                                                                 <div className={cn(
                                                                     "h-5 w-5 rounded border transition-all flex items-center justify-center",
                                                                     isSelected ? "bg-primary border-primary text-primary-foreground" : "bg-muted border-input"

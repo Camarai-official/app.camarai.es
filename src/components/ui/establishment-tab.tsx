@@ -1,4 +1,4 @@
-import { H3 } from '@/components/ui/typography';
+import { H2, H3, TextSM } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
 import { Camera, Trash } from 'lucide-react';
@@ -69,7 +69,7 @@ export function EstablishmentTab({
                                     <H3 className="font-bold text-muted-foreground">Datos del Establecimiento</H3>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                    <p>Información del restaurante o local principal.</p>
+                                    <TextSM>Información del restaurante o local principal.</TextSM>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -87,8 +87,8 @@ export function EstablishmentTab({
                                 <Input ref={establishmentFileInputRef} type="file" accept="image/*" className="hidden" onChange={onEstablishmentImageChange} />
                             </div>
                             <div className="grid gap-1.5 flex-grow text-center md:text-left">
-                                <h2 className="text-xl sm:text-2xl font-bold">{localEstablishment.name}</h2>
-                                <p className="text-sm text-muted-foreground">{localEstablishment.type}</p>
+                                <H2>{localEstablishment.name}</H2>
+                                <TextSM className="text-muted-foreground">{localEstablishment.type}</TextSM>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

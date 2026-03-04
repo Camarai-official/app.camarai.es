@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TextSM, TextXS, TextMD, H4 } from "@/components/ui/typography";
 import { 
   Pencil, 
   ShoppingBag, 
@@ -147,15 +148,15 @@ export function EditOrderDialog({
                           className="flex items-center justify-between p-2.5 rounded-lg hover:bg-accent cursor-pointer transition-colors"
                           onClick={() => handleAddProduct(product)}
                         >
-                          <span className="text-sm font-medium">{product.name}</span>
+                          <TextSM>{product.name}</TextSM>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-primary">€{product.price.toFixed(2)}</span>
+                            <TextXS className="text-primary">€{product.price.toFixed(2)}</TextXS>
                             <Plus className="h-4 w-4 text-primary" />
                           </div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-xs text-center text-muted-foreground py-4">Sin resultados</p>
+                      <TextXS className="text-muted-foreground">Sin resultados</TextXS>
                     )}
                   </div>
                 )}
@@ -238,13 +239,13 @@ export function EditOrderDialog({
                 {/* Totals Section */}
                   <div className="space-y-3 px-1">
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium tabular-nums text-muted-foreground">€{calculateSubtotal().toFixed(2)}</span>
+                      <TextMD className="text-muted-foreground">Subtotal</TextMD>
+                      <TextMD className="text-muted-foreground">€{calculateSubtotal().toFixed(2)}</TextMD>
                     </div>
 
                     <div className="flex justify-between items-center text-sm pt-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">Descuento</span>
+                        <TextMD className="text-muted-foreground">Descuento</TextMD>
                         <div className="flex items-center bg-background rounded-xl px-2 h-10 gap-0.5 border border-border focus-within:border-primary/20 transition-all">
                           <Input 
                             type="number" 
@@ -252,22 +253,22 @@ export function EditOrderDialog({
                             onChange={(e) => setDiscount(Number(e.target.value))}
                             className="h-full w-8 border-none bg-transparent p-0 text-center text-xs font-bold focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
                           />
-                          <span className="text-[10px] text-muted-foreground/60 font-bold">%</span>
+                          <H4 className="text-muted-foreground">%</H4>
                         </div>
                       </div>
-                      <span className="font-bold text-rose-500/80 tabular-nums">-€{calculateDiscountValue().toFixed(2)}</span>
+                      <H4 className="text-rose-500">-€{calculateDiscountValue().toFixed(2)}</H4>
                     </div>
 
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">IVA (21%)</span>
-                      <span className="font-medium tabular-nums text-muted-foreground">€{calculateTax().toFixed(2)}</span>
+                      <TextMD className="text-muted-foreground">IVA (21%)</TextMD>
+                      <TextMD className="text-muted-foreground">€{calculateTax().toFixed(2)}</TextMD>
                     </div>
 
                     <div className="pt-5 mt-2 border-t flex justify-between items-center">
-                      <span className="text-base font-bold text-foreground">Total</span>
-                      <span className="font-bold text-foreground tabular-nums">
+                      <H4 className="text-foreground">Total</H4>
+                      <H4 className="text-foreground">
                         €{calculateTotal().toFixed(2)}
-                      </span>
+                      </H4>
                     </div>
                   </div>
               </div>

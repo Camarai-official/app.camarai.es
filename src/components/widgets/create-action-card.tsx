@@ -5,6 +5,7 @@ import { PlusCircle } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { TextSM } from "@/components/ui/typography";
 
 type CreateActionCardProps = {
   label: string;
@@ -47,7 +48,7 @@ export function CreateActionCard({
         variant === 'list' ? "flex-row gap-3 px-4 w-full" : "flex-col gap-2"
       )}>
         <Icon className={cn(variant === 'list' ? "h-5 w-5" : "h-8 w-8")} />
-        <p className="font-semibold text-sm">{label}</p>
+        <TextSM>{label}</TextSM>
       </div>
     </Card>
   );

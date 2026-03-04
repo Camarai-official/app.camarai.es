@@ -36,12 +36,12 @@ import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 
+import { TaxDialog } from '@/components/dialogs/configuracion-tax-dialog';
+
 export default function TaxesPage() {
   const [taxes, setTaxes] = React.useState<Tax[]>(mockTaxes);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTax, setEditingTax] = React.useState<Tax | null>(null);
-  const [taxName, setTaxName] = React.useState('');
-  const [taxRate, setTaxRate] = React.useState(0);
   const [isInitialized, setIsInitialized] = React.useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -51,15 +51,7 @@ export default function TaxesPage() {
   }, []);
 
   const handleOpenDialog = (tax?: Tax) => {
-    if (tax) {
-      setEditingTax(tax);
-      setTaxName(tax.nombre_impuesto);
-      setTaxRate(tax.porcentaje_impuesto);
-    } else {
-      setEditingTax(null);
-      setTaxName('');
-      setTaxRate(0);
-    }
+    setEditingTax(tax || null);
     setIsDialogOpen(true);
   };
 
@@ -82,8 +74,7 @@ export default function TaxesPage() {
     toast({ title: 'Impuesto eliminado', description: 'El impuesto ha sido eliminado permanentemente.', variant: 'destructive' });
   };
 
-  const handleSave = () => {
-    const taxData = { nombre_impuesto: taxName, porcentaje_impuesto: taxRate };
+  const handleSave = (taxData: { nombre_impuesto: string; porcentaje_impuesto: number }) => {
     if (editingTax) {
       updateTax(editingTax.id, taxData);
     } else {
@@ -103,37 +94,10 @@ export default function TaxesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <H3>Todos los Impuestos</H3>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => handleOpenDialog()}>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Añadir Impuesto
-                </Button>
-              </DialogTrigger>
-              <DialogWindow size="md">
-                <DialogHeader
-                  icon={Banknote}
-                  title={`${editingTax ? 'Editar' : 'Crear'} Impuesto`}
-                  description="Define un nuevo tipo impositivo para tus productos."
-                />
-                <DialogContent>
-                  <div className="space-y-4 p-6">
-                  <div>
-                    <Label htmlFor="tax-name">Nombre del Impuesto</Label>
-                    <Input id="tax-name" value={taxName} onChange={(e) => setTaxName(e.target.value)} placeholder="Ej: IVA General, Tasa Turística..." />
-                  </div>
-                  <div>
-                    <Label htmlFor="tax-rate">Porcentaje (%)</Label>
-                    <Input id="tax-rate" type="number" value={taxRate} onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)} placeholder="Ej: 21" />
-                  </div>
-                  </div>
-                </DialogContent>
-                <DialogFooter>
-                  <DialogClose asChild><Button variant="ghost">Cancelar</Button></DialogClose>
-                  <Button variant="default" onClick={handleSave}>Guardar Impuesto</Button>
-                </DialogFooter>
-              </DialogWindow>
-            </Dialog>
+            <Button onClick={() => handleOpenDialog()}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Añadir Impuesto
+            </Button>
           </CardHeader>
           <CardContent className="p-0 sm:p-6">
             <div className="overflow-x-auto">
@@ -191,6 +155,13 @@ export default function TaxesPage() {
           </CardContent>
         </Card>
       </PageContent>
+
+      <TaxDialog 
+        open={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+        editingTax={editingTax} 
+        onSave={handleSave} 
+      />
     </PageContainer>
     );
 }

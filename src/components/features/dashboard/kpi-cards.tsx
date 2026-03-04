@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { Card, CardHeader, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
+import { TextSM, H4 } from '@/components/ui/typography';
 import type { Product } from '@/data/mock-data';
 
 // --- TopProductsCard ---
@@ -129,16 +130,16 @@ export function PeakHoursCard({ orders }: PeakHoursCardProps) {
       <CardHeader title="Eficiencia y Horas Punta" />
       <CardContent gap="md">
         <div className="flex items-center justify-between">
-          <p className="text-muted-foreground">Hora de Más Ventas</p>
-          <p className="font-bold text-lg">{peakHours.peakRevenueHour}</p>
+          <TextSM className="text-muted-foreground">Hora de Más Ventas</TextSM>
+          <H4>{peakHours.peakRevenueHour}</H4>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-muted-foreground">Hora con Más Comandas</p>
-          <p className="font-bold text-lg">{peakHours.peakOrdersHour}</p>
+          <TextSM className="text-muted-foreground">Hora con Más Comandas</TextSM>
+          <H4>{peakHours.peakOrdersHour}</H4>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-muted-foreground">Ticket Medio Máximo</p>
-          <p className="font-bold text-lg">{peakHours.peakAvgTicketHour}</p>
+          <TextSM className="text-muted-foreground">Ticket Medio Máximo</TextSM>
+          <H4>{peakHours.peakAvgTicketHour}</H4>
         </div>
       </CardContent>
     </Card>

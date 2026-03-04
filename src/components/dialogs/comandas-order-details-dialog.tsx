@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TextXS, TextMD, H4 } from "@/components/ui/typography";
 import { Printer, Pencil, Download, Receipt } from 'lucide-react';
 
 import type { OrderDetails } from '@/types/orders';
@@ -42,35 +43,35 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
                 />
               </div>
               <h2 className="font-bold text-lg  tracking-wider">Camarai Rest.</h2>
-              <p className="text-xs text-gray-500">Calle Principal 123, Madrid</p>
-              <p className="text-xs text-gray-500">Tel: +34 912 345 678</p>
+              <TextXS className="text-gray-500">Calle Principal 123, Madrid</TextXS>
+              <TextXS className="text-gray-500">Tel: +34 912 345 678</TextXS>
 
               <div className="mt-4 border-b-2 border-dashed border-gray-300 pb-4">
                 <h3 className="text-xl font-bold">Ticket #{order.order}</h3>
-                <p className="text-xs text-gray-400 mt-1">
+                <TextXS className="text-gray-400">
                   {order.date ? order.date : new Date().toLocaleDateString()} - {order.time}
-                </p>
+                </TextXS>
               </div>
             </div>
 
             {/* Customer Info */}
             <div className="flex justify-between mb-4 text-xs font-bold ">
-              <span>MESA: {order.table}</span>
-              <span>CLIENTE: {order.name.split(' ')[0]}</span>
+              <TextMD>MESA: {order.table}</TextMD>
+              <TextMD>CLIENTE: {order.name.split(' ')[0]}</TextMD>
             </div>
 
             {/* Items */}
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-xs border-b border-black pb-1 mb-2 font-bold">
-                <span className="w-8">Cant</span>
-                <span className="flex-1">Producto</span>
-                <span>Total</span>
+                <TextMD>Cant</TextMD>
+                <TextMD>Producto</TextMD>
+                <TextMD>Total</TextMD>
               </div>
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-start">
-                  <span className="w-8 font-bold">{item.quantity}</span>
-                  <span className="flex-1 leading-tight pr-2">{item.name}</span>
-                  <span className="font-medium">€{(item.price * item.quantity).toFixed(2)}</span>
+                  <H4>{item.quantity}</H4>
+                  <TextMD>{item.name}</TextMD>
+                  <TextMD>€{(item.price * item.quantity).toFixed(2)}</TextMD>
                 </div>
               ))}
             </div>
@@ -78,23 +79,23 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
             {/* Totals */}
             <div className="border-t-2 border-dashed border-gray-300 pt-4 space-y-1">
               <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>€{order.subtotal.toFixed(2)}</span>
+                <TextMD>Subtotal</TextMD>
+                <TextMD>€{order.subtotal.toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Impuestos (21%)</span>
-                <span>€{order.tax.toFixed(2)}</span>
+                <TextMD>Impuestos (21%)</TextMD>
+                <TextMD>€{order.tax.toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-xl font-bold mt-2 pt-2 border-t border-black">
-                <span>TOTAL</span>
-                <span>{order.total}</span>
+                <TextMD>TOTAL</TextMD>
+                <TextMD>{order.total}</TextMD>
               </div>
             </div>
 
             {/* Footer message */}
             <div className="mt-8 text-center text-xs text-gray-400">
-              <p>¡Gracias por su visita!</p>
-              <p>www.camarai.es</p>
+              <TextMD>¡Gracias por su visita!</TextMD>
+              <TextMD>www.camarai.es</TextMD>
             </div>
 
             {/* Zigzag bottom effect using css or svg */}

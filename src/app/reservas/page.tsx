@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, H5, TextSM } from '@/components/ui/typography';
 
 
 import * as React from 'react';
@@ -205,9 +205,9 @@ export default function ReservasPage() {
                                             {props.displayIndex === 0 && (
                                                 <Button onClick={handlePrevMonth} variant="outline" size="md" startIcon={<ChevronLeft />} />
                                             )}
-                                            <h2 className="text-sm font-medium text-center flex-1">
+                                            <H5>
                                                 {format(props.displayMonth, 'LLLL yyyy', { locale: es })}
-                                            </h2>
+                                            </H5>
                                             {props.displayIndex === 0 && (
                                                 <Button onClick={handleNextMonth} variant="outline" size="md" startIcon={<ChevronRight />} />
                                             )}
@@ -330,7 +330,7 @@ export default function ReservasPage() {
                                 </div>
                             ) : (
                                 <div className="text-center text-muted-foreground pt-16">
-                                    <p>No hay reservas para este día.</p>
+                                    <TextSM>No hay reservas para este día.</TextSM>
                                 </div>
                             )}
                         </CardContent>

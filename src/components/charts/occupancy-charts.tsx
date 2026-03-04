@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DashboardList, DashboardListItem } from '@/components/ui/dashboard-list';
-import { H1 } from '@/components/ui/typography';
+import { H1, TextXS } from '@/components/ui/typography';
 
 type OccupancyData = {
   name: string;
@@ -67,7 +67,7 @@ export function OccupancyChart({ data, className }: OccupancyChartProps) {
       <CardContent>
         {!data || data.length === 0 ? (
           <div className="flex items-center justify-center">
-            <p className="text-muted-foreground text-xs text-center">No hay datos disponibles.</p>
+            <TextXS className="text-muted-foreground">No hay datos disponibles.</TextXS>
           </div>
         ) : (
           <div className="flex flex-col space-y-6">

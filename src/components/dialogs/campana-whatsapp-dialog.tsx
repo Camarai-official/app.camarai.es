@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { TextMD } from "@/components/ui/typography";
 import { 
     MessageSquare, 
     Layers, 
@@ -201,7 +202,7 @@ export function CampanaWhatsAppDialog({ open, onOpenChange, campaign, onSave }: 
                             </div>
 
                             <div className="space-y-4">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">¿Qué se promociona?</Label>
+                                <Label className="text-xs font-bold  tracking-wider text-muted-foreground">¿Qué se promociona?</Label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <ActionTile
                                         icon={Layers}
@@ -263,7 +264,7 @@ export function CampanaWhatsAppDialog({ open, onOpenChange, campaign, onSave }: 
                             </div>
 
                             <div className="space-y-4">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Segmentación de Audiencia</Label>
+                                <Label className="text-xs font-bold  tracking-wider text-muted-foreground">Segmentación de Audiencia</Label>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
                                     <div className="space-y-2">
                                         <Label>Comportamiento del Cliente</Label>
@@ -287,14 +288,14 @@ export function CampanaWhatsAppDialog({ open, onOpenChange, campaign, onSave }: 
                                     icon={Users}
                                     iconColor="#3b82f6"
                                     title="Audiencia estimada"
-                                    description={<span>Se enviará a un estimado de <strong className="text-primary font-bold">42 clientes</strong> calificados.</span>}
+                                    description={<TextMD>Se enviará a un estimado de <strong className="text-primary font-bold">42 clientes</strong> calificados.</TextMD>}
                                     variant="none"
                                     padding="none"
                                 />
                             </div>
 
                             <div className="space-y-4">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Contenido y Programación</Label>
+                                <Label className="text-xs font-bold  tracking-wider text-muted-foreground">Contenido y Programación</Label>
                                 <div className="space-y-3">
                                     <Label htmlFor="campaign-message">Mensaje personalizado</Label>
                                     <Textarea 
@@ -305,9 +306,9 @@ export function CampanaWhatsAppDialog({ open, onOpenChange, campaign, onSave }: 
                                         rows={4}
                                         className="resize-none"
                                     />
-                                    <p className="text-[11px] text-muted-foreground px-1">
+                                    <TextMD className="text-muted-foreground">
                                         Variables: <code className="text-primary">{'{nombre_cliente}'}</code>, <code className="text-primary">{'{nombre_producto_ofertado}'}</code>, <code className="text-primary">{'{fecha_fin_oferta}'}</code>
-                                    </p>
+                                    </TextMD>
                                 </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -344,7 +345,7 @@ export function CampanaWhatsAppDialog({ open, onOpenChange, campaign, onSave }: 
 
                         {/* Preview Column */}
                         <div className="lg:col-span-4 flex flex-col h-full min-h-[500px]">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">Vista Previa Real-time</Label>
+                            <Label className="text-xs font-bold  tracking-wider text-muted-foreground mb-4">Vista Previa Real-time</Label>
                             <div className="rounded-2xl border bg-muted/30 p-6 flex-1 flex justify-center">
                                 <div className="w-full max-w-[280px] h-full">
                                     <WhatsAppPreview

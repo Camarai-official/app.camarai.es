@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, TextSM, TextXS, H4, TextMD } from '@/components/ui/typography';
 
 import * as React from 'react';
 import { Clock, CheckCircle2, AlertTriangle, Bell, Calendar, Users, Package, CreditCard, MessageSquare, ClipboardList, BarChart3, Settings } from 'lucide-react';
@@ -184,7 +184,7 @@ export function RoleDashboard({
         <div className={cn("p-6", roleStyles.bg)}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Bienvenido,</p>
+              <TextSM className="text-muted-foreground">Bienvenido,</TextSM>
               <h2 className="text-2xl font-bold">{userName}</h2>
             </div>
             <Badge variant="outline" className={roleStyles.text}>
@@ -204,7 +204,7 @@ export function RoleDashboard({
                 className="flex-col h-auto py-3 gap-1"
               >
                 <action.icon className="h-5 w-5" />
-                <span className="text-xs">{action.label}</span>
+                <TextXS>{action.label}</TextXS>
               </Button>
             ))}
           </div>
@@ -216,8 +216,8 @@ export function RoleDashboard({
         {config.defaultStats.map((stat, i) => (
           <Card key={i} className="border-none shadow-none rounded-lg p-4">
             <CardContent className="p-0">
-              <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-              <p className="text-2xl font-bold text-primary mt-1">{stats?.[stat.label] || stat.value}</p>
+              <TextSM className="text-muted-foreground">{stat.label}</TextSM>
+              <H4 className="text-primary">{stats?.[stat.label] || stat.value}</H4>
             </CardContent>
           </Card>
         ))}
@@ -234,8 +234,8 @@ export function RoleDashboard({
             </div>
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Progreso del día</span>
-                <span>{taskProgress}%</span>
+                <TextMD>Progreso del día</TextMD>
+                <TextMD>{taskProgress}%</TextMD>
               </div>
               <Progress value={taskProgress} className="h-1.5" />
             </div>
@@ -254,17 +254,17 @@ export function RoleDashboard({
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <p className={cn(
+                        <TextMD className={cn(
                           "font-medium text-sm",
                           task.status === 'completed' && "line-through"
                         )}>
                           {task.title}
-                        </p>
+                        </TextMD>
                         {task.dueTime && (
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <TextXS className="text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             {task.dueTime}
-                          </p>
+                          </TextXS>
                         )}
                       </div>
                       <Badge variant={priorityVariants[task.priority]}>
@@ -314,8 +314,8 @@ export function RoleDashboard({
                         {notification.type === 'reminder' && <Bell className="h-4 w-4" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{notification.message}</p>
-                        <p className="text-xs text-muted-foreground">{notification.time}</p>
+                        <TextSM>{notification.message}</TextSM>
+                        <TextXS className="text-muted-foreground">{notification.time}</TextXS>
                       </div>
                       {!notification.read && (
                         <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />

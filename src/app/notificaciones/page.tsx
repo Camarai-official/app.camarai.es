@@ -22,7 +22,7 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { H3, TextSM, TextXS } from '@/components/ui/typography';
+import { H3, H5, TextSM, TextXS } from '@/components/ui/typography';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -162,9 +162,9 @@ export default function NotificationsPage() {
                                                                 {notif.time}
                                                             </span>
                                                         </div>
-                                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                                        <TextXS className="text-muted-foreground">
                                                             {notif.description}
-                                                        </p>
+                                                        </TextXS>
                                                     </div>
 
                                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -177,8 +177,8 @@ export default function NotificationsPage() {
                                         ) : (
                                             <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
                                                 <Bell className="h-12 w-12 mb-4" />
-                                                <p className="text-sm font-medium">Bandeja de entrada vacía</p>
-                                                <p className="text-xs">¡Todo está al día por aquí!</p>
+                                                <H5>Bandeja de entrada vacía</H5>
+                                                <TextXS>¡Todo está al día por aquí!</TextXS>
                                             </div>
                                         )}
                                     </div>

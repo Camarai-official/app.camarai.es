@@ -1,4 +1,4 @@
-import { H3 } from '@/components/ui/typography';
+import { H2, H3, TextMD, TextSM } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
 import { Camera } from 'lucide-react';
@@ -39,7 +39,7 @@ export function ProfileTab({
                                 <H3 className="font-bold text-muted-foreground">Información del Perfil</H3>
                             </TooltipTrigger>
                             <TooltipContent>
-                                <p>Gestiona los datos de tu cuenta de usuario.</p>
+                                <TextSM>Gestiona los datos de tu cuenta de usuario.</TextSM>
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
@@ -61,10 +61,10 @@ export function ProfileTab({
                                 </div>
                                 <div className="grid grid-cols-1 gap-1.5 flex-grow text-center md:text-left">
                                     <div>
-                                        <h2 className="text-2xl font-bold">{localUser.firstName} {localUser.lastName}</h2>
-                                        <p className="text-muted-foreground">{localUser.email}</p>
+                                        <H2>{localUser.firstName} {localUser.lastName}</H2>
+                                        <TextMD className="text-muted-foreground">{localUser.email}</TextMD>
                                     </div>
-                                    <p className="text-sm text-muted-foreground">Último login: 12/07/2024 10:30 AM</p>
+                                    <TextSM className="text-muted-foreground">Último login: 12/07/2024 10:30 AM</TextSM>
                                 </div>
                             </div>
 
@@ -111,7 +111,7 @@ export function ProfileTab({
                             </div>
                         </>
                     ) : (
-                        <p>Cargando perfil...</p>
+                        <TextSM>Cargando perfil...</TextSM>
                     )}
                 </CardContent>
                 <CardFooter className="border-t px-6 py-4">

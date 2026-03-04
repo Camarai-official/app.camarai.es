@@ -20,6 +20,7 @@ interface FloorPlanCanvasProps {
     onDuplicateTable: (table: Table) => void;
     onEditChairs: (table: Table) => void;
     editingChairsId: number | null;
+    isLocked?: boolean;
 }
 
 type DragItem = {
@@ -55,7 +56,8 @@ export function FloorPlanCanvas({
     onOpenQR,
     onDuplicateTable,
     onEditChairs,
-    editingChairsId
+    editingChairsId,
+    isLocked = false
 }: FloorPlanCanvasProps) {
     const statusConfig: Record<TableStatus, { variant: any; icon: React.ElementType }> = {
         'Libre': { variant: 'success', icon: CheckSquare },
@@ -144,6 +146,8 @@ export function FloorPlanCanvas({
             setInteractionMode(null);
         }
 
+        if (isLocked) return;
+
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         const mouseX = (e.clientX - rect.left) / zoom;
@@ -158,6 +162,7 @@ export function FloorPlanCanvas({
 
     const handleResizeStart = (e: React.MouseEvent, table: Table, corner: ResizeItem['corner']) => {
         e.stopPropagation();
+        if (isLocked) return;
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         setActiveResize({
@@ -174,6 +179,7 @@ export function FloorPlanCanvas({
 
     const handleRotateStart = (e: React.MouseEvent, table: Table) => {
         e.stopPropagation();
+        if (isLocked) return;
         if (!containerRef.current) return;
         const rect = containerRef.current.getBoundingClientRect();
         const centerX = table.x + table.width / 2;
@@ -404,7 +410,7 @@ export function FloorPlanCanvas({
                                         "absolute top-0 left-0 flex items-center justify-center border select-none group/table transition-colors duration-200",
                                         table.isObject ? "bg-muted" : "bg-background border-border",
                                         table.shape === 'round' ? "rounded-full" : (table.isObject ? "rounded-none" : "rounded-xl"),
-                                        isSelected && !isDragging ? "ring-1 ring-primary z-40 cursor-grab" : "z-30 cursor-pointer",
+                                        isSelected && !isDragging ? (isLocked ? "ring-1 ring-primary z-40 cursor-default" : "ring-1 ring-primary z-40 cursor-grab") : (isLocked ? "z-30 cursor-default" : "z-30 cursor-pointer"),
                                         isDragging ? "z-50 cursor-grabbing shadow-xl ring-1 ring-primary" : "",
                                     )}
                                     style={{
@@ -447,8 +453,8 @@ export function FloorPlanCanvas({
                 </div>
             </div>
 
-            {selectedTableId && (
-                <div className="absolute top-6 right-6 flex items-center gap-1 p-1 bg-background border rounded-xl z-40 animate-in fade-in slide-in-from-top-2 duration-200 shadow-xl">
+            {selectedTableId && !isLocked && (
+                    <div className="absolute top-6 right-6 flex items-center gap-1 p-1 bg-background border rounded-xl z-40 animate-in fade-in slide-in-from-top-2 duration-200 shadow-xl">
                     <TooltipProvider delayDuration={0}>
                         <div className="px-3 h-10 flex items-center">
                             {(() => {

@@ -26,7 +26,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-pointer select-none items-center rounded-md px-2 py-2 text-sm font-medium outline-none data-[state=open]:bg-primary/20 data-[state=open]:text-primary [&_svg]:mr-2 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-muted-foreground [&_svg]:shrink-0",
+      "flex cursor-pointer select-none items-center px-2 py-2 text-sm font-medium outline-none [&_svg]:mr-2 [&_svg]:h-4 [&_svg]:w-4 [&_svg]:text-muted-foreground [&_svg]:shrink-0",
       inset && "pl-8",
       className
     )}
@@ -109,7 +109,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
+      "relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0 [&_svg]:text-muted-foreground",
       inset && "pl-8",
       padding === 'none' && "p-0",
       overflow === 'hidden' && "overflow-hidden",

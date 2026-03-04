@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { MetricCard } from '@/components/widgets/metric-card';
 import { DollarSign, CreditCard, Wallet, TrendingUp } from 'lucide-react';
+import { H3, TextSM } from '@/components/ui/typography';
 
 type CashClosingTabProps = {
     realCash: string;
@@ -66,16 +67,16 @@ export function CashClosingTab({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-6">
-                            <h3 className="font-semibold text-lg">Operaciones Detalladas</h3>
-                            <p className="text-sm text-muted-foreground">
+                            <H3>Operaciones Detalladas</H3>
+                            <TextSM className="text-muted-foreground">
                                 Revisa todos los movimientos individuales registrados durante el turno antes de proceder al cierre definitivo.
-                            </p>
+                            </TextSM>
                             <Button variant="outline" className="w-full h-12" onClick={onOpenMovements} startIcon={<Eye />}>
                                 Ver Movimientos Detallados
                             </Button>
                         </div>
                         <div className="space-y-6">
-                            <h3 className="font-semibold text-lg">Cuadre de Caja</h3>
+                            <H3>Cuadre de Caja</H3>
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center text-lg p-3 bg-blue-500/10 rounded-lg">
                                     <span className="font-semibold text-blue-800 dark:text-blue-300">Total Teórico en Caja:</span>
@@ -110,9 +111,9 @@ export function CashClosingTab({
                     </div>
                 </CardContent>
                 <CardFooter className="border-t pt-6 flex flex-col sm:flex-row justify-end gap-3">
-                    <p className="text-sm text-muted-foreground flex-1 text-center sm:text-left">
+                    <TextSM className="text-muted-foreground">
                         Antes de cerrar, asegúrate de que todas las cuentas estén pagadas.
-                    </p>
+                    </TextSM>
                     <Button variant="outline" size="md">Cierre X (Parcial)</Button>
                     <Button variant="destructive" size="md">Cierre Z (Final)</Button>
                 </CardFooter>

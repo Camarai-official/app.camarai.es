@@ -1,3 +1,5 @@
+import { TextMD } from "@/components/ui/typography";
+
 'use client';
 
 import * as React from 'react';
@@ -213,15 +215,15 @@ function ConfirmChangesDialog({
                 key={index}
                 className="flex items-center justify-between p-2 bg-muted/50 rounded text-sm"
               >
-                <span className="font-medium">{getColumnHeader(change.field)}:</span>
+                <TextMD>{getColumnHeader(change.field)}:</TextMD>
                 <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground line-through">
+                  <TextMD className="text-muted-foreground">
                     {String(change.originalValue)}
-                  </span>
-                  <span className="text-primary font-medium">→</span>
-                  <span className="text-green-600 font-medium">
+                  </TextMD>
+                  <TextMD className="text-primary">→</TextMD>
+                  <TextMD className="text-green-600">
                     {String(change.newValue)}
-                  </span>
+                  </TextMD>
                 </div>
               </div>
             ))}

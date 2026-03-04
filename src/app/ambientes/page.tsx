@@ -9,6 +9,7 @@ import type { Environment } from '@/data/mock-data';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
@@ -52,6 +53,7 @@ export default function AmbientesPage() {
     // Estado local inicializado con mock data
     const [environments, setEnvironments] = React.useState<Environment[]>(mockEnvironments);
     const { toast } = useToast();
+    const router = useRouter();
 
     // QR Dialog state
     const [qrDialogOpen, setQrDialogOpen] = React.useState(false);
@@ -114,6 +116,10 @@ export default function AmbientesPage() {
         setQrDialogOpen(true);
     };
 
+    const handleViewPlan = (envId: string) => {
+        router.push(`/plano-mesas?envId=${envId}`);
+    };
+
 
     const downloadAllQRs = (selectedTables: Set<string>) => {
         toast({
@@ -140,6 +146,7 @@ export default function AmbientesPage() {
                             onRemove={removeEnvironment}
                             onOpenQR={openQRDialog}
                             calculateStats={calculateStats}
+                            onViewPlan={handleViewPlan}
                         />
                     ))}
                     <div className="h-[230px]">

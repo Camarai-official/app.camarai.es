@@ -1,5 +1,5 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
+import { H3, H5, TextXS } from '@/components/ui/typography';
 
 
 
@@ -112,8 +112,8 @@ export default function NotificationsPage() {
                                         <Icon className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-bold text-foreground">{info.title}</h3>
-                                        <p className="text-[11px] text-muted-foreground">{info.description}</p>
+                                        <H5>{info.title}</H5>
+                                        <TextXS className="text-muted-foreground">{info.description}</TextXS>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
