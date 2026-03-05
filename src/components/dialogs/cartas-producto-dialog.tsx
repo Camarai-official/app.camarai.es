@@ -279,12 +279,12 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
 
                         <ScrollArea className="flex-1">
                             <TabsContent value="general" spaced className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-[160px,1fr] gap-6 items-start">
+                                    <div className="w-[160px]">
                                         <ImageUploader
                                             value={product.url_imagen_producto}
                                             onChange={handleImageChange}
-                                            placeholder="Subir imagen del producto"
+                                            placeholder="Imagen"
                                             aspectRatio="square"
                                         />
                                     </div>
@@ -295,9 +295,10 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="id_categoria">Categoría *</Label>
-                                            <Select value={product.id_categoria} onValueChange={(value) => setProduct(prev => ({ ...prev, id_categoria: value }))}>
+                                            <Select value={product.id_categoria || "ninguna"} onValueChange={(value) => setProduct(prev => ({ ...prev, id_categoria: value === "ninguna" ? "" : value }))}>
                                                 <SelectTrigger><SelectValue placeholder="Selecciona una categoría..." /></SelectTrigger>
                                                 <SelectContent>
+                                                    <SelectItem value="ninguna">Ninguna</SelectItem>
                                                     {categories.map(cat => (
                                                         <SelectItem key={cat.id} value={cat.id}>{cat.nombre_categoria}</SelectItem>
                                                     ))}
@@ -426,129 +427,139 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="variantes" spaced className="p-6">
-                                <Card>
-                                    <CardHeader title="Variantes del Producto" description="Añade opciones como tamaños, extras o modificadores." />
-                                    <CardContent gap="md" padding="none">
-                                        <div className="flex gap-2">
-                                            <Input
-                                                placeholder="Nombre de la variante (ej: Grande, Sin hielo)"
-                                                value={newVariantName}
-                                                onChange={(e) => setNewVariantName(e.target.value)}
-                                                className="flex-1"
-                                            />
-                                            <Input
-                                                type="number"
-                                                placeholder="€ Extra"
-                                                value={newVariantPrice}
-                                                onChange={(e) => setNewVariantPrice(parseFloat(e.target.value) || 0)}
-                                                className="w-24"
-                                                step="0.01"
-                                            />
-                                            <Button onClick={handleAddVariant} disabled={!newVariantName.trim()}>
-                                                <PlusCircle className="h-4 w-4 mr-1" />
-                                                Añadir
-                                            </Button>
+                            <TabsContent value="variantes" className="p-6 space-y-6">
+                                <div className="space-y-1">
+                                    <H3 className="text-lg font-bold">Variantes del Producto</H3>
+                                    <TextSM className="text-muted-foreground">Añade opciones como tamaños, extras o modificadores.</TextSM>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-2 bg-muted/30 p-3 rounded-lg border">
+                                    <Input
+                                        placeholder="Nombre (ej: Grande)"
+                                        value={newVariantName}
+                                        onChange={(e) => setNewVariantName(e.target.value)}
+                                        className="flex-1"
+                                    />
+                                    <div className="flex gap-2 shrink-0">
+                                        <Input
+                                            type="number"
+                                            placeholder="€ Extra"
+                                            value={newVariantPrice}
+                                            onChange={(e) => setNewVariantPrice(parseFloat(e.target.value) || 0)}
+                                            className="w-24"
+                                            step="0.01"
+                                        />
+                                        <Button onClick={handleAddVariant} disabled={!newVariantName.trim()} className="gap-2">
+                                            <PlusCircle className="h-4 w-4" />
+                                            Añadir
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                    {product.variantes.map(variant => (
+                                        <div key={variant.id} className="flex items-center justify-between p-3 border rounded-lg bg-card text-sm hover:border-primary/30 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <Switch
+                                                    checked={variant.disponible}
+                                                    onCheckedChange={() => handleToggleVariant(variant.id)}
+                                                />
+                                                <TextMD className={cn('font-medium text-foreground', !variant.disponible && 'text-muted-foreground line-through')}>{variant.nombre}</TextMD>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <Badge variant={variant.precio_extra > 0 ? 'default' : 'secondary'} className="h-6">
+                                                    {variant.precio_extra > 0 ? `+€${variant.precio_extra.toFixed(2)}` : 'Sin cargo'}
+                                                </Badge>
+                                                <Button variant="ghost" size="md" onClick={() => handleRemoveVariant(variant.id)} className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive">
+                                                    <Trash className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <div className="space-y-2">
-                                            {product.variantes.map(variant => (
-                                                <div key={variant.id} className="flex items-center justify-between p-2 border rounded-md bg-background text-sm">
-                                                    <div className="flex items-center gap-3">
-                                                        <Switch
-                                                            checked={variant.disponible}
-                                                            onCheckedChange={() => handleToggleVariant(variant.id)}
-                                                        />
-                                                        <TextMD className={cn('text-foreground', !variant.disponible && 'text-muted-foreground line-through')}>{variant.nombre}</TextMD>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <Badge variant={variant.precio_extra > 0 ? 'default' : 'secondary'}>
-                                                            {variant.precio_extra > 0 ? `+€${variant.precio_extra.toFixed(2)}` : 'Sin cargo'}
-                                                        </Badge>
-                                                        <Button variant="ghost" size="md" onClick={() => handleRemoveVariant(variant.id)}>
-                                                            <Trash className="h-4 w-4 text-muted-foreground" />
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {product.variantes.length === 0 && (
-                                                <TextSM className="text-muted-foreground">No hay variantes configuradas.</TextSM>
-                                            )}
+                                    ))}
+                                    {product.variantes.length === 0 && (
+                                        <div className="py-8 text-center border-2 border-dashed rounded-lg bg-muted/10">
+                                            <TextSM className="text-muted-foreground">No hay variantes configuradas.</TextSM>
                                         </div>
-                                    </CardContent>
-                                </Card>
+                                    )}
+                                </div>
                             </TabsContent>
 
-                            <TabsContent value="disponibilidad" spaced className="p-6">
-                                <div className="flex items-center justify-between p-4 border rounded-lg bg-background">
-                                    <div>
-                                        <Label className="text-base text-foreground">Disponible para la venta</Label>
-                                        <TextSM className="text-muted-foreground">El producto aparecerá en las cartas activas</TextSM>
+                            <TabsContent value="disponibilidad" className="p-6 space-y-6">
+                                <div className="flex items-center justify-between p-4 border rounded-xl bg-card shadow-sm">
+                                    <div className="space-y-1">
+                                        <Label className="text-base font-bold text-foreground">Visible para la venta</Label>
+                                        <TextSM className="text-muted-foreground">El producto aparecerá en las cartas digitales activas</TextSM>
                                     </div>
                                     <Switch checked={product.disponible} onCheckedChange={handleSwitchChange} />
                                 </div>
 
-                                <Card>
-                                    <CardHeader title="Horario de Disponibilidad" description="Opcional: limitar el producto a ciertas horas." />
-                                    <CardContent gap="md" padding="none">
-                                        <div className="grid grid-cols-1 sm:grid-cols-[1fr,1fr,auto] items-end gap-4">
-                                            <div className="space-y-2">
-                                                <Label className="text-foreground">Hora Inicio</Label>
-                                                <Input
-                                                    type="time"
-                                                    value={product.horario_disponible?.inicio || ''}
-                                                    onChange={(e) => setProduct(prev => ({
-                                                        ...prev,
-                                                        horario_disponible: {
-                                                            inicio: e.target.value,
-                                                            fin: prev.horario_disponible?.fin || ''
-                                                        }
-                                                    }))}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-foreground">Hora Fin</Label>
-                                                <Input
-                                                    type="time"
-                                                    value={product.horario_disponible?.fin || ''}
-                                                    onChange={(e) => setProduct(prev => ({
-                                                        ...prev,
-                                                        horario_disponible: {
-                                                            inicio: prev.horario_disponible?.inicio || '',
-                                                            fin: e.target.value
-                                                        }
-                                                    }))}
-                                                />
-                                            </div>
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => setProduct(prev => ({ ...prev, horario_disponible: null }))}
-                                                className="w-full sm:w-auto"
-                                            >
-                                                Limpiar
-                                            </Button>
+                                <div className="space-y-4">
+                                    <div className="space-y-1 px-1">
+                                        <H3 className="text-lg font-bold">Horario de Disponibilidad</H3>
+                                        <TextSM className="text-muted-foreground">Limita la venta del producto a un horario específico.</TextSM>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-[1fr,1fr,auto] items-end gap-3 bg-muted/30 p-4 rounded-xl border">
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hora Inicio</Label>
+                                            <Input
+                                                type="time"
+                                                value={product.horario_disponible?.inicio || ''}
+                                                onChange={(e) => setProduct(prev => ({
+                                                    ...prev,
+                                                    horario_disponible: {
+                                                        inicio: e.target.value,
+                                                        fin: prev.horario_disponible?.fin || ''
+                                                    }
+                                                }))}
+                                                className="bg-background"
+                                            />
                                         </div>
-                                    </CardContent>
-                                </Card>
+                                        <div className="space-y-2">
+                                            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hora Fin</Label>
+                                            <Input
+                                                type="time"
+                                                value={product.horario_disponible?.fin || ''}
+                                                onChange={(e) => setProduct(prev => ({
+                                                    ...prev,
+                                                    horario_disponible: {
+                                                        inicio: prev.horario_disponible?.inicio || '',
+                                                        fin: e.target.value
+                                                    }
+                                                }))}
+                                                className="bg-background"
+                                            />
+                                        </div>
+                                        <Button
+                                            variant="secondary"
+                                            size="md"
+                                            onClick={() => setProduct(prev => ({ ...prev, horario_disponible: null }))}
+                                            className="w-full sm:w-auto"
+                                        >
+                                            Borrar Horario
+                                        </Button>
+                                    </div>
+                                </div>
 
-                                <Card>
-                                    <CardHeader title="Alérgenos" description="Selecciona los alérgenos presentes en este producto." />
-                                    <CardContent padding="none">
-                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                                            {alergenosList.map(alergeno => (
-                                                <div key={alergeno} className="flex items-center space-x-2">
-                                                    <Checkbox
-                                                        id={`alergeno-${alergeno}`}
-                                                        checked={product.alergenos.includes(alergeno)}
-                                                        onCheckedChange={() => handleToggleAlergeno(alergeno)}
-                                                    />
-                                                    <Label htmlFor={`alergeno-${alergeno}`} className="text-sm font-normal cursor-pointer text-foreground">
-                                                        {alergeno}
-                                                    </Label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                <div className="space-y-4">
+                                    <div className="space-y-1 px-1">
+                                        <H3 className="text-lg font-bold">Alérgenos</H3>
+                                        <TextSM className="text-muted-foreground">Ingredientes que pueden causar reacciones alérgicas.</TextSM>
+                                    </div>
+                                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 bg-muted/10 p-4 rounded-xl border">
+                                        {alergenosList.map(alergeno => (
+                                            <div key={alergeno} className="flex items-center space-x-3 p-2 rounded-md hover:bg-background/50 transition-colors cursor-pointer" onClick={() => handleToggleAlergeno(alergeno)}>
+                                                <Checkbox
+                                                    id={`alergeno-${alergeno}`}
+                                                    checked={product.alergenos.includes(alergeno)}
+                                                    onCheckedChange={() => handleToggleAlergeno(alergeno)}
+                                                />
+                                                <Label htmlFor={`alergeno-${alergeno}`} className="text-sm font-medium cursor-pointer flex-1 py-1">
+                                                    {alergeno}
+                                                </Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">

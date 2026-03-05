@@ -1,37 +1,44 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
-
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardFooter, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreHorizontal, Edit, Trash, X, ChevronLeft, ChevronRight, Printer, Package } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose, DialogWindow } from '@/components/layout/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/dialogs/global-alert-dialog';
-import { buttonVariants } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import Image from 'next/image';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/layout/page-header';
-import { PageContent } from '@/components/layout/page-content';
+import { 
+    PlusCircle, 
+    Edit, 
+    Trash, 
+    ChevronLeft, 
+    ChevronRight, 
+    Eye,
+    EyeOff,
+    Utensils,
+    LayoutGrid
+} from 'lucide-react';
+
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableHead, 
+    TableHeader, 
+    TableRow 
+} from '@/components/ui/table';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Badge, IconBadge } from '@/components/ui/badge';
+import { 
+    AlertDialog, 
+    AlertDialogAction, 
+    AlertDialogCancel, 
+    AlertDialogContent, 
+    AlertDialogDescription, 
+    AlertDialogFooter, 
+    AlertDialogHeader, 
+    AlertDialogTitle, 
+    AlertDialogTrigger 
+} from '@/components/dialogs/global-alert-dialog';
 import { SearchInput } from '@/components/ui/search-input';
-import { PageContainer } from '@/components/layout/page-container';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { ColorPicker } from '@/components/ui/color-picker';
-import { IconPicker, iconMap } from '@/components/ui/icon-picker';
-import { ImageUploader } from '@/components/ui/image-uploader';
+import { TextSM } from '@/components/ui/typography';
+import { useToast } from '@/hooks/use-toast';
+import { iconMap } from '@/components/ui/icon-picker';
+
 import {
   mockCategories,
   mockProducts,
@@ -39,29 +46,39 @@ import {
   type Product
 } from '@/data/mock-data';
 
-import { CategoryDialog, type ExtendedCategory } from '@/components/dialogs/inventario-category-dialog';
+import { CategoryDialog, type ExtendedCategory } from '@/components/dialogs/cartas-categoria-dialog';
 
-export function CategoriasTab() {
+interface CategoriasTabProps {
+    searchTerm?: string;
+}
+
+export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
   const [categories, setCategories] = React.useState<ExtendedCategory[]>(mockCategories as ExtendedCategory[]);
   const [products, setProducts] = React.useState<Product[]>(mockProducts);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingCategory, setEditingCategory] = React.useState<ExtendedCategory | null>(null);
-  const [searchTerm, setSearchTerm] = React.useState('');
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [itemsPerPage] = React.useState(12);
-  const [isAnimating, setIsAnimating] = React.useState(false);
+  const [itemsPerPage] = React.useState(10);
   const { toast } = useToast();
 
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
+  // Listen for global event to open add dialog
+  React.useEffect(() => {
+      const handleOpenAdd = () => handleOpenDialog();
+      window.addEventListener('open-add-categorias', handleOpenAdd);
+      return () => window.removeEventListener('open-add-categorias', handleOpenAdd);
+  }, []);
+
   // Helper functions
   const addCategory = (categoryData: Partial<ExtendedCategory>) => {
     const newCategory: ExtendedCategory = {
       id: `cat-${Date.now()}`,
       nombre_categoria: categoryData.nombre_categoria || '',
-      ...categoryData };
+      ...categoryData 
+    };
     setCategories(prev => [...prev, newCategory]);
     return newCategory.id;
   }
@@ -72,9 +89,16 @@ export function CategoriasTab() {
 
   const removeCategory = (id: string) => {
     setCategories(prev => prev.filter(c => c.id !== id));
-    // Also unassign products
     setProducts(prev => prev.map(p => p.id_categoria === id ? { ...p, id_categoria: '' } : p));
   }
+
+  const toggleVisibility = (id: string, visible: boolean) => {
+    updateCategory(id, { visible_en_carta: visible });
+    toast({
+        title: visible ? "Categoría Visible" : "Categoría Oculta",
+        description: `Se ha actualizado la visibilidad de la categoría.`
+    });
+  };
 
   const syncProductsWithCategory = (categoryId: string, productIds: string[]) => {
     const productIdsSet = new Set(productIds);
@@ -93,23 +117,8 @@ export function CategoriasTab() {
   );
 
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
-
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
-
-  const paginate = (pageNumber: number) => {
-    if (pageNumber < 1 || pageNumber > totalPages) return;
-    setIsAnimating(true);
-    setTimeout(() => {
-      setCurrentPage(pageNumber);
-      setIsAnimating(false);
-    }, 300);
-  };
+  const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
+  const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage);
 
   const handleOpenDialog = (category?: ExtendedCategory) => {
     setEditingCategory(category || null);
@@ -120,9 +129,9 @@ export function CategoriasTab() {
     let categoryId = id;
     const isEditing = !!id;
 
-    if (id) { // Editing existing category
+    if (id) {
       updateCategory(id, categoryData);
-    } else { // Creating new category
+    } else {
       categoryId = addCategory(categoryData);
     }
 
@@ -131,7 +140,8 @@ export function CategoriasTab() {
     syncProductsWithCategory(categoryId, assignedProductIds);
     toast({
       title: `Categoría ${isEditing ? 'Actualizada' : 'Creada'}`,
-      description: `La categoría "${categoryData.nombre_categoria}" ha sido guardada correctamente.` });
+      description: `La categoría "${categoryData.nombre_categoria}" ha sido guardada.` 
+    });
   };
 
   const handleRemove = (id: string, name: string) => {
@@ -139,7 +149,8 @@ export function CategoriasTab() {
     toast({
       variant: "destructive",
       title: "Categoría Eliminada",
-      description: `La categoría "${name}" ha sido eliminada.` });
+      description: `La categoría "${name}" ha sido eliminada.` 
+    });
   }
 
   const getProductsInCategoryCount = (categoryId: string) => {
@@ -148,132 +159,137 @@ export function CategoriasTab() {
 
   return (
     <div className="space-y-6">
-        <Card className="min-h-[70vh]">
-          <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <SearchInput 
-              containerClassName="md:w-1/3"
-              placeholder="Buscar categoría..." 
-              value={searchTerm} 
-              onChange={e => setSearchTerm(e.target.value)} 
-            />
-            <Button onClick={() => handleOpenDialog()} className="w-full md:w-auto">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Crear Nueva Categoría
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <Table>
+        <div className="border rounded-lg overflow-hidden bg-card">
+            <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Nombre Categoría</TableHead>
-                    <TableHead className="text-center">Productos</TableHead>
-                    <TableHead className="text-center">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody
-                  key={currentPage}
-                  className={cn('transition-opacity duration-300', isAnimating ? 'opacity-0' : 'opacity-100')}
-                >
-                  {currentCategories.length > 0 ? currentCategories.map((cat) => {
-                    const CatIcon = iconMap[cat.icono || 'Utensils'] || iconMap['Utensils'];
-                    return (
-                    <TableRow key={cat.id}>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="h-8 w-8 rounded-md flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: cat.color || '#9B6EFD' }}
-                          >
-                            <CatIcon className="h-4 w-4 text-foreground" />
-                          </div>
-                          <span>{cat.nombre_categoria}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{getProductsInCategoryCount(cat.id)} productos</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <AlertDialog>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="md" startIcon={<MoreHorizontal />} />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onClick={() => handleOpenDialog(cat)}>
-                                <Edit />
-                                Editar
-                              </DropdownMenuItem>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem>
-                                  <Trash />
-                                  Eliminar
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esta acción no se puede deshacer. Se eliminará la categoría permanentemente. Los productos en las cartas que usen esta categoría quedarán sin categorizar.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleRemove(cat.id, cat.nombre_categoria)} className={buttonVariants({ variant: 'destructive' })}>Eliminar</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </TableCell>
-                    </TableRow>
-                    );
-                  }) : (
                     <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center">
-                        {searchTerm ? 'No se encontraron categorías.' : 'No has creado ninguna categoría todavía.'}
-                      </TableCell>
+                        <TableHead width="80px" align="center">Icono</TableHead>
+                        <TableHead>Categoría</TableHead>
+                        <TableHead>Productos</TableHead>
+                        <TableHead align="center">Visible en Carta</TableHead>
+                        <TableHead align="right">Acciones</TableHead>
                     </TableRow>
-                  )}
+                </TableHeader>
+                <TableBody>
+                    {currentCategories.map((cat) => {
+                        const CatIcon = iconMap[cat.icono || 'Utensils'] || Utensils;
+                        const productCount = getProductsInCategoryCount(cat.id);
+                        const isVisible = cat.visible_en_carta !== false;
+                        
+                        return (
+                            <TableRow key={cat.id}>
+                                <TableCell align="center">
+                                    <IconBadge 
+                                        icon={CatIcon} 
+                                        iconColor={cat.color || '#9B6EFD'} 
+                                        className="h-10 w-10 rounded-md shadow-sm"
+                                        iconClassName="h-5 w-5"
+                                    />
+                                </TableCell>
+                                <TableCell variant="medium">{cat.nombre_categoria}</TableCell>
+                                <TableCell>
+                                    <Badge variant="secondary">
+                                        {productCount} {productCount === 1 ? 'producto' : 'productos'}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell align="center">
+                                    <Badge variant={isVisible ? "success" : "destructive"}>
+                                        {isVisible ? "Visible" : "Oculta"}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell align="right">
+                                    <div className="flex items-center justify-end gap-1">
+                                        <Button 
+                                            variant="secondary" 
+                                            size="md" 
+                                            onClick={() => handleOpenDialog(cat)}
+                                        >
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button 
+                                            variant="secondary" 
+                                            size="md" 
+                                            onClick={() => toggleVisibility(cat.id, !isVisible)}
+                                        >
+                                            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost-destructive" size="md">
+                                                    <Trash className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>¿Eliminar categoría?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Se eliminará la categoría "{cat.nombre_categoria}". Los productos asociados quedarán sin categoría. Esta acción no se puede deshacer.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel className={buttonVariants({ variant: 'outline', size: 'md' })}>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction 
+                                                        onClick={() => handleRemove(cat.id, cat.nombre_categoria)} 
+                                                        className={buttonVariants({ variant: 'destructive', size: 'md' })}
+                                                    >
+                                                        Eliminar
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        );
+                    })}
                 </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-          <CardFooter className="flex justify-between items-center">
-            <div className="text-xs text-muted-foreground">
-              Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredCategories.length)}-{Math.min(indexOfLastItem, filteredCategories.length)}</strong> de <strong>{filteredCategories.length}</strong> categorías.
-            </div>
-            <div className="flex justify-end items-center gap-2">
-              <Button variant="outline" size="md" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>
-                <ChevronLeft />
-              </Button>
-              {pageNumbers.map(number => (
-                <Button
-                  key={number}
-                  variant={currentPage === number ? "default" : "outline"}
-                  size="md"
-                  onClick={() => paginate(number)}
+            </Table>
+
+            {currentCategories.length === 0 && (
+                <div className="py-20 text-center">
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <LayoutGrid className="h-12 w-12 opacity-20" />
+                        <p>{searchTerm ? `No se encontraron resultados para "${searchTerm}"` : "No hay categorías disponibles"}</p>
+                    </div>
+                </div>
+            )}
+        </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 py-4">
+                <Button 
+                    variant="outline" 
+                    size="md" 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
+                    disabled={currentPage === 1}
                 >
-                  {number}
+                    <ChevronLeft className="h-4 w-4 mr-2" />
+                    Anterior
                 </Button>
-              ))}
-              <Button variant="outline" size="md" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>
-                <ChevronRight />
-              </Button>
+                <TextSM className="font-medium">
+                    Página {currentPage} de {totalPages}
+                </TextSM>
+                <Button 
+                    variant="outline" 
+                    size="md" 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
+                    disabled={currentPage === totalPages}
+                >
+                    Siguiente
+                    <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
             </div>
-          </CardFooter>
-        </Card>
-      <CategoryDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        category={editingCategory}
-        onSave={handleSave}
-        products={products}
-        allCategories={categories}
-      />
+        )}
+
+        <CategoryDialog
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            category={editingCategory}
+            onSave={handleSave}
+            products={products}
+            allCategories={categories}
+        />
     </div>
     );
 }
-
-
-
