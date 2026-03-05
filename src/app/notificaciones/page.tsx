@@ -117,7 +117,8 @@ export default function NotificationsPage() {
                             size="md"
                             onClick={() => setIsFilterOpen(true)}
                         >
-                            <Filter className="h-4 w-4 mr-2" /> Filtrar por Categoría
+                            <Filter className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">Filtrar por Categoría</span>
                         </Button>
                     </div>
                 }
@@ -162,11 +163,11 @@ export default function NotificationsPage() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
-                                                    <User className="h-3 w-3 text-muted-foreground" />
+                                                    <User className="h-3 w-3 shrink-0 text-muted-foreground" />
                                                     <span className="text-sm">{item.actor}</span>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>
+                                            <TableCell className="min-w-[200px]">
                                                 <TextXS className="text-muted-foreground leading-relaxed max-w-md">
                                                     {item.detail}
                                                 </TextXS>

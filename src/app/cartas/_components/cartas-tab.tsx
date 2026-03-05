@@ -194,7 +194,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                         <TableRow>
                             <TableHead width="80px" align="center">Img</TableHead>
                             <TableHead>Carta</TableHead>
-                            <TableHead>Descripción</TableHead>
+                            <TableHead visibility="hidden-mobile">Descripción</TableHead>
                             <TableHead align="center">Estado</TableHead>
                             <TableHead align="right">Acciones</TableHead>
                         </TableRow>
@@ -211,7 +211,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                                         </div>
                                     </TableCell>
                                     <TableCell variant="medium">{carta.nombre_carta}</TableCell>
-                                    <TableCell>
+                                    <TableCell visibility="hidden-mobile">
                                         <span className="text-muted-foreground line-clamp-1">{carta.descripcion_carta || 'Sin descripción'}</span>
                                     </TableCell>
                                     <TableCell align="center">

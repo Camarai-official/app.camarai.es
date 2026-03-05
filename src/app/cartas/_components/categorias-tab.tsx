@@ -166,7 +166,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
                         <TableHead width="80px" align="center">Icono</TableHead>
                         <TableHead>Categoría</TableHead>
                         <TableHead>Productos</TableHead>
-                        <TableHead align="center">Visible en Carta</TableHead>
+                        <TableHead align="center">Visibilidad</TableHead>
                         <TableHead align="right">Acciones</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -189,7 +189,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
                                 <TableCell variant="medium">{cat.nombre_categoria}</TableCell>
                                 <TableCell>
                                     <Badge variant="secondary">
-                                        {productCount} {productCount === 1 ? 'producto' : 'productos'}
+                                        {productCount}
                                     </Badge>
                                 </TableCell>
                                 <TableCell align="center">

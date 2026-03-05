@@ -397,6 +397,7 @@ export default function ComandasPage() {
                                     key={number}
                                     variant={currentPage === number ? "default" : "outline"}
                                     size="md"
+                                    className="hidden sm:inline-flex"
                                     onClick={() => paginate(number)}
                                 >
                                     {number}

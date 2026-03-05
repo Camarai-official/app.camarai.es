@@ -88,23 +88,25 @@ export function CalendarDateRangePicker({
                         variant={"outline"}
                         size="md"
                         className={cn(
-                            "justify-start text-left font-normal",
+                            "justify-start text-left font-normal max-w-[200px] overflow-hidden truncate",
                             !selectedDate && "text-muted-foreground"
                         )}
                     >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate?.from ? (
-                            selectedDate.to ? (
-                                <>
-                                    {format(selectedDate.from, "LLL dd", { locale: es })} -{" "}
-                                    {format(selectedDate.to, "LLL dd, y", { locale: es })}
-                                </>
+                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                        <span className="truncate">
+                            {selectedDate?.from ? (
+                                selectedDate.to ? (
+                                    <>
+                                        {format(selectedDate.from, "LLL dd", { locale: es })} -{" "}
+                                        {format(selectedDate.to, "LLL dd, y", { locale: es })}
+                                    </>
+                                ) : (
+                                    format(selectedDate.from, "PPP", { locale: es })
+                                )
                             ) : (
-                                format(selectedDate.from, "PPP", { locale: es })
-                            )
-                        ) : (
-                            <span>{placeholder}</span>
-                        )}
+                                <span>{placeholder}</span>
+                            )}
+                        </span>
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align={align}>

@@ -141,10 +141,10 @@ export default function InventarioPage() {
               <TableRow>
                 <TableHead>Ingrediente</TableHead>
                 <TableHead>Categoría</TableHead>
-                <TableHead align="center">Stock Actual</TableHead>
-                <TableHead align="center">Mín. Alerta</TableHead>
+                <TableHead align="center">Stock</TableHead>
+                <TableHead align="center">Alerta</TableHead>
                 <TableHead align="center">Unidad</TableHead>
-                <TableHead align="right">Costo (€)</TableHead>
+                <TableHead align="right">Costo</TableHead>
                 <TableHead align="right">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -171,16 +171,16 @@ export default function InventarioPage() {
                     <TableCell align="right">€{item.costo_unitario.toFixed(2)}</TableCell>
                     <TableCell align="right">
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="md" onClick={() => { setSelectedItem(item); setIsStockAdjustmentOpen(true); }}>
+                        <Button variant="secondary" size="md" onClick={() => { setSelectedItem(item); setIsStockAdjustmentOpen(true); }}>
                           <Package className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="md" onClick={() => { setSelectedItem(item); setIsEditOpen(true); }}>
+                        <Button variant="secondary" size="md" onClick={() => { setSelectedItem(item); setIsEditOpen(true); }}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="md" onClick={() => { setSelectedItem(item); setIsHistoryOpen(true); }}>
+                        <Button variant="secondary" size="md" onClick={() => { setSelectedItem(item); setIsHistoryOpen(true); }}>
                           <History className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="md" onClick={() => handleRemove(item.id)}>
+                        <Button variant="secondary" size="md" onClick={() => handleRemove(item.id)}>
                           <Trash className="h-4 w-4 text-rose-500" />
                         </Button>
                       </div>

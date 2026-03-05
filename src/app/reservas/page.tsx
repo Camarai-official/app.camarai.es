@@ -183,10 +183,10 @@ export default function ReservasPage() {
 
 
     return (
-        <PageContainer className="h-full overflow-hidden">
+        <PageContainer className="lg:h-full lg:overflow-hidden">
             <PageHeader title="Gestión de Reservas" />
             <PageContent className="lg:flex-row flex-1 min-h-0" gap="lg">
-                <Card padding="md" flex className="flex-1 h-full overflow-hidden">
+                <Card padding="md" flex className="flex-1 lg:h-full overflow-hidden min-h-[450px]">
                     <div className="w-full h-full">
                         <UICalendar
                             mode="single"
@@ -217,11 +217,11 @@ export default function ReservasPage() {
                                 DayContent: ({ date }) => {
                                     const dayReservationsCount = reservations[format(date, 'yyyy-MM-dd')]?.length || 0;
                                     return (
-                                        <div className="relative flex flex-col items-center justify-center h-full w-full">
-                                            <span>{format(date, 'd')}</span>
-                                            <div className="absolute bottom-1 sm:bottom-1.5">
+                                        <div className="relative flex flex-col items-center justify-center h-full w-full py-1">
+                                            <span className="text-xs sm:text-sm">{format(date, 'd')}</span>
+                                            <div className="mt-0.5">
                                                 {dayReservationsCount > 0 && (
-                                                    <Badge variant="default" className="h-5 px-2 text-[10px] rounded-full">{dayReservationsCount}</Badge>
+                                                    <Badge variant="default" className="h-4 sm:h-5 px-1 sm:px-2 text-[8px] sm:text-[10px] rounded-full">{dayReservationsCount}</Badge>
                                                 )}
                                             </div>
                                         </div>

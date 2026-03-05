@@ -213,38 +213,15 @@ function ProfileSettingsPageContent() {
             <PageHeader title="Ajustes Generales" />
             <PageContent>
                 <Tabs value={activeTab} onValueChange={(value) => router.push(`/settings/profile?tab=${value}`)} className="w-full">
-                    <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
-                            <TabsTrigger value="profile">
-                                <Users className="h-4 w-4 mr-2" />
-                                Perfil
-                            </TabsTrigger>
-                            <TabsTrigger value="establishment">
-                                <Store className="h-4 w-4 mr-2" />
-                                Establecimiento
-                            </TabsTrigger>
-                            <TabsTrigger value="company">
-                                <Building2 className="h-4 w-4 mr-2" />
-                                Empresa
-                            </TabsTrigger>
-                            <TabsTrigger value="devices">
-                                <Printer className="h-4 w-4 mr-2" />
-                                Dispositivos
-                            </TabsTrigger>
-                            <TabsTrigger value="providers">
-                                <Users className="h-4 w-4 mr-2" />
-                                Proveedores
-                            </TabsTrigger>
-                            <TabsTrigger value="integrations">
-                                <Plug className="h-4 w-4 mr-2" />
-                                Integraciones
-                            </TabsTrigger>
-                            <TabsTrigger value="taxes">
-                                <Percent className="h-4 w-4 mr-2" />
-                                Impuestos
-                            </TabsTrigger>
+                            <TabsTrigger value="profile" icon={Users}>Perfil</TabsTrigger>
+                            <TabsTrigger value="establishment" icon={Store}>Establecimiento</TabsTrigger>
+                            <TabsTrigger value="company" icon={Building2}>Empresa</TabsTrigger>
+                            <TabsTrigger value="devices" icon={Printer}>Dispositivos</TabsTrigger>
+                            <TabsTrigger value="providers" icon={Users}>Proveedores</TabsTrigger>
+                            <TabsTrigger value="integrations" icon={Plug}>Integraciones</TabsTrigger>
+                            <TabsTrigger value="taxes" icon={Percent}>Impuestos</TabsTrigger>
                         </TabsList>
-                    </div>
 
                     {/* Profile Tab */}
                     <ProfileTab

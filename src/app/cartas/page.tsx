@@ -26,19 +26,10 @@ export default function CartasCombinadasPage() {
             <PageContent>
                 <Tabs defaultValue="cartas" onValueChange={setActiveTab} className="w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <TabsList className="md:inline-flex flex mb-0 shrink-0">
-                            <TabsTrigger value="cartas" className="flex-1 md:flex-none">
-                                <BookOpen className="mr-2 h-4 w-4 hidden md:block" />
-                                Cartas
-                            </TabsTrigger>
-                            <TabsTrigger value="categorias" className="flex-1 md:flex-none">
-                                <Layers className="mr-2 h-4 w-4 hidden md:block" />
-                                Categorías
-                            </TabsTrigger>
-                            <TabsTrigger value="productos" className="flex-1 md:flex-none">
-                                <Package className="mr-2 h-4 w-4 hidden md:block" />
-                                Productos
-                            </TabsTrigger>
+                        <TabsList className="shrink-0">
+                            <TabsTrigger value="cartas" icon={BookOpen}>Cartas</TabsTrigger>
+                            <TabsTrigger value="categorias" icon={Layers}>Categorías</TabsTrigger>
+                            <TabsTrigger value="productos" icon={Package}>Productos</TabsTrigger>
                         </TabsList>
 
                         <div className="flex items-center gap-3 w-full md:w-auto">

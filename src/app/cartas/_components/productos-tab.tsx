@@ -175,7 +175,9 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                                         )}
                                     </div>
                                 </TableCell>
-                                <TableCell variant="medium">{prod.nombre_producto}</TableCell>
+                                <TableCell variant="medium" className="min-w-[140px]">
+                                    <span className="line-clamp-2">{prod.nombre_producto}</span>
+                                </TableCell>
                                 <TableCell>
                                     <Badge variant="secondary">
                                         {getCategoryName(prod.id_categoria) || 'Sin categoría'}
