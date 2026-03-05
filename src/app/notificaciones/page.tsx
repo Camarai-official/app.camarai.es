@@ -3,190 +3,198 @@
 import * as React from 'react';
 import { 
     Bell, 
-    Check, 
-    Trash, 
-    Settings, 
     AlertTriangle, 
     Info, 
-    MessageSquare, 
-    Circle,
-    CheckCircle2,
     Calendar,
+    User,
+    CreditCard,
+    Package,
+    Clock,
+    UserMinus,
+    UserPlus,
+    Coffee,
     Search,
-    Filter
+    Filter,
+    BarChart3,
+    Circle
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+
 import { cn } from '@/lib/utils';
 
 // UI Components
-import { Card, CardContent, CardHeader, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { H3, H5, TextSM, TextXS } from '@/components/ui/typography';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { TextSM, TextXS } from '@/components/ui/typography';
+import { 
+    Table, 
+    TableBody, 
+    TableCell, 
+    TableHead, 
+    TableHeader, 
+    TableRow 
+} from '@/components/ui/table';
 
 // Layout Components
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 
-// Feature Components
-import { ActionTile } from '@/components/ui/action-tile';
+import { NotificationsFilterDialog, type NotificationsFilterConfig } from '@/components/dialogs/notificaciones-filter-dialog';
 
-const mockNotifications = [
-    { id: '1', title: 'Nueva reserva confirmada', description: 'Juan Pérez ha reservado una mesa para 4 personas hoy a las 21:00.', type: 'info', time: 'Hace 5 min', read: false },
-    { id: '2', title: 'Stock bajo: Cerveza Mahou', description: 'Quedan menos de 10 unidades en el almacén principal.', type: 'warning', time: 'Hace 1 hora', read: false },
-    { id: '3', title: 'Actualización de sistema completada', description: 'La versión 2.4.0 se ha instalado correctamente con nuevas funciones de cobro.', type: 'info', time: 'Hace 3 horas', read: true },
-    { id: '4', title: 'Error de conexión KDS', description: 'Se ha perdido la conexión con la pantalla de cocina de la planta alta.', type: 'error', time: 'Hace 5 horas', read: true },
-    { id: '5', title: 'Campaña de Marketing finalizada', description: 'La campaña "Menú del Día" ha alcanzado a 1,200 clientes con un CTR del 15%.', type: 'info', time: 'Ayer', read: true },
+const eventData = [
+    { id: '1', event: 'Check-in Personal', actor: 'Carlos Mendoza', detail: 'Inició turno en Barra Principal', type: 'staff', time: '14:25', status: 'info', icon: UserPlus },
+    { id: '2', event: 'Alerta de Stock', actor: 'Sistema', detail: 'Stock de Cerveza Mahou bajo (8 unidades)', type: 'inventory', time: '14:10', status: 'warning', icon: Package },
+    { id: '3', event: 'Pago Recibido', actor: 'Mesa 4', detail: 'Ticket #4502 pagado por tarjeta (€42.50)', type: 'payment', time: '13:55', status: 'success', icon: CreditCard },
+    { id: '4', event: 'Nueva Reserva', actor: 'Laura Wilson', detail: 'Reserva para 4 personas (Mesa 12)', type: 'booking', time: '13:40', status: 'info', icon: Calendar },
+    { id: '5', event: 'Vuelta de Descanso', actor: 'Elena Rivas', detail: 'Terminó descanso de 15 min', type: 'staff', time: '13:20', status: 'info', icon: Coffee },
+    { id: '6', event: 'Solicitud Ausencia', actor: 'Roberto Gil', detail: 'Solicitó día libre para el 12/03', type: 'staff', time: '12:50', status: 'warning', icon: UserMinus },
+    { id: '7', event: 'Ambiente Lleno', actor: 'Sensor Salón', detail: 'Ocupación del Salón al 100%', type: 'env', time: '12:15', status: 'critical', icon: AlertTriangle },
+    { id: '8', event: 'Incidencia Fichaje', actor: 'Marcos Soto', detail: 'Olvidó fichar salida ayer (20:00)', type: 'staff', time: '11:30', status: 'critical', icon: Clock },
+    { id: '9', event: 'Check-out Personal', actor: 'Sofía Lara', detail: 'Finalizó turno (Total 8h 15m)', type: 'staff', time: '11:05', status: 'info', icon: UserMinus },
+    { id: '10', event: 'Pedido Stock', actor: 'Proveedor Central', detail: 'Pedido #902 confirmado (Carnes)', type: 'inventory', time: '10:45', status: 'success', icon: Package },
 ];
 
 export default function NotificationsPage() {
-    const { toast } = useToast();
-    const [notifications, setNotifications] = React.useState(mockNotifications);
+    const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+    const [filterConfig, setFilterConfig] = React.useState<NotificationsFilterConfig>({
+        showStaff: true,
+        showInventory: true,
+        showPayments: true,
+        showBookings: true,
+        showEnv: true,
+        showCritical: false
+    });
 
-    const markAllRead = () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-        toast({ title: "Todo leído", description: "Has marcado todas las notificaciones como leídas." });
+    const handleConfigChange = (key: keyof NotificationsFilterConfig, value: boolean) => {
+        setFilterConfig(prev => ({ ...prev, [key]: value }));
     };
 
-    const deleteNotification = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setNotifications(prev => prev.filter(n => n.id !== id));
+    const getTypeBadge = (type: string) => {
+        switch (type) {
+            case 'staff': return <Badge variant="secondary">Personal</Badge>;
+            case 'inventory': return <Badge variant="warning">Stock</Badge>;
+            case 'payment': return <Badge variant="success">Cobros</Badge>;
+            case 'booking': return <Badge variant="info">Reservas</Badge>;
+            case 'env': return <Badge variant="destructive">Ambientes</Badge>;
+            default: return <Badge variant="outline">General</Badge>;
+        }
     };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'warning': return 'text-warning';
+            case 'critical': return 'text-destructive';
+            case 'success': return 'text-success';
+            case 'info': return 'text-info';
+            default: return 'text-muted-foreground';
+        }
+    };
+
+    const filteredEvents = eventData.filter(item => {
+        // Filter by category
+        if (item.type === 'staff' && !filterConfig.showStaff) return false;
+        if (item.type === 'inventory' && !filterConfig.showInventory) return false;
+        if (item.type === 'payment' && !filterConfig.showPayments) return false;
+        if (item.type === 'booking' && !filterConfig.showBookings) return false;
+        if (item.type === 'env' && !filterConfig.showEnv) return false;
+        
+        // Filter by criticality if option is active
+        if (filterConfig.showCritical && item.status !== 'critical' && item.status !== 'warning') return false;
+        
+        return true;
+    });
 
     return (
         <PageContainer>
             <PageHeader 
-                title="Notificaciones" 
-                subtitle="Mantente al día con lo que sucede en tu establecimiento en tiempo real."
+                title="Sucesos del Establecimiento" 
+                subtitle="Registro en tiempo real de toda la actividad operativa y administrativa."
                 actions={
                     <div className="flex gap-2">
-                        <Button variant="ghost" className="h-9 px-3" onClick={markAllRead}>
-                            <Check className="h-4 w-4 mr-2" /> Marcar todo como leído
-                        </Button>
-                        <Button variant="outline" className="h-9 w-9 p-0">
-                            <Settings className="h-4 w-4" />
+                        <Button 
+                            variant="outline" 
+                            size="md"
+                            onClick={() => setIsFilterOpen(true)}
+                        >
+                            <Filter className="h-4 w-4 mr-2" /> Filtrar por Categoría
                         </Button>
                     </div>
                 }
             />
             
             <PageContent>
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                    {/* FILTERS SIDEBAR */}
-                    <div className="lg:col-span-1 space-y-4">
-                        <Card>
-                            <CardHeader title="Categorías" />
-                            <CardContent className="space-y-1">
-                                <Button variant="ghost" fullWidth className="justify-start font-bold">
-                                    <Bell className="mr-2 h-4 w-4" /> Todas
-                                    <Badge variant="completed" className="ml-auto text-[10px] tabular-nums">
-                                        {notifications.filter(n => !n.read).length}
-                                    </Badge>
-                                </Button>
-                                <Button variant="ghost" fullWidth className="justify-start">
-                                    <AlertTriangle className="mr-2 h-4 w-4" /> Alertas
-                                </Button>
-                                <Button variant="ghost" fullWidth className="justify-start">
-                                    <Calendar className="mr-2 h-4 w-4" /> Reservas
-                                </Button>
-                                <Button variant="ghost" fullWidth className="justify-start">
-                                    <MessageSquare className="mr-2 h-4 w-4" /> Mensajes
-                                </Button>
-                                <Button variant="ghost" fullWidth className="justify-start">
-                                    <Info className="mr-2 h-4 w-4" /> Sistema
-                                </Button>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="bg-primary/5 border-primary/20">
-                            <CardHeader title="Preferencia IA" />
-                            <CardContent className="space-y-4">
-                                <TextXS className="text-muted-foreground leading-relaxed">
-                                    Nuestro algoritmo prioriza las notificaciones urgentes basadas en tu actividad diaria.
-                                </TextXS>
-                                <Button fullWidth size="sm" variant="outline">Configurar Prioridades</Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* NOTIFICATION LIST */}
-                    <div className="lg:col-span-3 space-y-4">
-                        <Card>
-                            <CardHeader 
-                                title="Bandeja de entrada"
-                                children={
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <Badge variant="outline" className="cursor-pointer">Hoy</Badge>
-                                        <Badge variant="secondary" className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity">Ayer</Badge>
-                                        <Badge variant="secondary" className="cursor-pointer opacity-50 hover:opacity-100 transition-opacity">Esta semana</Badge>
-                                    </div>
-                                }
-                            />
-                            <CardContent className="p-0">
-                                <ScrollArea className="h-[calc(100vh-320px)]">
-                                    <div className="divide-y">
-                                        {notifications.length > 0 ? (
-                                            notifications.map((notif) => (
-                                                <div 
-                                                    key={notif.id} 
-                                                    className={cn(
-                                                        "flex items-start gap-4 p-4 transition-colors hover:bg-muted/30 cursor-pointer relative group",
-                                                        !notif.read && "bg-primary/5"
-                                                    )}
-                                                    onClick={() => setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, read: true } : n))}
-                                                >
-                                                    {!notif.read && (
-                                                        <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-full" />
-                                                    )}
-                                                    
-                                                    <div className={cn(
-                                                        "h-10 w-10 flex items-center justify-center rounded-xl shrink-0",
-                                                        notif.type === 'info' ? "bg-info/10 text-info" : 
-                                                        notif.type === 'warning' ? "bg-warning/10 text-warning" : 
-                                                        "bg-danger/10 text-danger"
-                                                    )}>
-                                                        {notif.type === 'info' ? <Info className="h-5 w-5" /> : 
-                                                         notif.type === 'warning' ? <AlertTriangle className="h-5 w-5" /> : 
-                                                         <CheckCircle2 className="h-5 w-5" />}
+                <Card>
+                    <NotificationsFilterDialog 
+                        open={isFilterOpen}
+                        onOpenChange={setIsFilterOpen}
+                        filterConfig={filterConfig}
+                        onConfigChange={handleConfigChange}
+                    />
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead width="80px" align="center">Hora</TableHead>
+                                    <TableHead>Evento</TableHead>
+                                    <TableHead>Actor / Origen</TableHead>
+                                    <TableHead>Detalles</TableHead>
+                                    <TableHead align="center">Categoría</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredEvents.map((item) => {
+                                    const Icon = item.icon;
+                                    return (
+                                        <TableRow key={item.id} className="group">
+                                            <TableCell align="center">
+                                                <TextSM className="font-semibold text-muted-foreground">
+                                                    {item.time}
+                                                </TextSM>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-8 w-8 flex items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                                                        <Icon className="h-4 w-4" />
                                                     </div>
-
-                                                    <div className="flex-1 space-y-1 min-w-0">
-                                                        <div className="flex items-center justify-between gap-2">
-                                                            <p className={cn("text-sm truncate", !notif.read ? "font-bold" : "font-medium")}>
-                                                                {notif.title}
-                                                            </p>
-                                                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
-                                                                {notif.time}
-                                                            </span>
-                                                        </div>
-                                                        <TextXS className="text-muted-foreground">
-                                                            {notif.description}
-                                                        </TextXS>
-                                                    </div>
-
-                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => deleteNotification(notif.id, e)}>
-                                                            <Trash className="h-4 w-4" />
-                                                        </Button>
-                                                    </div>
+                                                    <span className="font-medium text-foreground">{item.event}</span>
                                                 </div>
-                                            ))
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
-                                                <Bell className="h-12 w-12 mb-4" />
-                                                <H5>Bandeja de entrada vacía</H5>
-                                                <TextXS>¡Todo está al día por aquí!</TextXS>
-                                            </div>
-                                        )}
-                                    </div>
-                                </ScrollArea>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    <User className="h-3 w-3 text-muted-foreground" />
+                                                    <span className="text-sm">{item.actor}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextXS className="text-muted-foreground leading-relaxed max-w-md">
+                                                    {item.detail}
+                                                </TextXS>
+                                            </TableCell>
+                                            <TableCell align="center">
+                                                {getTypeBadge(item.type)}
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                        {filteredEvents.length === 0 && (
+                            <div className="py-20 text-center text-muted-foreground opacity-50 flex flex-col items-center gap-2">
+                                <Filter className="h-10 w-10 mb-2" />
+                                <p>No hay sucesos que coincidan con los filtros seleccionados.</p>
+                                <Button variant="link" size="sm" onClick={() => setFilterConfig({
+                                    showStaff: true,
+                                    showInventory: true,
+                                    showPayments: true,
+                                    showBookings: true,
+                                    showEnv: true,
+                                    showCritical: false
+                                })}>Restablecer filtros</Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </PageContent>
         </PageContainer>
     );
