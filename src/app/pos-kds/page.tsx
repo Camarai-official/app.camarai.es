@@ -85,11 +85,13 @@ export default function PosKdsPage() {
       />
       
       <PageContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="bg-muted/30 p-1 rounded-2xl">
-            <TabsTrigger value="pos" icon={Monitor}>Punto de Venta (POS)</TabsTrigger>
-            <TabsTrigger value="kds" icon={Laptop}>Cocina (KDS)</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="flex flex-col md:flex-row md:items-center justify-start gap-4 mb-6">
+            <TabsList>
+              <TabsTrigger value="pos" icon={Monitor}>Punto de Venta (POS)</TabsTrigger>
+              <TabsTrigger value="kds" icon={Laptop}>Cocina (KDS)</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="pos" className="mt-0">
             <EmptyState

@@ -449,7 +449,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between transition-colors group gap-2 min-h-16",
+        "flex flex-row items-center justify-between transition-colors group gap-3 min-h-16",
         variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
         variant === 'ghost' && "bg-transparent hover:bg-muted/30",
         variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
@@ -466,7 +466,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       <div className="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
         {renderIcon()}
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-bold text-foreground leading-tight">
+          <div className="text-sm font-bold text-foreground leading-tight truncate">
             {typeof title === 'string' ? <span>{title}</span> : title}
           </div>
           {description && (
@@ -478,7 +478,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       </div>
 
       {/* Right Side: Dynamic Content */}
-      <div className={cn("flex items-center gap-2 justify-end sm:ml-4 min-w-0 h-10", rightContentClassName)}>
+      <div className={cn("flex items-center gap-2 justify-end shrink-0 min-w-0 h-10", rightContentClassName)}>
         {renderRightContent()}
       </div>
     </div>

@@ -18,7 +18,8 @@ import {
     TrendingUp,
     Eye,
     MousePointer,
-    MessageSquare
+    MessageSquare,
+    Power
 } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
@@ -277,7 +278,7 @@ export default function PromocionesPage() {
                             />
                             <CardContent padding="none">
                                 {/* Mobile View - Cards */}
-                                <div className="grid grid-cols-1 gap-0 md:hidden divide-y">
+                                <div className="grid grid-cols-1 gap-3 md:hidden p-4">
                                     {campaigns.length === 0 ? (
                                         <EmptyState 
                                             icon={PlusCircle}
@@ -291,16 +292,32 @@ export default function PromocionesPage() {
                                                 key={campaign.id}
                                                 icon={MessageSquare}
                                                 title={campaign.name}
-                                                description={`${campaign.type} • ${campaign.audience} clientes • ${campaign.launchDate}`}
-                                                rightContentType="badge"
-                                                badgeText={campaign.status}
-                                                badgeVariant={getStatusVariant(campaign.status)}
-                                                rightContentType="dropdown"
-                                                dropdownItems={[
-                                                    { label: 'Editar', onClick: () => handleOpenDialog(campaign), icon: <Edit /> },
-                                                    { label: 'Duplicar', onClick: () => {}, icon: <Copy /> },
-                                                    { label: 'Eliminar', onClick: () => {}, icon: <Trash /> }
-                                                ]}
+                                                description={`${campaign.type} • ${campaign.audience} clientes`}
+                                                variant="outline"
+                                                rightContent={
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant={getStatusVariant(campaign.status)} size="xs">{campaign.status}</Badge>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem onClick={() => handleOpenDialog(campaign)}>
+                                                                    <Edit className="mr-2 h-4 w-4" /> Editar
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, campaign.status !== 'Activa')}>
+                                                                    <Power className="mr-2 h-4 w-4" /> {campaign.status === 'Activa' ? 'Desactivar' : 'Activar'}
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem className="text-destructive">
+                                                                    <Trash className="mr-2 h-4 w-4" /> Eliminar
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
+                                                }
                                             />
                                         ))
                                     )}

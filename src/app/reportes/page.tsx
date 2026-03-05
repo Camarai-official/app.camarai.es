@@ -186,7 +186,6 @@ export default function ReportesPage() {
             <PageHeader title="Panel de Reportes & Cierre de Caja" />
             <PageContent>
                 <Tabs defaultValue="billing">
-                    <div className="overflow-x-auto pb-2 custom-scrollbar">
                         <TabsList className="mb-4">
                             <TabsTrigger value="billing" icon={DollarSign}>Facturación</TabsTrigger>
                             <TabsTrigger value="performance" icon={TrendingUp}>Ventas</TabsTrigger>
@@ -196,7 +195,6 @@ export default function ReportesPage() {
                             <TabsTrigger value="whatsapp" icon={MessageSquare}>WhatsApp</TabsTrigger>
                             <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
                         </TabsList>
-                    </div>
 
                     <BillingTab
                         date={date}

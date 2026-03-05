@@ -20,7 +20,9 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { IconPicker, iconMap } from '@/components/ui/icon-picker';
 import { ImageUploader } from '@/components/ui/image-uploader';
 import { SearchInput } from '@/components/ui/search-input';
+import { ActionTile } from '@/components/ui/action-tile';
 import Image from 'next/image';
+import { LayoutGrid, PlusCircle } from 'lucide-react';
 import type { Category, Product } from '@/data/mock-data';
 
 export interface ExtendedCategory extends Category {
@@ -232,129 +234,133 @@ export function CategoryDialog({
                             </TabsContent>
 
                             <TabsContent value="apariencia" spaced className="p-6">
-                                <div className="grid grid-cols-2 gap-6 text-foreground">
-                                    <div className="space-y-4">
-                                        <IconPicker
-                                            value={categoryData.icono || 'Utensils'}
-                                            onChange={(icon) => setCategoryData(prev => ({ ...prev, icono: icon }))}
-                                            label="Icono de la Categoría"
-                                        />
-                                        <ColorPicker
-                                            value={categoryData.color || '#9B6EFD'}
-                                            onChange={(color) => setCategoryData(prev => ({ ...prev, color: color }))}
-                                            label="Color de la Categoría"
-                                        />
+                                <div className="grid grid-cols-1 md:grid-cols-[1fr,260px] gap-8">
+                                    <div className="space-y-6">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <IconPicker
+                                                value={categoryData.icono || 'Utensils'}
+                                                onChange={(icon) => setCategoryData(prev => ({ ...prev, icono: icon }))}
+                                                label="Icono"
+                                            />
+                                            <ColorPicker
+                                                value={categoryData.color || '#9B6EFD'}
+                                                onChange={(color) => setCategoryData(prev => ({ ...prev, color: color }))}
+                                                label="Color"
+                                            />
+                                        </div>
+
+                                        <Card>
+                                            <CardHeader 
+                                                title="Vista Previa en App" 
+                                                description="Así aparecerá esta categoría en el menú digital de tus clientes."
+                                            />
+                                            <CardContent>
+                                                <ActionTile
+                                                    title={categoryData.nombre_categoria || 'Nombre de categoría'}
+                                                    description={categoryData.descripcion || 'Descripción de la categoría'}
+                                                    icon={SelectedIcon}
+                                                    iconColor={categoryData.color || '#9B6EFD'}
+                                                    variant="outline"
+                                                />
+                                            </CardContent>
+                                        </Card>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Imagen de Categoría (opcional)</Label>
+
+                                    <div className="space-y-3">
+                                        <Label>Imagen de Banner (Opcional)</Label>
                                         <ImageUploader
                                             value={categoryData.imagen}
                                             onChange={(img) => setCategoryData(prev => ({ ...prev, imagen: img }))}
-                                            placeholder="Subir imagen"
+                                            placeholder="Subir banner"
                                             aspectRatio="16:9"
                                         />
+                                        <TextXS className="text-muted-foreground text-center block">Se usará como fondo visual en la App.</TextXS>
                                     </div>
                                 </div>
-
-                                <Card>
-                                    <CardHeader title="Vista Previa" />
-                                    <CardContent>
-                                        <div className="flex items-center gap-3 p-3 bg-background rounded-lg border">
-                                            <div
-                                                className="h-10 w-10 rounded-md flex items-center justify-center shrink-0"
-                                                style={{ backgroundColor: categoryData.color || '#9B6EFD' }}
-                                            >
-                                                <SelectedIcon className="h-5 w-5 text-foreground" />
-                                            </div>
-                                            <div>
-                                                <TextMD className="text-foreground">{categoryData.nombre_categoria || 'Nombre de categoría'}</TextMD>
-                                                <TextXS className="text-muted-foreground">{categoryData.descripcion || 'Descripción de la categoría'}</TextXS>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
                             </TabsContent>
 
                             <TabsContent value="productos" spaced className="p-6">
-                                <div className="space-y-4">
-                                    <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
-                                        <PopoverTrigger asChild>
-                                            <SearchInput
-                                                placeholder="Buscar productos para añadir..."
-                                                value={searchTerm}
-                                                onChange={(e) => {
-                                                    setSearchTerm(e.target.value);
-                                                    if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
-                                                    else setIsSearchPopoverOpen(false);
-                                                }}
-                                            />
-                                        </PopoverTrigger>
-                                        <PopoverContent>
-                                            <Command>
-                                                <CommandList>
-                                                    {unassignedProducts.length === 0 ? (
-                                                        <CommandEmpty>No se encontraron productos.</CommandEmpty>
-                                                    ) : (
-                                                        <CommandGroup>
-                                                            {unassignedProducts.map(p => (
-                                                                <CommandItem
-                                                                    key={p.id}
-                                                                    value={p.nombre_producto}
-                                                                    onSelect={() => handleSelectProduct(p)}
-                                                                >
-                                                                    {p.nombre_producto}
-                                                                </CommandItem>
-                                                            ))}
-                                                        </CommandGroup>
-                                                    )}
-                                                </CommandList>
-                                            </Command>
-                                        </PopoverContent>
-                                    </Popover>
+                                <div className="space-y-6">
+                                    <div className="bg-muted/30 border rounded-xl p-4 space-y-4">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                            <div className="space-y-1">
+                                                <H3 className="text-lg font-bold">Productos Asignados</H3>
+                                                <TextSM className="text-muted-foreground">Gestiona qué productos pertenecen a esta categoría.</TextSM>
+                                            </div>
 
-                                    <Card>
-                                        <CardHeader title={`Productos Asignados (${assignedProducts.length})`} description="Productos que pertenecen a esta categoría." />
-                                        <CardContent padding="none">
-                                            <ScrollArea>
-                                                <div className="space-y-2 p-4">
-                                                    {assignedProducts.length > 0 ? assignedProducts.map(p => (
-                                                        <div key={p.id} className="flex items-center justify-between p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="relative h-10 w-10 overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
-                                                                    {p.url_imagen_producto ? (
-                                                                        <Image 
-                                                                            src={p.url_imagen_producto} 
-                                                                            alt={p.nombre_producto} 
-                                                                            fill 
-                                                                            className="object-cover" 
-                                                                        />
-                                                                    ) : (
-                                                                        <Package className="h-5 w-5 text-muted-foreground opacity-40" />
-                                                                    )}
-                                                                </div>
-                                                                <div>
-                                                                    <TextSM className="text-foreground">{p.nombre_producto}</TextSM>
-                                                                    <TextMD className="text-muted-foreground">ID: {p.id}</TextMD>
-                                                                </div>
-                                                            </div>
-                                                            <Button 
-                                                                variant="ghost" 
-                                                                size="md" 
-                                                                onClick={() => handleRemoveProduct(p.id)}
-                                                            >
-                                                                <X className="h-4 w-4 text-muted-foreground" />
-                                                            </Button>
+                                            <div className="w-full sm:w-[300px]">
+                                                <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
+                                                    <PopoverTrigger asChild>
+                                                        <SearchInput
+                                                            placeholder="Añadir producto..."
+                                                            value={searchTerm}
+                                                            onChange={(e) => {
+                                                                setSearchTerm(e.target.value);
+                                                                if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
+                                                                else setIsSearchPopoverOpen(false);
+                                                            }}
+                                                        />
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-[300px] p-0" align="end">
+                                                        <Command>
+                                                            <CommandList>
+                                                                {unassignedProducts.length === 0 ? (
+                                                                    <CommandEmpty>No se encontraron productos.</CommandEmpty>
+                                                                ) : (
+                                                                    <CommandGroup>
+                                                                        {unassignedProducts.map(p => (
+                                                                            <CommandItem
+                                                                                key={p.id}
+                                                                                value={p.nombre_producto}
+                                                                                onSelect={() => handleSelectProduct(p)}
+                                                                                className="cursor-pointer"
+                                                                            >
+                                                                                <PlusCircle className="mr-2 h-4 w-4 text-primary" />
+                                                                                <div className="flex flex-col">
+                                                                                    <TextSM>{p.nombre_producto}</TextSM>
+                                                                                    <TextXS className="text-muted-foreground">€{p.precio_venta}</TextXS>
+                                                                                </div>
+                                                                            </CommandItem>
+                                                                        ))}
+                                                                    </CommandGroup>
+                                                                )}
+                                                            </CommandList>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </div>
+                                        </div>
+
+                                        <Separator className="bg-muted-foreground/10" />
+
+                                        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                            {assignedProducts.length > 0 ? assignedProducts.map(p => (
+                                                <ActionTile
+                                                    key={p.id}
+                                                    title={p.nombre_producto}
+                                                    description={`ID: ${p.id} • €${p.precio_venta}`}
+                                                    icon={p.url_imagen_producto ? (
+                                                        <div className="relative h-full w-full overflow-hidden rounded-md">
+                                                            <Image src={p.url_imagen_producto} alt={p.nombre_producto} fill className="object-cover" />
                                                         </div>
-                                                    )) : (
-                                                        <div className="text-center text-sm text-muted-foreground py-10">
-                                                            <TextMD>Aún no hay productos en esta categoría.</TextMD>
-                                                            <TextXS>Busca productos arriba para añadirlos.</TextXS>
-                                                        </div>
-                                                    )}
+                                                    ) : Package}
+                                                    rightContentType="button"
+                                                    buttonIcon={<X className="h-4 w-4" />}
+                                                    buttonText=""
+                                                    buttonVariant="ghost"
+                                                    onButtonClick={() => handleRemoveProduct(p.id)}
+                                                    className="bg-card hover:border-destructive/30"
+                                                    padding="sm"
+                                                />
+                                            )) : (
+                                                <div className="text-center py-12 border-2 border-dashed rounded-xl bg-card/50">
+                                                    <LayoutGrid className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
+                                                    <TextSM className="text-muted-foreground font-medium">No hay productos en esta categoría</TextSM>
+                                                    <TextXS className="text-muted-foreground/60">Usa el buscador para añadir productos</TextXS>
                                                 </div>
-                                            </ScrollArea>
-                                        </CardContent>
-                                    </Card>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </TabsContent>
                         </ScrollArea>

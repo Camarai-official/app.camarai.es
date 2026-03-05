@@ -242,7 +242,7 @@ export function EnvironmentCard({
         <Button 
           variant="outline" 
           fullWidth 
-          className="mt-4 rounded-xl h-11 font-bold group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all flex items-center justify-center gap-2"
+          className="mt-4 rounded-xl h-11 font-bold group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all hidden md:flex items-center justify-center gap-2"
           onClick={() => onViewPlan(env.id)}
         >
           <LayoutGrid className="h-4 w-4" />
