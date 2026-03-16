@@ -350,6 +350,7 @@ function MenuDetailContent({ menuId }: { menuId: string }) {
     );
 }
 
+
 export default function MenuDetailPage({ params }: { params: { id: string } }) {
     const { id } = params;
 
