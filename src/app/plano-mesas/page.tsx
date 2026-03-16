@@ -80,7 +80,7 @@ const generateAllChairs = (width: number, height: number, shape: 'rectangle' | '
 
 // --- Main Page Component ---
 
-export default function PlanoMesasPage() {
+function PlanoMesasContent() {
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -538,5 +538,13 @@ export default function PlanoMesasPage() {
                 onApply={applyTemplate} 
             />
         </PageContainer>
+    );
+}
+
+export default function PlanoMesasPage() {
+    return (
+        <React.Suspense fallback={<PageContainer><PageHeader title="Plano de Mesas" /></PageContainer>}>
+            <PlanoMesasContent />
+        </React.Suspense>
     );
 }
