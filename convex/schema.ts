@@ -2,9 +2,46 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  // --- DOMAIN 0: MULTI-TENANT ENTERPRISE LAYER ---
+
+  companies: defineTable({
+    name: v.string(),
+    legal_name: v.optional(v.string()),
+    nif: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    address: v.optional(v.string()),
+    city: v.optional(v.string()),
+    province: v.optional(v.string()),
+    postal_code: v.optional(v.string()),
+    country: v.string(),
+    logo_url: v.optional(v.string()),
+    website: v.optional(v.string()),
+    plan_id: v.id("subscription_plans"),
+    plan_start_date: v.number(),
+    plan_end_date: v.optional(v.number()),
+    status: v.union(v.literal("active"), v.literal("trial"), v.literal("suspended"), v.literal("cancelled")),
+    configuration: v.optional(v.any()), // JSON config
+    created_at: v.number(),
+    updated_at: v.number(),
+  }),
+
+  subscription_plans: defineTable({
+    name: v.string(),
+    description: v.string(),
+    price: v.number(), // In cents
+    billing_cycle: v.union(v.literal("monthly"), v.literal("quarterly"), v.literal("annual")),
+    max_users: v.number(),
+    max_establishments: v.number(),
+    features: v.optional(v.any()), // JSON features
+    active: v.boolean(),
+    created_at: v.number(),
+  }),
+
   // --- DOMAIN 1: ORGANIZATIONAL CORE ---
 
   establishments: defineTable({
+    company_id: v.id("companies"),
     name: v.string(),
     legal_name: v.optional(v.string()), // Razón Social / Legal Name
     cif: v.string(),
@@ -31,7 +68,7 @@ export default defineSchema({
       evolution_api_key: v.optional(v.string()),
     })),
     created_at: v.number(),
-  }),
+  }).index("by_company", ["company_id"]),
 
   staff: defineTable({
     establishment_id: v.id("establishments"),
@@ -69,6 +106,40 @@ export default defineSchema({
     notes: v.optional(v.string()),
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
+
+  // --- DOMAIN 1.5: ROLES AND PERMISSIONS SYSTEM ---
+
+  roles: defineTable({
+    company_id: v.id("companies"),
+    name: v.string(),
+    description: v.optional(v.string()),
+    permissions: v.array(v.string()), // Array of permission slugs
+    is_system: v.boolean(), // System roles vs custom roles
+    created_at: v.number(),
+    updated_at: v.number(),
+  }).index("by_company", ["company_id"]),
+
+  permissions: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    description: v.string(),
+    module: v.string(), // 'orders', 'staff', 'inventory', etc.
+    created_at: v.number(),
+  }).index("by_module", ["module"]),
+
+  user_roles: defineTable({
+    user_id: v.string(), // External auth ID
+    company_id: v.id("companies"),
+    establishment_id: v.optional(v.id("establishments")), // For establishment-specific roles
+    role_id: v.id("roles"),
+    status: v.union(v.literal("active"), v.literal("inactive"), v.literal("suspended")),
+    assigned_by: v.string(), // Who assigned this role
+    assigned_at: v.number(),
+  }).index("by_user", ["user_id"])
+    .index("by_company", ["company_id"])
+    .index("by_establishment", ["establishment_id"]),
+
+  // --- DOMAIN 2: ORGANIZATIONAL CORE (continued) ---
 
   subscriptions: defineTable({
     establishment_id: v.id("establishments"),
@@ -446,6 +517,41 @@ export default defineSchema({
   }).index("by_establishment", ["establishment_id"])
     .index("by_establishment_timestamp", ["establishment_id", "timestamp"]),
 
+  // --- DOMAIN 5.5: ADVANCED AUDIT AND COMPLIANCE ---
+
+  audit_log: defineTable({
+    company_id: v.id("companies"),
+    establishment_id: v.optional(v.id("establishments")),
+    user_id: v.string(), // External auth ID
+    action: v.string(), // 'CREATE', 'UPDATE', 'DELETE', 'LOGIN', etc.
+    table_name: v.string(),
+    record_id: v.string(),
+    old_values: v.optional(v.any()),
+    new_values: v.optional(v.any()),
+    ip_address: v.optional(v.string()),
+    user_agent: v.optional(v.string()),
+    session_id: v.optional(v.string()),
+    timestamp: v.number(),
+  }).index("by_company", ["company_id"])
+    .index("by_establishment", ["establishment_id"])
+    .index("by_user", ["user_id"])
+    .index("by_timestamp", ["timestamp"]),
+
+  payment_audit: defineTable({
+    company_id: v.id("companies"),
+    establishment_id: v.id("establishments"),
+    order_id: v.id("orders"),
+    payment_type: v.union(v.literal("individual"), v.literal("shared"), v.literal("split")),
+    old_type: v.optional(v.union(v.literal("individual"), v.literal("shared"), v.literal("split"))),
+    new_type: v.optional(v.union(v.literal("individual"), v.literal("shared"), v.literal("split"))),
+    user_id: v.string(), // Who made the change
+    reason: v.optional(v.string()),
+    timestamp: v.number(),
+  }).index("by_order", ["order_id"])
+    .index("by_company", ["company_id"]),
+
+  // --- DOMAIN 6: INFRASTRUCTURE AND INTEGRATIONS ---
+
   devices: defineTable({
     establishment_id: v.id("establishments"),
     name: v.string(),
@@ -470,24 +576,56 @@ export default defineSchema({
   }).index("by_establishment", ["establishment_id"]),
 
   integrations: defineTable({
+    company_id: v.id("companies"),
     establishment_id: v.id("establishments"),
-    type: v.union(v.literal("uber_eats"), v.literal("glovo"), v.literal("just_eat"), v.literal("tpv"), v.literal("contabilidad"), v.literal("otro")),
+    type: v.union(
+      v.literal("uber_eats"),
+      v.literal("glovo"), 
+      v.literal("just_eat"),
+      v.literal("deliveroo"),
+      v.literal("tpv"),
+      v.literal("contabilidad"),
+      v.literal("analytics"),
+      v.literal("otro")
+    ),
     name: v.string(),
-    config: v.optional(v.any()),
-    active: v.boolean(),
+    config: v.optional(v.any()), // API keys, webhooks, etc.
+    webhook_url: v.optional(v.string()),
+    status: v.union(v.literal("active"), v.literal("inactive"), v.literal("error"), v.literal("pending")),
+    last_sync: v.optional(v.number()),
+    sync_frequency: v.optional(v.number()), // Minutes between syncs
+    error_log: v.optional(v.array(v.string())),
     created_at: v.number(),
-  }).index("by_establishment", ["establishment_id"]),
+    updated_at: v.number(),
+  }).index("by_company", ["company_id"])
+    .index("by_establishment", ["establishment_id"])
+    .index("by_type", ["type"]),
 
   integration_orders: defineTable({
+    company_id: v.id("companies"),
     establishment_id: v.id("establishments"),
     integration_id: v.id("integrations"),
-    order_id: v.optional(v.id("orders")),
-    external_id: v.string(),
-    order_data: v.any(),
-    status: v.union(v.literal("recibido"), v.literal("aceptado"), v.literal("rechazado"), v.literal("preparando"), v.literal("listo"), v.literal("entregado"), v.literal("cancelado")),
+    order_id: v.optional(v.id("orders")), // Internal order reference
+    external_id: v.string(), // External platform order ID
+    order_data: v.any(), // Full order data from external platform
+    status: v.union(
+      v.literal("recibido"),
+      v.literal("aceptado"), 
+      v.literal("rechazado"),
+      v.literal("preparando"),
+      v.literal("listo"),
+      v.literal("entregado"),
+      v.literal("cancelado")
+    ),
+    customer_data: v.optional(v.any()), // Customer info from platform
+    delivery_data: v.optional(v.any()), // Delivery instructions
+    platform_fee: v.optional(v.number()), // Platform commission
     created_at: v.number(),
+    updated_at: v.number(),
   }).index("by_establishment", ["establishment_id"])
-    .index("by_external_id", ["external_id"]),
+    .index("by_integration", ["integration_id"])
+    .index("by_external_id", ["external_id"])
+    .index("by_status", ["status"]),
 
   // --- DOMAIN 6: COMMUNICATION AND MARKETING ---
 
@@ -645,5 +783,133 @@ export default defineSchema({
     staff_id: v.optional(v.union(v.id("staff"), v.literal("system"))),
     timestamp: v.number(),
   }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"]),
+
+  // --- DOMAIN 8: ADVANCED BUSINESS INTELLIGENCE ---
+
+  company_profit_analysis: defineTable({
+    company_id: v.id("companies"),
+    establishment_id: v.optional(v.id("establishments")),
+    analysis_date: v.number(), // Unix timestamp for the date
+    period_type: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly"), v.literal("quarterly"), v.literal("yearly")),
+    
+    // Revenue metrics
+    total_revenue: v.number(),
+    orders_count: v.number(),
+    average_ticket: v.number(),
+    
+    // Cost breakdown
+    staff_costs: v.number(),
+    product_costs: v.number(),
+    operating_costs: v.number(),
+    platform_fees: v.number(),
+    
+    // Profit metrics
+    gross_profit: v.number(),
+    net_profit: v.number(),
+    profit_margin: v.number(),
+    
+    // Operational metrics
+    table_rotation_before: v.optional(v.number()),
+    table_rotation_after: v.optional(v.number()),
+    peak_hour_revenue: v.optional(v.number()),
+    customer_return_rate: v.optional(v.number()),
+    
+    // Comparison metrics
+    revenue_growth: v.optional(v.number()), // Percentage growth vs previous period
+    profit_growth: v.optional(v.number()),
+    efficiency_score: v.optional(v.number()), // 0-100 score
+    
+    // AI Insights
+    ai_insights: v.optional(v.any()), // Generated insights and recommendations
+    trend_predictions: v.optional(v.any()), // Predicted trends
+    
+    created_at: v.number(),
+  }).index("by_company", ["company_id"])
+    .index("by_establishment", ["establishment_id"])
+    .index("by_date", ["analysis_date"])
+    .index("by_period", ["period_type"]),
+
+  establishment_statistics: defineTable({
+    company_id: v.id("companies"),
+    establishment_id: v.id("establishments"),
+    stat_date: v.number(),
+    stat_type: v.union(
+      v.literal("sales"),
+      v.literal("products"),
+      v.literal("customers"),
+      v.literal("staff"),
+      v.literal("inventory"),
+      v.literal("delivery"),
+      v.literal("profitability")
+    ),
+    data: v.any(), // Flexible JSON data for different stat types
+    processed_at: v.number(),
+  }).index("by_establishment_date", ["establishment_id", "stat_date"])
+    .index("by_type", ["stat_type"])
+    .index("by_company", ["company_id"]),
+
+  performance_kpis: defineTable({
+    company_id: v.id("companies"),
+    establishment_id: v.optional(v.id("establishments")),
+    kpi_type: v.union(
+      v.literal("revenue_per_employee"),
+      v.literal("table_turnover"),
+      v.literal("customer_satisfaction"),
+      v.literal("inventory_turnover"),
+      v.literal("labor_cost_percentage"),
+      v.literal("food_cost_percentage"),
+      v.literal("delivery_efficiency"),
+      v.literal("online_order_percentage")
+    ),
+    value: v.number(),
+    target: v.optional(v.number()),
+    period: v.string(), // "2024-03", "Q1-2024", etc.
+    benchmark: v.optional(v.number()), // Industry benchmark
+    variance: v.optional(v.number()), // Difference from target
+    trend: v.union(v.literal("improving"), v.literal("declining"), v.literal("stable")),
+    created_at: v.number(),
+  }).index("by_company", ["company_id"])
+    .index("by_establishment", ["establishment_id"])
+    .index("by_kpi_type", ["kpi_type"])
+    .index("by_period", ["period"]),
+
+  // --- DOMAIN 9: ADVANCED QR SESSIONS SYSTEM ---
+
+  qr_sessions: defineTable({
+    company_id: v.id("companies"),
+    establishment_id: v.id("establishments"),
+    table_id: v.id("tables"),
+    session_code: v.string(), // Unique session identifier
+    status: v.union(v.literal("active"), v.literal("closed"), v.literal("expired")),
+    
+    // Session metadata
+    start_time: v.number(),
+    end_time: v.optional(v.number()),
+    duration_minutes: v.optional(v.number()),
+    
+    // Customer data
+    customers: v.optional(v.array(v.any())), // Array of customer data
+    customer_count: v.number(),
+    
+    // Session behavior
+    interaction_count: v.number(), // How many times they interacted
+    order_count: v.number(), // Orders placed in this session
+    total_amount: v.number(), // Total revenue from this session
+    
+    // Device and platform info
+    device_type: v.union(v.literal("mobile"), v.literal("tablet"), v.literal("desktop")),
+    platform: v.union(v.literal("whatsapp"), v.literal("web"), v.literal("app")),
+    
+    // Analytics
+    bounce_rate: v.optional(v.number()), // Sessions without orders
+    conversion_time: v.optional(v.number()), // Time to first order
+    
+    created_at: v.number(),
+    updated_at: v.number(),
+  }).index("by_table", ["table_id"])
+    .index("by_establishment", ["establishment_id"])
+    .index("by_code", ["session_code"])
+    .index("by_status", ["status"])
+    .index("by_date", ["start_time"]),
 
 });
