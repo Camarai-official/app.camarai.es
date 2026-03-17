@@ -8,8 +8,35 @@ import { v } from "convex/values";
 export const seedData = mutation({
   args: {},
   handler: async (ctx) => {
-    // 1. ESTABLECIMIENTO (Aplanado)
+    // 0. PRIMERO CREAR SUBSCRIPTION PLAN
+    const planId = await ctx.db.insert("subscription_plans", {
+      name: "Pro Plan",
+      description: "Plan profesional para restaurantes",
+      price: 9900, // 99.00€ en cents
+      billing_cycle: "monthly",
+      max_users: 10,
+      max_establishments: 3,
+      active: true,
+      created_at: Date.now(),
+    });
+
+    // 1. CREAR LA COMPAÑÍA (requerida por el schema multi-tenant)
+    const companyId = await ctx.db.insert("companies", {
+      name: "Camarai Group S.L.",
+      legal_name: "Camarai Group S.L.",
+      nif: "B12345678",
+      email: "admin@camarai.es",
+      country: "España",
+      plan_id: planId,
+      plan_start_date: Date.now(),
+      status: "active",
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
+    // 2. ESTABLECIMIENTO (Aplanado)
     const establishmentId = await ctx.db.insert("establishments", {
+      company_id: companyId,
       name: "Camarai Gastrobar",
       legal_name: "Camarai Restauración S.L.",
       cif: "B12345678",

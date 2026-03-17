@@ -42,7 +42,7 @@ export function TimeLogDialog({
             } else {
                 setStaffId('');
                 setDate(new Date().toISOString().split('T')[0]);
-                setTime('');
+                setTime(new Date().toTimeString().slice(0, 5)); // Hora actual
                 setType('clock-in');
             }
         }

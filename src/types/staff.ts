@@ -27,7 +27,7 @@ export type StaffMember = {
   horasContratadas: number;
   fecha_contratacion?: string;
   salarioPorHora: number;
-  estado: 'Activo' | 'Inactivo';
+  estado: 'Activo' | 'Inactivo' | 'Vacaciones' | 'Baja';
   color?: string;
   icon?: string;
 };
@@ -46,7 +46,7 @@ export type TimeLog = {
   staffId: string;
   timestamp: string;
   action: 'clock-in' | 'clock-out' | 'start-break' | 'end-break';
-  method: 'manual' | 'qr' | 'pin';
+  method: 'manual' | 'qr' | 'pin' | 'app' | 'whatsapp' | 'web';
 };
 
 export type AbsenceRequest = {

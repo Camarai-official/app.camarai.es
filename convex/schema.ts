@@ -88,8 +88,8 @@ export default defineSchema({
     phone: v.optional(v.string()),
     email: v.optional(v.string()),
     photo_url: v.optional(v.string()),
-    status: v.union(v.literal("active"), v.literal("suspended"), v.literal("deleted")),
-    contract_type: v.union(v.literal("indefinite"), v.literal("temporary"), v.literal("part_time")),
+    status: v.union(v.literal("active"), v.literal("inactive"), v.literal("on_leave"), v.literal("sick_leave")),
+    contract_type: v.union(v.literal("indefinite"), v.literal("temporary"), v.literal("practices"), v.literal("freelance")),
     contract_start: v.number(),
     contract_end: v.optional(v.number()),
     salary: v.number(), // In cents
@@ -104,6 +104,7 @@ export default defineSchema({
     clock_methods: v.array(v.string()),
     documents: v.optional(v.array(v.string())),
     notes: v.optional(v.string()),
+    departamento: v.optional(v.string()), // Departamento o área de trabajo
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 
@@ -455,7 +456,7 @@ export default defineSchema({
   absence_requests: defineTable({
     staff_id: v.id("staff"),
     establishment_id: v.id("establishments"),
-    type: v.union(v.literal("vacation"), v.literal("sick_leave"), v.literal("personal"), v.literal("medical_appt")),
+    type: v.union(v.literal("vacation"), v.literal("sick_leave"), v.literal("personal_days"), v.literal("other")),
     start_date: v.string(),
     end_date: v.string(),
     total_days: v.number(),
@@ -486,6 +487,8 @@ export default defineSchema({
     status: v.union(v.literal("online"), v.literal("offline"), v.literal("maintenance")),
     token: v.string(),
     last_seen: v.optional(v.number()),
+    intervalo_qr: v.optional(v.number()), // QR refresh interval in seconds
+    modo_offline: v.optional(v.boolean()), // Offline mode capability
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 

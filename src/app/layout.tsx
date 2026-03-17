@@ -11,7 +11,13 @@ import { cn } from '@/lib/utils';
 import { MobileHeader } from '@/components/layout/mobile-header';
 import { useScrollbarCompensation } from '@/hooks/use-scrollbar-compensation';
 
+// Convex Provider
+import { ConvexProvider, ConvexReactClient } from "convex/react";
+
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+
+// Crear el cliente de Convex
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isMobile, isTablet } = useIsMobile();
@@ -41,14 +47,16 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
-        <SidebarProvider>
-          <MobileHeader />
-          <Sidebar variant="sidebar" collapsible="icon">
-            <SidebarNav />
-          </Sidebar>
-          <MainContent>{children}</MainContent>
-        </SidebarProvider>
-        <Toaster />
+        <ConvexProvider client={convex}>
+          <SidebarProvider>
+            <MobileHeader />
+            <Sidebar variant="sidebar" collapsible="icon">
+              <SidebarNav />
+            </Sidebar>
+            <MainContent>{children}</MainContent>
+          </SidebarProvider>
+          <Toaster />
+        </ConvexProvider>
       </body>
     </html>
   );
