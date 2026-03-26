@@ -76,6 +76,7 @@ export const createCategory = mutation({
     description: v.optional(v.string()),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
+    bannerImage: v.optional(v.union(v.string(), v.null())),
     active: v.optional(v.boolean()),
     printerDestination: v.optional(v.string()),
     visibleInMenu: v.boolean(),
@@ -99,6 +100,7 @@ export const createCategory = mutation({
       description: args.description,
       icon: args.icon || "Utensils",
       color: args.color || "blue-400",
+      bannerImage: args.bannerImage,
       active: args.active ?? true,
       order: maxOrder + 1,
       printerDestination: args.printerDestination,
@@ -117,6 +119,7 @@ export const updateCategory = mutation({
     description: v.optional(v.string()),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
+    bannerImage: v.optional(v.union(v.string(), v.null())),
     active: v.optional(v.boolean()),
     order: v.optional(v.number()),
     printerDestination: v.optional(v.string()),
@@ -128,6 +131,11 @@ export const updateCategory = mutation({
     const existingCategory = await ctx.db.get(categoryId);
     if (!existingCategory) {
       throw new Error("Category not found");
+    }
+
+    // Handle bannerImage: if undefined, set to null to remove the image
+    if (updateData.bannerImage === undefined) {
+      updateData.bannerImage = null;
     }
 
     const updatedCategory = await ctx.db.patch(categoryId, updateData);

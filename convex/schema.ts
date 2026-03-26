@@ -180,6 +180,7 @@ export default defineSchema({
     order: v.number(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
+    bannerImage: v.optional(v.union(v.string(), v.null())), // Banner image URL
     active: v.boolean(),
     printerDestination: v.optional(v.string()),
     visibleInMenu: v.boolean(),

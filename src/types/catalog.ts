@@ -39,6 +39,7 @@ export type Product = {
 export type Category = {
   id: string;
   nombre_categoria: string;
+  bannerImage?: string;
 };
 
 export type Tax = {

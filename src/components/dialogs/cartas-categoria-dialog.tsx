@@ -35,7 +35,7 @@ export interface ExtendedCategory extends Category {
     categoria_padre_id?: string;
     visible_en_carta?: boolean;
     impresora_destino?: string;
-    imagen?: string;
+    bannerImage?: string;
 }
 
 interface CategoryDialogProps {
@@ -60,7 +60,7 @@ export function CategoryDialog({
         descripcion: '',
         icono: 'Utensils',
         color: '#9B6EFD',
-        imagen: '',
+        bannerImage: '',
         orden: 0,
         categoria_padre_id: '',
         visible_en_carta: true,
@@ -78,7 +78,7 @@ export function CategoryDialog({
                 descripcion: category.descripcion || '',
                 icono: category.icono || 'Utensils',
                 color: category.color || '#9B6EFD',
-                imagen: category.imagen || '',
+                bannerImage: category.bannerImage || '',
                 orden: category.orden || 0,
                 categoria_padre_id: category.categoria_padre_id || '',
                 visible_en_carta: category.visible_en_carta !== false,
@@ -92,7 +92,7 @@ export function CategoryDialog({
                 descripcion: '',
                 icono: 'Utensils',
                 color: '#9B6EFD',
-                imagen: '',
+                bannerImage: '',
                 orden: allCategories.length,
                 categoria_padre_id: '',
                 visible_en_carta: true,
@@ -278,8 +278,8 @@ export function CategoryDialog({
                                     <div className="space-y-3">
                                         <Label>Imagen de Banner (Opcional)</Label>
                                         <ImageUploader
-                                            value={categoryData.imagen}
-                                            onChange={(img) => setCategoryData(prev => ({ ...prev, imagen: img }))}
+                                            value={categoryData.bannerImage}
+                                            onChange={(img) => setCategoryData(prev => ({ ...prev, bannerImage: img }))}
                                             placeholder="Subir banner"
                                             aspectRatio="16:9"
                                         />

@@ -84,6 +84,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
       activa: category.active,
       icono: category.icon || 'Utensils',
       color: category.color || 'blue-400',
+      bannerImage: category.bannerImage,
       orden: category.order,
       product_count: category.product_count || 0,
       impresora_destino: category.printerDestination || '',
@@ -156,6 +157,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
             description: categoryData.descripcion,
             icon: categoryData.icono,
             color: categoryData.color,
+            bannerImage: categoryData.bannerImage || null,
             active: categoryData.activa ?? true,
             order: categoryData.orden,
             printerDestination: categoryData.impresora_destino,
@@ -175,6 +177,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
             description: categoryData.descripcion,
             icon: categoryData.icono,
             color: categoryData.color,
+            bannerImage: categoryData.bannerImage || null,
             active: categoryData.activa ?? true,
             printerDestination: categoryData.impresora_destino,
             visibleInMenu: categoryData.visible_en_carta ?? true
