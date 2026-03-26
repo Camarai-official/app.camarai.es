@@ -29,11 +29,13 @@ export interface ExtendedCategory extends Category {
     descripcion?: string;
     icono?: string;
     color?: string;
-    imagen?: string;
     orden?: number;
+    activa?: boolean;
+    product_count?: number;
     categoria_padre_id?: string;
     visible_en_carta?: boolean;
     impresora_destino?: string;
+    imagen?: string;
 }
 
 interface CategoryDialogProps {

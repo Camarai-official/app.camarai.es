@@ -1,7 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { PlusCircle, Trash, Package } from 'lucide-react';
+import { PlusCircle, Minus, Trash, Package, Clock as Timer } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import {
     Dialog,
     DialogWindow,
@@ -29,9 +31,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import {
     mockCategories,
     mockTaxes,
-    mockIngredients,
     type Product,
-    type Ingredient,
     type AssociatedIngredient
 } from '@/data/mock-data';
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
@@ -71,7 +71,7 @@ const emptyExtendedProduct: ExtendedProduct = {
     horario_disponible: null,
     alergenos: [],
     stock_minimo: 0,
-    impresora_destino: ''
+    impresora_destino: 'caja' // Default printer
 };
 
 const alergenosList = [
@@ -84,18 +84,28 @@ interface ProductDialogProps {
     onOpenChange: (open: boolean) => void;
     productToEdit: Product | null;
     onSave: (productData: Omit<Product, 'id'> | Product) => void;
+    categories?: any[]; // Convex categories
+    taxes?: any[]; // Convex taxes
+    establishmentId?: string; // Convex establishment ID
 }
 
-export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: ProductDialogProps) {
-    const categories = mockCategories;
-    const taxes = mockTaxes;
-    const ingredients = mockIngredients;
+export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categories = [], taxes = [], establishmentId }: ProductDialogProps) {
+    // Get real ingredients from Convex
+    const ingredients = useQuery(api.ingredients.getIngredients, 
+        establishmentId ? { establishmentId: establishmentId as any } : "skip"
+    ) || [];
+
+    // Get product details with ingredients when editing
+    const productDetails = useQuery(api.products.getProductById, 
+        productToEdit && open ? { productId: productToEdit.id as any } : "skip"
+    );
 
     const [product, setProduct] = React.useState<ExtendedProduct>(emptyExtendedProduct);
     const [activeTab, setActiveTab] = React.useState('general');
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const [ingredientSearch, setIngredientSearch] = React.useState('');
-    const [searchSuggestions, setSearchSuggestions] = React.useState<Ingredient[]>([]);
+    const [searchSuggestions, setSearchSuggestions] = React.useState<any[]>([]);
     const [isSearchPopoverOpen, setIsSearchPopoverOpen] = React.useState(false);
 
     const [newVariantName, setNewVariantName] = React.useState('');
@@ -103,51 +113,82 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
 
     const costEscandallo = React.useMemo(() => {
         return product.ingredientes_asociados.reduce((acc, assocIng) => {
-            const ingredientDetails = ingredients.find(i => i.id === assocIng.id_ingrediente);
+            const ingredientDetails = ingredients.find(i => i._id === assocIng.id_ingrediente);
             if (ingredientDetails) {
-                return acc + (ingredientDetails.costo_unitario * assocIng.cantidad_requerida);
+                return acc + (ingredientDetails.cost_base * assocIng.cantidad_requerida);
             }
             return acc;
         }, 0);
     }, [product.ingredientes_asociados, ingredients]);
 
-    const marginBeneficio = product.precio_venta - costEscandallo;
-    const marginPercent = product.precio_venta > 0 ? ((marginBeneficio / product.precio_venta) * 100) : 0;
+    // Obtener el porcentaje del impuesto seleccionado
+    const selectedTax = React.useMemo(() => {
+        return taxes.find(tax => tax._id === product.id_impuesto);
+    }, [taxes, product.id_impuesto]);
+
+    const taxPercent = selectedTax?.percentage || 0;
+
+    // Calcular el precio base (sin impuesto) y el margen real
+    const precioBase = product.precio_venta / (1 + taxPercent / 100);
+    const marginBeneficio = precioBase - costEscandallo;
+    const marginPercent = precioBase > 0 ? ((marginBeneficio / precioBase) * 100) : 0;
 
     React.useEffect(() => {
         if (productToEdit) {
-            setProduct({
+            setIsLoading(true);
+            // Use the product data as-is since it's already in the correct format from productos-tab
+            const mappedProduct = {
                 ...emptyExtendedProduct,
                 ...productToEdit,
                 variantes: (productToEdit as any).variantes || [],
                 horario_disponible: (productToEdit as any).horario_disponible || null,
                 alergenos: (productToEdit as any).alergenos || [],
                 stock_minimo: (productToEdit as any).stock_minimo || 0,
-                impresora_destino: (productToEdit as any).impresora_destino || ''
-            });
+                impresora_destino: (productToEdit as any).impresora_destino || '',
+                ingredientes_asociados: (productToEdit as any).ingredientes_asociados || []
+            };
+            setProduct(mappedProduct);
+            setIsLoading(false);
         } else {
-            const defaultCategoryId = categories.length > 0 ? categories[0].id : '';
-            const defaultTaxId = taxes.length > 0 ? taxes[0].id : '';
-            setProduct({ ...emptyExtendedProduct, id_categoria: defaultCategoryId, id_impuesto: defaultTaxId });
+            const defaultCategoryId = categories.length > 0 ? categories[0]._id : '';
+            const defaultTaxId = taxes.length > 0 ? taxes[0]._id : '';
+            setProduct({ 
+                ...emptyExtendedProduct, 
+                id_categoria: defaultCategoryId, 
+                id_impuesto: defaultTaxId 
+            });
         }
         setActiveTab('general');
     }, [productToEdit, open, categories, taxes]);
 
+    // Update product when productDetails is loaded (for editing)
     React.useEffect(() => {
-        if (ingredientSearch.length > 1) {
-            const existingIds = new Set(product.ingredientes_asociados.map(i => i.id_ingrediente));
+        if (productDetails && productToEdit) {
+            setProduct(prev => ({
+                ...prev,
+                ingredientes_asociados: (productDetails as any).ingredientes_asociados || []
+            }));
+        }
+    }, [productDetails, productToEdit]);
+
+    React.useEffect(() => {
+        // Always filter ingredients based on search term
+        const existingIds = new Set(product.ingredientes_asociados.map(i => i.id_ingrediente));
+        
+        if (ingredientSearch.length === 0) {
+            // Show all available ingredients when search is empty
+            const availableIngredients = ingredients.filter(ing => !existingIds.has(ing._id));
+            setSearchSuggestions(availableIngredients);
+        } else {
+            // Filter ingredients based on search term
             const filtered = ingredients.filter(ing =>
-                ing.nombre_ingrediente.toLowerCase().includes(ingredientSearch.toLowerCase()) &&
-                !existingIds.has(ing.id)
+                (ing.name || '').toLowerCase().includes(ingredientSearch.toLowerCase()) &&
+                !existingIds.has(ing._id)
             );
             setSearchSuggestions(filtered);
-            if (filtered.length > 0) {
-                setIsSearchPopoverOpen(true);
-            }
-        } else {
-            setSearchSuggestions([]);
-            setIsSearchPopoverOpen(false);
         }
+        
+        // Don't change popover state here - let the user control it
     }, [ingredientSearch, ingredients, product.ingredientes_asociados]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -157,8 +198,14 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
 
     const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        setProduct(prev => ({ ...prev, [id]: parseFloat(value) || 0 }));
-    }
+        // Allow empty string or valid number
+        if (value === '') {
+            setProduct(prev => ({ ...prev, [id]: 0 }));
+        } else {
+            const numValue = parseFloat(value);
+            setProduct(prev => ({ ...prev, [id]: isNaN(numValue) ? 0 : numValue }));
+        }
+    };
 
     const handleSwitchChange = (checked: boolean) => {
         setProduct(prev => ({ ...prev, disponible: checked }));
@@ -182,11 +229,11 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
         onOpenChange(false);
     }
 
-    const handleAddIngredient = (ingredient: Ingredient) => {
+    const handleAddIngredient = (ingredient: any) => {
         const newAssociatedIngredient: AssociatedIngredient = {
-            id_ingrediente: ingredient.id,
+            id_ingrediente: ingredient._id,
             cantidad_requerida: 1,
-            unidad_medida: ingredient.unidad_medida
+            unidad_medida: ingredient.unit
         };
 
         setProduct(prev => ({
@@ -295,12 +342,12 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="id_categoria">Categoría *</Label>
-                                            <Select value={product.id_categoria || "ninguna"} onValueChange={(value) => setProduct(prev => ({ ...prev, id_categoria: value === "ninguna" ? "" : value }))}>
+                                            <Select value={product.id_categoria || ""} onValueChange={(value) => setProduct(prev => ({ ...prev, id_categoria: value === "ninguna" ? "" : value }))}>
                                                 <SelectTrigger><SelectValue placeholder="Selecciona una categoría..." /></SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="ninguna">Ninguna</SelectItem>
                                                     {categories.map(cat => (
-                                                        <SelectItem key={cat.id} value={cat.id}>{cat.nombre_categoria}</SelectItem>
+                                                        <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
                                                     ))}
                                                 </SelectContent>
                                             </Select>
@@ -317,15 +364,15 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="precio_venta">Precio de Venta (€) *</Label>
-                                        <Input id="precio_venta" type="number" value={product.precio_venta} onChange={handleNumberChange} step="0.01" />
+                                        <Input id="precio_venta" type="text" value={product.precio_venta === 0 ? '' : product.precio_venta.toString()} onChange={handleNumberChange} step="0.01" />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="id_impuesto">Impuesto Aplicable</Label>
-                                        <Select value={product.id_impuesto} onValueChange={(value) => setProduct(prev => ({ ...prev, id_impuesto: value }))}>
+                                        <Select value={product.id_impuesto || ""} onValueChange={(value) => setProduct(prev => ({ ...prev, id_impuesto: value }))}>
                                             <SelectTrigger><SelectValue placeholder="Selecciona un impuesto..." /></SelectTrigger>
                                             <SelectContent>
                                                 {taxes.map(tax => (
-                                                    <SelectItem key={tax.id} value={tax.id}>{tax.nombre_impuesto}</SelectItem>
+                                                    <SelectItem key={tax._id} value={tax._id}>{tax.name}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -335,8 +382,16 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                     <CardHeader title="Rentabilidad (Calculada)" />
                                     <CardContent gap="sm">
                                         <div className="flex justify-between">
-                                            <TextMD className="text-muted-foreground">Precio de Venta:</TextMD>
+                                            <TextMD className="text-muted-foreground">Precio Final (con IVA):</TextMD>
                                             <TextMD className="text-foreground">€{product.precio_venta.toFixed(2)}</TextMD>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <TextMD className="text-muted-foreground">Precio Base (sin IVA):</TextMD>
+                                            <TextMD className="text-muted-foreground">€{precioBase.toFixed(2)}</TextMD>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <TextMD className="text-muted-foreground">IVA ({taxPercent}%):</TextMD>
+                                            <TextMD className="text-muted-foreground">€{(product.precio_venta - precioBase).toFixed(2)}</TextMD>
                                         </div>
                                         <div className="flex justify-between">
                                             <TextMD className="text-muted-foreground">Coste de Escandallo:</TextMD>
@@ -344,11 +399,14 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                         </div>
                                         <Separator />
                                         <div className="flex justify-between text-base font-bold text-foreground">
-                                            <TextMD>Margen Bruto:</TextMD>
+                                            <TextMD>Margen Neto:</TextMD>
                                             <TextMD className={marginBeneficio >= 0 ? 'text-green-600' : 'text-destructive'}>
                                                 €{marginBeneficio.toFixed(2)} ({marginPercent.toFixed(1)}%)
                                             </TextMD>
                                         </div>
+                                        <TextXS className="text-muted-foreground mt-2">
+                                            El margen se calcula sobre el precio base (sin impuestos)
+                                        </TextXS>
                                     </CardContent>
                                 </Card>
                             </TabsContent>
@@ -357,45 +415,80 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                 <Card padding="md">
                                     <CardHeader title="Receta / Escandallo" description="Añade los ingredientes necesarios para preparar este producto." />
                                     <CardContent gap="md" padding="none">
-                                        <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
-                                            <PopoverTrigger asChild>
-                                                <SearchInput
-                                                    placeholder="Buscar ingrediente para añadir..."
-                                                    value={ingredientSearch}
-                                                    onChange={(e) => setIngredientSearch(e.target.value)}
-                                                />
-                                            </PopoverTrigger>
-                                            <PopoverContent>
-                                                <Command>
-                                                    <CommandList>
-                                                        {searchSuggestions.length === 0 && ingredientSearch.length > 1 ? (
-                                                            <CommandEmpty>No se encontraron ingredientes.</CommandEmpty>
-                                                        ) : (
-                                                            <CommandGroup>
-                                                                {searchSuggestions.map(ing => (
-                                                                    <CommandItem
-                                                                        key={ing.id}
-                                                                        value={ing.nombre_ingrediente}
-                                                                        onSelect={() => handleAddIngredient(ing)}
-                                                                    >
-                                                                        <TextMD>{ing.nombre_ingrediente}</TextMD>
-                                                                        <TextXS className="text-muted-foreground">€{ing.costo_unitario.toFixed(2)}/{ing.unidad_medida}</TextXS>
-                                                                    </CommandItem>
-                                                                ))}
-                                                            </CommandGroup>
-                                                        )}
-                                                    </CommandList>
-                                                </Command>
-                                            </PopoverContent>
-                                        </Popover>
+                                        {/* Simple search input without popover */}
+                                        <div className="relative">
+                                            <Input
+                                                placeholder="Buscar ingrediente para añadir..."
+                                                value={ingredientSearch}
+                                                onChange={(e) => setIngredientSearch(e.target.value)}
+                                                onFocus={() => {
+                                                    // Show all available ingredients when focusing
+                                                    const existingIds = new Set(product.ingredientes_asociados.map(i => i.id_ingrediente));
+                                                    const availableIngredients = ingredients.filter(ing => !existingIds.has(ing._id));
+                                                    setSearchSuggestions(availableIngredients);
+                                                    setIsSearchPopoverOpen(true);
+                                                }}
+                                                onBlur={() => {
+                                                    // Close suggestions after a short delay to allow clicking
+                                                    setTimeout(() => setIsSearchPopoverOpen(false), 200);
+                                                }}
+                                                className="w-full"
+                                            />
+                                            {/* Show suggestions below the input */}
+                                            {ingredientSearch.length > 0 && (
+                                                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {searchSuggestions.length === 0 ? (
+                                                        <div className="p-3 text-sm text-muted-foreground">
+                                                            No se encontraron ingredientes.
+                                                        </div>
+                                                    ) : (
+                                                        <div className="py-1">
+                                                            {searchSuggestions.map(ing => (
+                                                                <div
+                                                                    key={ing._id}
+                                                                    className="px-3 py-2 text-sm cursor-pointer hover:bg-muted flex justify-between items-center"
+                                                                    onClick={() => handleAddIngredient(ing)}
+                                                                >
+                                                                    <span>{ing.name}</span>
+                                                                    <span className="text-muted-foreground">€{ing.cost_base.toFixed(2)}/{ing.unit}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {/* Show all ingredients when no search and focused */}
+                                            {ingredientSearch.length === 0 && isSearchPopoverOpen && (
+                                                <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {searchSuggestions.length === 0 ? (
+                                                        <div className="p-3 text-sm text-muted-foreground">
+                                                            No hay ingredientes disponibles.
+                                                        </div>
+                                                    ) : (
+                                                        <div className="py-1">
+                                                            {searchSuggestions.map(ing => (
+                                                                <div
+                                                                    key={ing._id}
+                                                                    className="px-3 py-2 text-sm cursor-pointer hover:bg-muted flex justify-between items-center"
+                                                                    onClick={() => handleAddIngredient(ing)}
+                                                                >
+                                                                    <span>{ing.name}</span>
+                                                                    <span className="text-muted-foreground">€{ing.cost_base.toFixed(2)}/{ing.unit}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
 
                                         <div className="space-y-2">
                                             {product.ingredientes_asociados.map(assocIng => {
-                                                const ingredientInfo = ingredients.find(i => i.id === assocIng.id_ingrediente);
-                                                const subtotal = ingredientInfo ? ingredientInfo.costo_unitario * assocIng.cantidad_requerida : 0;
+                                                const ingredientInfo = ingredients.find(i => i._id === assocIng.id_ingrediente);
+                                                const subtotal = ingredientInfo ? ingredientInfo.cost_base * assocIng.cantidad_requerida : 0;
                                                 return (
                                                     <div key={assocIng.id_ingrediente} className="flex items-center justify-between p-2 border rounded-md bg-background text-sm gap-2">
-                                                        <TextMD className="text-foreground">{ingredientInfo?.nombre_ingrediente || 'Ingrediente no encontrado'}</TextMD>
+                                                        <TextMD className="text-foreground">{ingredientInfo?.name || 'Ingrediente no encontrado'}</TextMD>
                                                         <div className="flex items-center gap-2">
                                                             <Input
                                                                 type="number"
@@ -441,14 +534,40 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                         className="flex-1"
                                     />
                                     <div className="flex gap-2 shrink-0">
-                                        <Input
-                                            type="number"
-                                            placeholder="€ Extra"
-                                            value={newVariantPrice}
-                                            onChange={(e) => setNewVariantPrice(parseFloat(e.target.value) || 0)}
-                                            className="w-24"
-                                            step="0.01"
-                                        />
+                                        <div className="flex items-center border rounded-md">
+                                            <Button
+                                                type="button"
+                                                variant={newVariantPrice < 0 ? "destructive" : "outline"}
+                                                size="sm"
+                                                onClick={() => setNewVariantPrice(-Math.abs(newVariantPrice || 1))}
+                                                className="rounded-r-none border-r-0"
+                                                title="Precio reducido"
+                                            >
+                                                <Minus className="h-4 w-4" />
+                                            </Button>
+                                            <Input
+                                                type="text"
+                                                placeholder="0.00"
+                                                value={Math.abs(newVariantPrice) === 0 ? '' : Math.abs(newVariantPrice).toString()}
+                                                onChange={(e) => {
+                                                    const value = parseFloat(e.target.value) || 0;
+                                                    setNewVariantPrice(newVariantPrice < 0 ? -value : value);
+                                                }}
+                                                className="w-20 border-0 rounded-none text-center"
+                                                step="0.01"
+                                                min="0"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant={newVariantPrice > 0 ? "default" : "outline"}
+                                                size="sm"
+                                                onClick={() => setNewVariantPrice(Math.abs(newVariantPrice || 1))}
+                                                className="rounded-l-none border-l-0"
+                                                title="Precio adicional"
+                                            >
+                                                <PlusCircle className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                         <Button onClick={handleAddVariant} disabled={!newVariantName.trim()} className="gap-2">
                                             <PlusCircle className="h-4 w-4" />
                                             Añadir
@@ -464,11 +583,44 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                                     checked={variant.disponible}
                                                     onCheckedChange={() => handleToggleVariant(variant.id)}
                                                 />
-                                                <TextMD className={cn('font-medium text-foreground', !variant.disponible && 'text-muted-foreground line-through')}>{variant.nombre}</TextMD>
+                                                <div className="flex items-center gap-2">
+                                                    {variant.precio_extra < 0 && (
+                                                        <Badge variant="outline" className="text-xs px-1 py-0 h-5">
+                                                            <Minus className="h-3 w-3" />
+                                                        </Badge>
+                                                    )}
+                                                    <TextMD className={cn('font-medium text-foreground', !variant.disponible && 'text-muted-foreground line-through')}>
+                                                        {variant.nombre}
+                                                    </TextMD>
+                                                    {variant.precio_extra > 0 && (
+                                                        <Badge variant="outline" className="text-xs px-1 py-0 h-5">
+                                                            <PlusCircle className="h-3 w-3" />
+                                                        </Badge>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <Badge variant={variant.precio_extra > 0 ? 'default' : 'secondary'} className="h-6">
-                                                    {variant.precio_extra > 0 ? `+€${variant.precio_extra.toFixed(2)}` : 'Sin cargo'}
+                                                <Badge 
+                                                    variant={
+                                                        variant.precio_extra > 0 ? 'default' : 
+                                                        variant.precio_extra < 0 ? 'destructive' : 
+                                                        'secondary'
+                                                    } 
+                                                    className="h-6"
+                                                >
+                                                    {variant.precio_extra > 0 ? (
+                                                        <>
+                                                            <PlusCircle className="h-3 w-3 mr-1" />
+                                                            +€{variant.precio_extra.toFixed(2)}
+                                                        </>
+                                                    ) : variant.precio_extra < 0 ? (
+                                                        <>
+                                                            <Minus className="h-3 w-3 mr-1" />
+                                                            €{Math.abs(variant.precio_extra).toFixed(2)} menos
+                                                        </>
+                                                    ) : (
+                                                        'Mismo precio'
+                                                    )}
                                                 </Badge>
                                                 <Button variant="ghost" size="md" onClick={() => handleRemoveVariant(variant.id)} className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive">
                                                     <Trash className="h-4 w-4" />
@@ -501,33 +653,39 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                     <div className="grid grid-cols-1 sm:grid-cols-[1fr,1fr,auto] items-end gap-3 bg-muted/30 p-4 rounded-xl border">
                                         <div className="space-y-2">
                                             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hora Inicio</Label>
-                                            <Input
-                                                type="time"
-                                                value={product.horario_disponible?.inicio || ''}
-                                                onChange={(e) => setProduct(prev => ({
-                                                    ...prev,
-                                                    horario_disponible: {
-                                                        inicio: e.target.value,
-                                                        fin: prev.horario_disponible?.fin || ''
-                                                    }
-                                                }))}
-                                                className="bg-background"
-                                            />
+                                            <div className="relative">
+                                                <Timer className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input
+                                                    type="time"
+                                                    value={product.horario_disponible?.inicio || ''}
+                                                    onChange={(e) => setProduct(prev => ({
+                                                        ...prev,
+                                                        horario_disponible: {
+                                                            inicio: e.target.value,
+                                                            fin: prev.horario_disponible?.fin || ''
+                                                        }
+                                                    }))}
+                                                    className="bg-background pl-10"
+                                                />
+                                            </div>
                                         </div>
                                         <div className="space-y-2">
                                             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hora Fin</Label>
-                                            <Input
-                                                type="time"
-                                                value={product.horario_disponible?.fin || ''}
-                                                onChange={(e) => setProduct(prev => ({
-                                                    ...prev,
-                                                    horario_disponible: {
-                                                        inicio: prev.horario_disponible?.inicio || '',
-                                                        fin: e.target.value
-                                                    }
-                                                }))}
-                                                className="bg-background"
-                                            />
+                                            <div className="relative">
+                                                <Timer className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input
+                                                    type="time"
+                                                    value={product.horario_disponible?.fin || ''}
+                                                    onChange={(e) => setProduct(prev => ({
+                                                        ...prev,
+                                                        horario_disponible: {
+                                                            inicio: prev.horario_disponible?.inicio || '',
+                                                            fin: e.target.value
+                                                        }
+                                                    }))}
+                                                    className="bg-background pl-10"
+                                                />
+                                            </div>
                                         </div>
                                         <Button
                                             variant="secondary"
@@ -535,9 +693,18 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
                                             onClick={() => setProduct(prev => ({ ...prev, horario_disponible: null }))}
                                             className="w-full sm:w-auto"
                                         >
+                                            <Trash className="h-4 w-4 mr-2" />
                                             Borrar Horario
                                         </Button>
                                     </div>
+                                    {product.horario_disponible?.inicio && product.horario_disponible?.fin && (
+                                        <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                                            <Timer className="h-4 w-4 text-primary" />
+                                            <TextSM className="text-primary font-medium">
+                                                Disponible de {product.horario_disponible.inicio} a {product.horario_disponible.fin}
+                                            </TextSM>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-4">
@@ -563,26 +730,49 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave }: Pro
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="stock_minimo" className="text-foreground">Stock Mínimo de Alerta</Label>
-                                        <Input
-                                            id="stock_minimo"
-                                            type="number"
-                                            value={product.stock_minimo}
-                                            onChange={handleNumberChange}
-                                            placeholder="0 = sin alerta"
-                                        />
+                                        <div className="flex items-center gap-2">
+                                            <Label htmlFor="stock_minimo" className="text-foreground font-medium">Stock Mínimo de Alerta</Label>
+                                            <div className="w-2 h-2 rounded-full bg-orange-500" title="Alerta de stock bajo"></div>
+                                        </div>
+                                        <div className="relative">
+                                            <Package className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <Input
+                                                id="stock_minimo"
+                                                type="number"
+                                                value={product.stock_minimo}
+                                                onChange={handleNumberChange}
+                                                placeholder="0 = sin alerta"
+                                                className="pl-10"
+                                            />
+                                        </div>
+                                        {product.stock_minimo > 0 && (
+                                            <TextSM className="text-muted-foreground">
+                                                Alerta cuando el stock sea ≤ {product.stock_minimo} unidades
+                                            </TextSM>
+                                        )}
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="impresora_destino" className="text-foreground">Impresora de Destino</Label>
-                                        <Select value={product.impresora_destino || "none"} onValueChange={(value) => setProduct(prev => ({ ...prev, impresora_destino: value === "none" ? "" : value }))}>
-                                            <SelectTrigger><SelectValue placeholder="Seleccionar impresora..." /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="none">Sin impresora específica</SelectItem>
-                                                <SelectItem value="cocina">Cocina</SelectItem>
-                                                <SelectItem value="barra">Barra</SelectItem>
-                                                <SelectItem value="caja">Caja</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <div className="flex items-center gap-2">
+                                            <Label htmlFor="impresora_destino" className="text-foreground font-medium">Impresora de Destino</Label>
+                                            <div className="w-2 h-2 rounded-full bg-blue-500" title="Configuración de impresión"></div>
+                                        </div>
+                                        <div className="relative">
+                                            <Select value={product.impresora_destino || "caja"} onValueChange={(value) => setProduct(prev => ({ ...prev, impresora_destino: value }))}>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Seleccionar impresora..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="caja">💰 Caja (por defecto)</SelectItem>
+                                                    <SelectItem value="cocina">🍳 Cocina</SelectItem>
+                                                    <SelectItem value="barra">🍺 Barra</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        {product.impresora_destino && (
+                                            <TextSM className="text-muted-foreground">
+                                                Los pedidos se enviarán a {product.impresora_destino === 'cocina' ? 'la cocina' : product.impresora_destino === 'barra' ? 'la barra' : 'la caja'}
+                                            </TextSM>
+                                        )}
                                     </div>
                                 </div>
                             </TabsContent>

@@ -13,6 +13,10 @@ import {
     LayoutGrid
 } from 'lucide-react';
 
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { Id } from '../../../convex/_generated/dataModel';
+
 import { 
     Table, 
     TableBody, 
@@ -38,13 +42,7 @@ import { SearchInput } from '@/components/ui/search-input';
 import { TextSM } from '@/components/ui/typography';
 import { useToast } from '@/hooks/use-toast';
 import { iconMap } from '@/components/ui/icon-picker';
-
-import {
-  mockCategories,
-  mockProducts,
-  type Category,
-  type Product
-} from '@/data/mock-data';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 import { CategoryDialog, type ExtendedCategory } from '@/components/dialogs/cartas-categoria-dialog';
 
@@ -53,14 +51,44 @@ interface CategoriasTabProps {
 }
 
 export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
-  const [categories, setCategories] = React.useState<ExtendedCategory[]>(mockCategories as ExtendedCategory[]);
-  const [products, setProducts] = React.useState<Product[]>(mockProducts);
+  const { toast } = useToast();
+  const { activeEstablishment } = useEstablishments();
+  
+  // Obtener el establecimiento de Convex usando el ID local
+  const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+    localId: activeEstablishment?.id || 'camarai' 
+  });
+  
+  // Obtener las categorías del establecimiento
+  const categories = useQuery(api.categories.getCategories, { 
+    establishmentId: convexEstablishment?._id
+  }) || [];
+  
+  const createCategory = useMutation(api.categories.createCategory);
+  const updateCategoryMutation = useMutation(api.categories.updateCategory);
+  const deleteCategoryMutation = useMutation(api.categories.deleteCategory);
+  const toggleCategoryStatusMutation = useMutation(api.categories.toggleCategoryStatus);
+  
+  // Convert Convex data to frontend format
+  const extendedCategories = React.useMemo(() => {
+    return categories.map(category => ({
+      id: category._id,
+      nombre_categoria: category.name,
+      descripcion: category.description || '',
+      activa: category.active,
+      icono: category.icon || 'Utensils',
+      color: category.color || 'blue-400',
+      orden: category.order,
+      product_count: category.product_count || 0
+    }));
+  }, [categories]);
+  
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingCategory, setEditingCategory] = React.useState<ExtendedCategory | null>(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [itemsPerPage] = React.useState(10);
-  const { toast } = useToast();
-
+  
+  // Reset pagination on search
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -72,90 +100,121 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
       return () => window.removeEventListener('open-add-categorias', handleOpenAdd);
   }, []);
 
+  // Loading states
+  if (convexEstablishment === undefined) {
+      return (
+          <div className="flex items-center justify-center h-64">
+              <div className="text-muted-foreground">Cargando establecimiento...</div>
+          </div>
+      );
+  }
+
+  if (!convexEstablishment) {
+      return (
+          <div className="flex items-center justify-center h-64">
+              <div className="text-muted-foreground">No se encontró el establecimiento</div>
+          </div>
+      );
+  }
+
   // Helper functions
-  const addCategory = (categoryData: Partial<ExtendedCategory>) => {
-    const newCategory: ExtendedCategory = {
-      id: `cat-${Date.now()}`,
-      nombre_categoria: categoryData.nombre_categoria || '',
-      ...categoryData 
-    };
-    setCategories(prev => [...prev, newCategory]);
-    return newCategory.id;
-  }
-
-  const updateCategory = (id: string, categoryData: Partial<ExtendedCategory>) => {
-    setCategories(prev => prev.map(c => c.id === id ? { ...c, ...categoryData } : c));
-  }
-
-  const removeCategory = (id: string) => {
-    setCategories(prev => prev.filter(c => c.id !== id));
-    setProducts(prev => prev.map(p => p.id_categoria === id ? { ...p, id_categoria: '' } : p));
-  }
-
-  const toggleVisibility = (id: string, visible: boolean) => {
-    updateCategory(id, { visible_en_carta: visible });
-    toast({
-        title: visible ? "Categoría Visible" : "Categoría Oculta",
-        description: `Se ha actualizado la visibilidad de la categoría.`
-    });
+  const handleOpenDialog = (category?: ExtendedCategory) => {
+    setEditingCategory(category || null);
+    setIsDialogOpen(true);
   };
 
-  const syncProductsWithCategory = (categoryId: string, productIds: string[]) => {
-    const productIdsSet = new Set(productIds);
-    setProducts(prev => prev.map(p => {
-      if (productIdsSet.has(p.id)) {
-        return { ...p, id_categoria: categoryId };
-      } else if (p.id_categoria === categoryId) {
-        return { ...p, id_categoria: '' };
+  const handleSaveCategory = async (categoryData: Partial<ExtendedCategory>) => {
+    if (categoryData && convexEstablishment) {
+      try {
+        if (categoryData.id) {
+          // Update existing category
+          await updateCategoryMutation({
+            categoryId: categoryData.id as Id<'categories'>,
+            name: categoryData.nombre_categoria,
+            description: categoryData.descripcion,
+            icon: categoryData.icono,
+            color: categoryData.color,
+            active: categoryData.activa ?? true,
+            order: categoryData.orden
+          });
+          toast({
+            title: "Categoría Actualizada",
+            description: "La categoría ha sido actualizada correctamente."
+          });
+        } else {
+          // Create new category
+          await createCategory({
+            establishmentId: convexEstablishment._id,
+            name: categoryData.nombre_categoria!,
+            description: categoryData.descripcion,
+            icon: categoryData.icono,
+            color: categoryData.color,
+            active: categoryData.activa ?? true
+          });
+          toast({
+            title: "Categoría Creada",
+            description: "La nueva categoría se ha creado correctamente."
+          });
+        }
+        setIsDialogOpen(false);
+        setEditingCategory(null);
+      } catch (error) {
+        console.error("Error saving category:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo guardar la categoría."
+        });
       }
-      return p;
-    }));
-  }
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se puede guardar la categoría sin un establecimiento válido."
+      });
+    }
+  };
 
-  const filteredCategories = categories.filter(cat =>
+  const removeCategory = async (id: string, name: string) => {
+    try {
+      await deleteCategoryMutation({ categoryId: id as Id<'categories'> });
+      toast({
+        variant: "destructive",
+        title: "Categoría Eliminada",
+        description: `La categoría "${name}" ha sido eliminada.`
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo eliminar la categoría."
+      });
+    }
+  };
+
+  const toggleCategoryStatus = async (id: string, active: boolean) => {
+    try {
+      await toggleCategoryStatusMutation({ categoryId: id as Id<'categories'>, active });
+      toast({
+        title: active ? "Categoría Activada" : "Categoría Desactivada",
+        description: `Se ha actualizado el estado de la categoría.`
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el estado de la categoría."
+      });
+    }
+  };
+
+  const filteredCategories = extendedCategories.filter(cat =>
     cat.nombre_categoria.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
   const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
   const currentCategories = filteredCategories.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage);
-
-  const handleOpenDialog = (category?: ExtendedCategory) => {
-    setEditingCategory(category || null);
-    setIsDialogOpen(true);
-  };
-
-  const handleSave = (id: string | null, categoryData: Partial<ExtendedCategory>, assignedProductIds: string[]) => {
-    let categoryId = id;
-    const isEditing = !!id;
-
-    if (id) {
-      updateCategory(id, categoryData);
-    } else {
-      categoryId = addCategory(categoryData);
-    }
-
-    if (!categoryId) return;
-
-    syncProductsWithCategory(categoryId, assignedProductIds);
-    toast({
-      title: `Categoría ${isEditing ? 'Actualizada' : 'Creada'}`,
-      description: `La categoría "${categoryData.nombre_categoria}" ha sido guardada.` 
-    });
-  };
-
-  const handleRemove = (id: string, name: string) => {
-    removeCategory(id);
-    toast({
-      variant: "destructive",
-      title: "Categoría Eliminada",
-      description: `La categoría "${name}" ha sido eliminada.` 
-    });
-  }
-
-  const getProductsInCategoryCount = (categoryId: string) => {
-    return (products || []).filter(p => p.id_categoria === categoryId).length;
-  }
 
   return (
     <div className="space-y-6">
@@ -173,8 +232,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
                 <TableBody>
                     {currentCategories.map((cat) => {
                         const CatIcon = iconMap[cat.icono || 'Utensils'] || Utensils;
-                        const productCount = getProductsInCategoryCount(cat.id);
-                        const isVisible = cat.visible_en_carta !== false;
+                        const isVisible = cat.activa !== false;
                         
                         return (
                             <TableRow key={cat.id}>
@@ -189,12 +247,12 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
                                 <TableCell variant="medium">{cat.nombre_categoria}</TableCell>
                                 <TableCell>
                                     <Badge variant="secondary">
-                                        {productCount}
+                                        {cat.product_count || 0}
                                     </Badge>
                                 </TableCell>
                                 <TableCell align="center">
                                     <Badge variant={isVisible ? "success" : "destructive"}>
-                                        {isVisible ? "Visible" : "Oculta"}
+                                        {isVisible ? "Activa" : "Inactiva"}
                                     </Badge>
                                 </TableCell>
                                 <TableCell align="right">
@@ -209,7 +267,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
                                         <Button 
                                             variant="secondary" 
                                             size="md" 
-                                            onClick={() => toggleVisibility(cat.id, !isVisible)}
+                                            onClick={() => toggleCategoryStatus(cat.id, !isVisible)}
                                         >
                                             {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </Button>
@@ -223,13 +281,13 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>¿Eliminar categoría?</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        Se eliminará la categoría "{cat.nombre_categoria}". Los productos asociados quedarán sin categoría. Esta acción no se puede deshacer.
+                                                        Se eliminará la categoría "{cat.nombre_categoria}". Esta acción no se puede deshacer.
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel className={buttonVariants({ variant: 'outline', size: 'md' })}>Cancelar</AlertDialogCancel>
                                                     <AlertDialogAction 
-                                                        onClick={() => handleRemove(cat.id, cat.nombre_categoria)} 
+                                                        onClick={() => removeCategory(cat.id, cat.nombre_categoria)} 
                                                         className={buttonVariants({ variant: 'destructive', size: 'md' })}
                                                     >
                                                         Eliminar
@@ -286,9 +344,11 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
             isOpen={isDialogOpen}
             onOpenChange={setIsDialogOpen}
             category={editingCategory}
-            onSave={handleSave}
-            products={products}
-            allCategories={categories}
+            onSave={(id, categoryData, assignedProductIds) => {
+                handleSaveCategory(categoryData);
+            }}
+            products={[]} // Por ahora vacío hasta que implementemos productos
+            allCategories={extendedCategories}
         />
     </div>
     );
