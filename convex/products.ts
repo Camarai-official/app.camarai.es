@@ -34,9 +34,14 @@ export const getProducts = query({
     const productsWithCategories = await Promise.all(
       products.map(async (product) => {
         const category = await ctx.db.get(product.category_id);
+        const tax = await ctx.db.get(product.tax_id);
+        const taxPercent = tax?.percentage || 0;
+        const basePrice = product.price / (1 + taxPercent / 100);
+        const netMargin = basePrice - (product.cost || 0);
         return {
           ...product,
-          category_name: category?.name || "Sin categoría"
+          category_name: category?.name || "Sin categoría",
+          net_margin: netMargin,
         };
       })
     );
@@ -71,7 +76,7 @@ export const getProductById = query({
         return {
           id_ingrediente: productIngredient.ingredient_id,
           cantidad_requerida: productIngredient.quantity_required,
-          unidad_medida: ingredient?.unit || 'units',
+          unidad_medida: productIngredient.unit || ingredient?.unit || 'units',
           nombre_ingrediente: ingredient?.name || 'Unknown',
           costo_unitario: ingredient?.cost_base || 0
         };
@@ -157,6 +162,7 @@ export const createProduct = mutation({
           product_id: productId,
           ingredient_id: ingredient.ingredientId,
           quantity_required: ingredient.quantity,
+          unit: ingredient.unit,
         });
       }
     }
@@ -247,6 +253,7 @@ export const updateProduct = mutation({
           product_id: productId,
           ingredient_id: ingredient.ingredientId,
           quantity_required: ingredient.quantity,
+          unit: ingredient.unit,
         });
       }
     }
@@ -286,6 +293,47 @@ export const toggleProductAvailability = mutation({
     });
 
     return updatedProduct;
+  },
+});
+
+export const updateProductCategory = mutation({
+  args: {
+    productId: v.id("products"),
+    categoryId: v.id("categories"),
+  },
+  handler: async (ctx, args) => {
+    const product = await ctx.db.get(args.productId);
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    const updatedProduct = await ctx.db.patch(args.productId, {
+      category_id: args.categoryId
+    });
+
+    return updatedProduct;
+  },
+});
+
+export const updateProductsCategory = mutation({
+  args: {
+    productIds: v.array(v.id("products")),
+    categoryId: v.id("categories"),
+  },
+  handler: async (ctx, args) => {
+    const updatedProducts = [];
+    
+    for (const productId of args.productIds) {
+      const product = await ctx.db.get(productId);
+      if (product) {
+        await ctx.db.patch(productId, {
+          category_id: args.categoryId
+        });
+        updatedProducts.push(productId);
+      }
+    }
+
+    return updatedProducts;
   },
 });
 

@@ -181,6 +181,8 @@ export default defineSchema({
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
     active: v.boolean(),
+    printerDestination: v.optional(v.string()),
+    visibleInMenu: v.boolean(),
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 
@@ -219,6 +221,7 @@ export default defineSchema({
     product_id: v.id("products"),
     ingredient_id: v.id("ingredients"),
     quantity_required: v.number(),
+    unit: v.string(),
   }).index("by_product", ["product_id"]),
 
   ingredients: defineTable({

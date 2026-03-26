@@ -59,7 +59,12 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
     localId: activeEstablishment?.id || 'camarai' 
   });
   
-  // Obtener las categorías del establecimiento
+  // Obtener los productos del establecimiento
+  const products = useQuery(api.products.getProducts, { 
+    establishmentId: convexEstablishment?._id
+  }) || [];
+  
+  // Obtener categorías para el diálogo establecimiento
   const categories = useQuery(api.categories.getCategories, { 
     establishmentId: convexEstablishment?._id
   }) || [];
@@ -68,6 +73,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
   const updateCategoryMutation = useMutation(api.categories.updateCategory);
   const deleteCategoryMutation = useMutation(api.categories.deleteCategory);
   const toggleCategoryStatusMutation = useMutation(api.categories.toggleCategoryStatus);
+  const updateProductsCategoryMutation = useMutation(api.products.updateProductsCategory);
   
   // Convert Convex data to frontend format
   const extendedCategories = React.useMemo(() => {
@@ -79,9 +85,23 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
       icono: category.icon || 'Utensils',
       color: category.color || 'blue-400',
       orden: category.order,
-      product_count: category.product_count || 0
+      product_count: category.product_count || 0,
+      impresora_destino: category.printerDestination || '',
+      visible_en_carta: category.visibleInMenu ?? true
     }));
   }, [categories]);
+
+  // Convert products to frontend format for CategoryDialog
+  const extendedProducts = React.useMemo(() => {
+    return products.map(product => ({
+      id: product._id,
+      nombre_producto: product.name,
+      descripcion_producto: product.description || '',
+      precio_venta: product.price / 100,
+      id_categoria: product.category_id,
+      url_imagen_producto: product.image
+    }));
+  }, [products]);
   
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingCategory, setEditingCategory] = React.useState<ExtendedCategory | null>(null);
@@ -123,9 +143,11 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
     setIsDialogOpen(true);
   };
 
-  const handleSaveCategory = async (categoryData: Partial<ExtendedCategory>) => {
+  const handleSaveCategory = async (categoryData: Partial<ExtendedCategory>, assignedProductIds?: string[]) => {
     if (categoryData && convexEstablishment) {
       try {
+        let categoryId: string;
+        
         if (categoryData.id) {
           // Update existing category
           await updateCategoryMutation({
@@ -135,27 +157,43 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
             icon: categoryData.icono,
             color: categoryData.color,
             active: categoryData.activa ?? true,
-            order: categoryData.orden
+            order: categoryData.orden,
+            printerDestination: categoryData.impresora_destino,
+            visibleInMenu: categoryData.visible_en_carta ?? true
           });
+          categoryId = categoryData.id;
+          
           toast({
             title: "Categoría Actualizada",
             description: "La categoría ha sido actualizada correctamente."
           });
         } else {
           // Create new category
-          await createCategory({
+          categoryId = await createCategory({
             establishmentId: convexEstablishment._id,
             name: categoryData.nombre_categoria!,
             description: categoryData.descripcion,
             icon: categoryData.icono,
             color: categoryData.color,
-            active: categoryData.activa ?? true
+            active: categoryData.activa ?? true,
+            printerDestination: categoryData.impresora_destino,
+            visibleInMenu: categoryData.visible_en_carta ?? true
           });
+          
           toast({
             title: "Categoría Creada",
             description: "La nueva categoría se ha creado correctamente."
           });
         }
+        
+        // Update product categories if assignedProductIds is provided
+        if (assignedProductIds && assignedProductIds.length > 0) {
+          await updateProductsCategoryMutation({
+            productIds: assignedProductIds as Id<'products'>[],
+            categoryId: categoryId as Id<'categories'>
+          });
+        }
+        
         setIsDialogOpen(false);
         setEditingCategory(null);
       } catch (error) {
@@ -345,9 +383,9 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
             onOpenChange={setIsDialogOpen}
             category={editingCategory}
             onSave={(id, categoryData, assignedProductIds) => {
-                handleSaveCategory(categoryData);
+                handleSaveCategory(categoryData, assignedProductIds);
             }}
-            products={[]} // Por ahora vacío hasta que implementemos productos
+            products={extendedProducts}
             allCategories={extendedCategories}
         />
     </div>

@@ -101,11 +101,18 @@ export function CategoryDialog({
             setAssignedProducts([]);
         }
         setSearchTerm('');
-        setActiveTab('general');
+        // Only reset tab when opening a new category, not when editing
+        if (!category) {
+            setActiveTab('general');
+        }
     }, [category, isOpen, products, allCategories]);
 
     const handleSaveClick = () => {
-        onSave(category?.id || null, categoryData, assignedProducts.map(p => p.id));
+        const categoryDataWithId = {
+            ...categoryData,
+            id: category?.id || null
+        };
+        onSave(category?.id || null, categoryDataWithId, assignedProducts.map(p => p.id));
         onOpenChange(false);
     };
 
@@ -290,47 +297,41 @@ export function CategoryDialog({
                                                 <TextSM className="text-muted-foreground">Gestiona qué productos pertenecen a esta categoría.</TextSM>
                                             </div>
 
-                                            <div className="w-full sm:w-[300px]">
-                                                <Popover open={isSearchPopoverOpen} onOpenChange={setIsSearchPopoverOpen}>
-                                                    <PopoverTrigger asChild>
-                                                        <SearchInput
-                                                            placeholder="Añadir producto..."
-                                                            value={searchTerm}
-                                                            onChange={(e) => {
-                                                                setSearchTerm(e.target.value);
-                                                                if (e.target.value.length > 0) setIsSearchPopoverOpen(true);
-                                                                else setIsSearchPopoverOpen(false);
-                                                            }}
-                                                        />
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-[300px] p-0" align="end">
-                                                        <Command>
-                                                            <CommandList>
-                                                                {unassignedProducts.length === 0 ? (
-                                                                    <CommandEmpty>No se encontraron productos.</CommandEmpty>
-                                                                ) : (
-                                                                    <CommandGroup>
-                                                                        {unassignedProducts.map(p => (
-                                                                            <CommandItem
-                                                                                key={p.id}
-                                                                                value={p.nombre_producto}
-                                                                                onSelect={() => handleSelectProduct(p)}
-                                                                                className="cursor-pointer"
-                                                                            >
-                                                                                <PlusCircle className="mr-2 h-4 w-4 text-primary" />
-                                                                                <div className="flex flex-col">
-                                                                                    <TextSM>{p.nombre_producto}</TextSM>
-                                                                                    <TextXS className="text-muted-foreground">€{p.precio_venta}</TextXS>
-                                                                                </div>
-                                                                            </CommandItem>
-                                                                        ))}
-                                                                    </CommandGroup>
-                                                                )}
-                                                            </CommandList>
-                                                        </Command>
-                                                    </PopoverContent>
-                                                </Popover>
-                                            </div>
+                                            <div className="w-full sm:w-[300px] relative">
+    <Input
+        placeholder="Añadir producto..."
+        value={searchTerm}
+        onChange={(e) => {
+            console.log('Input value:', e.target.value); // Debug
+            setSearchTerm(e.target.value);
+        }}
+        className="w-full"
+    />
+    
+    {/* Show suggestions directly below the input */}
+    {searchTerm.length > 0 && (
+        <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+            {unassignedProducts.length === 0 ? (
+                <div className="p-3 text-sm text-muted-foreground">
+                    No se encontraron productos.
+                </div>
+            ) : (
+                <div className="py-1">
+                    {unassignedProducts.map(p => (
+                        <div
+                            key={p.id}
+                            className="px-3 py-2 text-sm cursor-pointer hover:bg-muted flex justify-between items-center"
+                            onClick={() => handleSelectProduct(p)}
+                        >
+                            <span>{p.nombre_producto}</span>
+                            <span className="text-muted-foreground">€{p.precio_venta}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )}
+</div>
                                         </div>
 
                                         <Separator className="bg-muted-foreground/10" />

@@ -87,9 +87,10 @@ interface ProductDialogProps {
     categories?: any[]; // Convex categories
     taxes?: any[]; // Convex taxes
     establishmentId?: string; // Convex establishment ID
+    defaultCategoryId?: string | null; // Default category ID
 }
 
-export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categories = [], taxes = [], establishmentId }: ProductDialogProps) {
+export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categories = [], taxes = [], establishmentId, defaultCategoryId }: ProductDialogProps) {
     // Get real ingredients from Convex
     const ingredients = useQuery(api.ingredients.getIngredients, 
         establishmentId ? { establishmentId: establishmentId as any } : "skip"
@@ -111,11 +112,44 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
     const [newVariantName, setNewVariantName] = React.useState('');
     const [newVariantPrice, setNewVariantPrice] = React.useState(0);
 
+    const calculateSubtotal = (ingredientInfo: any, quantity: number, selectedUnit: string) => {
+        if (!ingredientInfo) return 0;
+        
+        const baseUnit = ingredientInfo.unit;
+        const baseCost = ingredientInfo.cost_base;
+        
+        // If selected unit matches base unit, use direct calculation
+        if (selectedUnit === baseUnit) {
+            return baseCost * quantity;
+        }
+        
+        // Convert to base unit first, then calculate
+        let convertedQuantity = quantity;
+        
+        switch (baseUnit) {
+            case 'kg':
+                if (selectedUnit === 'g') {
+                    convertedQuantity = quantity / 1000; // Convert grams to kg
+                }
+                break;
+            case 'l':
+                if (selectedUnit === 'ml') {
+                    convertedQuantity = quantity / 1000; // Convert ml to liters
+                }
+                break;
+            case 'unidades':
+                // No conversion needed for units
+                break;
+        }
+        
+        return baseCost * convertedQuantity;
+    };
+
     const costEscandallo = React.useMemo(() => {
         return product.ingredientes_asociados.reduce((acc, assocIng) => {
             const ingredientDetails = ingredients.find(i => i._id === assocIng.id_ingrediente);
             if (ingredientDetails) {
-                return acc + (ingredientDetails.cost_base * assocIng.cantidad_requerida);
+                return acc + calculateSubtotal(ingredientDetails, assocIng.cantidad_requerida, assocIng.unidad_medida);
             }
             return acc;
         }, 0);
@@ -136,7 +170,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
     React.useEffect(() => {
         if (productToEdit) {
             setIsLoading(true);
-            // Use the product data as-is since it's already in the correct format from productos-tab
+            // Don't load ingredients from productToEdit, wait for productDetails instead
             const mappedProduct = {
                 ...emptyExtendedProduct,
                 ...productToEdit,
@@ -145,16 +179,16 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                 alergenos: (productToEdit as any).alergenos || [],
                 stock_minimo: (productToEdit as any).stock_minimo || 0,
                 impresora_destino: (productToEdit as any).impresora_destino || '',
-                ingredientes_asociados: (productToEdit as any).ingredientes_asociados || []
+                ingredientes_asociados: [] // Start empty, will be loaded from productDetails
             };
             setProduct(mappedProduct);
             setIsLoading(false);
         } else {
-            const defaultCategoryId = categories.length > 0 ? categories[0]._id : '';
+            const defaultCatId = defaultCategoryId || (categories.length > 0 ? categories[0]._id : '');
             const defaultTaxId = taxes.length > 0 ? taxes[0]._id : '';
             setProduct({ 
                 ...emptyExtendedProduct, 
-                id_categoria: defaultCategoryId, 
+                id_categoria: defaultCatId,
                 id_impuesto: defaultTaxId 
             });
         }
@@ -164,6 +198,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
     // Update product when productDetails is loaded (for editing)
     React.useEffect(() => {
         if (productDetails && productToEdit) {
+            // Always load ingredients from productDetails
             setProduct(prev => ({
                 ...prev,
                 ingredientes_asociados: (productDetails as any).ingredientes_asociados || []
@@ -230,10 +265,22 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
     }
 
     const handleAddIngredient = (ingredient: any) => {
+        // Get the appropriate default unit based on the ingredient's base unit
+        const getDefaultUnit = (baseUnit: string) => {
+            switch (baseUnit) {
+                case 'kg':
+                    return 'g'; // Default to grams for kg ingredients
+                case 'l':
+                    return 'ml'; // Default to ml for liter ingredients
+                default:
+                    return baseUnit; // Use base unit for others
+            }
+        };
+
         const newAssociatedIngredient: AssociatedIngredient = {
             id_ingrediente: ingredient._id,
             cantidad_requerida: 1,
-            unidad_medida: ingredient.unit
+            unidad_medida: getDefaultUnit(ingredient.unit)
         };
 
         setProduct(prev => ({
@@ -258,6 +305,28 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
             ...prev,
             ingredientes_asociados: prev.ingredientes_asociados.map(ing =>
                 ing.id_ingrediente === ingredientId ? { ...ing, cantidad_requerida: quantity } : ing
+            )
+        }));
+    };
+
+    const getAvailableUnits = (baseUnit: string) => {
+        switch (baseUnit) {
+            case 'kg':
+                return ['kg', 'g'];
+            case 'l':
+                return ['l', 'ml'];
+            case 'unidades':
+                return ['unidades'];
+            default:
+                return [baseUnit];
+        }
+    };
+
+    const handleIngredientUnitChange = (ingredientId: string, unit: string) => {
+        setProduct(prev => ({
+            ...prev,
+            ingredientes_asociados: prev.ingredientes_asociados.map(ing =>
+                ing.id_ingrediente === ingredientId ? { ...ing, unidad_medida: unit } : ing
             )
         }));
     };
@@ -345,8 +414,10 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                             <Select value={product.id_categoria || ""} onValueChange={(value) => setProduct(prev => ({ ...prev, id_categoria: value === "ninguna" ? "" : value }))}>
                                                 <SelectTrigger><SelectValue placeholder="Selecciona una categoría..." /></SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="ninguna">Ninguna</SelectItem>
-                                                    {categories.map(cat => (
+                                                    {defaultCategoryId && (
+                                                        <SelectItem value={defaultCategoryId}>Sin Categoría</SelectItem>
+                                                    )}
+                                                    {categories.filter(cat => cat._id !== defaultCategoryId).map(cat => (
                                                         <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -485,7 +556,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                         <div className="space-y-2">
                                             {product.ingredientes_asociados.map(assocIng => {
                                                 const ingredientInfo = ingredients.find(i => i._id === assocIng.id_ingrediente);
-                                                const subtotal = ingredientInfo ? ingredientInfo.cost_base * assocIng.cantidad_requerida : 0;
+                                                const subtotal = calculateSubtotal(ingredientInfo, assocIng.cantidad_requerida, assocIng.unidad_medida);
                                                 return (
                                                     <div key={assocIng.id_ingrediente} className="flex items-center justify-between p-2 border rounded-md bg-background text-sm gap-2">
                                                         <TextMD className="text-foreground">{ingredientInfo?.name || 'Ingrediente no encontrado'}</TextMD>
@@ -493,11 +564,23 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                                             <Input
                                                                 type="number"
                                                                 className="h-8 w-20 text-right"
-                                                                value={assocIng.cantidad_requerida}
-                                                                onChange={(e) => handleIngredientQuantityChange(assocIng.id_ingrediente, parseFloat(e.target.value) || 0)}
-                                                                step="0.01"
+                                                                value={assocIng.cantidad_requerida === 0 ? '' : assocIng.cantidad_requerida}
+                                                                onChange={(e) => handleIngredientQuantityChange(assocIng.id_ingrediente, e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
+                                                                step="any"
+                                                                min="0"
                                                             />
-                                                            <TextXS className="text-muted-foreground">{assocIng.unidad_medida}</TextXS>
+                                                            <Select value={assocIng.unidad_medida} onValueChange={(value) => handleIngredientUnitChange(assocIng.id_ingrediente, value)}>
+                                                                <SelectTrigger className="h-8 w-16">
+                                                                    <SelectValue />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {getAvailableUnits(ingredientInfo?.unit || 'unidades').map(unit => (
+                                                                        <SelectItem key={unit} value={unit}>
+                                                                            {unit}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
                                                             <TextXS className="text-foreground">€{subtotal.toFixed(2)}</TextXS>
                                                         </div>
                                                         <Button variant="ghost" size="md" onClick={() => handleRemoveIngredient(assocIng.id_ingrediente)}>

@@ -87,6 +87,12 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
     const updateProductMutation = useMutation(api.products.updateProduct);
     const deleteProductMutation = useMutation(api.products.deleteProduct);
     const toggleProductAvailabilityMutation = useMutation(api.products.toggleProductAvailability);
+    const createCategory = useMutation(api.categories.createCategory);
+    const updateCategoryMutation = useMutation(api.categories.updateCategory);
+    const deleteCategoryMutation = useMutation(api.categories.deleteCategory);
+    const toggleCategoryStatusMutation = useMutation(api.categories.toggleCategoryStatus);
+    const updateProductsCategoryMutation = useMutation(api.products.updateProductsCategory);
+    const ensureDefaultCategoryMutation = useMutation(api.categories.ensureDefaultCategory);
     
     // Convert Convex data to frontend format
     const extendedProducts = React.useMemo(() => {
@@ -101,6 +107,7 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
             disponible: product.active,
             url_imagen_producto: product.image,
             costo_escandallo_calculado: product.cost / 100, // Convert from cents
+            net_margin: (product.net_margin || 0) / 100, // Convert from cents and include net_margin
             ingredientes_asociados: [], // Will be loaded when editing
             variantes: (product as any).variants || [], // Include variants from database
             alergenos: (product as any).allergens || [], // Include allergens from database
@@ -147,6 +154,19 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
         );
     }
 
+    // Ensure default category exists and get its ID
+    const defaultCategoryId = React.useMemo(() => {
+        const defaultCat = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+        return defaultCat?.id || null;
+    }, [categories]);
+
+    // Auto-create default category if it doesn't exist
+    React.useEffect(() => {
+        if (convexEstablishment && !defaultCategoryId && categories.length > 0) {
+            ensureDefaultCategoryMutation({ establishmentId: convexEstablishment._id });
+        }
+    }, [convexEstablishment, defaultCategoryId, categories.length]);
+
     // Helper functions
     const handleOpenDialog = (product?: any) => {
         setEditingProduct(product || null);
@@ -186,9 +206,23 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
 
                 if (productData.id) {
                     // Update existing product
+                    if (!productData.id_categoria) {
+                        // Try to find or create a "Sin categoría" category
+                        const defaultCategory = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+                        if (!defaultCategory) {
+                            toast({
+                                variant: "destructive",
+                                title: "Error",
+                                description: "No se encontró una categoría 'Sin categoría'. Por favor, selecciona una categoría o crea una llamada 'Sin categoría'."
+                            });
+                            return;
+                        }
+                        productData.id_categoria = defaultCategory.id;
+                    }
+                    
                     await updateProductMutation({
                         productId: productData.id as Id<'products'>,
-                        categoryId: productData.id_categoria,
+                        categoryId: productData.id_categoria as Id<'categories'>,
                         name: productData.nombre_producto,
                         description: productData.descripcion_producto,
                         price: Math.round(productData.precio_venta * 100), // Convert to cents
@@ -209,9 +243,23 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                     });
                 } else {
                     // Create new product
+                    if (!productData.id_categoria) {
+                        // Try to find or create a "Sin categoría" category
+                        const defaultCategory = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+                        if (!defaultCategory) {
+                            toast({
+                                variant: "destructive",
+                                title: "Error",
+                                description: "No se encontró una categoría 'Sin categoría'. Por favor, selecciona una categoría o crea una llamada 'Sin categoría'."
+                            });
+                            return;
+                        }
+                        productData.id_categoria = defaultCategory.id;
+                    }
+                    
                     await createProduct({
                         establishmentId: convexEstablishment._id,
-                        categoryId: productData.id_categoria!,
+                        categoryId: productData.id_categoria as Id<'categories'>,
                         name: productData.nombre_producto!,
                         description: productData.descripcion_producto,
                         price: Math.round(productData.precio_venta * 100), // Convert to cents
@@ -308,6 +356,7 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                             <TableHead>Producto</TableHead>
                             <TableHead>Categoría</TableHead>
                             <TableHead>Precio</TableHead>
+                            <TableHead>Margen Neto</TableHead>
                             <TableHead align="center">Estado</TableHead>
                             <TableHead align="right">Acciones</TableHead>
                         </TableRow>
@@ -340,6 +389,11 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                                     </Badge>
                                 </TableCell>
                                 <TableCell variant="medium">€{prod.precio_venta.toFixed(2)}</TableCell>
+                                <TableCell variant="medium">
+                                    <span className={`font-medium ${prod.net_margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        €{prod.net_margin.toFixed(2)}
+                                    </span>
+                                </TableCell>
                                 <TableCell align="center">
                                     <Badge variant={prod.disponible ? "success" : "destructive"}>
                                         {prod.disponible ? "Disponible" : "Agotado"}
@@ -435,6 +489,7 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                 productToEdit={editingProduct} 
                 onSave={(productData) => handleSaveProduct(productData)} 
                 categories={categories}
+                defaultCategoryId={defaultCategoryId}
                 taxes={taxes}
                 establishmentId={convexEstablishment?._id}
             />

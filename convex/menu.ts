@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { Id } from "./_generated/dataModel";
 
 // --- QUERIES ---
 
@@ -236,6 +237,167 @@ export const addElementToCarta = mutation({
     });
 
     return sectionId;
+  },
+});
+
+export const addCategoryWithProductsToCarta = mutation({
+  args: {
+    cartaId: v.id("menu"),
+    categoryId: v.id("categories"),
+    includeProducts: v.boolean(), // Whether to also add individual products
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+
+    // Get the highest order number for this menu
+    const existingSections = await ctx.db
+      .query("menu_sections")
+      .withIndex("by_menu", q => q.eq("menu_id", args.cartaId))
+      .collect();
+    
+    const maxOrder = Math.max(...existingSections.map(section => section.display_order), 0);
+
+    // Add the category to the carta
+    const categorySectionId = await ctx.db.insert("menu_sections", {
+      menu_id: args.cartaId,
+      element_type: "category",
+      element_id: args.categoryId,
+      display_order: maxOrder + 1,
+      created_at: now,
+    });
+
+    // If includeProducts is true, also add all products from this category
+    if (args.includeProducts) {
+      // Get all products in this category
+      const categoryProducts = await ctx.db
+        .query("products")
+        .withIndex("by_category", q => q.eq("category_id", args.categoryId))
+        .collect();
+
+      // Add each product to the carta
+      for (const product of categoryProducts) {
+        const currentMaxOrder = Math.max(
+          ...[
+            ...existingSections.map(section => section.display_order),
+            maxOrder + 1
+          ], 
+          0
+        );
+
+        await ctx.db.insert("menu_sections", {
+          menu_id: args.cartaId,
+          element_type: "product",
+          element_id: product._id,
+          display_order: currentMaxOrder + 1,
+          created_at: now,
+        });
+      }
+    }
+
+    return {
+      categorySectionId,
+      productsAdded: args.includeProducts ? "All products from category added" : "Only category added"
+    };
+  },
+});
+
+export const syncCartaWithCategories = mutation({
+  args: {
+    cartaId: v.id("menu"),
+    categoryIds: v.array(v.id("categories")),
+    includeProducts: v.boolean(), // Whether to include all products from categories
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+
+    // First, remove all existing sections from this carta
+    const existingSections = await ctx.db
+      .query("menu_sections")
+      .withIndex("by_menu", q => q.eq("menu_id", args.cartaId))
+      .collect();
+
+    for (const section of existingSections) {
+      await ctx.db.delete(section._id);
+    }
+
+    // Collect all product IDs from the selected categories
+    const allProductIds: string[] = [];
+
+    // Now add all categories and optionally their products
+    let displayOrder = 0;
+
+    for (const categoryId of args.categoryIds) {
+      // Add the category
+      await ctx.db.insert("menu_sections", {
+        menu_id: args.cartaId,
+        element_type: "category",
+        element_id: categoryId,
+        display_order: displayOrder++,
+        created_at: now,
+      });
+
+      // Get all products from this category
+      const categoryProducts = await ctx.db
+        .query("products")
+        .withIndex("by_category", q => q.eq("category_id", categoryId))
+        .collect();
+
+      // Add product IDs to the collection
+      const productIds = categoryProducts.map(product => product._id);
+      allProductIds.push(...productIds);
+
+      // If includeProducts is true, also add individual product sections
+      if (args.includeProducts) {
+        for (const product of categoryProducts) {
+          await ctx.db.insert("menu_sections", {
+            menu_id: args.cartaId,
+            element_type: "product",
+            element_id: product._id,
+            display_order: displayOrder++,
+            created_at: now,
+          });
+        }
+      }
+    }
+
+    // Update the menu with all product IDs
+    await ctx.db.patch(args.cartaId, {
+      product_ids: allProductIds as Id<"products">[],
+      updated_at: now,
+    });
+
+    return {
+      cartaId: args.cartaId,
+      categoriesAdded: args.categoryIds.length,
+      includeProducts: args.includeProducts,
+      totalSections: displayOrder,
+      totalProducts: allProductIds.length
+    };
+  },
+});
+
+export const removeCategoryFromCarta = mutation({
+  args: {
+    cartaId: v.id("menu"),
+    categoryId: v.id("categories"),
+  },
+  handler: async (ctx, args) => {
+    // Find the menu_section record for this category in this carta
+    const sections = await ctx.db
+      .query("menu_sections")
+      .withIndex("by_menu", q => q.eq("menu_id", args.cartaId))
+      .collect();
+    
+    const sectionToRemove = sections.find(section => 
+      section.element_type === "category" && section.element_id === args.categoryId
+    );
+    
+    if (sectionToRemove) {
+      await ctx.db.delete(sectionToRemove._id);
+      return sectionToRemove._id;
+    }
+    
+    throw new Error("Category not found in carta");
   },
 });
 

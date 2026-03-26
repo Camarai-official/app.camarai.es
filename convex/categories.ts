@@ -77,6 +77,8 @@ export const createCategory = mutation({
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
     active: v.optional(v.boolean()),
+    printerDestination: v.optional(v.string()),
+    visibleInMenu: v.boolean(),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -99,6 +101,8 @@ export const createCategory = mutation({
       color: args.color || "blue-400",
       active: args.active ?? true,
       order: maxOrder + 1,
+      printerDestination: args.printerDestination,
+      visibleInMenu: args.visibleInMenu,
       created_at: now,
     });
 
@@ -115,6 +119,8 @@ export const updateCategory = mutation({
     color: v.optional(v.string()),
     active: v.optional(v.boolean()),
     order: v.optional(v.number()),
+    printerDestination: v.optional(v.string()),
+    visibleInMenu: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const { categoryId, ...updateData } = args;
@@ -170,6 +176,46 @@ export const toggleCategoryStatus = mutation({
     });
 
     return updatedCategory;
+  },
+});
+
+export const ensureDefaultCategory = mutation({
+  args: {
+    establishmentId: v.id("establishments"),
+  },
+  handler: async (ctx, args) => {
+    // Check if "Sin categoría" already exists
+    const existingCategories = await ctx.db
+      .query("categories")
+      .withIndex("by_establishment", q => 
+        q.eq("establishment_id", args.establishmentId)
+      )
+      .collect();
+
+    const defaultCategory = existingCategories.find(cat => cat.name === "Sin categoría");
+
+    if (defaultCategory) {
+      return defaultCategory._id;
+    }
+
+    // Create "Sin categoría" if it doesn't exist
+    const now = Date.now();
+    const maxOrder = Math.max(...existingCategories.map(c => c.order), 0);
+
+    const categoryId = await ctx.db.insert("categories", {
+      establishment_id: args.establishmentId,
+      name: "Sin categoría",
+      description: "Productos sin categoría asignada",
+      icon: "Package",
+      color: "gray-400",
+      active: true,
+      order: maxOrder + 1,
+      printerDestination: "caja",
+      visibleInMenu: false, // Hide from menu
+      created_at: now,
+    });
+
+    return categoryId;
   },
 });
 

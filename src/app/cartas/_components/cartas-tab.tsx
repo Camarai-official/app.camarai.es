@@ -87,12 +87,33 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
         establishmentId: convexEstablishment?._id
     }) || [];
     
+    // Obtener las categorías reales del establecimiento
+    const realCategories = useQuery(api.categories.getCategories, { 
+        establishmentId: convexEstablishment?._id
+    }) || [];
+    
+    // Convertir categorías al formato esperado
+    const formattedCategories = React.useMemo(() => {
+        return realCategories.map(cat => ({
+            id: cat._id,
+            nombre_categoria: cat.name,
+            descripcion: cat.description || '',
+            activa: cat.active,
+            icono: cat.icon || 'Utensils',
+            color: cat.color || 'blue-400',
+            orden: cat.order,
+            product_count: cat.product_count || 0
+        }));
+    }, [realCategories]);
+    
     const createCarta = useMutation(api.menu.createCarta);
     const updateCartaMutation = useMutation(api.menu.updateCarta);
     const deleteCartaMutation = useMutation(api.menu.deleteCarta);
     const toggleCartaStatusMutation = useMutation(api.menu.toggleCartaStatus);
     const addElementToCartaMutation = useMutation(api.menu.addElementToCarta);
     const removeElementFromCartaMutation = useMutation(api.menu.removeElementFromCarta);
+    const removeCategoryFromCartaMutation = useMutation(api.menu.removeCategoryFromCarta);
+    const syncCartaWithCategoriesMutation = useMutation(api.menu.syncCartaWithCategories);
 
     // Convert Convex data to frontend format
     const formattedCartas = React.useMemo(() => {
@@ -221,11 +242,54 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                 elementType: 'category',
                 elementId: categoryId
             });
+            toast({
+                title: "Categoría Añadida",
+                description: "Se ha añadido la categoría a la carta."
+            });
         } catch (error) {
             toast({
                 variant: "destructive",
                 title: "Error",
                 description: "No se pudo añadir la categoría."
+            });
+        }
+    };
+
+    const syncCartaCategories = async (cartaId: string, categoryIds: string[]) => {
+        try {
+            await syncCartaWithCategoriesMutation({
+                cartaId: cartaId as Id<'menu'>,
+                categoryIds: categoryIds as Id<'categories'>[],
+                includeProducts: false // Solo guardar categorías, los productos se obtendrán dinámicamente
+            });
+            toast({
+                title: "Carta Sincronizada",
+                description: "Se han actualizado las categorías de la carta."
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo sincronizar la carta."
+            });
+        }
+    };
+
+    const handleRemoveCategoryFromCarta = async (cartaId: string, categoryId: string) => {
+        try {
+            await removeCategoryFromCartaMutation({
+                cartaId: cartaId as Id<'menu'>,
+                categoryId: categoryId as Id<'categories'>
+            });
+            toast({
+                title: "Categoría Eliminada",
+                description: "Se ha eliminado la categoría de la carta."
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo eliminar la categoría."
             });
         }
     };
@@ -246,6 +310,8 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
         if (cartaData && convexEstablishment) {
             console.log("Saving carta with data:", cartaData); // Debug log
             try {
+                let cartaId: string;
+                
                 if (cartaData.id) {
                     // Update existing carta
                     await updateCartaMutation({
@@ -261,6 +327,8 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                         whatsappScheduleStart: cartaData.whatsapp_schedule_start ?? whatsAppConfig.horarioInicio,
                         whatsappScheduleEnd: cartaData.whatsapp_schedule_end ?? whatsAppConfig.horarioFin
                     });
+                    cartaId = cartaData.id;
+                    
                     toast({
                         title: "Carta Guardada",
                         description: "Los cambios se han guardado correctamente."
@@ -268,7 +336,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                 } else {
                     // Create new carta
                     console.log("Creating new carta with establishmentId:", convexEstablishment._id); // Debug log
-                    await createCarta({
+                    cartaId = await createCarta({
                         establishmentId: convexEstablishment._id,
                         name: cartaData.nombre_carta,
                         description: cartaData.descripcion_carta,
@@ -281,11 +349,24 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                         whatsappScheduleStart: whatsAppConfig.horarioInicio,
                         whatsappScheduleEnd: whatsAppConfig.horarioFin
                     });
+                    
                     toast({
                         title: "Carta Creada",
                         description: "La nueva carta se ha creado correctamente."
                     });
                 }
+                
+                // Save categories if they exist in the carta data
+                if (cartaData.elementos_carta && cartaData.elementos_carta.length > 0) {
+                    const categoryIds = cartaData.elementos_carta
+                        .filter(element => element.tipo === 'categoria')
+                        .map(element => element.id_elemento);
+                    
+                    if (categoryIds.length > 0) {
+                        await syncCartaCategories(cartaId, categoryIds);
+                    }
+                }
+                
                 setIsCartaDialogOpen(false);
                 setEditingCarta(null);
             } catch (error) {
@@ -379,7 +460,11 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                                                 <Button 
                                                     variant="secondary" 
                                                     size="md" 
-                                                    onClick={() => { setEditingCarta(carta); setIsCartaDialogOpen(true); }}
+                                                    onClick={() => { 
+                                                console.log("Editing carta:", carta); // Debug
+                                                setEditingCarta(carta); 
+                                                setIsCartaDialogOpen(true); 
+                                            }}
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </Button>
@@ -482,7 +567,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                         
                         <CartaHierarchyManager
                             carta={selectedCarta}
-                            allCategories={mockCategories}
+                            allCategories={formattedCategories}
                             allProducts={mockProducts}
                             onUpdateCarta={async (updatedCarta) => {
                                 try {
@@ -520,9 +605,11 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                 onOpenChange={setIsCartaDialogOpen}
                 carta={editingCarta}
                 onSave={handleSaveCarta}
+                onRemoveCategory={handleRemoveCategoryFromCarta}
+                cartaId={editingCarta?.id}
                 whatsAppConfig={whatsAppConfig}
                 onWhatsAppConfigChange={setWhatsAppConfig}
-                allCategories={mockCategories}
+                allCategories={formattedCategories}
                 isCreating={!editingCarta?.id}
             />
 
@@ -547,7 +634,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                                             <SelectValue placeholder="Elige una categoría..." />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {mockCategories.map(cat => (
+                                            {formattedCategories.map(cat => (
                                                 <SelectItem key={cat.id} value={cat.id}>{cat.nombre_categoria}</SelectItem>
                                             ))}
                                         </SelectContent>

@@ -36,6 +36,8 @@ interface CartasDialogProps {
     onOpenChange: (open: boolean) => void;
     carta: Partial<Carta> | null;
     onSave: (carta: Partial<Carta>) => void;
+    onRemoveCategory?: (cartaId: string, categoryId: string) => void; // Updated signature
+    cartaId?: string; // Add cartaId for removal operations
     whatsAppConfig: CartaWhatsAppConfig;
     onWhatsAppConfigChange: (config: CartaWhatsAppConfig) => void;
     allCategories: Category[];
@@ -47,6 +49,8 @@ export function CartasDialog({
     onOpenChange,
     carta,
     onSave,
+    onRemoveCategory,
+    cartaId,
     whatsAppConfig,
     onWhatsAppConfigChange,
     allCategories,
@@ -57,8 +61,17 @@ export function CartasDialog({
 
     React.useEffect(() => {
         if (carta) {
-            // Ensure we're working with a clean copy
-            const cleanCarta = { ...carta };
+            console.log("Carta received in dialog:", carta); // Debug
+            // Ensure we're working with a clean copy and normalize data
+            const cleanCarta = { 
+                ...carta,
+                // Normalize elementos_carta to use consistent 'categoria' tipo
+                elementos_carta: carta.elementos_carta?.map(element => ({
+                    ...element,
+                    tipo: (element.tipo as string === 'category' ? 'categoria' : element.tipo) as 'categoria' | 'menu'
+                })) || []
+            };
+            console.log("Normalized carta:", cleanCarta); // Debug
             setLocalCarta(cleanCarta);
         } else {
             setLocalCarta({});
@@ -66,7 +79,19 @@ export function CartasDialog({
     }, [carta, isOpen]);
 
     const handleSave = () => {
-        onSave(localCarta);
+        // Remove duplicates by keeping only unique category_id_elemento combinations
+        const uniqueElementos = localCarta.elementos_carta?.filter((element, index, self) => 
+            element.tipo === 'categoria' && 
+            self.findIndex(e => e.tipo === 'categoria' && e.id_elemento === element.id_elemento) === index
+        ) || [];
+        
+        const cartaToSave = {
+            ...localCarta,
+            elementos_carta: uniqueElementos
+        };
+        
+        console.log("Saving carta from dialog (deduped):", cartaToSave); // Debug
+        onSave(cartaToSave);
     };
 
     const getWhatsAppPreviewMessages = () => {
@@ -183,7 +208,17 @@ export function CartasDialog({
                                                                 variant={isInCarta ? "destructive" : "default"}
                                                                 onClick={() => {
                                                                     if (isInCarta) {
-                                                                        // Remove category from carta
+                                                                        // Find the element to remove
+                                                                        const elementToRemove = localCarta?.elementos_carta?.find(
+                                                                            element => element.tipo === 'categoria' && element.id_elemento === category.id
+                                                                        );
+                                                                        
+                                                                        if (elementToRemove && onRemoveCategory && cartaId) {
+                                                                            // Remove from database
+                                                                            onRemoveCategory(cartaId, category.id);
+                                                                        }
+                                                                        
+                                                                        // Remove from local state
                                                                         setLocalCarta(prev => ({
                                                                             ...prev,
                                                                             elementos_carta: prev.elementos_carta?.filter(
