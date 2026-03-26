@@ -308,7 +308,6 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
 
     const handleSaveCarta = async (cartaData: Partial<Carta>) => {
         if (cartaData && convexEstablishment) {
-            console.log("Saving carta with data:", cartaData); // Debug log
             try {
                 let cartaId: string;
                 
@@ -321,11 +320,11 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                         active: cartaData.activa,
                         icon: cartaData.icon,
                         color: cartaData.color,
-                        whatsappEnabled: cartaData.whatsapp_enabled ?? whatsAppConfig.disponibleWhatsApp,
-                        whatsappVoiceEnabled: cartaData.whatsapp_voice_enabled ?? whatsAppConfig.permitirVoz,
-                        whatsappWelcomeMessage: cartaData.whatsapp_welcome_message ?? whatsAppConfig.mensajeBienvenida,
-                        whatsappScheduleStart: cartaData.whatsapp_schedule_start ?? whatsAppConfig.horarioInicio,
-                        whatsappScheduleEnd: cartaData.whatsapp_schedule_end ?? whatsAppConfig.horarioFin
+                        whatsappEnabled: whatsAppConfig.disponibleWhatsApp,
+                        whatsappVoiceEnabled: whatsAppConfig.permitirVoz,
+                        whatsappWelcomeMessage: whatsAppConfig.mensajeBienvenida,
+                        whatsappScheduleStart: whatsAppConfig.horarioInicio,
+                        whatsappScheduleEnd: whatsAppConfig.horarioFin
                     });
                     cartaId = cartaData.id;
                     
@@ -335,7 +334,6 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                     });
                 } else {
                     // Create new carta
-                    console.log("Creating new carta with establishmentId:", convexEstablishment._id); // Debug log
                     cartaId = await createCarta({
                         establishmentId: convexEstablishment._id,
                         name: cartaData.nombre_carta,
@@ -378,7 +376,6 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                 });
             }
         } else {
-            console.log("Cannot save carta - cartaData:", cartaData, "convexEstablishment:", convexEstablishment); // Debug log
             toast({
                 variant: "destructive",
                 title: "Error",
@@ -456,8 +453,15 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                                                     variant="secondary" 
                                                     size="md" 
                                                     onClick={() => { 
-                                                console.log("Editing carta:", carta); // Debug
                                                 setEditingCarta(carta); 
+                                                // Initialize WhatsApp config with existing carta values
+                                                setWhatsAppConfig({
+                                                    disponibleWhatsApp: carta.whatsapp_enabled ?? true,
+                                                    permitirVoz: carta.whatsapp_voice_enabled ?? true,
+                                                    mensajeBienvenida: carta.whatsapp_welcome_message ?? '¡Hola! Bienvenido a nuestro restaurante. ¿Qué te gustaría pedir hoy?',
+                                                    horarioInicio: carta.whatsapp_schedule_start ?? '12:00',
+                                                    horarioFin: carta.whatsapp_schedule_end ?? '23:00'
+                                                });
                                                 setIsCartaDialogOpen(true); 
                                             }}
                                                 >
