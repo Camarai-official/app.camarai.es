@@ -64,7 +64,7 @@ import {
     AlertDialogTrigger 
 } from '@/components/dialogs/global-alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
+import { Badge, IconBadge } from '@/components/ui/badge';
 import { TextSM } from '@/components/ui/typography';
 
 // props
@@ -420,7 +420,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead width="80px" align="center">Img</TableHead>
+                                <TableHead width="80px" align="center">Icono</TableHead>
                                 <TableHead>Carta</TableHead>
                                 <TableHead visibility="hidden-mobile">Descripción</TableHead>
                                 <TableHead align="center">Estado</TableHead>
@@ -434,9 +434,12 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                                 return (
                                     <TableRow key={carta.id}>
                                         <TableCell align="center">
-                                            <div className="flex items-center justify-center h-10 w-10 mx-auto rounded-md bg-muted/20" style={{ color: `var(--${carta.color || 'blue-400'})` }}>
-                                                <Icon className="h-5 w-5" />
-                                            </div>
+                                            <IconBadge 
+                                                icon={Icon} 
+                                                iconColor={carta.color || '#9B6EFD'} 
+                                                className="h-10 w-10 rounded-md shadow-sm"
+                                                iconClassName="h-5 w-5"
+                                            />
                                         </TableCell>
                                         <TableCell variant="medium">{carta.nombre_carta}</TableCell>
                                         <TableCell visibility="hidden-mobile">
@@ -449,14 +452,6 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                                         </TableCell>
                                         <TableCell align="right">
                                             <div className="flex items-center justify-end gap-1">
-                                                <Button 
-                                                    variant="outline" 
-                                                    size="md" 
-                                                    onClick={() => setSelectedCartaId(carta.id)}
-                                                >
-                                                    <BookOpen className="h-4 w-4 mr-2" />
-                                                    Ver
-                                                </Button>
                                                 <Button 
                                                     variant="secondary" 
                                                     size="md" 
