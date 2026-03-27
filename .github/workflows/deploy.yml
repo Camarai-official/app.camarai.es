@@ -45,4 +45,5 @@ jobs:
           folder: out
           repository-name: Camarai-official/dash.camarai.es
           branch: main
+          clean: true
           single-commit: true
