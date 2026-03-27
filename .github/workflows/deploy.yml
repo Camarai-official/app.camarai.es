@@ -33,14 +33,14 @@ jobs:
 
       # 4.1 Fix 404 for SPA
       - name: Fix 404 for SPA
-        run: cp dist/index.html dist/404.html
+        run: cp out/index.html out/404.html
 
       # 5. Desplegar al Repositorio B
       - name: Desplegar al Repositorio B
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.API_TOKEN_GITHUB }} # Reutilizamos el token para subir
-          folder: dist
+          folder: out
           repository-name: Camarai-official/dash.camarai.es
           branch: main
           single-commit: true
