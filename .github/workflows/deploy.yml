@@ -22,10 +22,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       # 3. Instalar dependencias inyectando el Token
       - name: Instalar dependencias
-        run: npm i
+        run: npm install
 
       # 4. Construir proyecto (Build)
       - name: Construir proyecto (Build)
@@ -36,6 +37,14 @@ jobs:
       # 4.1 Fix 404 for SPA
       - name: Fix 404 for SPA
         run: cp out/index.html out/404.html
+
+      # 4.2 Evitar que Jekyll ignore archivos de Tailwind (_next)
+      - name: Add .nojekyll
+        run: touch out/.nojekyll
+
+      # 4.3 Dominio Personalizado
+      - name: Configurar Dominio Personalizado (CNAME)
+        run: echo "dash.camarai.es" > out/CNAME
 
       # 5. Desplegar al Repositorio B
       - name: Desplegar al Repositorio B
