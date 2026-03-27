@@ -253,7 +253,7 @@ export default function ReservasPage() {
                                         const statusProps = getStatusProps(res.status);
                                         const availableEnvironments = getAvailableTablesForReservation(res);
                                         const assignedEnv = res.environmentId ? environments.find(e => e.id === res.environmentId) : null;
-                                        const assignedTable = assignedEnv ? assignedEnv.tables.find(t => t.id === res.tableId) : null;
+                                        const assignedTable = assignedEnv ? assignedEnv.tables.find(t => t.id === res.tableId?.toString()) : null;
                                         
                                         const description = (
                                             <div className="flex flex-col gap-1">
@@ -304,7 +304,7 @@ export default function ReservasPage() {
                                                                                     <DropdownMenuSubTrigger className='w-full'>{env.name}</DropdownMenuSubTrigger>
                                                                                     <DropdownMenuSubContent>
                                                                                         {env.tables.map(table => (
-                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, table.id)}>
+                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, parseInt(table.id))}>
                                                                                                 <Armchair />
                                                                                                 Mesa {table.number} (Cap: {table.capacity})
                                                                                             </DropdownMenuItem>

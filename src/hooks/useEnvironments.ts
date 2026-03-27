@@ -51,10 +51,10 @@ export const useEnvironments = () => {
     };
 
     const addTable = (envId: string) => {
-        const allTableIds = environments.flatMap(env => env.tables.map(t => t.id));
+        const allTableIds = environments.flatMap(env => env.tables.map(t => parseInt(t.id)));
         const newId = allTableIds.length > 0 ? Math.max(...allTableIds) + 1 : 1;
         const newTable: Table = {
-            id: newId,
+            id: newId.toString(),
             number: newId,
             x: 20,
             y: 20,
@@ -72,7 +72,7 @@ export const useEnvironments = () => {
     const removeTable = (envId: string, tableId: number) => {
          setEnvironments(prev => prev.map(env => 
             env.id === envId 
-                ? { ...env, tables: env.tables.filter(table => table.id !== tableId) } 
+                ? { ...env, tables: env.tables.filter(table => table.id !== tableId.toString()) } 
                 : env
         ));
     };
@@ -81,7 +81,7 @@ export const useEnvironments = () => {
         setEnvironments(prev => prev.map(env => {
             if (env.id === envId) {
                 const updatedTables = env.tables.map(table => {
-                    if (table.id === tableId) {
+                    if (table.id === tableId.toString()) {
                         const updatedTable = { ...table, ...updates };
                         // Recalculate capacity if width or height changes
                         if(updates.width || updates.height) {
