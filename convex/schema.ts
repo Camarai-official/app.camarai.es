@@ -180,7 +180,10 @@ export default defineSchema({
     order: v.number(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
+    bannerImage: v.optional(v.union(v.string(), v.null())), // Banner image URL
     active: v.boolean(),
+    printerDestination: v.optional(v.string()),
+    visibleInMenu: v.boolean(),
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 
@@ -192,6 +195,7 @@ export default defineSchema({
     description: v.optional(v.string()),
     price: v.number(), // In cents
     cost: v.number(), // In cents
+    net_margin: v.optional(v.number()), // Margen neto calculado (en euros)
     image: v.optional(v.string()),
     sku: v.optional(v.string()),
     model: v.optional(v.string()),
@@ -204,6 +208,12 @@ export default defineSchema({
     preparation_time: v.number(), // In minutes
     available_pos: v.boolean(),
     available_delivery: v.boolean(),
+    availability_hours: v.optional(v.union(
+      v.object({ start: v.string(), end: v.string() }),
+      v.null()
+    )),
+    stock_minimo: v.number(),
+    impresora_destino: v.string(),
     order: v.number(),
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"])
@@ -213,7 +223,9 @@ export default defineSchema({
     product_id: v.id("products"),
     ingredient_id: v.id("ingredients"),
     quantity_required: v.number(),
-  }).index("by_product", ["product_id"]),
+    unit: v.string(),
+  }).index("by_product", ["product_id"])
+    .index("by_ingredient", ["ingredient_id"]),
 
   ingredients: defineTable({
     establishment_id: v.id("establishments"),
@@ -249,14 +261,27 @@ export default defineSchema({
     establishment_id: v.id("establishments"),
     name: v.string(),
     description: v.optional(v.string()),
-    type: v.union(v.literal("standard"), v.literal("combo"), v.literal("daily"), v.literal("tasting")),
+    type: v.union(v.literal("standard"), v.literal("combo"), v.literal("daily"), v.literal("tasting"), v.literal("carta")),
     active: v.boolean(),
     price: v.optional(v.number()),
     product_ids: v.array(v.id("products")),
     available_days: v.array(v.string()),
     published_at: v.optional(v.number()),
+    // UI Configuration
+    icon: v.optional(v.string()),
+    color: v.optional(v.string()),
+    order: v.number(),
+    // WhatsApp Configuration for carta type
+    whatsapp_enabled: v.optional(v.boolean()),
+    whatsapp_voice_enabled: v.optional(v.boolean()),
+    whatsapp_welcome_message: v.optional(v.string()),
+    whatsapp_schedule_start: v.optional(v.string()), // "HH:mm"
+    whatsapp_schedule_end: v.optional(v.string()), // "HH:mm"
     created_at: v.number(),
-  }).index("by_establishment", ["establishment_id"]),
+    updated_at: v.number(),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_establishment_active", ["establishment_id", "active"])
+    .index("by_establishment_type", ["establishment_id", "type"]),
   
   menu_sections: defineTable({
     menu_id: v.id("menu"),
@@ -785,7 +810,8 @@ export default defineSchema({
     notes: v.optional(v.string()),
     staff_id: v.optional(v.union(v.id("staff"), v.literal("system"))),
     timestamp: v.number(),
-  }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"]),
+  }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"])
+    .index("by_ingredient_type", ["ingredient_id", "type"]),
 
   // --- DOMAIN 8: ADVANCED BUSINESS INTELLIGENCE ---
 

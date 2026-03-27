@@ -12,6 +12,10 @@ import {
     EyeOff
 } from 'lucide-react';
 
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { Id } from '../../../convex/_generated/dataModel';
+
 import { 
     Table, 
     TableBody, 
@@ -44,13 +48,10 @@ import { SearchInput } from '@/components/ui/search-input';
 import { TextSM } from '@/components/ui/typography';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { useToast } from '@/hooks/use-toast';
+import { useEstablishments } from '@/hooks/useEstablishments';
 import Image from 'next/image';
 
-import {
-    mockProducts,
-    mockCategories,
-    type Product,
-} from '@/data/mock-data';
+import type { Product } from '@/data/mock-data';
 
 import { ProductDialog } from '@/components/dialogs/cartas-producto-dialog';
 
@@ -59,13 +60,71 @@ interface ProductosTabProps {
 }
 
 export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
-    const [products, setProducts] = React.useState<Product[]>(mockProducts);
+    const { toast } = useToast();
+    const { activeEstablishment } = useEstablishments();
+    
+    // Obtener el establecimiento de Convex usando el ID local
+    const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+        localId: activeEstablishment?.id || 'camarai' 
+    });
+    
+    // Obtener los productos del establecimiento
+    const products = useQuery(api.products.getProducts, { 
+        establishmentId: convexEstablishment?._id
+    }) || [];
+    
+    // Obtener categorías para el diálogo
+    const categories = useQuery(api.categories.getCategories, { 
+        establishmentId: convexEstablishment?._id
+    }) || [];
+    
+    // Obtener impuestos para el diálogo
+    const taxes = useQuery(api.products.getTaxes, { 
+        establishmentId: convexEstablishment?._id
+    }) || [];
+    
+    const createProduct = useMutation(api.products.createProduct);
+    const updateProductMutation = useMutation(api.products.updateProduct);
+    const deleteProductMutation = useMutation(api.products.deleteProduct);
+    const toggleProductAvailabilityMutation = useMutation(api.products.toggleProductAvailability);
+    const createCategory = useMutation(api.categories.createCategory);
+    const updateCategoryMutation = useMutation(api.categories.updateCategory);
+    const deleteCategoryMutation = useMutation(api.categories.deleteCategory);
+    const toggleCategoryStatusMutation = useMutation(api.categories.toggleCategoryStatus);
+    const updateProductsCategoryMutation = useMutation(api.products.updateProductsCategory);
+    const ensureDefaultCategoryMutation = useMutation(api.categories.ensureDefaultCategory);
+    
+    // Convert Convex data to frontend format
+    const extendedProducts = React.useMemo(() => {
+        return products.map(product => ({
+            id: product._id,
+            nombre_producto: product.name,
+            descripcion_producto: product.description || '',
+            precio_venta: product.price / 100,
+            id_categoria: product.category_id,
+            categoria_nombre: product.category_name || 'Sin categoría',
+            id_impuesto: product.tax_id,
+            disponible: product.active,
+            url_imagen_producto: product.image,
+            costo_escandallo_calculado: product.cost / 100,
+            net_margin: product.net_margin || 0,
+            ingredientes_asociados: [],
+            variantes: (product as any).variants || [],
+            alergenos: (product as any).allergens || [],
+            horario_disponible: (product as any).availability_hours ? {
+                inicio: (product as any).availability_hours.start,
+                fin: (product as any).availability_hours.end
+            } : null,
+            stock_minimo: (product as any).stock_minimo || 0,
+            impresora_destino: (product as any).impresora_destino || 'caja'
+        }));
+    }, [products]);
+    
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [editingProduct, setEditingProduct] = React.useState<Product | null>(null);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage] = React.useState(10);
-    const { toast } = useToast();
-
+    
     // Reset pagination on search
     React.useEffect(() => {
         setCurrentPage(1);
@@ -78,69 +137,214 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
         return () => window.removeEventListener('open-add-productos', handleOpenAdd);
     }, []);
 
-    // Handlers
-    const addProduct = (productData: Omit<Product, 'id'>) => {
-        const newProduct: Product = { ...productData, id: `prod-${Date.now()}` };
-        setProducts(prev => [...prev, newProduct]);
+    // Ensure default category exists and get its ID
+    const defaultCategoryId = React.useMemo(() => {
+        const defaultCat = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+        return defaultCat?.id || null;
+    }, [categories]);
+
+    // Auto-create default category if it doesn't exist
+    React.useEffect(() => {
+        if (convexEstablishment && !defaultCategoryId && categories.length > 0) {
+            ensureDefaultCategoryMutation({ establishmentId: convexEstablishment._id });
+        }
+    }, [convexEstablishment, defaultCategoryId, categories.length]);
+
+    // Loading states
+    if (convexEstablishment === undefined) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-muted-foreground">Cargando establecimiento...</div>
+            </div>
+        );
+    }
+
+    if (!convexEstablishment) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="text-muted-foreground">No se encontró el establecimiento</div>
+            </div>
+        );
+    }
+
+    // Helper functions
+    const handleOpenDialog = (product?: any) => {
+        setEditingProduct(product || null);
+        setIsDialogOpen(true);
     };
 
-    const updateProduct = (id: string, productData: Partial<Product>) => {
-        setProducts(prev => prev.map(p => p.id === id ? { ...p, ...productData } : p));
+    const handleSaveProduct = async (productData: any) => {
+        if (productData && convexEstablishment) {
+            try {
+                // Prepare ingredients for API
+                const ingredients = productData.ingredientes_asociados?.map((ing: any) => ({
+                    ingredientId: ing.id_ingrediente,
+                    quantity: ing.cantidad_requerida,
+                    unit: ing.unidad_medida
+                })) || [];
+
+                // Prepare variants for API
+                const variants = productData.variantes?.map((variant: any) => ({
+                    id: variant.id,
+                    nombre: variant.nombre,
+                    precio_extra: variant.precio_extra,
+                    disponible: variant.disponible
+                })) || [];
+
+                // Prepare allergens for API
+                const allergens = productData.alergenos || [];
+
+                // Prepare availability hours for API
+                const availabilityHours = productData.horario_disponible ? {
+                    start: productData.horario_disponible.inicio,
+                    end: productData.horario_disponible.fin
+                } : null;
+
+                // Prepare stock and printer for API
+                const stockMinimo = productData.stock_minimo || 0;
+                const impresoraDestino = productData.impresora_destino || 'caja'; // Default to caja if no printer specified
+
+                if (productData.id) {
+                    // Update existing product
+                    if (!productData.id_categoria) {
+                        // Try to find or create a "Sin categoría" category
+                        const defaultCategory = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+                        if (!defaultCategory) {
+                            toast({
+                                variant: "destructive",
+                                title: "Error",
+                                description: "No se encontró una categoría 'Sin categoría'. Por favor, selecciona una categoría o crea una llamada 'Sin categoría'."
+                            });
+                            return;
+                        }
+                        productData.id_categoria = defaultCategory.id;
+                    }
+                    
+                    await updateProductMutation({
+                        productId: productData.id as Id<'products'>,
+                        categoryId: productData.id_categoria as Id<'categories'>,
+                        name: productData.nombre_producto,
+                        description: productData.descripcion_producto,
+                        price: Math.round(productData.precio_venta * 100), // Convert to cents
+                        cost: productData.costo_escandallo_calculado ? Math.round(productData.costo_escandallo_calculado * 100) : undefined,
+                        taxId: productData.id_impuesto,
+                        available: productData.disponible,
+                        imageUrl: productData.url_imagen_producto,
+                        ingredients: ingredients,
+                        variants: variants,
+                        allergens: allergens,
+                        availabilityHours: availabilityHours,
+                        stockMinimo: stockMinimo,
+                        impresoraDestino: impresoraDestino
+                    });
+                    toast({
+                        title: "Producto Actualizado",
+                        description: "El producto ha sido actualizado correctamente."
+                    });
+                } else {
+                    // Create new product
+                    if (!productData.id_categoria) {
+                        // Try to find or create a "Sin categoría" category
+                        const defaultCategory = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+                        if (!defaultCategory) {
+                            toast({
+                                variant: "destructive",
+                                title: "Error",
+                                description: "No se encontró una categoría 'Sin categoría'. Por favor, selecciona una categoría o crea una llamada 'Sin categoría'."
+                            });
+                            return;
+                        }
+                        productData.id_categoria = defaultCategory.id;
+                    }
+                    
+                    await createProduct({
+                        establishmentId: convexEstablishment._id,
+                        categoryId: productData.id_categoria as Id<'categories'>,
+                        name: productData.nombre_producto!,
+                        description: productData.descripcion_producto,
+                        price: Math.round(productData.precio_venta * 100), // Convert to cents
+                        cost: productData.costo_escandallo_calculado ? Math.round(productData.costo_escandallo_calculado * 100) : undefined,
+                        taxId: productData.id_impuesto!,
+                        available: productData.disponible ?? true,
+                        imageUrl: productData.url_imagen_producto,
+                        ingredients: ingredients,
+                        variants: variants,
+                        allergens: allergens,
+                        availabilityHours: availabilityHours,
+                        stockMinimo: stockMinimo,
+                        impresoraDestino: impresoraDestino
+                    });
+                    toast({
+                        title: "Producto Creado",
+                        description: "El nuevo producto se ha creado correctamente."
+                    });
+                }
+                setIsDialogOpen(false);
+                setEditingProduct(null);
+            } catch (error) {
+                console.error("Error saving product:", error);
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "No se pudo guardar el producto."
+                });
+            }
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se puede guardar el producto sin un establecimiento válido."
+            });
+        }
     };
 
-    const removeProduct = (id: string) => {
-        setProducts(prev => prev.filter(p => p.id !== id));
+    const removeProduct = async (id: string, name: string) => {
+        try {
+            await deleteProductMutation({ productId: id as Id<'products'> });
+            toast({
+                variant: "destructive",
+                title: "Producto Eliminado",
+                description: `El producto "${name}" ha sido eliminado.`
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo eliminar el producto."
+            });
+        }
     };
 
-    const toggleAvailability = (id: string, available: boolean) => {
-        updateProduct(id, { disponible: available });
-        toast({
-            title: available ? "Producto Visible" : "Producto Oculto",
-            description: `El estado de visibilidad ha sido actualizado.`
-        });
+    const toggleProductAvailability = async (id: string, available: boolean) => {
+        try {
+            await toggleProductAvailabilityMutation({ productId: id as Id<'products'>, available });
+            toast({
+                title: available ? "Producto Activado" : "Producto Desactivado",
+                description: `Se ha actualizado el estado del producto.`
+            });
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo actualizar el estado del producto."
+            });
+        }
     };
 
     const getCategoryName = (id: string) => {
-        const cat = mockCategories.find(c => c.id === id);
-        return cat ? cat.nombre_categoria : undefined;
+        const cat = categories.find(c => c._id === id);
+        return cat ? cat.name : 'Sin categoría';
     };
 
     // Filtering & Pagination
-    const filteredProducts = products.filter(prod =>
+    const filteredProducts = extendedProducts.filter(prod =>
         prod.nombre_producto.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        getCategoryName(prod.id_categoria)?.toLowerCase().includes(searchTerm.toLowerCase())
+        getCategoryName(prod.id_categoria).toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
     const indexOfFirstItem = (currentPage - 1) * itemsPerPage;
     const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfFirstItem + itemsPerPage);
-
-    const handleOpenDialog = (product?: Product) => {
-        setEditingProduct(product || null);
-        setIsDialogOpen(true);
-    };
-
-    const handleSave = (productData: Omit<Product, 'id'> | Product) => {
-        const isEditing = 'id' in productData;
-        if (isEditing) {
-            updateProduct(productData.id, productData);
-        } else {
-            addProduct(productData as Omit<Product, 'id'>);
-        }
-        toast({
-            title: `Producto ${isEditing ? 'Actualizado' : 'Creado'}`,
-            description: `El producto "${productData.nombre_producto}" ha sido guardado correctamente.`
-        });
-    };
-
-    const handleRemove = (id: string, name: string) => {
-        removeProduct(id);
-        toast({
-            variant: "destructive",
-            title: "Producto Eliminado",
-            description: `El producto "${name}" ha sido eliminado exitosamente.`
-        });
-    }
 
     return (
         <div className="space-y-6">
@@ -152,6 +356,7 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                             <TableHead>Producto</TableHead>
                             <TableHead>Categoría</TableHead>
                             <TableHead>Precio</TableHead>
+                            <TableHead>Margen Neto</TableHead>
                             <TableHead align="center">Estado</TableHead>
                             <TableHead align="right">Acciones</TableHead>
                         </TableRow>
@@ -180,10 +385,15 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                                 </TableCell>
                                 <TableCell>
                                     <Badge variant="secondary">
-                                        {getCategoryName(prod.id_categoria) || 'Sin categoría'}
+                                        {getCategoryName(prod.id_categoria)}
                                     </Badge>
                                 </TableCell>
                                 <TableCell variant="medium">€{prod.precio_venta.toFixed(2)}</TableCell>
+                                <TableCell variant="medium">
+                                    <span className={`font-medium ${prod.net_margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                        €{prod.net_margin.toFixed(2)}
+                                    </span>
+                                </TableCell>
                                 <TableCell align="center">
                                     <Badge variant={prod.disponible ? "success" : "destructive"}>
                                         {prod.disponible ? "Disponible" : "Agotado"}
@@ -201,7 +411,7 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                                         <Button 
                                             variant="secondary" 
                                             size="md" 
-                                            onClick={() => toggleAvailability(prod.id, !prod.disponible)}
+                                            onClick={() => toggleProductAvailability(prod.id, !prod.disponible)}
                                         >
                                             {prod.disponible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                         </Button>
@@ -221,7 +431,7 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                                                 <AlertDialogFooter>
                                                     <AlertDialogCancel className={buttonVariants({ variant: 'outline', size: 'md' })}>Cancelar</AlertDialogCancel>
                                                     <AlertDialogAction 
-                                                        onClick={() => handleRemove(prod.id, prod.nombre_producto)} 
+                                                        onClick={() => removeProduct(prod.id, prod.nombre_producto)} 
                                                         className={buttonVariants({ variant: 'destructive', size: 'md' })}
                                                     >
                                                         Eliminar
@@ -277,7 +487,11 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
                 open={isDialogOpen} 
                 onOpenChange={setIsDialogOpen} 
                 productToEdit={editingProduct} 
-                onSave={handleSave} 
+                onSave={(productData) => handleSaveProduct(productData)} 
+                categories={categories}
+                defaultCategoryId={defaultCategoryId}
+                taxes={taxes}
+                establishmentId={convexEstablishment?._id}
             />
         </div>
     );

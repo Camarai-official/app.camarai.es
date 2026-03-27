@@ -138,13 +138,18 @@ const metodosFichaje = [
 export default function PersonalPage() {
     const { toast } = useToast();
     
-    // ID del establecimiento - TODO: Obtener del contexto de autenticación o parámetros de ruta
-    const establishmentId = "p9757g9mvgsf8vw4qzcse7whv5832xnf" as any;
+    // Obtener establecimientos de Convex
+    const establishmentsData = useQuery(api.establishments.getEstablishments);
+    
+    // Usar el primer establecimiento disponible o null si no hay ninguno
+    const establishmentId = establishmentsData && establishmentsData.length > 0 
+        ? establishmentsData[0]._id 
+        : null;
     
     // Datos de Convex
-    const staffMembersData = useQuery(api.staff.getStaffByEstablishment, { establishmentId });
-    const timeLogsData = useQuery(api.staff.getTimeLogsByEstablishment, { establishmentId, limit: 50 });
-    const absenceRequestsData = useQuery(api.staff.getAbsenceRequestsByEstablishment, { establishmentId });
+    const staffMembersData = useQuery(api.staff.getStaffByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
+    const timeLogsData = useQuery(api.staff.getTimeLogsByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id, limit: 50 } : "skip");
+    const absenceRequestsData = useQuery(api.staff.getAbsenceRequestsByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
     
     // Mutations de Convex
     const createStaffMember = useMutation(api.staff.createStaffMember);
@@ -161,8 +166,8 @@ export default function PersonalPage() {
     const updateAbsenceRequestStatus = useMutation(api.staff.updateAbsenceRequestStatus);
     
     // Queries para Incidencias y Dispositivos
-    const clockIncidentsData = useQuery(api.staff.getClockIncidentsByEstablishment, { establishmentId });
-    const clockDevicesData = useQuery(api.staff.getClockDevicesByEstablishment, { establishmentId });
+    const clockIncidentsData = useQuery(api.staff.getClockIncidentsByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
+    const clockDevicesData = useQuery(api.staff.getClockDevicesByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
     
     // Mutations para Incidencias y Dispositivos
     const createClockIncident = useMutation(api.staff.createClockIncident);
@@ -170,7 +175,7 @@ export default function PersonalPage() {
     const createClockDevice = useMutation(api.staff.createClockDevice);
     const updateClockDevice = useMutation(api.staff.updateClockDevice);
     const deleteClockDevice = useMutation(api.staff.deleteClockDevice);
-    
+
     // Convertir datos de Convex al formato esperado por el componente
     const timeLogs = React.useMemo(() => {
         if (!timeLogsData) return [];
@@ -183,66 +188,65 @@ export default function PersonalPage() {
         }));
     }, [timeLogsData]);
 
-    // Calcular horas trabajadas esta semana para un empleado
-    const getWeeklyHours = (staffId: string): number => {
-        const now = new Date();
-        const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
-        startOfWeek.setHours(0, 0, 0, 0);
-        
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        // Obtener logs del empleado esta semana
-        const staffLogs = timeLogs
-            .filter(log => log.staffId === staffId)
-            .filter(log => {
-                const logDate = new Date(log.timestamp);
-                return logDate >= startOfWeek && logDate <= endOfWeek;
-            })
-            .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-
-        let totalHours = 0;
-        let clockInTime: Date | null = null;
-        let breakStartTime: Date | null = null;
-
-        for (const log of staffLogs) {
-            const logTime = new Date(log.timestamp);
-            
-            if (log.action === 'clock-in') {
-                clockInTime = logTime;
-                breakStartTime = null;
-            } else if (log.action === 'clock-out' && clockInTime) {
-                // Calcular horas trabajadas (excluyendo pausas)
-                let workEndTime = logTime;
-                let workStartTime = clockInTime;
-                
-                // Si hubo una pausa, calcular solo el tiempo trabajado
-                if (breakStartTime) {
-                    // Tiempo antes de la pausa
-                    totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                    // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
-                    // En un sistema real, necesitaríamos un log de break-end
-                    workStartTime = breakStartTime; // Simplificación
-                }
-                
-                totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                clockInTime = null;
-                breakStartTime = null;
-            } else if (log.action === 'break' && clockInTime) {
-                breakStartTime = logTime;
-            }
-        }
-
-        // Si todavía está trabajando (sin clock-out), contar hasta ahora
-        if (clockInTime) {
-            totalHours += (now.getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
-        }
-
-        return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
-    };
+    // Core State - Solo datos reales de Convex
+    const [incidencias, setIncidencias] = React.useState<IncidenciaFichaje[]>([]);
+    const [dispositivos, setDispositivos] = React.useState<DispositivoFichaje[]>([]);
     
+    // Cargar datos reales de Convex
+    React.useEffect(() => {
+        if (clockIncidentsData) {
+            // Mapear tipos de Convex a tipos de UI con type assertion
+            const mappedIncidencias = clockIncidentsData.map(inc => ({
+                ...inc,
+                tipo: inc.tipo as any, // Forzar tipo para compatibilidad
+                estado: inc.estado as any, // Forzar estado para compatibilidad
+            })) as IncidenciaFichaje[];
+            setIncidencias(mappedIncidencias);
+        }
+    }, [clockIncidentsData]);
+    
+    React.useEffect(() => {
+        if (clockDevicesData && establishmentsData && establishmentsData.length > 0) {
+            // Mapear tipos de Convex a tipos de UI con type assertion
+            const mappedDispositivos = clockDevicesData.map(dev => ({
+                id: dev.id,
+                nombre: dev.nombre,
+                tipo: dev.tipo as any, // Forzar tipo para compatibilidad
+                ubicacion: dev.ubicacion || '',
+                intervalo_qr: (dev as any).intervalo_qr || 30, // Usar valor de Convex o por defecto
+                modo_offline: (dev as any).modo_offline ?? true, // Usar valor de Convex o por defecto
+                estado: dev.estado,
+                ultimo_heartbeat: dev.last_seen ? new Date(dev.last_seen).toISOString() : undefined,
+                establecimiento_id: establishmentsData[0]._id,
+            })) as DispositivoFichaje[];
+            setDispositivos(mappedDispositivos);
+        }
+    }, [clockDevicesData, establishmentsData]);
+    
+    // UI State
+    const [searchTerm, setSearchTerm] = React.useState('');
+    const [metodosFichajeState, setMetodosFichajeState] = React.useState(metodosFichaje.map(m => ({ ...m, enabled: true })));
+    const [personalConfig, setPersonalConfig] = React.useState<PersonalConfig>({
+        kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true 
+    });
+    const [timeLogFilterStaff, setTimeLogFilterStaff] = React.useState<string>('all');
+    const [timeLogFilterAction, setTimeLogFilterAction] = React.useState<string>('all');
+
+    // Dialogs State
+    const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = React.useState(false);
+    const [editingEmployee, setEditingEmployee] = React.useState<ExtendedStaffMember | null>(null);
+    
+    const [isTimeLogDialogOpen, setIsTimeLogDialogOpen] = React.useState(false);
+    const [editingTimeLog, setEditingTimeLog] = React.useState<TimeLog | null>(null);
+    
+    const [isAbsenceRequestDialogOpen, setIsAbsenceRequestDialogOpen] = React.useState(false);
+    
+    const [isDeviceDialogOpen, setIsDeviceDialogOpen] = React.useState(false);
+    const [editingDevice, setEditingDevice] = React.useState<DispositivoFichaje | null>(null);
+    
+    const [isConfigDialogOpen, setIsConfigDialogOpen] = React.useState(false);
+
+    // Memoized data transformations
     const staffMembers = React.useMemo(() => {
         if (!staffMembersData) return [];
         return staffMembersData.map(member => ({
@@ -316,7 +320,64 @@ export default function PersonalPage() {
             permisos: member.dashboard_sections || [],
             metodos_fichaje_permitidos: (member.clock_methods || ['app', 'qr']) as ('app' | 'whatsapp' | 'qr' | 'web')[],
             // Calcular horas trabajadas esta semana
-            horasTrabajadas: (() => getWeeklyHours(member.id))(),
+            horasTrabajadas: (() => {
+                const now = new Date();
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
+                startOfWeek.setHours(0, 0, 0, 0);
+                
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
+                endOfWeek.setHours(23, 59, 59, 999);
+
+                // Obtener logs del empleado esta semana
+                const staffLogs = timeLogs
+                    .filter(log => log.staffId === member.id)
+                    .filter(log => {
+                        const logDate = new Date(log.timestamp);
+                        return logDate >= startOfWeek && logDate <= endOfWeek;
+                    })
+                    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+                let totalHours = 0;
+                let clockInTime: Date | null = null;
+                let breakStartTime: Date | null = null;
+
+                for (const log of staffLogs) {
+                    const logTime = new Date(log.timestamp);
+                    
+                    if (log.action === 'clock-in') {
+                        clockInTime = logTime;
+                        breakStartTime = null;
+                    } else if (log.action === 'clock-out' && clockInTime) {
+                        // Calcular horas trabajadas (excluyendo pausas)
+                        let workEndTime = logTime;
+                        let workStartTime = clockInTime;
+                        
+                        // Si hubo una pausa, calcular solo el tiempo trabajado
+                        if (breakStartTime) {
+                            // Tiempo antes de la pausa
+                            totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                            // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
+                            // En un sistema real, necesitaríamos un log de break-end
+                            workStartTime = breakStartTime; // Simplificación
+                        }
+                        
+                        totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                        clockInTime = null;
+                        breakStartTime = null;
+                    } else if (log.action === 'break' && clockInTime) {
+                        breakStartTime = logTime;
+                    }
+                }
+
+                // Si todavía está trabajando (sin clock-out), contar hasta ahora
+                if (clockInTime) {
+                    totalHours += (new Date().getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
+                }
+
+                return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
+            })(),
         }));
     }, [staffMembersData, timeLogs]);
     
@@ -332,66 +393,8 @@ export default function PersonalPage() {
             status: req.status,
         }));
     }, [absenceRequestsData]);
-    
-    // Core State - Solo datos reales de Convex
-    const [incidencias, setIncidencias] = React.useState<IncidenciaFichaje[]>([]);
-    const [dispositivos, setDispositivos] = React.useState<DispositivoFichaje[]>([]);
-    
-    // Cargar datos reales de Convex
-    React.useEffect(() => {
-        if (clockIncidentsData) {
-            // Mapear tipos de Convex a tipos de UI con type assertion
-            const mappedIncidencias = clockIncidentsData.map(inc => ({
-                ...inc,
-                tipo: inc.tipo as any, // Forzar tipo para compatibilidad
-                estado: inc.estado as any, // Forzar estado para compatibilidad
-            })) as IncidenciaFichaje[];
-            setIncidencias(mappedIncidencias);
-        }
-    }, [clockIncidentsData]);
-    
-    React.useEffect(() => {
-        if (clockDevicesData) {
-            // Mapear tipos de Convex a tipos de UI con type assertion
-            const mappedDispositivos = clockDevicesData.map(dev => ({
-                id: dev.id,
-                nombre: dev.nombre,
-                tipo: dev.tipo as any, // Forzar tipo para compatibilidad
-                ubicacion: dev.ubicacion || '',
-                intervalo_qr: (dev as any).intervalo_qr || 30, // Usar valor de Convex o por defecto
-                modo_offline: (dev as any).modo_offline ?? true, // Usar valor de Convex o por defecto
-                estado: dev.estado,
-                ultimo_heartbeat: dev.last_seen ? new Date(dev.last_seen).toISOString() : undefined,
-                establecimiento_id: establishmentId,
-            })) as DispositivoFichaje[];
-            setDispositivos(mappedDispositivos);
-        }
-    }, [clockDevicesData]);
-    
-    // UI State
-    const [searchTerm, setSearchTerm] = React.useState('');
-    const [metodosFichajeState, setMetodosFichajeState] = React.useState(metodosFichaje.map(m => ({ ...m, enabled: true })));
-    const [personalConfig, setPersonalConfig] = React.useState<PersonalConfig>({
-        kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true 
-    });
-    const [timeLogFilterStaff, setTimeLogFilterStaff] = React.useState<string>('all');
-    const [timeLogFilterAction, setTimeLogFilterAction] = React.useState<string>('all');
 
-    // Dialogs State
-    const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = React.useState(false);
-    const [editingEmployee, setEditingEmployee] = React.useState<ExtendedStaffMember | null>(null);
-    
-    const [isTimeLogDialogOpen, setIsTimeLogDialogOpen] = React.useState(false);
-    const [editingTimeLog, setEditingTimeLog] = React.useState<TimeLog | null>(null);
-    
-    const [isAbsenceRequestDialogOpen, setIsAbsenceRequestDialogOpen] = React.useState(false);
-    
-    const [isDeviceDialogOpen, setIsDeviceDialogOpen] = React.useState(false);
-    const [editingDevice, setEditingDevice] = React.useState<DispositivoFichaje | null>(null);
-    
-    const [isConfigDialogOpen, setIsConfigDialogOpen] = React.useState(false);
-
-    // Helpers
+    // Helper functions
     const getStaffMemberStatus = (id: string): StaffStatus => {
         const logs = timeLogs.filter(log => log.staffId === id);
         if (logs.length === 0) return 'inactive';
@@ -402,6 +405,154 @@ export default function PersonalPage() {
         return 'inactive';
     };
 
+    // Computed Stats
+    const filteredStaff = React.useMemo(() => {
+        return staffMembers.filter(staff =>
+            staff.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (staff.rol || '').toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [staffMembers, searchTerm]);
+
+    const stats = React.useMemo(() => {
+        const activos = staffMembers.filter(s => s.estado === 'Activo').length;
+        const trabajandoAhora = staffMembers.filter(s => getStaffMemberStatus(s.id) === 'active').length;
+        const enDescanso = staffMembers.filter(s => getStaffMemberStatus(s.id) === 'break').length;
+        const todayStr = new Date().toISOString().split('T')[0]; // Current date
+        const horasHoy = (() => {
+            // Calcular horas reales trabajadas hoy por todos los empleados
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            let totalHours = 0;
+            
+            // Agrupar logs por empleado
+            const logsByEmployee = timeLogs.reduce((acc, log) => {
+                const logDate = new Date(log.timestamp);
+                if (logDate >= today && logDate < tomorrow) {
+                    if (!acc[log.staffId]) acc[log.staffId] = [];
+                    acc[log.staffId].push(log);
+                }
+                return acc;
+            }, {} as Record<string, typeof timeLogs>);
+            
+            // Calcular horas por empleado
+            Object.values(logsByEmployee).forEach(employeeLogs => {
+                const sortedLogs = employeeLogs.sort((a, b) => 
+                    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+                );
+                
+                let clockInTime: Date | null = null;
+                let breakStartTime: Date | null = null;
+                
+                for (const log of sortedLogs) {
+                    const logTime = new Date(log.timestamp);
+                    
+                    if (log.action === 'clock-in') {
+                        clockInTime = logTime;
+                        breakStartTime = null;
+                    } else if (log.action === 'clock-out' && clockInTime) {
+                        // Calcular horas trabajadas (excluyendo pausas)
+                        let workEndTime = logTime;
+                        let workStartTime = clockInTime;
+                        
+                        if (breakStartTime) {
+                            totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                            workStartTime = breakStartTime;
+                        }
+                        
+                        totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                        clockInTime = null;
+                        breakStartTime = null;
+                    } else if (log.action === 'break-start' && clockInTime) {
+                        breakStartTime = logTime;
+                    } else if (log.action === 'break-end' && clockInTime) {
+                        breakStartTime = null;
+                    }
+                }
+                
+                // Si todavía está trabajando, contar hasta ahora
+                if (clockInTime) {
+                    const now = new Date();
+                    totalHours += (now.getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
+                }
+            });
+            
+            return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
+        })();
+        return { total: staffMembers.length, activos, trabajandoAhora, enDescanso, horasHoy };
+    }, [staffMembers, timeLogs]);
+
+    // Si no hay establecimientos, mostrar mensaje de carga o error
+    if (establishmentsData === undefined) {
+        return <div>Cargando establecimientos...</div>;
+    }
+    
+    if (establishmentsData.length === 0) {
+        return <div>No hay establecimientos disponibles. Contacta con el administrador.</div>;
+    }
+
+    // Calcular horas trabajadas esta semana para un empleado
+    const getWeeklyHours = (staffId: string): number => {
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        // Obtener logs del empleado esta semana
+        const staffLogs = timeLogs
+            .filter(log => log.staffId === staffId)
+            .filter(log => {
+                const logDate = new Date(log.timestamp);
+                return logDate >= startOfWeek && logDate <= endOfWeek;
+            })
+            .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+        let totalHours = 0;
+        let clockInTime: Date | null = null;
+        let breakStartTime: Date | null = null;
+
+        for (const log of staffLogs) {
+            const logTime = new Date(log.timestamp);
+            
+            if (log.action === 'clock-in') {
+                clockInTime = logTime;
+                breakStartTime = null;
+            } else if (log.action === 'clock-out' && clockInTime) {
+                // Calcular horas trabajadas (excluyendo pausas)
+                let workEndTime = logTime;
+                let workStartTime = clockInTime;
+                
+                // Si hubo una pausa, calcular solo el tiempo trabajado
+                if (breakStartTime) {
+                    // Tiempo antes de la pausa
+                    totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                    // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
+                    // En un sistema real, necesitaríamos un log de break-end
+                    workStartTime = breakStartTime; // Simplificación
+                }
+                
+                totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                clockInTime = null;
+                breakStartTime = null;
+            } else if (log.action === 'break' && clockInTime) {
+                breakStartTime = logTime;
+            }
+        }
+
+        // Si todavía está trabajando (sin clock-out), contar hasta ahora
+        if (clockInTime) {
+            totalHours += (now.getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
+        }
+
+        return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
+    };
+    
     // Funciones de exportación
     const exportTimeLogs = () => {
         const csvContent = [
@@ -496,6 +647,17 @@ export default function PersonalPage() {
 
     const handleSaveEmployee = async (employee: ExtendedStaffMember) => {
         try {
+            if (!establishmentsData || establishmentsData.length === 0) {
+                toast({ 
+                    title: "Error", 
+                    description: "No hay establecimientos disponibles. Contacta con el administrador.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            const currentEstablishmentId = establishmentsData[0]._id;
+
             // Mapear roles del formulario al schema de Convex
             const roleMapping: Record<string, string> = {
                 "camarero": "waiter",
@@ -546,7 +708,7 @@ export default function PersonalPage() {
                 toast({ title: "Empleado actualizado", description: `${employee.nombre} se ha actualizado.` });
             } else {
                 // Create new staff member
-                await createStaffMember({ establishmentId, ...staffData });
+                await createStaffMember({ establishmentId: currentEstablishmentId, ...staffData });
                 toast({ title: "Empleado añadido", description: `${employee.nombre} se agregó al equipo.` });
             }
         } catch (error) {
@@ -584,6 +746,17 @@ export default function PersonalPage() {
 
     const handleSaveOrUpdateTimeLog = async (data: any) => {
         try {
+            if (!establishmentsData || establishmentsData.length === 0) {
+                toast({ 
+                    title: "Error", 
+                    description: "No hay establecimientos disponibles. Contacta con el administrador.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            const currentEstablishmentId = establishmentsData[0]._id;
+
             // Mapear tipos del diálogo al schema de Convex
             const actionMapping: Record<string, string> = {
                 "clock-in": "clock_in",
@@ -608,7 +781,7 @@ export default function PersonalPage() {
             } else {
                 // Crear nuevo Time Log - Convex genera timestamp automáticamente
                 const timeLogData = {
-                    establishmentId,
+                    establishmentId: currentEstablishmentId,
                     staffId: data.staffId,
                     action: (actionMapping[data.type] || data.type) as any,
                     method: "manual" as const,
@@ -644,8 +817,19 @@ export default function PersonalPage() {
     // Handlers: Absences
     const handleSaveAbsenceRequest = async (data: any) => {
         try {
+            if (!establishmentsData || establishmentsData.length === 0) {
+                toast({ 
+                    title: "Error", 
+                    description: "No hay establecimientos disponibles. Contacta con el administrador.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            const currentEstablishmentId = establishmentsData[0]._id;
+
             const absenceData = {
-                establishmentId,
+                establishmentId: currentEstablishmentId,
                 staffId: data.staffId,
                 type: data.type as any,
                 startDate: data.startDate,
@@ -708,6 +892,17 @@ export default function PersonalPage() {
     // Handlers: Devices
     const handleSaveDevice = async (device: DispositivoFichaje) => {
         try {
+            if (!establishmentsData || establishmentsData.length === 0) {
+                toast({ 
+                    title: "Error", 
+                    description: "No hay establecimientos disponibles. Contacta con el administrador.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            const currentEstablishmentId = establishmentsData[0]._id;
+
             const isEditing = dispositivos.some(d => d.id === device.id);
             if (isEditing) {
                 await updateClockDevice({
@@ -720,7 +915,7 @@ export default function PersonalPage() {
                 toast({ title: "Dispositivo actualizado", description: `${device.nombre} se ha actualizado.` });
             } else {
                 await createClockDevice({
-                    establishmentId,
+                    establishmentId: currentEstablishmentId,
                     name: device.nombre,
                     type: device.tipo as any,
                     location: device.ubicacion,
@@ -749,85 +944,6 @@ export default function PersonalPage() {
             });
         }
     };
-
-    // Computed Stats
-    const filteredStaff = React.useMemo(() => {
-        return staffMembers.filter(staff =>
-            staff.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (staff.rol || '').toLowerCase().includes(searchTerm.toLowerCase())
-        );
-    }, [staffMembers, searchTerm]);
-
-    const stats = React.useMemo(() => {
-        const activos = staffMembers.filter(s => s.estado === 'Activo').length;
-        const trabajandoAhora = staffMembers.filter(s => getStaffMemberStatus(s.id) === 'active').length;
-        const enDescanso = staffMembers.filter(s => getStaffMemberStatus(s.id) === 'break').length;
-        const todayStr = new Date().toISOString().split('T')[0]; // Current date
-        const horasHoy = (() => {
-            // Calcular horas reales trabajadas hoy por todos los empleados
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            let totalHours = 0;
-            
-            // Agrupar logs por empleado
-            const logsByEmployee = timeLogs.reduce((acc, log) => {
-                const logDate = new Date(log.timestamp);
-                if (logDate >= today && logDate < tomorrow) {
-                    if (!acc[log.staffId]) acc[log.staffId] = [];
-                    acc[log.staffId].push(log);
-                }
-                return acc;
-            }, {} as Record<string, typeof timeLogs>);
-            
-            // Calcular horas por empleado
-            Object.values(logsByEmployee).forEach(employeeLogs => {
-                const sortedLogs = employeeLogs.sort((a, b) => 
-                    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-                );
-                
-                let clockInTime: Date | null = null;
-                let breakStartTime: Date | null = null;
-                
-                for (const log of sortedLogs) {
-                    const logTime = new Date(log.timestamp);
-                    
-                    if (log.action === 'clock-in') {
-                        clockInTime = logTime;
-                        breakStartTime = null;
-                    } else if (log.action === 'clock-out' && clockInTime) {
-                        // Calcular horas trabajadas (excluyendo pausas)
-                        let workEndTime = logTime;
-                        let workStartTime = clockInTime;
-                        
-                        if (breakStartTime) {
-                            totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                            workStartTime = breakStartTime;
-                        }
-                        
-                        totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                        clockInTime = null;
-                        breakStartTime = null;
-                    } else if (log.action === 'break-start' && clockInTime) {
-                        breakStartTime = logTime;
-                    } else if (log.action === 'break-end' && clockInTime) {
-                        breakStartTime = null;
-                    }
-                }
-                
-                // Si todavía está trabajando, contar hasta ahora
-                if (clockInTime) {
-                    const now = new Date();
-                    totalHours += (now.getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
-                }
-            });
-            
-            return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
-        })();
-        return { total: staffMembers.length, activos, trabajandoAhora, enDescanso, horasHoy };
-    }, [staffMembers, timeLogs]);
 
     return (
         <PageContainer>

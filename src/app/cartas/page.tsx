@@ -25,19 +25,21 @@ export default function CartasCombinadasPage() {
             />
             <PageContent>
                 <Tabs defaultValue="cartas" onValueChange={setActiveTab} className="w-full">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <TabsList className="shrink-0">
-                            <TabsTrigger value="cartas" icon={BookOpen}>Cartas</TabsTrigger>
-                            <TabsTrigger value="categorias" icon={Layers}>Categorías</TabsTrigger>
-                            <TabsTrigger value="productos" icon={Package}>Productos</TabsTrigger>
-                        </TabsList>
+                    <div className="flex flex-col gap-4 mb-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <TabsList className="shrink-0">
+                                <TabsTrigger value="cartas" icon={BookOpen}>Cartas</TabsTrigger>
+                                <TabsTrigger value="categorias" icon={Layers}>Categorías</TabsTrigger>
+                                <TabsTrigger value="productos" icon={Package}>Productos</TabsTrigger>
+                            </TabsList>
+                        </div>
 
-                        <div className="flex items-center gap-3 w-full md:w-auto">
+                        <div className="flex items-center gap-3 w-full">
                             <SearchInput 
                                 placeholder={`Buscar ${activeTab}...`} 
                                 value={searchTerm} 
                                 onChange={(e) => setSearchTerm(e.target.value)} 
-                                containerClassName="flex-grow md:w-64"
+                                containerClassName="flex-grow"
                             />
                             <Button 
                                 id={`btn-add-${activeTab}`}

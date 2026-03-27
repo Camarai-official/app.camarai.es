@@ -38,4 +38,10 @@ export type Carta = {
   elementos_carta: ElementoCarta[];
   icon: string;
   color: string;
+  // WhatsApp configuration
+  whatsapp_enabled?: boolean;
+  whatsapp_voice_enabled?: boolean;
+  whatsapp_welcome_message?: string;
+  whatsapp_schedule_start?: string;
+  whatsapp_schedule_end?: string;
 };
