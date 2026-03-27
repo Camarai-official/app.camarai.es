@@ -137,6 +137,19 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
         return () => window.removeEventListener('open-add-productos', handleOpenAdd);
     }, []);
 
+    // Ensure default category exists and get its ID
+    const defaultCategoryId = React.useMemo(() => {
+        const defaultCat = categories.find(cat => cat.nombre_categoria === "Sin categoría");
+        return defaultCat?.id || null;
+    }, [categories]);
+
+    // Auto-create default category if it doesn't exist
+    React.useEffect(() => {
+        if (convexEstablishment && !defaultCategoryId && categories.length > 0) {
+            ensureDefaultCategoryMutation({ establishmentId: convexEstablishment._id });
+        }
+    }, [convexEstablishment, defaultCategoryId, categories.length]);
+
     // Loading states
     if (convexEstablishment === undefined) {
         return (
@@ -153,19 +166,6 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
             </div>
         );
     }
-
-    // Ensure default category exists and get its ID
-    const defaultCategoryId = React.useMemo(() => {
-        const defaultCat = categories.find(cat => cat.nombre_categoria === "Sin categoría");
-        return defaultCat?.id || null;
-    }, [categories]);
-
-    // Auto-create default category if it doesn't exist
-    React.useEffect(() => {
-        if (convexEstablishment && !defaultCategoryId && categories.length > 0) {
-            ensureDefaultCategoryMutation({ establishmentId: convexEstablishment._id });
-        }
-    }, [convexEstablishment, defaultCategoryId, categories.length]);
 
     // Helper functions
     const handleOpenDialog = (product?: any) => {
