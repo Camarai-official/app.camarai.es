@@ -125,6 +125,8 @@ export const seedData = mutation({
       preparation_time: 15,
       available_pos: true,
       available_delivery: true,
+      stock_minimo: 10,
+      impresora_destino: "cocina",
       order: 1,
       created_at: Date.now(),
     });
@@ -133,7 +135,8 @@ export const seedData = mutation({
     await ctx.db.insert("product_ingredients", {
       product_id: productId,
       ingredient_id: ingredientId,
-      quantity_required: 1, // 1 unidad por hamburguesa
+      quantity_required: 1,
+      unit: "units",
     });
 
     // 8. INFRAESTRUCTURA (Ambientes y Mesas)
