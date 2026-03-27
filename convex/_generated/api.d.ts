@@ -11,6 +11,7 @@
 import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
+import type * as environments from "../environments.js";
 import type * as inventory from "../inventory.js";
 import type * as orders from "../orders.js";
 import type * as seed from "../seed.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   auth: typeof auth;
   crons: typeof crons;
+  environments: typeof environments;
   inventory: typeof inventory;
   orders: typeof orders;
   seed: typeof seed;

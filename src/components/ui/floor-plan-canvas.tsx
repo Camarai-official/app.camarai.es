@@ -13,24 +13,24 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 interface FloorPlanCanvasProps {
     activeEnv: Environment;
-    onUpdateTable: (id: number, updates: Partial<Table>) => void;
-    onRemoveTable: (id: number) => void;
+    onUpdateTable: (id: string, updates: Partial<Table>) => void;
+    onRemoveTable: (id: string) => void;
     onOpenEdit: (table: Table) => void;
     onOpenQR: (table: Table) => void;
     onDuplicateTable: (table: Table) => void;
     onEditChairs: (table: Table) => void;
-    editingChairsId: number | null;
+    editingChairsId: string | null;
     isLocked?: boolean;
 }
 
 type DragItem = {
-    id: number;
+    id: string;
     offsetX: number;
     offsetY: number;
 };
 
 type ResizeItem = {
-    id: number;
+    id: string;
     corner: 'nw' | 'ne' | 'sw' | 'se';
     startX: number;
     startY: number;
@@ -41,7 +41,7 @@ type ResizeItem = {
 };
 
 type RotateItem = {
-    id: number;
+    id: string;
     centerX: number;
     centerY: number;
     startAngle: number;
@@ -72,9 +72,9 @@ export function FloorPlanCanvas({
     const [activeDrag, setActiveDrag] = React.useState<DragItem | null>(null);
     const [activeResize, setActiveResize] = React.useState<ResizeItem | null>(null);
     const [activeRotate, setActiveRotate] = React.useState<RotateItem | null>(null);
-    const [selectedTableId, setSelectedTableId] = React.useState<number | null>(null);
+    const [selectedTableId, setSelectedTableId] = React.useState<string | null>(null);
     const [interactionMode, setInteractionMode] = React.useState<'resize' | 'rotate' | null>(null);
-    const [collidingTableId, setCollidingTableId] = React.useState<number | null>(null);
+    const [collidingTableId, setCollidingTableId] = React.useState<string | null>(null);
     const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
 
     React.useEffect(() => {
