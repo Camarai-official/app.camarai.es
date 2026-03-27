@@ -30,6 +30,8 @@ jobs:
       # 4. Construir proyecto (Build)
       - name: Construir proyecto (Build)
         run: npm run build
+        env:
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
 
       # 4.1 Fix 404 for SPA
       - name: Fix 404 for SPA

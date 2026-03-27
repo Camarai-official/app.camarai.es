@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import { 
     Search, 
@@ -142,14 +141,14 @@ export default function PersonalPage() {
     const establishmentsData = useQuery(api.establishments.getEstablishments);
     
     // Usar el primer establecimiento disponible o null si no hay ninguno
-    const establishmentId = establishmentsData && establishmentsData.length > 0 
+    const establishmentId = establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length > 0 
         ? establishmentsData[0]._id 
         : null;
     
     // Datos de Convex
-    const staffMembersData = useQuery(api.staff.getStaffByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
-    const timeLogsData = useQuery(api.staff.getTimeLogsByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id, limit: 50 } : "skip");
-    const absenceRequestsData = useQuery(api.staff.getAbsenceRequestsByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
+    const staffMembersData = useQuery(api.staff.getStaffByEstablishment, establishmentId ? { establishmentId } : "skip");
+    const timeLogsData = useQuery(api.staff.getTimeLogsByEstablishment, establishmentId ? { establishmentId, limit: 50 } : "skip");
+    const absenceRequestsData = useQuery(api.staff.getAbsenceRequestsByEstablishment, establishmentId ? { establishmentId } : "skip");
     
     // Mutations de Convex
     const createStaffMember = useMutation(api.staff.createStaffMember);
@@ -166,8 +165,8 @@ export default function PersonalPage() {
     const updateAbsenceRequestStatus = useMutation(api.staff.updateAbsenceRequestStatus);
     
     // Queries para Incidencias y Dispositivos
-    const clockIncidentsData = useQuery(api.staff.getClockIncidentsByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
-    const clockDevicesData = useQuery(api.staff.getClockDevicesByEstablishment, establishmentsData && establishmentsData.length > 0 ? { establishmentId: establishmentsData[0]._id } : "skip");
+    const clockIncidentsData = useQuery(api.staff.getClockIncidentsByEstablishment, establishmentId ? { establishmentId } : "skip");
+    const clockDevicesData = useQuery(api.staff.getClockDevicesByEstablishment, establishmentId ? { establishmentId } : "skip");
     
     // Mutations para Incidencias y Dispositivos
     const createClockIncident = useMutation(api.staff.createClockIncident);
@@ -206,7 +205,7 @@ export default function PersonalPage() {
     }, [clockIncidentsData]);
     
     React.useEffect(() => {
-        if (clockDevicesData && establishmentsData && establishmentsData.length > 0) {
+        if (clockDevicesData && establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length > 0) {
             // Mapear tipos de Convex a tipos de UI con type assertion
             const mappedDispositivos = clockDevicesData.map(dev => ({
                 id: dev.id,
@@ -489,7 +488,7 @@ export default function PersonalPage() {
         return <div>Cargando establecimientos...</div>;
     }
     
-    if (establishmentsData.length === 0) {
+    if (establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length === 0) {
         return <div>No hay establecimientos disponibles. Contacta con el administrador.</div>;
     }
 
@@ -647,7 +646,7 @@ export default function PersonalPage() {
 
     const handleSaveEmployee = async (employee: ExtendedStaffMember) => {
         try {
-            if (!establishmentsData || establishmentsData.length === 0) {
+            if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
                 toast({ 
                     title: "Error", 
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
@@ -746,7 +745,7 @@ export default function PersonalPage() {
 
     const handleSaveOrUpdateTimeLog = async (data: any) => {
         try {
-            if (!establishmentsData || establishmentsData.length === 0) {
+            if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
                 toast({ 
                     title: "Error", 
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
@@ -817,7 +816,7 @@ export default function PersonalPage() {
     // Handlers: Absences
     const handleSaveAbsenceRequest = async (data: any) => {
         try {
-            if (!establishmentsData || establishmentsData.length === 0) {
+            if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
                 toast({ 
                     title: "Error", 
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
@@ -892,7 +891,7 @@ export default function PersonalPage() {
     // Handlers: Devices
     const handleSaveDevice = async (device: DispositivoFichaje) => {
         try {
-            if (!establishmentsData || establishmentsData.length === 0) {
+            if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
                 toast({ 
                     title: "Error", 
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
