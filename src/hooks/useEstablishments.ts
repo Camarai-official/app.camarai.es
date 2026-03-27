@@ -1,6 +1,8 @@
 
 import * as React from 'react';
 import { initialEstablishments, type Establishment } from '@/data/establishments';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 const LOCAL_STORAGE_KEY = 'establishments';
 const ACTIVE_ESTABLISHMENT_KEY = 'activeEstablishmentId';
@@ -9,6 +11,42 @@ export const useEstablishments = () => {
   const [establishments, setEstablishments] = React.useState<Establishment[]>([]);
   const [activeEstablishmentId, setActiveEstablishmentId] = React.useState<string | null>(null);
   const [isInitialized, setIsInitialized] = React.useState(false);
+
+  // Obtener el establecimiento más reciente de Convex
+  const latestConvexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+    localId: 'latest' 
+  });
+
+  // Sincronizar el establecimiento activo con el más reciente de Convex
+  React.useEffect(() => {
+    if (latestConvexEstablishment && !activeEstablishmentId) {
+      // Si no hay establecimiento activo local, usar el más reciente de Convex
+      // Buscar el establecimiento local correspondiente o crear uno temporal
+      const matchingLocal = establishments.find(e => e.name === latestConvexEstablishment.name);
+      if (matchingLocal) {
+        setActiveEstablishmentId(matchingLocal.id);
+      } else {
+        // Si no hay coincidencia, crear un establecimiento temporal basado en Convex
+        const tempEstablishment: Establishment = {
+          id: `convex-${latestConvexEstablishment._id}`,
+          name: latestConvexEstablishment.name,
+          image: latestConvexEstablishment.logo_url || 'https://placehold.co/40x40',
+          type: 'Restaurante',
+          address: latestConvexEstablishment.address || '',
+          postalCode: latestConvexEstablishment.postal_code || '',
+          city: latestConvexEstablishment.city || '',
+          province: latestConvexEstablishment.province || '',
+          country: latestConvexEstablishment.country || '',
+          phone: latestConvexEstablishment.phone || '',
+          email: latestConvexEstablishment.email || '',
+          hours: 'L-V: 12:00-23:00, S-D: 12:00-00:00',
+          active: true,
+        };
+        setEstablishments(prev => [...prev, tempEstablishment]);
+        setActiveEstablishmentId(tempEstablishment.id);
+      }
+    }
+  }, [latestConvexEstablishment, activeEstablishmentId, establishments]);
 
   // Load from localStorage on initial render
   React.useEffect(() => {

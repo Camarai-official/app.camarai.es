@@ -1,7 +1,7 @@
 export type TableStatus = 'Libre' | 'Ocupada' | 'Reservada' | 'Mantenimiento' | 'Inactiva';
 
 export type Table = {
-  id: number;
+  id: string;
   number: number;
   x: number;
   y: number;

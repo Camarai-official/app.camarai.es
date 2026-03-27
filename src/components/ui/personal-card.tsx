@@ -75,15 +75,18 @@ const statusConfig: Record<StaffStatus, { label: string; variant: 'default' | 's
 };
 
 const roleLabels: Record<string, string> = {
-  camarero: 'Camarero',
-  encargado: 'Encargado',
-  jefe: 'Jefe / Admin',
-  cocinero: 'Cocinero',
+  camarero: 'Camarero/a',
+  cocinero: 'Cocinero/a',
   bartender: 'Bartender',
   gerente: 'Gerente',
   host: 'Host',
   ayudante_cocina: 'Ayudante de Cocina',
-  repartidor: 'Repartidor',
+  // Roles de Convex que podrían aparecer
+  waiter: 'Camarero/a',
+  cook: 'Cocinero/a',
+  manager: 'Gerente',
+  admin: 'Jefe / Admin',
+  owner: 'Dueño',
 };
 
 const contractStatusIcons: Record<StaffCardData['estado'], React.ElementType> = {

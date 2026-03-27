@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select"
 import { ActionTile } from '@/components/ui/action-tile';
 import { cn } from '@/lib/utils';
-import type { Environment } from '@/data/mock-data';
+import type { Environment } from '@/types/environments';
 
 interface QRManagementDialogProps {
     open: boolean;

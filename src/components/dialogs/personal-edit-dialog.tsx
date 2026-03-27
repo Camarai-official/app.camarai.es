@@ -19,6 +19,7 @@ import { ImageUploader } from '@/components/ui/image-uploader';
 import { ActionTile } from '@/components/ui/action-tile';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { IconPicker, iconMap } from '@/components/ui/icon-picker';
+import { AccessSection } from '@/components/personal/access-section';
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -26,7 +27,7 @@ import type { StaffMember } from '@/data/mock-data';
 import { mockEstablishments } from '@/data/mock-data';
 
 // Métodos de fichaje disponibles
-const metodosFichaje = [
+const metodosFichaje: Array<{id: 'app' | 'whatsapp' | 'qr' | 'web', label: string, icon: React.ElementType, description: string}> = [
     { id: 'app', label: 'App Móvil', icon: Smartphone, description: 'Fichaje desde la app' },
     { id: 'whatsapp', label: 'WhatsApp', icon: MessageSquare, description: 'Envía "Fichar" al bot' },
     { id: 'qr', label: 'Código QR', icon: QrCode, description: 'Escanea el QR del local' },
@@ -37,6 +38,7 @@ export interface ExtendedStaffMember extends StaffMember {
     departamento?: string;
     tipo_contrato?: string;
     fecha_alta?: string;
+    nivelAcceso?: 'camarero' | 'encargado' | 'jefe' | 'personalizado';
     permisos?: string[];
     establecimientos_asignados?: string[];
     horas_extra_habilitadas?: boolean;
@@ -47,6 +49,8 @@ export interface ExtendedStaffMember extends StaffMember {
     // Identidad visual
     color?: string;
     icon?: string;
+    // Campos financieros adicionales
+    irpf?: number;
 }
 
 interface StaffDocument {
@@ -71,14 +75,16 @@ const emptyEmployee: ExtendedStaffMember = {
     departamento: '',
     tipo_contrato: 'indefinido',
     fecha_alta: new Date().toISOString().split('T')[0],
-    permisos: [],
+    nivelAcceso: 'camarero',
+    permisos: [], // Start with empty permissions for true customization
     establecimientos_asignados: [],
     horas_extra_habilitadas: false,
     documentos: [],
-    metodos_fichaje_permitidos: ['app', 'qr'],
+    metodos_fichaje_permitidos: [], // Start with empty for true customization
     dispositivo_asignado: undefined,
     color: 'blue-500',
-    icon: 'User'
+    icon: 'User',
+    irpf: 0
 };
 
 const permisosDisponibles = [
@@ -142,8 +148,8 @@ interface EmployeeDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     employeeToEdit: ExtendedStaffMember | null;
-    onSave: (employee: ExtendedStaffMember) => void;
-    onDelete?: (id: string) => void;
+    onSave: (employee: ExtendedStaffMember) => Promise<void>;
+    onDelete?: (id: string) => Promise<void>;
 }
 
 export function EmployeeDialog({
@@ -152,11 +158,13 @@ export function EmployeeDialog({
     employeeToEdit,
     onSave,
     onDelete
-}: EmployeeDialogProps) {
+}: EmployeeDialogProps): React.ReactElement {
     const [employee, setEmployee] = React.useState<ExtendedStaffMember>(emptyEmployee);
     const [activeTab, setActiveTab] = React.useState('datos');
     const [showPin, setShowPin] = React.useState(false);
     const [nivelAcceso, setNivelAcceso] = React.useState<NivelAcceso>('camarero');
+    const [isSaving, setIsSaving] = React.useState(false);
+    const [isDeleting, setIsDeleting] = React.useState(false);
 
     // Detectar nivel de acceso basado en permisos existentes
     const detectNivelAcceso = (permisos: string[]): NivelAcceso => {
@@ -166,7 +174,7 @@ export function EmployeeDialog({
         
         if (jefePermisos.every(p => permisos.includes(p))) return 'jefe';
         if (encargadoPermisos.every(p => permisos.includes(p))) return 'encargado';
-        if (camareroPermisos.every(p => permisos.includes(p)) && permisos.length <= camareroPermisos.length + 1) return 'camarero';
+        if (camareroPermisos.every(p => permisos.includes(p))) return 'camarero';
         return 'personalizado';
     };
 
@@ -179,7 +187,8 @@ export function EmployeeDialog({
                 documentos: employeeToEdit.documentos || [],
                 establecimientos_asignados: employeeToEdit.establecimientos_asignados || [] 
             });
-            setNivelAcceso(detectNivelAcceso(employeeToEdit.permisos || []));
+            // Use the nivelAcceso that was already calculated in page.tsx
+            setNivelAcceso(employeeToEdit.nivelAcceso || 'camarero');
         } else {
             setEmployee({
                 ...emptyEmployee,
@@ -193,11 +202,40 @@ export function EmployeeDialog({
 
     const handleNivelAccesoChange = (nivel: NivelAcceso) => {
         setNivelAcceso(nivel);
+        // Map access level to Convex role
+        const roleMapping: Record<NivelAcceso, string> = {
+            'camarero': 'waiter',
+            'encargado': 'manager', 
+            'jefe': 'admin',
+            'personalizado': 'waiter' // Default for custom
+        };
+
+        // Define clock methods for each access level
+        const clockMethodsByLevel: Record<NivelAcceso, ('app' | 'whatsapp' | 'qr' | 'web')[]> = {
+            'camarero': ['app', 'qr'], // Basic methods
+            'encargado': ['app', 'qr', 'web'], // + web access
+            'jefe': ['app', 'whatsapp', 'qr', 'web'], // All methods
+            'personalizado': ['app', 'qr'] // Default for custom
+        };
+        
+        // Update the employee role and permissions when access level changes
         if (nivel !== 'personalizado') {
             const nivelConfig = nivelesAcceso.find(n => n.id === nivel);
             if (nivelConfig) {
-                setEmployee(prev => ({ ...prev, permisos: [...nivelConfig.permisos] }));
+                setEmployee(prev => ({ 
+                    ...prev, 
+                    rol: roleMapping[nivel],
+                    permisos: [...nivelConfig.permisos],
+                    metodos_fichaje_permitidos: clockMethodsByLevel[nivel]
+                }));
             }
+        } else {
+            // For personalizado, only update the role, keep existing permissions and methods
+            setEmployee(prev => ({ 
+                ...prev, 
+                rol: roleMapping[nivel]
+                // Don't override permissions or clock methods for custom level
+            }));
         }
     };
 
@@ -223,15 +261,36 @@ export function EmployeeDialog({
         }));
     };
 
-    const handleSave = () => {
-        const employeeToSave = {
-            ...employee,
-            id: employee.id || `staff-${Date.now()}`,
-            fotoUrl: employee.fotoUrl,
-            roles: employee.rol ? [employee.rol] : [] 
-        };
-        onSave(employeeToSave);
-        onOpenChange(false);
+    const handleToggleMetodoFichaje = (metodoId: 'app' | 'whatsapp' | 'qr' | 'web') => {
+        setEmployee(prev => ({
+            ...prev,
+            metodos_fichaje_permitidos: prev.metodos_fichaje_permitidos?.includes(metodoId)
+                ? prev.metodos_fichaje_permitidos.filter(m => m !== metodoId)
+                : [...(prev.metodos_fichaje_permitidos || []), metodoId]
+        }));
+    };
+
+    const handleSave = async () => {
+        if (!employee.nombre || !employee.email || !employee.rol) {
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const employeeToSave = {
+                ...employee,
+                id: employee.id || `staff-${Date.now()}`,
+                fotoUrl: employee.fotoUrl,
+                roles: employee.rol ? [employee.rol] : [] 
+            };
+            
+            await onSave(employeeToSave);
+            onOpenChange(false);
+        } catch (error) {
+            console.error('Error saving employee:', error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -239,7 +298,7 @@ export function EmployeeDialog({
             <DialogWindow size="xl">
                 <DialogHeader
                     icon={User}
-                    title={employeeToEdit ? 'Editar Perfil de Empleado' : 'Añadir Nuevo Empleado'}
+                    title={employeeToEdit ? 'Editar Perfil de Empleado' : 'Añadir Empleado'}
                     description="Gestiona la información personal, laboral y permisos de acceso al sistema."
                 />
 
@@ -536,32 +595,6 @@ export function EmployeeDialog({
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-base flex items-center gap-2">
                                                     <Building2 className="h-4 w-4" />
-                                                    Establecimientos Asignados
-                                                </CardTitle>
-                                                <CardDescription>Habilita los locales en los que este empleado puede operar.</CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    {mockEstablishments.map(est => (
-                                                        <ActionTile
-                                                            key={est.id}
-                                                            switchId={`est-${est.id}`}
-                                                            icon={Building2}
-                                                            title={est.name}
-                                                            description="Habilitar acceso"
-                                                            rightContentType="switch"
-                                                            switchChecked={employee.establecimientos_asignados?.includes(est.id)}
-                                                            onSwitchChange={() => handleToggleEstablecimiento(est.id)}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-
-                                        <Card>
-                                            <CardHeader className="pb-2">
-                                                <CardTitle className="text-base flex items-center gap-2">
-                                                    <Smartphone className="h-4 w-4" />
                                                     Métodos de Fichaje Permitidos
                                                 </CardTitle>
                                                 <CardDescription>Selecciona los canales habilitados para el registro de jornada.</CardDescription>
@@ -576,14 +609,8 @@ export function EmployeeDialog({
                                                             title={metodo.label}
                                                             description={metodo.description}
                                                             rightContentType="switch"
-                                                            switchChecked={employee.metodos_fichaje_permitidos?.includes(metodo.id as any)}
-                                                            onSwitchChange={() => {
-                                                                const m = metodo.id as any;
-                                                                const current = employee.metodos_fichaje_permitidos || [];
-                                                                handleInputChange('metodos_fichaje_permitidos', 
-                                                                    current.includes(m) ? current.filter(x => x !== m) : [...current, m]
-                                                                );
-                                                            }}
+                                                            switchChecked={employee.metodos_fichaje_permitidos?.includes(metodo.id)}
+                                                            onSwitchChange={() => handleToggleMetodoFichaje(metodo.id as 'app' | 'whatsapp' | 'qr' | 'web')}
                                                         />
                                                     ))}
                                                 </div>
@@ -685,24 +712,40 @@ export function EmployeeDialog({
                             <Button 
                                 variant="ghost-destructive" 
                                 size="md" 
-                                onClick={() => {
+                                disabled={isDeleting || isSaving}
+                                onClick={async () => {
                                     if (window.confirm('¿Deseas eliminar permanentemente a este empleado?')) {
-                                        onDelete(employeeToEdit.id);
-                                        onOpenChange(false);
+                                        setIsDeleting(true);
+                                        try {
+                                            await onDelete(employeeToEdit.id);
+                                            onOpenChange(false);
+                                        } catch (error) {
+                                            console.error('Error deleting employee:', error);
+                                        } finally {
+                                            setIsDeleting(false);
+                                        }
                                     }
                                 }}
                                 startIcon={<Trash />}
-                            />
+                            >
+                                {isDeleting ? 'Eliminando...' : 'Eliminar'}
+                            </Button>
                         )}
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancelar</Button>
+                        <Button 
+                            variant="ghost" 
+                            onClick={() => onOpenChange(false)}
+                            disabled={isSaving || isDeleting}
+                        >
+                            Cancelar
+                        </Button>
                         <Button 
                             variant="default" 
                             onClick={handleSave}
-                            disabled={!employee.nombre || !employee.email || !employee.rol}
+                            disabled={!employee.nombre || !employee.email || !employee.rol || isSaving || isDeleting}
                         >
-                            {employeeToEdit ? 'Guardar Cambios' : 'Añadir Empleado'}
+                            {isSaving ? 'Guardando...' : (employeeToEdit ? 'Guardar Cambios' : 'Añadir Empleado')}
                         </Button>
                     </div>
                 </DialogFooter>

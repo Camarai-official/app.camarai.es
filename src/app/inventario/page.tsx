@@ -6,6 +6,10 @@ import {
   Settings, Download, Edit, Trash, History
 } from 'lucide-react';
 
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
+
 import { TextXS } from '@/components/ui/typography';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,22 +39,68 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { StockAdjustmentDialog } from '@/components/dialogs/inventario-stock-adjustment-dialog';
 import { HistoryDialog } from '@/components/dialogs/inventario-history-dialog';
 import { IngredientDialog } from '@/components/dialogs/inventario-ingredient-dialog';
-import {
-  mockIngredients,
-  mockIngredientCategories,
-  mockTaxes,
-  type Ingredient
-} from '@/data/mock-data';
+import type { Ingredient } from '@/data/mock-data';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 // --- MAIN PAGE ---
 
 export default function InventarioPage() {
   const { toast } = useToast();
-  const [ingredients, setIngredients] = React.useState<Ingredient[]>(mockIngredients);
-  const ingredientCategories = mockIngredientCategories;
+  const { activeEstablishment } = useEstablishments();
   
+  // Obtener el establecimiento de Convex usando el ID local
+  const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+    localId: activeEstablishment?.id || 'camarai' 
+  });
+  
+  // Obtener los ingredientes del establecimiento
+  const ingredients = useQuery(api.ingredients.getIngredients, 
+    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+  ) || [];
+  
+  // Obtener las categorías de ingredientes
+  const ingredientCategories = useQuery(api.ingredients.getIngredientCategories, 
+    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+  ) || [];
+  
+  // Obtener el staff del establecimiento para el staffId
+  const staffData = useQuery(api.staff.getStaffByEstablishment, 
+    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+  ) || [];
+
+  // StaffId temporal para pruebas - usar el primero disponible o null
+  const tempStaffId = staffData && staffData.length > 0 ? staffData[0].id : null;
+
+  const createIngredient = useMutation(api.ingredients.createIngredient);
+  const updateIngredientMutation = useMutation(api.ingredients.updateIngredient);
+  const deleteIngredientMutation = useMutation(api.ingredients.deleteIngredient);
+  const adjustStockMutation = useMutation(api.ingredients.adjustStock);
+  
+  // Convert Convex data to frontend format
+  const extendedIngredients = React.useMemo(() => {
+    return ingredients.map(ingredient => {
+      const converted = {
+        id: ingredient._id,
+        nombre_ingrediente: ingredient.name,
+        stock_actual: ingredient.stock,
+        stock_minimo: ingredient.alert_min,
+        stock_maximo: ingredient.stock_max || 0,
+        unidad_medida: ingredient.unit,
+        costo_unitario: ingredient.cost_base,
+        proveedor: ingredient.supplier || '',
+        codigo_barras: ingredient.barcode || '',
+        categoria_nombre: ingredient.category_name || 'Sin categoría',
+        id_categoria: ingredient.category_id,
+        disponible: ingredient.stock > ingredient.alert_min,
+        conversiones: ingredient.conversions || []
+      };
+      return converted;
+    });
+  }, [ingredients]);
+  
+  // State hooks - siempre deben ir antes de cualquier return condicional
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('all');
   const [showLowStockOnly, setShowLowStockOnly] = React.useState(false);
@@ -60,15 +110,32 @@ export default function InventarioPage() {
   const [isStockAdjustmentOpen, setIsStockAdjustmentOpen] = React.useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
-
+  
   // Pagination
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 8;
+  
+  // Loading states - después de todos los hooks
+  if (convexEstablishment === undefined) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-muted-foreground">Cargando establecimiento...</div>
+      </div>
+    );
+  }
 
-  const filteredItems = ingredients.filter(item => {
-    const matchesSearch = item.nombre_ingrediente.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || item.id_categoria_ingrediente === selectedCategory;
-    const isLow = item.stock_actual <= item.stock_minimo_alerta;
+  if (!convexEstablishment) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-muted-foreground">No se encontró el establecimiento</div>
+      </div>
+    );
+  }
+
+  const filteredItems = extendedIngredients.filter(item => {
+    const matchesSearch = (item.nombre_ingrediente || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.id_categoria === selectedCategory;
+    const isLow = item.stock_actual <= item.stock_minimo;
     const matchesStockFilter = !showLowStockOnly || isLow;
     return matchesSearch && matchesCategory && matchesStockFilter;
   });
@@ -76,18 +143,111 @@ export default function InventarioPage() {
   const currentItems = filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const handleUpdateStock = (id: string, newStock: number) => {
-    setIngredients(prev => prev.map(item => item.id === id ? { ...item, stock_actual: newStock } : item));
+  const handleUpdateStock = async (id: string, newStock: number) => {
+    try {
+      await adjustStockMutation({ 
+        ingredientId: id as Id<"ingredients">, 
+        newStock: newStock, 
+        adjustmentType: "set" 
+      });
+      toast({ 
+        title: "Stock actualizado", 
+        description: "El stock ha sido actualizado correctamente." 
+      });
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "No se pudo actualizar el stock.", 
+        variant: "destructive" 
+      });
+    }
   };
 
-  const handleSaveIngredient = (data: any) => {
-    if (data.id) setIngredients(prev => prev.map(i => i.id === data.id ? { ...i, ...data } : i));
-    else setIngredients(prev => [...prev, { ...data, id: `ing-${Date.now()}` }]);
+  const handleSaveIngredient = async (data: any) => {
+    if (!convexEstablishment) return;
+    
+    // Mapear unidades del frontend a Convex
+    const unitMapping: Record<string, string> = {
+      'unidades': 'units',
+      'kg': 'kg',
+      'g': 'grams', 
+      'l': 'liters',
+      'ml': 'liters' // Convertir ml a liters
+    };
+    
+    const convexUnit = unitMapping[data.unidad_medida] || 'units';
+    
+    try {
+      if (data.id) {
+        // Update existing ingredient
+        await updateIngredientMutation({
+          ingredientId: data.id as Id<"ingredients">,
+          name: data.nombre_ingrediente,
+          stock: data.stock_actual || 0,
+          alertMin: data.stock_minimo_alerta || data.stock_minimo || 0,
+          stockMax: data.stock_maximo || 0,
+          unit: convexUnit as any, // Usar unidad mapeada
+          costBase: data.costo_unitario || 0,
+          supplier: data.proveedor_nombre,
+          barcode: data.codigo_barras,
+          categoryId: data.id_categoria_ingrediente || data.id_categoria,
+          conversions: (data as any).conversiones || []
+        });
+        toast({ title: "Ingrediente actualizado" });
+      } else {
+        // Create new ingredient
+        const categoryId = data.id_categoria_ingrediente || data.id_categoria;
+        const alertMin = data.stock_minimo_alerta || data.stock_minimo || 0;
+        
+        if (!categoryId) {
+          toast({ 
+            title: "Error", 
+            description: "Debes seleccionar una categoría.", 
+            variant: "destructive" 
+          });
+          return;
+        }
+        
+        await createIngredient({
+          establishmentId: convexEstablishment._id,
+          categoryId: categoryId as Id<"ingredient_categories">,
+          name: data.nombre_ingrediente,
+          stock: data.stock_actual || 0,
+          alertMin: alertMin,
+          stockMax: data.stock_maximo || 0,
+          unit: convexUnit as any, // Usar unidad mapeada
+          costBase: data.costo_unitario || 0,
+          supplier: data.proveedor_nombre,
+          barcode: data.codigo_barras,
+          conversions: (data as any).conversiones || []
+        });
+        toast({ title: "Ingrediente creado" });
+      }
+    } catch (error) {
+      console.error('Error guardando ingrediente:', error);
+      toast({ 
+        title: "Error", 
+        description: "No se pudo guardar el ingrediente.", 
+        variant: "destructive" 
+      });
+    }
   };
 
-  const handleRemove = (id: string) => {
-    setIngredients(prev => prev.filter(i => i.id !== id));
-    toast({ title: "Componente eliminado", variant: "destructive" });
+  const handleRemove = async (id: string) => {
+    try {
+      await deleteIngredientMutation({ ingredientId: id as Id<"ingredients"> });
+      toast({ 
+        title: "Ingrediente eliminado", 
+        description: "El ingrediente ha sido eliminado correctamente.",
+        variant: "destructive" 
+      });
+    } catch (error) {
+      toast({ 
+        title: "Error", 
+        description: "No se pudo eliminar el ingrediente.", 
+        variant: "destructive" 
+      });
+    }
   };
 
   return (
@@ -119,7 +279,9 @@ export default function InventarioPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">Todo</SelectItem>
-                                {ingredientCategories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.nombre}</SelectItem>)}
+                                {ingredientCategories.map(cat => (
+                                    <SelectItem key={cat._id} value={cat._id}>{cat.name}</SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
@@ -150,8 +312,9 @@ export default function InventarioPage() {
             </TableHeader>
             <TableBody>
               {currentItems.map(item => {
-                const isLow = item.stock_actual <= item.stock_minimo_alerta;
-                const categoryName = ingredientCategories.find(c => c.id === item.id_categoria_ingrediente)?.nombre || 'Sin categoría';
+                const isLow = item.stock_actual <= item.stock_minimo;
+                
+                const categoryName = ingredientCategories.find(c => c._id === item.id_categoria)?.name || item.categoria_nombre || 'Sin categoría';
                 
                 return (
                   <TableRow key={item.id}>
@@ -162,11 +325,11 @@ export default function InventarioPage() {
                       </Badge>
                     </TableCell>
                     <TableCell align="center">
-                      <div className={cn("font-bold", isLow ? 'text-rose-600' : 'text-foreground')}>
+                      <div className={cn("font-bold", isLow ? 'text-red-600' : 'text-foreground')}>
                         {item.stock_actual}
                       </div>
                     </TableCell>
-                    <TableCell align="center">{item.stock_minimo_alerta}</TableCell>
+                    <TableCell align="center">{item.stock_minimo}</TableCell>
                     <TableCell align="center" textTransform="capitalize">{item.unidad_medida}</TableCell>
                     <TableCell align="right">€{item.costo_unitario.toFixed(2)}</TableCell>
                     <TableCell align="right">
@@ -214,9 +377,22 @@ export default function InventarioPage() {
         )}
       </PageContent>
 
-      <StockAdjustmentDialog item={selectedItem} open={isStockAdjustmentOpen} onOpenChange={setIsStockAdjustmentOpen} onUpdateStock={handleUpdateStock} />
+      <StockAdjustmentDialog 
+        item={selectedItem} 
+        open={isStockAdjustmentOpen} 
+        onOpenChange={setIsStockAdjustmentOpen} 
+        onUpdateStock={handleUpdateStock} 
+        staffId={tempStaffId} 
+        staffData={staffData} 
+      />
       <HistoryDialog item={selectedItem} open={isHistoryOpen} onOpenChange={setIsHistoryOpen} />
-      <IngredientDialog open={isEditOpen} onOpenChange={setIsEditOpen} ingredientToEdit={selectedItem} onSave={handleSaveIngredient} />
+      <IngredientDialog 
+        open={isEditOpen} 
+        onOpenChange={setIsEditOpen} 
+        ingredientToEdit={selectedItem} 
+        onSave={handleSaveIngredient} 
+        categories={ingredientCategories}
+      />
     </PageContainer>
   );
 }

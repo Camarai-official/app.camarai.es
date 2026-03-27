@@ -232,6 +232,7 @@ function EditCartaContent({ cartaId }: { cartaId: string }) {
     );
 }
 
+
 export default function EditCartaPage({ params }: { params: { id: string } }) {
     const { id } = params;
     return (

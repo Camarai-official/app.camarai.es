@@ -241,14 +241,12 @@ function NavMain({ items, pathname }: any) {
             const isActive = pathname === item.href
             return (
               <SidebarMenuItem key={item.label}>
-                <Link href={item.href} passHref legacyBehavior>
-                  <SidebarMenuButton isActive={isActive} tooltip={item.label} asChild>
-                    <a>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton isActive={isActive} tooltip={item.label} asChild>
+                  <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             )
           })}

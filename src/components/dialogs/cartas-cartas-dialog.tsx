@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { BookOpen, MessageSquare, Mic } from 'lucide-react';
+import { BookOpen, MessageSquare, Mic, Layers, PlusCircle, Check, Trash } from 'lucide-react';
 import { 
     Dialog, 
     DialogContent, 
@@ -17,8 +17,11 @@ import { ActionTile } from '@/components/ui/action-tile';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { IconPicker } from '@/components/ui/icon-picker';
 import { ColorPicker } from '@/components/ui/color-picker';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { TextSM } from '@/components/ui/typography';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
-import type { Carta, Category } from '@/data/mock-data';
+import type { Carta, Category, ElementoCarta } from '@/data/mock-data';
 
 export interface CartaWhatsAppConfig {
     disponibleWhatsApp: boolean;
@@ -33,9 +36,12 @@ interface CartasDialogProps {
     onOpenChange: (open: boolean) => void;
     carta: Partial<Carta> | null;
     onSave: (carta: Partial<Carta>) => void;
+    onRemoveCategory?: (cartaId: string, categoryId: string) => void; // Updated signature
+    cartaId?: string; // Add cartaId for removal operations
     whatsAppConfig: CartaWhatsAppConfig;
     onWhatsAppConfigChange: (config: CartaWhatsAppConfig) => void;
     allCategories: Category[];
+    isCreating?: boolean; // New prop to explicitly indicate creation mode
 }
 
 export function CartasDialog({
@@ -43,23 +49,46 @@ export function CartasDialog({
     onOpenChange,
     carta,
     onSave,
+    onRemoveCategory,
+    cartaId,
     whatsAppConfig,
     onWhatsAppConfigChange,
-    allCategories
+    allCategories,
+    isCreating = false
 }: CartasDialogProps) {
     const [dialogTab, setDialogTab] = React.useState('general');
     const [localCarta, setLocalCarta] = React.useState<Partial<Carta>>({});
 
     React.useEffect(() => {
         if (carta) {
-            setLocalCarta(carta);
+            // Ensure we're working with a clean copy and normalize data
+            const cleanCarta = { 
+                ...carta,
+                // Normalize elementos_carta to use consistent 'categoria' tipo
+                elementos_carta: carta.elementos_carta?.map(element => ({
+                    ...element,
+                    tipo: (element.tipo as string === 'category' ? 'categoria' : element.tipo) as 'categoria' | 'menu'
+                })) || []
+            };
+            setLocalCarta(cleanCarta);
         } else {
             setLocalCarta({});
         }
     }, [carta, isOpen]);
 
     const handleSave = () => {
-        onSave(localCarta);
+        // Remove duplicates by keeping only unique category_id_elemento combinations
+        const uniqueElementos = localCarta.elementos_carta?.filter((element, index, self) => 
+            element.tipo === 'categoria' && 
+            self.findIndex(e => e.tipo === 'categoria' && e.id_elemento === element.id_elemento) === index
+        ) || [];
+        
+        const cartaToSave = {
+            ...localCarta,
+            elementos_carta: uniqueElementos
+        };
+        
+        onSave(cartaToSave);
     };
 
     const getWhatsAppPreviewMessages = () => {
@@ -84,14 +113,15 @@ export function CartasDialog({
             <DialogWindow size="lg">
                 <DialogHeader
                     icon={BookOpen}
-                    title="Editar Carta Digital"
-                    description="Configura los detalles principales y la integración WhatsApp."
+                    title={isCreating ? "Crear Nueva Carta" : "Editar Carta Digital"}
+                    description={isCreating ? "Diseña tu nueva carta digital y configura la integración WhatsApp." : "Configura los detalles principales y la integración WhatsApp."}
                 />
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <Tabs value={dialogTab} onValueChange={setDialogTab} className="flex-1 flex flex-col overflow-hidden">
                         <div className="px-6 border-b bg-muted/10 shrink-0">
                             <TabsList className="h-14 bg-transparent justify-start gap-4">
                                 <TabsTrigger value="general">General</TabsTrigger>
+                                <TabsTrigger value="categories">Categorías</TabsTrigger>
                                 <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
                             </TabsList>
                         </div>
@@ -139,6 +169,101 @@ export function CartasDialog({
                                         switchChecked={localCarta?.activa || false}
                                         onSwitchChange={(checked) => setLocalCarta(prev => ({ ...prev, activa: checked }))}
                                     />
+                                </TabsContent>
+                                
+                                <TabsContent value="categories" className="mt-0 space-y-6">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-lg font-semibold">Categorías de la Carta</h3>
+                                            <Badge variant="outline">
+                                                {localCarta?.elementos_carta?.filter(e => e.tipo === 'categoria').length || 0} categorías
+                                            </Badge>
+                                        </div>
+                                        
+                                        {/* Available Categories */}
+                                        <div className="space-y-3">
+                                            <Label className="text-base font-medium">Categorías Disponibles</Label>
+                                            <div className="grid gap-2">
+                                                {allCategories.map(category => {
+                                                    const isInCarta = localCarta?.elementos_carta?.some(
+                                                        element => element.tipo === 'categoria' && element.id_elemento === category.id
+                                                    );
+                                                    
+                                                    return (
+                                                        <div key={category.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                                                            <div className="flex items-center gap-3">
+                                                                <Layers className="h-4 w-4 text-blue-500" />
+                                                                <div>
+                                                                    <div className="font-medium">{category.nombre_categoria}</div>
+                                                                    <TextSM className="text-muted-foreground">
+                                                                        {isInCarta ? "Ya añadida" : "Disponible para añadir"}
+                                                                    </TextSM>
+                                                                </div>
+                                                            </div>
+                                                            <Button 
+                                                                size="sm" 
+                                                                variant={isInCarta ? "destructive" : "default"}
+                                                                onClick={() => {
+                                                                    if (isInCarta) {
+                                                                        // Find the element to remove
+                                                                        const elementToRemove = localCarta?.elementos_carta?.find(
+                                                                            element => element.tipo === 'categoria' && element.id_elemento === category.id
+                                                                        );
+                                                                        
+                                                                        if (elementToRemove && onRemoveCategory && cartaId) {
+                                                                            // Remove from database
+                                                                            onRemoveCategory(cartaId, category.id);
+                                                                        }
+                                                                        
+                                                                        // Remove from local state
+                                                                        setLocalCarta(prev => ({
+                                                                            ...prev,
+                                                                            elementos_carta: prev.elementos_carta?.filter(
+                                                                                element => !(element.tipo === 'categoria' && element.id_elemento === category.id)
+                                                                            ) || []
+                                                                        }));
+                                                                    } else {
+                                                                        // Add category to carta
+                                                                        const newElement: ElementoCarta = {
+                                                                            id: `el-${Date.now()}`,
+                                                                            tipo: 'categoria',
+                                                                            id_elemento: category.id
+                                                                        };
+                                                                        setLocalCarta(prev => ({
+                                                                            ...prev,
+                                                                            elementos_carta: [...(prev.elementos_carta || []), newElement]
+                                                                        }));
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {isInCarta ? (
+                                                                    <>
+                                                                        <Trash className="h-3 w-3 mr-1" />
+                                                                        Eliminar
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <PlusCircle className="h-3 w-3 mr-1" />
+                                                                        Añadir
+                                                                    </>
+                                                                )}
+                                                            </Button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                        
+                                        {allCategories.length === 0 && (
+                                            <div className="text-center py-8">
+                                                <Layers className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                                                <h3 className="text-lg font-medium mb-2">Sin categorías disponibles</h3>
+                                                <TextSM className="text-muted-foreground">
+                                                    No hay categorías creadas. Primero crea categorías en la sección de Categorías.
+                                                </TextSM>
+                                            </div>
+                                        )}
+                                    </div>
                                 </TabsContent>
                                 
                                 <TabsContent value="whatsapp" className="mt-0 space-y-6">
@@ -221,7 +346,7 @@ export function CartasDialog({
                 <DialogFooter 
                     onCancel={() => onOpenChange(false)}
                     onConfirm={handleSave}
-                    confirmText="Guardar Carta"
+                    confirmText={isCreating ? "Crear Carta" : "Guardar Cambios"}
                 />
             </DialogWindow>
         </Dialog>
