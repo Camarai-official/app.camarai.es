@@ -87,6 +87,7 @@ export const seedData = mutation({
       name: "Hamburguesas",
       order: 1,
       active: true,
+      visibleInMenu: true,
       created_at: Date.now(),
     });
 
