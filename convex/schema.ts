@@ -195,6 +195,7 @@ export default defineSchema({
     description: v.optional(v.string()),
     price: v.number(), // In cents
     cost: v.number(), // In cents
+    net_margin: v.optional(v.number()), // Margen neto calculado (en euros)
     image: v.optional(v.string()),
     sku: v.optional(v.string()),
     model: v.optional(v.string()),
@@ -223,7 +224,8 @@ export default defineSchema({
     ingredient_id: v.id("ingredients"),
     quantity_required: v.number(),
     unit: v.string(),
-  }).index("by_product", ["product_id"]),
+  }).index("by_product", ["product_id"])
+    .index("by_ingredient", ["ingredient_id"]),
 
   ingredients: defineTable({
     establishment_id: v.id("establishments"),
@@ -808,7 +810,8 @@ export default defineSchema({
     notes: v.optional(v.string()),
     staff_id: v.optional(v.union(v.id("staff"), v.literal("system"))),
     timestamp: v.number(),
-  }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"]),
+  }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"])
+    .index("by_ingredient_type", ["ingredient_id", "type"]),
 
   // --- DOMAIN 8: ADVANCED BUSINESS INTELLIGENCE ---
 

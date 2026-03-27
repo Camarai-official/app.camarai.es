@@ -34,14 +34,10 @@ export const getProducts = query({
     const productsWithCategories = await Promise.all(
       products.map(async (product) => {
         const category = await ctx.db.get(product.category_id);
-        const tax = await ctx.db.get(product.tax_id);
-        const taxPercent = tax?.percentage || 0;
-        const basePrice = product.price / (1 + taxPercent / 100);
-        const netMargin = basePrice - (product.cost || 0);
         return {
           ...product,
           category_name: category?.name || "Sin categoría",
-          net_margin: netMargin,
+          net_margin: product.net_margin ?? 0, // Usar el margen guardado, default 0
         };
       })
     );
@@ -234,6 +230,17 @@ export const updateProduct = mutation({
     if (impresoraDestino !== undefined) updateData.impresora_destino = impresoraDestino || 'caja';
 
     const updatedProduct = await ctx.db.patch(productId, updateData);
+
+    // Calcular y guardar el margen neto
+    const tax = await ctx.db.get(existingProduct.tax_id);
+    const taxPercent = tax?.percentage || 0;
+    const basePrice = ((price !== undefined ? price : existingProduct.price) / (1 + taxPercent / 100)) / 100;
+    const currentCost = cost !== undefined ? cost : existingProduct.cost;
+    const netMargin = basePrice - (currentCost / 100);
+    
+    await ctx.db.patch(productId, {
+      net_margin: netMargin
+    });
 
     // Update ingredients if provided
     if (ingredients !== undefined) {

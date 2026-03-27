@@ -49,13 +49,44 @@ export const deductStockFromOrder = internalMutation({
 });
 
 /**
- * Ajuste manual de stock (Para mermas o inventarios)
+ * Fijar stock exacto (Para ajustes de inventario)
  */
+export const setStockExact = mutation({
+  args: {
+    ingredientId: v.id("ingredients"),
+    newStock: v.number(),
+    staffId: v.id("staff"),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const ingredient = await ctx.db.get(args.ingredientId);
+    if (!ingredient) throw new Error("Ingrediente no encontrado");
+
+    const currentStock = ingredient.stock;
+    const adjustmentQuantity = args.newStock - currentStock;
+
+    await ctx.db.patch(args.ingredientId, {
+      stock: args.newStock,
+    });
+
+    await ctx.db.insert("stock_movements", {
+      ingredient_id: args.ingredientId,
+      establishment_id: ingredient.establishment_id,
+      type: "adjustment",
+      quantity: adjustmentQuantity,
+      unit_cost: ingredient.cost_base,
+      total_cost: ingredient.cost_base * Math.abs(adjustmentQuantity),
+      timestamp: Date.now(),
+      staff_id: args.staffId,
+      notes: args.notes || `Fijar stock a ${args.newStock} ${ingredient.unit}`,
+    });
+  },
+});
 export const adjustStockManually = mutation({
   args: {
     ingredientId: v.id("ingredients"),
     adjustmentQuantity: v.number(),
-    type: v.union(v.literal("adjustment"), v.literal("waste"), v.literal("purchase")),
+    type: v.union(v.literal("adjustment"), v.literal("waste"), v.literal("purchase"), v.literal("sale"), v.literal("return")),
     staffId: v.id("staff"),
     notes: v.optional(v.string()),
   },

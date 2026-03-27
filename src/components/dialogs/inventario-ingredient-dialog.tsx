@@ -181,10 +181,15 @@ export function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave,
                                     <Select value={ingredient.unidad_medida} onValueChange={v => setIngredient(p => ({ ...p, unidad_medida: v as any }))}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="units">Unidades</SelectItem>
                                             <SelectItem value="kg">Kilos (kg)</SelectItem>
                                             <SelectItem value="grams">Gramos (g)</SelectItem>
                                             <SelectItem value="liters">Litros (l)</SelectItem>
+                                            <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
+                                            <SelectItem value="units">Unidades</SelectItem>
+                                            <SelectItem value="bolsa">Bolsa</SelectItem>
+                                            <SelectItem value="caja">Caja</SelectItem>
+                                            <SelectItem value="paquete">Paquete</SelectItem>
+                                            <SelectItem value="botella">Botella</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -226,6 +231,7 @@ export function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave,
                                             <SelectItem value="kg">Kilos (kg)</SelectItem>
                                             <SelectItem value="grams">Gramos (g)</SelectItem>
                                             <SelectItem value="liters">Litros (l)</SelectItem>
+                                            <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
                                             <SelectItem value="units">Unidades</SelectItem>
                                             <SelectItem value="bolsa">Bolsa</SelectItem>
                                             <SelectItem value="caja">Caja</SelectItem>
@@ -248,6 +254,7 @@ export function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave,
                                             <SelectItem value="kg">Kilos (kg)</SelectItem>
                                             <SelectItem value="grams">Gramos (g)</SelectItem>
                                             <SelectItem value="liters">Litros (l)</SelectItem>
+                                            <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
                                             <SelectItem value="units">Unidades</SelectItem>
                                             <SelectItem value="bolsa">Bolsa</SelectItem>
                                             <SelectItem value="caja">Caja</SelectItem>

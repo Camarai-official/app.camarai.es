@@ -65,6 +65,14 @@ export default function InventarioPage() {
     convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
   ) || [];
   
+  // Obtener el staff del establecimiento para el staffId
+  const staffData = useQuery(api.staff.getStaffByEstablishment, 
+    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+  ) || [];
+
+  // StaffId temporal para pruebas - usar el primero disponible o null
+  const tempStaffId = staffData && staffData.length > 0 ? staffData[0].id : null;
+
   const createIngredient = useMutation(api.ingredients.createIngredient);
   const updateIngredientMutation = useMutation(api.ingredients.updateIngredient);
   const deleteIngredientMutation = useMutation(api.ingredients.deleteIngredient);
@@ -369,7 +377,14 @@ export default function InventarioPage() {
         )}
       </PageContent>
 
-      <StockAdjustmentDialog item={selectedItem} open={isStockAdjustmentOpen} onOpenChange={setIsStockAdjustmentOpen} onUpdateStock={handleUpdateStock} />
+      <StockAdjustmentDialog 
+        item={selectedItem} 
+        open={isStockAdjustmentOpen} 
+        onOpenChange={setIsStockAdjustmentOpen} 
+        onUpdateStock={handleUpdateStock} 
+        staffId={tempStaffId} 
+        staffData={staffData} 
+      />
       <HistoryDialog item={selectedItem} open={isHistoryOpen} onOpenChange={setIsHistoryOpen} />
       <IngredientDialog 
         open={isEditOpen} 

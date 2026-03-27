@@ -169,6 +169,74 @@ export const updateIngredient = mutation({
     if (conversions !== undefined) updateData.conversions = conversions;
 
     const updatedIngredient = await ctx.db.patch(ingredientId, updateData);
+    
+    // Si el cost_base cambió, recalcular el costo de todos los productos que usan este ingrediente
+    if (costBase !== undefined && costBase !== existingIngredient.cost_base) {
+      // Obtener todos los productos que usan este ingrediente
+      const productIngredients = await ctx.db
+        .query("product_ingredients")
+        .withIndex("by_ingredient", q => q.eq("ingredient_id", ingredientId))
+        .collect();
+      
+      // Para cada producto, recalcular su costo total
+      for (const productIngredient of productIngredients) {
+        const product = await ctx.db.get(productIngredient.product_id);
+        if (!product) continue;
+        
+        // Obtener todos los ingredientes del producto
+        const allProductIngredients = await ctx.db
+          .query("product_ingredients")
+          .withIndex("by_product", q => q.eq("product_id", productIngredient.product_id))
+          .collect();
+        
+        // Calcular nuevo costo total del producto
+        let newTotalCost = 0;
+        for (const pi of allProductIngredients) {
+          const ingredient = await ctx.db.get(pi.ingredient_id);
+          if (!ingredient) continue;
+          
+          // Usar el nuevo costo si es este ingrediente, sino el costo actual
+          const ingredientCost = pi.ingredient_id === ingredientId ? costBase : ingredient.cost_base;
+          
+          // Convertir cantidad a la unidad del ingrediente (kg) si es necesario
+          let quantityInKg = pi.quantity_required;
+          if (pi.unit === 'g' || pi.unit === 'grams') {
+            quantityInKg = pi.quantity_required / 1000; // Convertir gramos a kg
+          } else if (pi.unit === 'ml' || pi.unit === 'milliliters') {
+            quantityInKg = pi.quantity_required / 1000; // Convertir ml a litros (asumiendo densidad ~1)
+          }
+          // 'kg', 'liters', 'units' ya están en la unidad base
+          
+          newTotalCost += ingredientCost * quantityInKg;
+        }
+        
+        // Actualizar el costo del producto (en céntimos)
+        await ctx.db.patch(productIngredient.product_id, {
+          cost: Math.round(newTotalCost * 100)
+        });
+        
+        // Recalcular y actualizar el margen neto del producto
+        const tax = await ctx.db.get(product.tax_id);
+        const taxPercent = tax?.percentage || 0;
+        
+        
+        // Validar que el precio existe y es mayor que 0
+        if (product.price && product.price > 0) {
+          const basePrice = (product.price / (1 + taxPercent / 100)) / 100; // Convertir a euros
+          const netMargin = basePrice - newTotalCost;
+          
+          await ctx.db.patch(productIngredient.product_id, {
+            net_margin: netMargin
+          });
+        } else {
+          // Si no hay precio válido, poner margen en 0 o mantener el anterior
+          await ctx.db.patch(productIngredient.product_id, {
+            net_margin: 0
+          });
+        }
+      }
+    }
+    
     return updatedIngredient;
   },
 });

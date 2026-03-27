@@ -302,7 +302,6 @@ export function CategoryDialog({
         placeholder="Añadir producto..."
         value={searchTerm}
         onChange={(e) => {
-            console.log('Input value:', e.target.value); // Debug
             setSearchTerm(e.target.value);
         }}
         className="w-full"

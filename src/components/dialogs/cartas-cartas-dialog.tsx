@@ -61,7 +61,6 @@ export function CartasDialog({
 
     React.useEffect(() => {
         if (carta) {
-            console.log("Carta received in dialog:", carta); // Debug
             // Ensure we're working with a clean copy and normalize data
             const cleanCarta = { 
                 ...carta,
@@ -71,7 +70,6 @@ export function CartasDialog({
                     tipo: (element.tipo as string === 'category' ? 'categoria' : element.tipo) as 'categoria' | 'menu'
                 })) || []
             };
-            console.log("Normalized carta:", cleanCarta); // Debug
             setLocalCarta(cleanCarta);
         } else {
             setLocalCarta({});
@@ -90,7 +88,6 @@ export function CartasDialog({
             elementos_carta: uniqueElementos
         };
         
-        console.log("Saving carta from dialog (deduped):", cartaToSave); // Debug
         onSave(cartaToSave);
     };
 

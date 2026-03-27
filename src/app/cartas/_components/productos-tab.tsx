@@ -100,23 +100,23 @@ export function ProductosTab({ searchTerm = '' }: ProductosTabProps) {
             id: product._id,
             nombre_producto: product.name,
             descripcion_producto: product.description || '',
-            precio_venta: product.price / 100, // Convert from cents
+            precio_venta: product.price / 100,
             id_categoria: product.category_id,
             categoria_nombre: product.category_name || 'Sin categoría',
             id_impuesto: product.tax_id,
             disponible: product.active,
             url_imagen_producto: product.image,
-            costo_escandallo_calculado: product.cost / 100, // Convert from cents
-            net_margin: (product.net_margin || 0) / 100, // Convert from cents and include net_margin
-            ingredientes_asociados: [], // Will be loaded when editing
-            variantes: (product as any).variants || [], // Include variants from database
-            alergenos: (product as any).allergens || [], // Include allergens from database
+            costo_escandallo_calculado: product.cost / 100,
+            net_margin: product.net_margin || 0,
+            ingredientes_asociados: [],
+            variantes: (product as any).variants || [],
+            alergenos: (product as any).allergens || [],
             horario_disponible: (product as any).availability_hours ? {
                 inicio: (product as any).availability_hours.start,
                 fin: (product as any).availability_hours.end
-            } : null, // Include availability hours from database
-            stock_minimo: (product as any).stock_minimo || 0, // Include stock minimo from database
-            impresora_destino: (product as any).impresora_destino || 'caja' // Include impresora destino from database with default
+            } : null,
+            stock_minimo: (product as any).stock_minimo || 0,
+            impresora_destino: (product as any).impresora_destino || 'caja'
         }));
     }, [products]);
     
