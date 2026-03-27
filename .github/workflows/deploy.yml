@@ -40,7 +40,7 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           token: ${{ secrets.API_TOKEN_GITHUB }} # Reutilizamos el token para subir
-          folder: dist 
-          repository-name: Camarai-official/testdemo.camarai.es
-          branch: main 
+          folder: dist
+          repository-name: Camarai-official/dash.camarai.es
+          branch: main
           single-commit: true
