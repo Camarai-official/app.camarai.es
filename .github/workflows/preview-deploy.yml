@@ -35,7 +35,7 @@ jobs:
 
       # 4.1 Fix 404 for SPA
       - name: Fix 404 for SPA
-        run: cp dist/index.html dist/404.html
+        run: cp out/index.html out/404.html
 
       # 5. Desplegar al Repositorio B
       - name: Add PR comment with preview URL
