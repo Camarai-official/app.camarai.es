@@ -26,7 +26,7 @@ jobs:
 
       # 3. Instalar dependencias inyectando el Token
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
 
       # 4. Construir proyecto (Build)
       - name: Construir proyecto (Build)
