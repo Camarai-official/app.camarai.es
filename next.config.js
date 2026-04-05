@@ -2,7 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',
+
   images: {
+    unoptimized: true, // OBLIGATORIO para 'output: export' en GitHub Pages
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "images.unsplash.com" },
@@ -11,7 +13,6 @@ const nextConfig = {
       { protocol: "https", hostname: "asset.brandfetch.io" },
       { protocol: "https", hostname: "api.dicebear.com" }
     ]
-  }
+  },
 };
-
 module.exports = nextConfig;

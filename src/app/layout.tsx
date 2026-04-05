@@ -13,11 +13,12 @@ import { useScrollbarCompensation } from '@/hooks/use-scrollbar-compensation';
 
 // Convex Provider
 import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { getConvexClient } from "@/lib/mock-convex";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-// Crear el cliente de Convex
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+// Crear el cliente de Convex con fallback para static generation
+const convex = getConvexClient();
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isMobile, isTablet } = useIsMobile();
