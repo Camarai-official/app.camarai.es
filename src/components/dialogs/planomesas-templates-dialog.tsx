@@ -4,10 +4,8 @@ import * as React from 'react';
 import { LayoutGrid, FolderOpen } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogHeader } from '@/components/layout/dialog';
 import { ActionTile } from '@/components/ui/action-tile';
-import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 
-interface QuickTemplate {
+export interface QuickTemplate {
     id: string;
     name: string;
     description: string;
@@ -24,16 +22,23 @@ const floorPlanTemplates: QuickTemplate[] = [
 interface QuickTemplatesDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onApply?: (template: QuickTemplate) => void;
+    onApply?: (template: QuickTemplate) => void | Promise<void>;
 }
 
 export function QuickTemplatesDialog({ open, onOpenChange, onApply }: QuickTemplatesDialogProps) {
-    const { toast } = useToast();
+    const [isApplying, setIsApplying] = React.useState(false);
 
-    const handleApply = (template: QuickTemplate) => {
-        toast({ title: "Plantilla aplicada", description: `Se ha configurado el diseño "${template.name}".` });
-        onApply?.(template);
-        onOpenChange(false);
+    const handleApply = async (template: QuickTemplate) => {
+        if (!onApply || isApplying) return;
+        setIsApplying(true);
+        try {
+            await Promise.resolve(onApply(template));
+            onOpenChange(false);
+        } catch {
+            // Toast y estado: los gestiona el padre
+        } finally {
+            setIsApplying(false);
+        }
     };
 
     return (
@@ -52,11 +57,12 @@ export function QuickTemplatesDialog({ open, onOpenChange, onApply }: QuickTempl
                                 icon={LayoutGrid} 
                                 title={t.name} 
                                 description={t.description} 
-                                onClick={() => handleApply(t)}
+                                onClick={() => void handleApply(t)}
                                 rightContentType="button"
                                 buttonText="Aplicar"
                                 buttonVariant="outline"
-                                onButtonClick={() => handleApply(t)}
+                                onButtonClick={() => void handleApply(t)}
+                                disabled={isApplying}
                             />
                         ))}
                     </div>

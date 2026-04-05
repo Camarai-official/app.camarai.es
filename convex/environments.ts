@@ -135,10 +135,27 @@ export const createEnvironment = mutation({
       order: args.order || 0,
       icon: args.icon || "Building",
       color: args.color || "#9B6EFD",
+      orders: [],
       created_at: Date.now(),
     });
 
     return environmentId;
+  },
+});
+
+/** Suma `capacity` de todas las mesas reales (excluye objetos decorativos) y guarda el total en el ambiente. */
+export const syncEnvironmentCapacityFromPlan = mutation({
+  args: { environmentId: v.id("environments") },
+  handler: async (ctx, args) => {
+    const tables = await ctx.db
+      .query("tables")
+      .withIndex("by_environment", (q) => q.eq("environment_id", args.environmentId))
+      .collect();
+    const total = tables
+      .filter((t) => !t.is_object)
+      .reduce((sum, t) => sum + t.capacity, 0);
+    await ctx.db.patch(args.environmentId, { capacity: total });
+    return total;
   },
 });
 
@@ -278,7 +295,10 @@ export const updateTable = mutation({
 export const deleteTable = mutation({
   args: { tableId: v.id("tables") },
   handler: async (ctx, args) => {
-    await ctx.db.delete(args.tableId);
+    const existing = await ctx.db.get(args.tableId);
+    if (existing !== null) {
+      await ctx.db.delete(args.tableId);
+    }
     return args.tableId;
   },
 });

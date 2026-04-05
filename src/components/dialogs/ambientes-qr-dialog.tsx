@@ -2,23 +2,23 @@
 
 import * as React from 'react';
 import { TextSM } from "@/components/ui/typography";
-import { QrCode, Maximize, FileType, Check, Download, Activity, Printer, Link as LinkIcon, ExternalLink } from 'lucide-react';
+import { QrCode, Maximize, FileType, Check, Download, Activity, Printer, ExternalLink } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import { ActionTile } from '@/components/ui/action-tile';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 import type { Environment } from '@/types/environments';
+import {
+    printerService,
+    buildMultipleThermalTickets,
+    generateTicketHtml,
+    downloadTicketsPdf,
+    type TicketData,
+} from '@/lib/printing';
+import { PrintModeDialog, type PrintMode } from '@/components/dialogs/print-mode-dialog';
 
 interface QRManagementDialogProps {
     open: boolean;
@@ -28,9 +28,10 @@ interface QRManagementDialogProps {
     setQrFormat: (format: 'png' | 'svg') => void;
     qrSize: 'small' | 'medium' | 'large';
     setQrSize: (size: 'small' | 'medium' | 'large') => void;
-    onRegenerate: (selectedTables: Set<string>) => void;
-    onDownload: (selectedTables: Set<string>) => void;
-    onPrint: (selectedTables: Set<string>) => void;
+    onDownload?: (selectedTables: Set<string>) => void;
+    onPrint?: (selectedTables: Set<string>) => void;
+    establishmentLogo?: string;
+    establishmentName?: string;
 }
 
 export function QRManagementDialog({
@@ -41,25 +42,35 @@ export function QRManagementDialog({
     setQrFormat,
     qrSize,
     setQrSize,
-    onRegenerate,
     onDownload,
-    onPrint
+    onPrint,
+    establishmentLogo,
+    establishmentName,
 }: QRManagementDialogProps) {
+    const { toast } = useToast();
     const [selectedTables, setSelectedTables] = React.useState<Set<string>>(new Set());
     const [currentQRPage, setCurrentQRPage] = React.useState(1);
-    const [copiedTable, setCopiedTable] = React.useState<string | null>(null);
     const [qrVersions, setQrVersions] = React.useState<Map<string, number>>(new Map());
+    const [isDownloading, setIsDownloading] = React.useState(false);
+    const [thermalAvailable, setThermalAvailable] = React.useState(false);
+    const [printerConnected, setPrinterConnected] = React.useState(false);
+    const [printModeOpen, setPrintModeOpen] = React.useState(false);
+    const [pendingTickets, setPendingTickets] = React.useState<TicketData[]>([]);
 
     const QR_PER_PAGE = 8;
     const qrSizeMap = { small: 120, medium: 200, large: 300 };
 
-    // Reset state when env changes or dialog opens
     React.useEffect(() => {
         if (open) {
             setSelectedTables(new Set());
             setCurrentQRPage(1);
+            setQrVersions(new Map());
         }
     }, [open, selectedEnv]);
+
+    React.useEffect(() => {
+        printerService.isSupported().then(setThermalAvailable);
+    }, []);
 
     const toggleTableSelection = (tableId: string) => {
         const newSelection = new Set(selectedTables);
@@ -86,29 +97,145 @@ export function QRManagementDialog({
         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(textWithVersion)}&format=${qrFormat}`;
     };
 
-    const getMenuUrl = (envId: string, tableNumber: string) => {
-        return `https://camarai.app/m/${envId}/${tableNumber}`;
+    const getMenuUrl = (tableId: string) => {
+        return `https://camarai.app/mesa/${tableId}`;
     };
 
-    const copyToClipboard = async (text: string, tableId: string) => {
-        await navigator.clipboard.writeText(text);
-        setCopiedTable(tableId);
-        setTimeout(() => setCopiedTable(null), 2000);
-    };
-
+    // --- Regenerar: solo cliente, incrementa version en el preview ---
     const handleRegenerate = () => {
-        onRegenerate(selectedTables);
-        // Local update of versions for preview
+        if (selectedTables.size === 0) return;
         const newVersions = new Map(qrVersions);
         selectedTables.forEach(id => {
             newVersions.set(id, (newVersions.get(id) || 0) + 1);
         });
         setQrVersions(newVersions);
+        toast({
+            title: "QRs Regenerados",
+            description: `Se han actualizado ${selectedTables.size} código${selectedTables.size > 1 ? 's' : ''} QR con una nueva firma de seguridad.`
+        });
+    };
+
+    // --- Descarga PDF directo: renderiza plantillas y genera el archivo PDF ---
+    const handleDownloadPdfTemplates = async () => {
+        if (!selectedEnv || selectedTables.size === 0) return;
+        setIsDownloading(true);
+
+        try {
+            const tickets: TicketData[] = [];
+            for (const tableId of selectedTables) {
+                const table = selectedEnv.tables.find(t => String(t.id) === tableId);
+                if (!table) continue;
+                const menuUrl = getMenuUrl(String(table.id));
+                tickets.push({
+                    mesaId: table.number,
+                    orderId: `QR-${Date.now().toString(36).toUpperCase()}`,
+                    qrUrl: generateQRUrl(tableId, menuUrl, qrSizeMap['large']),
+                    logoUrl: establishmentLogo || '',
+                    establishmentName: establishmentName || 'Establecimiento',
+                    environmentName: selectedEnv.name,
+                });
+            }
+
+            const envSlug = selectedEnv.name.toLowerCase().replace(/\s+/g, '-');
+            const filename = `tickets-qr-${envSlug}.pdf`;
+
+            await downloadTicketsPdf(tickets, filename);
+
+            toast({
+                title: "PDF descargado",
+                description: `${tickets.length} plantilla${tickets.length > 1 ? 's' : ''} exportada${tickets.length > 1 ? 's' : ''} en ${filename}.`
+            });
+            onDownload?.(selectedTables);
+        } catch {
+            toast({
+                title: "Error al generar el PDF",
+                description: "No se pudieron generar las plantillas. Inténtalo de nuevo.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    // Construye los datos de tickets y abre el selector de modo de impresión
+    const handlePrintSelected = () => {
+        if (!selectedEnv || selectedTables.size === 0) return;
+
+        const tickets: TicketData[] = [];
+        for (const tableId of selectedTables) {
+            const table = selectedEnv.tables.find(t => String(t.id) === tableId);
+            if (!table) continue;
+            const menuUrl = getMenuUrl(String(table.id));
+            tickets.push({
+                mesaId: table.number,
+                orderId: `QR-${Date.now().toString(36).toUpperCase()}`,
+                qrUrl: menuUrl,
+                logoUrl: establishmentLogo || '',
+                establishmentName: establishmentName || 'Establecimiento',
+                environmentName: selectedEnv.name,
+            });
+        }
+
+        setPendingTickets(tickets);
+        setPrintModeOpen(true);
+    };
+
+    // Ejecuta la impresión según el modo elegido en el modal
+    const handlePrintModeConfirm = async (mode: PrintMode) => {
+        if (pendingTickets.length === 0) return;
+
+        if (mode === 'thermal') {
+            try {
+                if (!printerConnected) {
+                    await printerService.connect();
+                    setPrinterConnected(true);
+                }
+
+                const buffer = buildMultipleThermalTickets(pendingTickets);
+                await printerService.print(buffer);
+
+                toast({
+                    title: "Impresión enviada",
+                    description: `${pendingTickets.length} ticket(s) enviados a la impresora térmica.`
+                });
+
+                onPrint?.(selectedTables);
+            } catch (error) {
+                console.error('Error en impresión térmica:', error);
+                toast({
+                    title: "Error de impresión térmica",
+                    description: "Comprueba que la impresora está encendida y conectada.",
+                    variant: "destructive"
+                });
+            }
+            return;
+        }
+
+        // Modo HTML: window.print()
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            toast({
+                title: "Ventana bloqueada",
+                description: "Permite las ventanas emergentes para imprimir.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        const ticketsWithQRImages = pendingTickets.map(t => ({
+            ...t,
+            qrUrl: generateQRUrl(String(t.mesaId), t.qrUrl, qrSizeMap['large'])
+        }));
+
+        printWindow.document.write(generateTicketHtml(ticketsWithQRImages));
+        printWindow.document.close();
+        onPrint?.(selectedTables);
     };
 
     const allSelected = !!selectedEnv?.tables.length && selectedTables.size === selectedEnv.tables.length;
 
     return (
+        <>
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogWindow size="xl">
                 <DialogHeader
@@ -119,7 +246,7 @@ export function QRManagementDialog({
 
                 <DialogContent>
                     <div className="space-y-6">
-                        {/* 1. Global Configuration Row */}
+                        {/* 1. Configuracion global */}
                         <div className="grid grid-cols-2 gap-4">
                             <ActionTile
                                 icon={Maximize}
@@ -146,61 +273,57 @@ export function QRManagementDialog({
                             />
                         </div>
 
-                        {/* 2. Selection Toolbar & Bulk Actions */}
+                        {/* 2. Barra de seleccion y acciones masivas */}
                         <ActionTile
                             icon={Check}
                             iconColor={allSelected ? "primary" : "neutral"}
                             title={allSelected ? "Desmarcar todo" : "Seleccionar todas"}
-                            description={selectedTables.size > 0 ? `${selectedTables.size} mesas seleccionadas` : "Selección masiva para acciones en lote"}
+                            description={selectedTables.size > 0 ? `${selectedTables.size} mesa${selectedTables.size > 1 ? 's' : ''} seleccionada${selectedTables.size > 1 ? 's' : ''}` : "Selección masiva para acciones en lote"}
                             onClick={handleSelectAll}
                             rightContentType="custom"
                             customContent={
                                 <div className="flex items-center gap-2">
-                                    <Button 
-                                        variant="secondary" 
-                                        size="md" 
-                                        
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
                                         disabled={selectedTables.size === 0}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             selectedTables.forEach(id => {
                                                 const table = selectedEnv?.tables.find(t => String(t.id) === id);
                                                 if (table) {
-                                                    const url = getMenuUrl(selectedEnv!.id, String(table.number));
+                                                    const url = getMenuUrl(String(table.id));
                                                     window.open(generateQRUrl(id, url, qrSizeMap[qrSize]), '_blank');
                                                 }
                                             });
                                         }}
-                                        title="Abrir seleccionados"
+                                        title="Abrir seleccionados en nueva pestaña"
                                     >
-                                        <ExternalLink/>
+                                        <ExternalLink />
                                     </Button>
-                                    <Button 
-                                        variant="secondary" 
-                                        size="md" 
-                                        
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
                                         disabled={selectedTables.size === 0}
                                         onClick={(e) => { e.stopPropagation(); handleRegenerate(); }}
-                                        title="Regenerar seleccionados"
+                                        title="Regenerar firma de los seleccionados"
                                     >
                                         <Activity />
                                     </Button>
-                                    <Button 
-                                        variant="secondary" 
-                                        size="md" 
-                                        
-                                        disabled={selectedTables.size === 0}
-                                        onClick={(e) => { e.stopPropagation(); onDownload(selectedTables); }}
-                                        title="Descargar seleccionados"
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
+                                        disabled={selectedTables.size === 0 || isDownloading}
+                                        onClick={(e) => { e.stopPropagation(); handleDownloadPdfTemplates(); }}
+                                        title="Descargar plantillas como PDF"
                                     >
                                         <Download className="h-4 w-4" />
                                     </Button>
-                                    <Button 
-                                        variant="secondary" 
-                                        size="md" 
-                                        
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
                                         disabled={selectedTables.size === 0}
-                                        onClick={(e) => { e.stopPropagation(); onPrint(selectedTables); }}
+                                        onClick={(e) => { e.stopPropagation(); handlePrintSelected(); }}
                                         title="Imprimir seleccionados"
                                     >
                                         <Printer className="h-4 w-4" />
@@ -209,7 +332,7 @@ export function QRManagementDialog({
                             }
                         />
 
-                        {/* 3. QR Cards Grid */}
+                        {/* 3. Grid de tarjetas QR paginado */}
                         <div className="flex-1 min-h-0">
                             {(() => {
                                 if (!selectedEnv) return null;
@@ -228,20 +351,21 @@ export function QRManagementDialog({
                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                             {paginatedTables.map(table => {
                                                 const tid = String(table.id);
-                                                const menuUrl = getMenuUrl(selectedEnv.id, String(table.number));
+                                                const menuUrl = getMenuUrl(String(table.id));
                                                 const qrUrl = generateQRUrl(tid, menuUrl, qrSizeMap[qrSize]);
                                                 const isSelected = selectedTables.has(tid);
 
                                                 return (
-                                                    <Card 
-                                                        key={tid} 
+                                                    <Card
+                                                        key={tid}
                                                         className={cn(
-                                                            "cursor-pointer transition-all", 
+                                                            "cursor-pointer transition-all",
                                                             isSelected ? "ring-2 ring-primary border-transparent" : "hover:border-primary/50"
-                                                        )} 
+                                                        )}
                                                         onClick={() => toggleTableSelection(tid)}
                                                     >
                                                         <CardContent className="p-3 space-y-3">
+                                                            {/* Header: numero de mesa + checkbox */}
                                                             <div className="flex items-center justify-between">
                                                                 <TextSM className="text-foreground">Mesa {table.number}</TextSM>
                                                                 <div className={cn(
@@ -252,11 +376,10 @@ export function QRManagementDialog({
                                                                 </div>
                                                             </div>
 
-                                                            <div className="aspect-square bg-white rounded-lg border flex items-center justify-center p-2 relative">
-                                                                <img src={qrUrl} alt="QR" className="h-full w-full object-contain" />
+                                                            {/* Preview QR */}
+                                                            <div className="aspect-square bg-white rounded-lg border flex items-center justify-center p-2">
+                                                                <img src={qrUrl} alt={`QR Mesa ${table.number}`} className="h-full w-full object-contain" />
                                                             </div>
-
-                                                        
                                                         </CardContent>
                                                     </Card>
                                                 );
@@ -270,8 +393,8 @@ export function QRManagementDialog({
                                                 </Button>
                                                 <div className="flex items-center gap-1">
                                                     {Array.from({ length: totalPages }).map((_, i) => (
-                                                        <div 
-                                                            key={i} 
+                                                        <div
+                                                            key={i}
                                                             className={cn(
                                                                 "h-1.5 rounded-full transition-all",
                                                                 currentQRPage === i + 1 ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
@@ -298,5 +421,15 @@ export function QRManagementDialog({
                 </DialogFooter>
             </DialogWindow>
         </Dialog>
+
+        <PrintModeDialog
+            open={printModeOpen}
+            onOpenChange={setPrintModeOpen}
+            onConfirm={handlePrintModeConfirm}
+            thermalAvailable={thermalAvailable}
+            thermalConnected={printerConnected}
+            ticketCount={pendingTickets.length}
+        />
+        </>
     );
 }

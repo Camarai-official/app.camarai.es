@@ -19,7 +19,7 @@ import { ActionTile } from '@/components/ui/action-tile';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 
 // Data & Helpers
-import { type Table, type Environment } from '@/data/mock-data';
+import { type Table, type Environment } from '@/types/environments';
 
 interface QRConfigDialogProps { 
     open: boolean; 
@@ -47,7 +47,7 @@ export function QRConfigDialog({
     const getQRUrl = () => {
         let url = `${qrConfig.baseUrl}/t/${table.number}`;
         if (qrConfig.includeEnv && activeEnv) {
-            url += `?env=${encodeURIComponent(activeEnv.name)}`;
+            url += `?envId=${encodeURIComponent(activeEnv.id)}`;
         }
         return url;
     };
@@ -56,7 +56,11 @@ export function QRConfigDialog({
 
     const handleCopy = () => {
         navigator.clipboard.writeText(getQRUrl());
-        toast({ title: "Enlace Copiado", description: "El enlace de la mesa ha sido copiado al portapapeles." });
+        toast({ title: "Enlace Copiado", description: "El enlace de5. Numeración al añadir mesa (huecos por borrados)
+
+En addTable, reemplazar length + 1 por el mismo criterio que duplicateTable: max de number entre mesas no-objeto + 1 (filtrar !t.isObject), para no reutilizar números cuando hay huecos.5. Numeración al añadir mesa (huecos por borrados)
+
+En addTable, reemplazar length + 1 por el mismo criterio que duplicateTable: max de number entre mesas no-objeto + 1 (filtrar !t.isObject), para no reutilizar números cuando hay huecos. la mesa ha sido copiado al portapapeles." });
     };
 
     const handleDownload = () => {
@@ -114,7 +118,7 @@ export function QRConfigDialog({
                             <ActionTile
                                 icon={MapPin}
                                 title="Incluir Ambiente"
-                                description="Añade el nombre del salón al enlace."
+                                description="Añade el identificador del salón al enlace."
                                 rightContentType="switch"
                                 switchId="include-env"
                                 switchChecked={qrConfig.includeEnv}

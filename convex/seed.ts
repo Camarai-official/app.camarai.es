@@ -87,6 +87,7 @@ export const seedData = mutation({
       name: "Hamburguesas",
       order: 1,
       active: true,
+      visibleInMenu: true,
       created_at: Date.now(),
     });
 
@@ -124,6 +125,8 @@ export const seedData = mutation({
       preparation_time: 15,
       available_pos: true,
       available_delivery: true,
+      stock_minimo: 0,
+      impresora_destino: "cocina",
       order: 1,
       created_at: Date.now(),
     });
@@ -133,6 +136,7 @@ export const seedData = mutation({
       product_id: productId,
       ingredient_id: ingredientId,
       quantity_required: 1, // 1 unidad por hamburguesa
+      unit: "units",
     });
 
     // 8. INFRAESTRUCTURA (Ambientes y Mesas)

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Card } from '@/components/ui/card';
 import { Plus, Minus, Maximize, CheckSquare, Users, Clock, AlertTriangle, XSquare, Settings, Copy, Trash2, Armchair, RotateCw, MoveDiagonal2 } from 'lucide-react';
-import { type Table, type Environment, type TableStatus } from '@/data/mock-data';
+import { type Table, type Environment, type TableStatus } from '@/types/environments';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { TextSM } from '@/components/ui/typography';
@@ -21,6 +21,8 @@ interface FloorPlanCanvasProps {
     onEditChairs: (table: Table) => void;
     editingChairsId: string | null;
     isLocked?: boolean;
+    /** Mesa con borrado en curso: deshabilita Eliminar para evitar dobles llamadas */
+    pendingDeleteTableId?: string | null;
 }
 
 type DragItem = {
@@ -57,7 +59,8 @@ export function FloorPlanCanvas({
     onDuplicateTable,
     onEditChairs,
     editingChairsId,
-    isLocked = false
+    isLocked = false,
+    pendingDeleteTableId = null,
 }: FloorPlanCanvasProps) {
     const statusConfig: Record<TableStatus, { variant: any; icon: React.ElementType }> = {
         'Libre': { variant: 'success', icon: CheckSquare },
@@ -213,7 +216,9 @@ export function FloorPlanCanvas({
                 return isColliding(table1Bounds, table2Bounds);
             });
             setCollidingTableId(hasCollision ? activeDrag.id : null);
-            onUpdateTable(activeDrag.id, { x: nextX, y: nextY });
+            if (!hasCollision) {
+                onUpdateTable(activeDrag.id, { x: nextX, y: nextY });
+            }
         }
 
         if (activeResize) {
@@ -488,7 +493,18 @@ export function FloorPlanCanvas({
                                     </TooltipTrigger><TooltipContent>Duplicar</TooltipContent></Tooltip>
                                     <Separator orientation="vertical" className="h-5 mx-1" />
                                     <Tooltip><TooltipTrigger asChild>
-                                        <Button variant="ghost" size="md" onClick={() => { onRemoveTable(table.id); setSelectedTableId(null); }}><Trash2 className="h-4 w-4" /></Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="md"
+                                            disabled={pendingDeleteTableId === table.id}
+                                            onClick={() => {
+                                                if (pendingDeleteTableId === table.id) return;
+                                                onRemoveTable(table.id);
+                                                setSelectedTableId(null);
+                                            }}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </TooltipTrigger><TooltipContent>Eliminar</TooltipContent></Tooltip>
                                 </div>
                             );

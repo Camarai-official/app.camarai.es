@@ -302,6 +302,7 @@ export default defineSchema({
     order: v.number(),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
+    orders: v.optional(v.array(v.id("orders"))),
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 

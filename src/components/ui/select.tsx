@@ -143,6 +143,40 @@ const SelectItem = React.forwardRef<
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName
 
+/** ItemText solo incluye `label`: el trigger muestra solo el texto. `trailing` queda fuera de ItemText (p. ej. badge en el desplegable). */
+const SelectItemWithTrailing = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> & {
+    label: string
+    trailing?: React.ReactNode
+  }
+>(({ className, label, trailing, ...props }, ref) => (
+  <SelectPrimitive.Item
+    ref={ref}
+    textValue={label}
+    className={cn(
+      "relative flex w-full cursor-pointer select-none items-center gap-0 rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      className
+    )}
+    {...props}
+  >
+    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+      <SelectPrimitive.ItemIndicator>
+        <Check className="h-4 w-4" />
+      </SelectPrimitive.ItemIndicator>
+    </span>
+    <SelectPrimitive.ItemText className="min-w-0 flex-1 truncate pr-2 text-left">
+      {label}
+    </SelectPrimitive.ItemText>
+    {trailing != null ? (
+      <span className="pointer-events-none flex shrink-0 items-center justify-center">
+        {trailing}
+      </span>
+    ) : null}
+  </SelectPrimitive.Item>
+))
+SelectItemWithTrailing.displayName = "SelectItemWithTrailing"
+
 const SelectSeparator = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
@@ -163,6 +197,7 @@ export {
   SelectContent,
   SelectLabel,
   SelectItem,
+  SelectItemWithTrailing,
   SelectSeparator,
   SelectScrollUpButton,
   SelectScrollDownButton,

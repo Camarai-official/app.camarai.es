@@ -1,66 +1,47 @@
 'use client';
 import * as React from 'react';
-import { Card, CardHeader, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { PlusCircle, Printer, Trash, Users, Pencil, Utensils, Activity, Sun, Wine, Coffee, Beer, Building, Power, Percent } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import type { Environment } from '@/types/environments';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { initialEstablishments } from '@/data/establishments';
+// import { useEstablishments } from '@/hooks/useEstablishments'; // Descomenter cuando se active la lógica dinámica
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 import { CreateActionCard } from '@/components/widgets/create-action-card';
 import { QRManagementDialog } from '@/components/dialogs/ambientes-qr-dialog';
+import { EnvironmentCard } from '@/components/ui/ambiente-card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { MultiSelect, type MultiSelectOption } from '@/components/ui/multi-select';
 
 // Convex imports
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
-
-/**
- * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
- * ✅ Versión desacoplada: Utiliza mock data y gestión de estado local.
- */
-
-// Mapeo de iconos para una renderización dinámica.
-const iconMap: { [key: string]: React.ElementType } = {
-    Utensils,
-    Wine,
-    Coffee,
-    Beer,
-    Sun,
-    Building,
-    Users,
-    Activity,
-    PlusCircle,
-    Printer,
-    Trash,
-    Pencil,
-    Percent
-};
-
-const availableIcons = ['Utensils', 'Wine', 'Coffee', 'Beer', 'Sun', 'Building'];
-const availableColors = ['blue-400', 'violet-500', 'rose-500', 'amber-500', 'green-500', 'blue-500'];
-
-import { ActionTile } from '@/components/ui/action-tile';
-import { EnvironmentCard } from '@/components/ui/ambiente-card';
-
-/**
- * @fileoverview Página para la gestión de ambientes del restaurante (ej. Salón, Terraza).
- * ✅ Versión desacoplada: Utiliza mock data y gestión de estado local.
- */
+import { Id } from '../../../convex/_generated/dataModel';
+import { HARDCODED_ESTABLISHMENT_ID } from '@/lib/hardcoded-establishment';
 
 export default function AmbientesPage() {
     const { toast } = useToast();
     const router = useRouter();
+    
+    // TODO: Temporalmente hardcodeado - Descomentar cuando se active la lógica dinámica
+    // const { activeEstablishment } = useEstablishments();
+    // const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+    //     localId: activeEstablishment?.id || 'camarai' 
+    // });
+    
+    // Simulación de convexEstablishment para mantener la lógica correcta
+    const convexEstablishment = { _id: HARDCODED_ESTABLISHMENT_ID };
 
-    // ID del establecimiento - TODO: Obtener del contexto de autenticación o parámetros de ruta
-    const establishmentId = "m57fhe9vh21knfnmb05mge5vx983n95m" as any;
+    // Obtener datos del establecimiento activo (hardcoded por ahora)
+    const activeEstablishment = initialEstablishments[0]; // Por defecto Camarai
 
     // Datos de Convex
-    const environmentsData = useQuery(api.environments.getEnvironmentsByEstablishment, { establishmentId });
+    const environmentsData = useQuery(
+        api.environments.getEnvironmentsByEstablishment, 
+        { establishmentId: HARDCODED_ESTABLISHMENT_ID }
+    );
 
     // Mutations de Convex
     const createEnvironment = useMutation(api.environments.createEnvironment);
@@ -73,12 +54,18 @@ export default function AmbientesPage() {
     const [qrFormat, setQrFormat] = React.useState<'png' | 'svg'>('png');
     const [qrSize, setQrSize] = React.useState<'small' | 'medium' | 'large'>('medium');
 
+    // Filtros y ordenamiento
+    const [statusFilter, setStatusFilter] = React.useState<'all' | 'active' | 'inactive'>('all');
+    const [sortOrder, setSortOrder] = React.useState<'none' | 'asc' | 'desc'>('none');
+    const [selectedManualEnvIds, setSelectedManualEnvIds] = React.useState<string[]>([]);
+
     // Convertir datos de Convex al formato esperado por el componente
     const environments = React.useMemo(() => {
         if (!environmentsData) return [];
         return environmentsData.map(env => ({
             id: env.id,
             name: env.name,
+            capacity: env.capacity,
             status: env.status as "Abierto" | "Cerrado",
             icon: env.icon,
             color: env.color,
@@ -98,16 +85,84 @@ export default function AmbientesPage() {
         }));
     }, [environmentsData]);
 
-    const regenerateQR = (selectedTables: Set<string>) => {
-        toast({
-            title: "QRs Regenerados",
-            description: `Se han actualizado ${selectedTables.size} código${selectedTables.size > 1 ? 's' : ''} QR con una nueva firma de seguridad.` });
-    };
+    // Opciones para el MultiSelect
+    const environmentOptions: MultiSelectOption[] = React.useMemo(() => {
+        return environments.map(env => ({
+            value: env.id,
+            label: env.name
+        }));
+    }, [environments]);
+
+    // Aplicar filtros y ordenamiento
+    const filteredAndSortedEnvironments = React.useMemo(() => {
+        let result = [...environments];
+        
+        // Filtro por estado
+        if (statusFilter === 'active') {
+            result = result.filter(env => env.status === 'Abierto');
+        } else if (statusFilter === 'inactive') {
+            result = result.filter(env => env.status === 'Cerrado');
+        }
+        
+        // Filtro por selección manual (si hay selección, mostrar solo esos)
+        if (selectedManualEnvIds.length > 0) {
+            result = result.filter(env => selectedManualEnvIds.includes(env.id));
+        }
+        
+        // Ordenamiento por ocupación
+        if (sortOrder !== 'none') {
+            result.sort((a, b) => {
+                const statsA = calculateStats(a);
+                const statsB = calculateStats(b);
+                return sortOrder === 'desc' 
+                    ? statsB.occupancyPercentage - statsA.occupancyPercentage
+                    : statsA.occupancyPercentage - statsB.occupancyPercentage;
+            });
+        }
+        
+        return result;
+    }, [environments, statusFilter, sortOrder, selectedManualEnvIds]);
+
+    // Estados de carga - Descomentarlos cuando se active la lógica dinámica
+    // if (convexEstablishment === undefined) {
+    //     return (
+    //         <PageContainer className="bg-background/50">
+    //             <PageHeader title="Gestión de Ambientes" />
+    //             <PageContent>
+    //                 <div className="flex items-center justify-center h-64">
+    //                     <div className="text-muted-foreground">Cargando establecimiento...</div>
+    //                 </div>
+    //             </PageContent>
+    //         </PageContainer>
+    //     );
+    // }
+
+    // if (!convexEstablishment) {
+    //     return (
+    //         <PageContainer className="bg-background/50">
+    //             <PageHeader title="Gestión de Ambientes" />
+    //             <PageContent>
+    //                 <div className="flex items-center justify-center h-64">
+    //                     <div className="text-muted-foreground">No se encontró el establecimiento</div>
+    //                 </div>
+    //             </PageContent>
+    //         </PageContainer>
+    //     );
+    // }
 
     const addEnvironment = async () => {
+        if (!convexEstablishment?._id) {
+            toast({
+                title: "Error",
+                description: "No se encontró el establecimiento activo.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         try {
             await createEnvironment({
-                establishmentId,
+                establishmentId: convexEstablishment._id,
                 name: 'Nuevo Ambiente',
                 icon: 'Building',
                 color: '#78A3ED',
@@ -115,7 +170,8 @@ export default function AmbientesPage() {
             });
             toast({
                 title: "Ambiente Creado",
-                description: "Se ha creado un nuevo ambiente. ¡Personalízalo a tu gusto!" });
+                description: "Se ha creado un nuevo ambiente. ¡Personalízalo a tu gusto!" 
+            });
         } catch (error) {
             toast({
                 title: "Error",
@@ -127,11 +183,12 @@ export default function AmbientesPage() {
 
     const removeEnvironment = async (id: string, name: string) => {
         try {
-            await deleteEnvironmentMutation({ environmentId: id as any });
+            await deleteEnvironmentMutation({ environmentId: id as Id<"environments"> });
             toast({
                 variant: "destructive",
                 title: "Ambiente Eliminado",
-                description: `El ambiente "${name}" ha sido eliminado correctamente.` });
+                description: `El ambiente "${name}" ha sido eliminado correctamente.` 
+            });
         } catch (error) {
             toast({
                 title: "Error",
@@ -143,13 +200,20 @@ export default function AmbientesPage() {
 
     const updateEnvironment = async (id: string, updates: Partial<Environment>) => {
         try {
-            const updateData: any = { environmentId: id as any };
+            const updateData: {
+                environmentId: Id<"environments">;
+                name?: string;
+                icon?: string;
+                color?: string;
+                capacity?: number;
+                status?: "active" | "inactive" | "maintenance";
+            } = { environmentId: id as Id<"environments"> };
             
             if (updates.name !== undefined) updateData.name = updates.name;
             if (updates.icon !== undefined) updateData.icon = updates.icon;
             if (updates.color !== undefined) updateData.color = updates.color;
+            if (updates.capacity !== undefined) updateData.capacity = updates.capacity;
             if (updates.status !== undefined) {
-                // Mapear status de UI a Convex
                 updateData.status = updates.status === 'Abierto' ? 'active' : 'inactive';
             }
             
@@ -173,7 +237,7 @@ export default function AmbientesPage() {
         const occupancyPercentage = totalCapacity === 0 ? 0 : Math.round((occupiedCapacity / totalCapacity) * 100);
         
         return { totalTables, totalCapacity, occupiedTables, occupiedCapacity, occupancyPercentage };
-    }
+    };
 
     const openQRDialog = (env: Environment) => {
         setSelectedEnvForQR(env);
@@ -184,25 +248,58 @@ export default function AmbientesPage() {
         router.push(`/plano-mesas?envId=${envId}`);
     };
 
-
-    const downloadAllQRs = (selectedTables: Set<string>) => {
-        toast({
-            title: "Descargando QRs",
-            description: `Preparando ${selectedTables.size} códigos QR para descargar.` });
-    };
-
-    const printQRs = (selectedTables: Set<string>) => {
-        toast({
-            title: "Impresión iniciada",
-            description: `Se han enviado ${selectedTables.size} códigos QR a la impresora.` });
-    };
-
     return (
-    <PageContainer className="bg-background/50">
-            <PageHeader title="Gestión de Ambientes" />
+        <PageContainer className="bg-background/50">
+            <PageHeader 
+                title="Gestión de Ambientes" 
+                subtitle="Configura las zonas físicas y los códigos QR de tu restaurante."
+            />
             <PageContent>
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
+                    <div className="flex flex-wrap gap-3">
+                        <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+                            <SelectTrigger width="md">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos los ambientes</SelectItem>
+                                <SelectItem value="active">Solo activos</SelectItem>
+                                <SelectItem value="inactive">Solo inactivos</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        
+                        <Select value={sortOrder} onValueChange={(value: any) => setSortOrder(value)}>
+                            <SelectTrigger width="md">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="none">Sin ordenar</SelectItem>
+                                <SelectItem value="desc">Mayor ocupación</SelectItem>
+                                <SelectItem value="asc">Menor ocupación</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <div className="w-[240px]">
+                            <MultiSelect
+                                options={environmentOptions}
+                                selected={selectedManualEnvIds}
+                                onChange={setSelectedManualEnvIds}
+                                placeholder="Filtrar por ambientes..."
+                            />
+                        </div>
+                    </div>
+
+                    {selectedManualEnvIds.length > 0 && (
+                        <div className="flex items-center gap-2">
+                            <Badge variant="secondary">
+                                Mostrando {selectedManualEnvIds.length} ambiente{selectedManualEnvIds.length > 1 ? 's' : ''}
+                            </Badge>
+                        </div>
+                    )}
+                </div>
+
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-                    {environments.map(env => (
+                    {filteredAndSortedEnvironments.map(env => (
                         <EnvironmentCard 
                             key={env.id}
                             env={env}
@@ -214,12 +311,12 @@ export default function AmbientesPage() {
                         />
                     ))}
                     <div className="h-[230px]">
-                    <CreateActionCard
-                        label="Crear Nuevo Ambiente"
-                        onClick={addEnvironment}
-                        className="h-56"
-                    />
-                </div>
+                        <CreateActionCard
+                            label="Crear Nuevo Ambiente"
+                            onClick={addEnvironment}
+                            className="h-56"
+                        />
+                    </div>
                 </div>
             </PageContent>
 
@@ -231,9 +328,8 @@ export default function AmbientesPage() {
                 setQrFormat={setQrFormat}
                 qrSize={qrSize}
                 setQrSize={setQrSize}
-                onRegenerate={regenerateQR}
-                onDownload={downloadAllQRs}
-                onPrint={printQRs}
+                establishmentLogo={activeEstablishment.image}
+                establishmentName={activeEstablishment.name}
             />
         </PageContainer>
     );
