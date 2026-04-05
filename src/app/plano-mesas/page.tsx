@@ -31,17 +31,17 @@ import {
 
 import { type Table, type TableStatus, type Environment } from '@/data/environments';
 import { FloorPlanCanvas } from '../../components/ui/floor-plan-canvas';
-import { QuickTemplatesDialog } from '@/components/dialogs/planomesas-templates-dialog';
+import { QuickTemplatesDialog, type QuickTemplate } from '@/components/dialogs/planomesas-templates-dialog';
 import { EditTableDialog } from '@/components/dialogs/planomesas-config-dialog';
 import { QRConfigDialog } from '@/components/dialogs/planomesas-qr-dialog';
 
 // Convex
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import type { Id } from '../../../convex/_generated/dataModel';
+import { HARDCODED_ESTABLISHMENT_ID } from '@/lib/hardcoded-establishment';
 
 // --- Constants & Helpers ---
-
-const establishmentId = "m57fhe9vh21knfnmb05mge5vx983n95m" as any;
 
 const CHAIR_SPACING = 48;
 
@@ -94,6 +94,10 @@ const computeCapacity = (chairs?: Table['chairs']) => (
     (chairs?.round?.length || 0)
 );
 
+function nextNonObjectTableNumber(tables: Table[]): number {
+    return tables.filter(t => !t.isObject).reduce((m, t) => Math.max(m, t.number), 0) + 1;
+}
+
 // --- Main Page Component ---
 
 function PlanoMesasContent() {
@@ -103,16 +107,30 @@ function PlanoMesasContent() {
     const envIdParam = searchParams.get('envId');
 
     // Convex queries and mutations
-    const convexEnvironments = useQuery(api.environments.getEnvironmentsByEstablishment, { establishmentId });
+    const convexEnvironments = useQuery(api.environments.getEnvironmentsByEstablishment, {
+        establishmentId: HARDCODED_ESTABLISHMENT_ID,
+    });
     const createTableMutation = useMutation(api.environments.createTable);
     const updateTableMutation = useMutation(api.environments.updateTable);
     const deleteTableMutation = useMutation(api.environments.deleteTable);
     const updateEnvironmentMutation = useMutation(api.environments.updateEnvironment);
+    const syncEnvironmentCapacityMutation = useMutation(api.environments.syncEnvironmentCapacityFromPlan);
 
     // Local state (Convex es fuente de verdad para existencia; local preserva ediciones en curso)
     const [environments, setEnvironments] = React.useState<Environment[]>([]);
     const [activeEnvId, setActiveEnvId] = React.useState<string>('');
     const [isSaving, setIsSaving] = React.useState(false);
+    const deletingTableIdsRef = React.useRef(new Set<string>());
+    const [pendingDeleteTableId, setPendingDeleteTableId] = React.useState<string | null>(null);
+
+    const syncEnvCapacityFromPlan = React.useCallback(async () => {
+        if (!activeEnvId) return;
+        try {
+            await syncEnvironmentCapacityMutation({ environmentId: activeEnvId as Id<'environments'> });
+        } catch (e) {
+            console.error(e);
+        }
+    }, [activeEnvId, syncEnvironmentCapacityMutation]);
 
     // Sync reactivo: corre en cada actualización de Convex.
     // Merge: Convex determina qué elementos existen (altas/bajas en tiempo real),
@@ -126,6 +144,7 @@ function PlanoMesasContent() {
                 return {
                     id: env.id,
                     name: env.name,
+                    capacity: env.capacity ?? 0,
                     status: localEnv?.status ?? (env.status as 'Abierto' | 'Cerrado'),
                     icon: env.icon || 'Building',
                     color: env.color || '#9B6EFD',
@@ -248,10 +267,12 @@ function PlanoMesasContent() {
         const isPositional = 'x' in updates || 'y' in updates || 'width' in updates || 'height' in updates || 'rotation' in updates;
         if (!isPositional && updates.chairs !== undefined) {
             updateTableMutation({
-                tableId: tableId as any,
+                tableId: tableId as Id<'tables'>,
                 chairs: updates.chairs,
                 capacity: computeCapacity(updates.chairs),
-            }).catch(console.error);
+            })
+                .then(() => syncEnvCapacityFromPlan())
+                .catch(console.error);
         }
     };
 
@@ -265,16 +286,17 @@ function PlanoMesasContent() {
         }));
         try {
             await updateTableMutation({
-                tableId: editingTable.id as any,
+                tableId: editingTable.id as Id<'tables'>,
                 number: editingTable.number,
                 status: UI_STATUS_TO_CONVEX[editingTable.status] || 'free',
                 capacity: editingTable.capacity,
             });
+            await syncEnvCapacityFromPlan();
             toast({ title: "Mesa Guardada", description: `La mesa ${editingTable.number} ha sido actualizada.` });
+            setIsEditDialogOpen(false);
         } catch {
             toast({ title: "Error", description: "No se pudieron guardar los cambios de la mesa.", variant: "destructive" });
         }
-        setIsEditDialogOpen(false);
     };
 
     // Adds a new table to Convex and updates local state
@@ -287,11 +309,11 @@ function PlanoMesasContent() {
 
         const chairs = isObject ? undefined : generateAllChairs(width, height, shape);
         const capacity = computeCapacity(chairs);
-        const tableNumber = isObject ? 0 : activeEnv.tables.filter(t => !t.isObject).length + 1;
+        const tableNumber = isObject ? 0 : nextNonObjectTableNumber(activeEnv.tables);
 
         try {
             const newId = await createTableMutation({
-                environmentId: activeEnvId as any,
+                environmentId: activeEnvId as Id<'environments'>,
                 number: tableNumber,
                 capacity,
                 x: 20, y: 20, width, height,
@@ -319,6 +341,8 @@ function PlanoMesasContent() {
                 : env
             ));
 
+            await syncEnvCapacityFromPlan();
+
             toast({
                 title: isObject ? "Objeto Añadido" : "Mesa Añadida",
                 description: `Se ha añadido ${isObject ? `un(a) ${objectType}` : `una mesa ${shape === 'round' ? 'circular' : 'rectangular'}`} correctamente.`
@@ -328,15 +352,15 @@ function PlanoMesasContent() {
         }
     };
 
-    // Removes a table from Convex and local state
+    // Removes a table from Convex; la UI se actualiza al reconciliar con Convex
     const removeTable = async (tableId: string) => {
+        if (deletingTableIdsRef.current.has(tableId)) return;
+        deletingTableIdsRef.current.add(tableId);
+        setPendingDeleteTableId(tableId);
         const table = activeEnv?.tables.find(t => t.id === tableId);
-        setEnvironments(prev => prev.map(env => env.id === activeEnvId
-            ? { ...env, tables: env.tables.filter(t => t.id !== tableId) }
-            : env
-        ));
         try {
-            await deleteTableMutation({ tableId: tableId as any });
+            await deleteTableMutation({ tableId: tableId as Id<'tables'> });
+            await syncEnvCapacityFromPlan();
             const label = table?.isObject ? (table.objectType || 'Objeto') : `la mesa ${table?.number || ''}`;
             toast({
                 title: table?.isObject ? "Objeto Eliminado" : "Mesa Eliminada",
@@ -345,6 +369,9 @@ function PlanoMesasContent() {
             });
         } catch {
             toast({ title: "Error", description: "No se pudo eliminar.", variant: "destructive" });
+        } finally {
+            deletingTableIdsRef.current.delete(tableId);
+            setPendingDeleteTableId((prev) => (prev === tableId ? null : prev));
         }
     };
 
@@ -352,12 +379,11 @@ function PlanoMesasContent() {
     const duplicateTable = async (table: Table) => {
         if (!activeEnv) return;
 
-        const maxNumber = activeEnv.tables.reduce((max, t) => Math.max(max, t.number), 0);
-        const tableNumber = table.isObject ? 0 : maxNumber + 1;
+        const tableNumber = table.isObject ? 0 : nextNonObjectTableNumber(activeEnv.tables);
 
         try {
             const newId = await createTableMutation({
-                environmentId: activeEnvId as any,
+                environmentId: activeEnvId as Id<'environments'>,
                 number: tableNumber,
                 capacity: table.capacity,
                 x: table.x + 20, y: table.y + 20,
@@ -381,6 +407,8 @@ function PlanoMesasContent() {
                 : env
             ));
 
+            await syncEnvCapacityFromPlan();
+
             const label = table.isObject ? (table.objectType || 'Objeto') : `la Mesa ${table.number}`;
             toast({
                 title: table.isObject ? "Objeto Duplicado" : "Mesa Duplicada",
@@ -396,12 +424,12 @@ function PlanoMesasContent() {
     };
 
     // Applies a quick template: deletes existing tables, creates new ones in Convex
-    const applyTemplate = async (template: { id: string, name: string, tables: number }) => {
+    const applyTemplate = async (template: QuickTemplate) => {
         if (!activeEnvId || !activeEnv) return;
 
         try {
             for (const t of activeEnv.tables) {
-                await deleteTableMutation({ tableId: t.id as any });
+                await deleteTableMutation({ tableId: t.id as Id<'tables'> });
             }
 
             const newTables: Table[] = [];
@@ -418,7 +446,7 @@ function PlanoMesasContent() {
                 const y = 50 + row * spacing;
 
                 const newId = await createTableMutation({
-                    environmentId: activeEnvId as any,
+                    environmentId: activeEnvId as Id<'environments'>,
                     number: i + 1,
                     capacity,
                     x, y, width, height,
@@ -441,10 +469,11 @@ function PlanoMesasContent() {
             setEnvironments(prev => prev.map(env =>
                 env.id === activeEnvId ? { ...env, tables: newTables } : env
             ));
-            setIsTemplatesOpen(false);
+            await syncEnvCapacityFromPlan();
             toast({ title: 'Plantilla aplicada', description: `Se han creado ${template.tables} mesas.` });
-        } catch {
+        } catch (e) {
             toast({ title: "Error", description: "No se pudo aplicar la plantilla.", variant: "destructive" });
+            throw e;
         }
     };
 
@@ -455,7 +484,7 @@ function PlanoMesasContent() {
         try {
             await Promise.all(activeEnv.tables.map(table =>
                 updateTableMutation({
-                    tableId: table.id as any,
+                    tableId: table.id as Id<'tables'>,
                     x: table.x,
                     y: table.y,
                     width: table.width,
@@ -465,6 +494,7 @@ function PlanoMesasContent() {
                     capacity: table.capacity,
                 })
             ));
+            await syncEnvCapacityFromPlan();
             toast({ title: "Plano Guardado", description: "La disposición de mesas ha sido guardada correctamente." });
         } catch {
             toast({ title: "Error al guardar", description: "No se pudieron guardar los cambios.", variant: "destructive" });
@@ -543,6 +573,12 @@ function PlanoMesasContent() {
             />
 
             <PageContent>
+                {convexEnvironments === undefined ? (
+                    <div className="flex flex-col items-center justify-center min-h-[400px] gap-3 text-muted-foreground">
+                        <Loader2 className="h-10 w-10 animate-spin opacity-60" />
+                        <p className="text-sm">Cargando ambientes…</p>
+                    </div>
+                ) : (
                 <div className="flex flex-col gap-6 h-full min-h-0">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
                         <div className="flex items-center gap-1">
@@ -607,7 +643,7 @@ function PlanoMesasContent() {
                                                         const newStatus = activeEnv.status === 'Abierto' ? 'Cerrado' : 'Abierto';
                                                         setEnvironments(prev => prev.map(e => e.id === activeEnvId ? { ...e, status: newStatus as 'Abierto' | 'Cerrado' } : e));
                                                         await updateEnvironmentMutation({
-                                                            environmentId: activeEnvId as any,
+                                                            environmentId: activeEnvId as Id<'environments'>,
                                                             status: newStatus === 'Abierto' ? 'active' : 'inactive',
                                                         }).catch(console.error);
                                                     }}
@@ -694,6 +730,7 @@ function PlanoMesasContent() {
                             onEditChairs={editChairs}
                             editingChairsId={editingChairsId}
                             isLocked={isLocked}
+                            pendingDeleteTableId={pendingDeleteTableId}
                         />
                     )}
 
@@ -707,6 +744,7 @@ function PlanoMesasContent() {
                         </div>
                     )}
                 </div>
+                )}
             </PageContent>
 
             <EditTableDialog 
@@ -715,7 +753,7 @@ function PlanoMesasContent() {
                 editingTable={editingTable}
                 setEditingTable={setEditingTable}
                 onSave={saveTableFromDialog}
-                onOpenQR={(t: any) => { setEditingTable(t); setIsQRDialogOpen(true); }}
+                onOpenQR={(t) => { setEditingTable(t); setIsQRDialogOpen(true); }}
             />
 
             <QRConfigDialog open={isQRDialogOpen} onOpenChange={setIsQRDialogOpen} table={editingTable} activeEnv={activeEnv} />

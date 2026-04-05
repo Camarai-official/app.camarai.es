@@ -24,6 +24,7 @@ export const initialEnvironments: Environment [] = [
   {
     id: 'main-hall',
     name: 'Salón Principal',
+    capacity: 8,
     tables: [
       { id: '1', number: 1, x: 100, y: 100, width: 128, height: 96, capacity: calculateCapacity(128, 96), status: 'Ocupada', occupiedSince: new Date(STABLE_NOW - 45 * 60000).toISOString(), chairs: generateAllChairs(128, 96) },
       { id: '2', number: 2, x: 400, y: 100, width: 128, height: 96, capacity: calculateCapacity(128, 96), status: 'Libre', chairs: generateAllChairs(128, 96) },
@@ -37,6 +38,7 @@ export const initialEnvironments: Environment [] = [
   {
     id: 'terrace',
     name: 'Terraza',
+    capacity: 4,
     tables: [
       { id: '5', number: 5, x: 150, y: 150, width: 128, height: 96, capacity: calculateCapacity(128, 96), status: 'Ocupada', occupiedSince: new Date(STABLE_NOW - 20 * 60000).toISOString(), chairs: generateAllChairs(128, 96) },
       { id: '6', number: 6, x: 450, y: 150, width: 128, height: 96, capacity: calculateCapacity(128, 96), status: 'Inactiva', chairs: generateAllChairs(128, 96) },
@@ -48,6 +50,7 @@ export const initialEnvironments: Environment [] = [
   {
     id: 'bar',
     name: 'Barra',
+    capacity: 4,
     tables: [
       { id: '7', number: 7, x: 80, y: 100, width: 200, height: 80, capacity: calculateCapacity(200, 80), status: 'Ocupada', occupiedSince: new Date(STABLE_NOW - 65 * 60000).toISOString(), chairs: generateAllChairs(200, 80) },
       { id: '8', number: 8, x: 400, y: 100, width: 128, height: 96, capacity: calculateCapacity(128, 96), status: 'Libre', chairs: generateAllChairs(128, 96) },

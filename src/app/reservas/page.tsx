@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/co
 import { Button } from '@/components/ui/button';
 import { Calendar as UICalendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair  } from 'lucide-react';
+import { MoreHorizontal, MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair, Building2 } from 'lucide-react';
 import { ActionTile } from '@/components/ui/action-tile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { useEnvironments } from '@/hooks/useEnvironments';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItemWithTrailing, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Environment } from '@/data/environments';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
@@ -53,10 +53,39 @@ export default function ReservasPage() {
     const [editingReservation, setEditingReservation] = React.useState<Reservation | null>(null);
     const { toast } = useToast();
     const [displayMonth, setDisplayMonth] = React.useState(startOfMonth(new Date()));
+    const [environmentFilterId, setEnvironmentFilterId] = React.useState<string>('all');
     const { environments } = useEnvironments();
 
 
     const dayReservations = reservations[format(selectedDate, 'yyyy-MM-dd')] || [];
+
+    const filteredDayReservations = React.useMemo(() => {
+        if (environmentFilterId === 'all') return dayReservations;
+        return dayReservations.filter((r) => r.environmentId === environmentFilterId);
+    }, [dayReservations, environmentFilterId]);
+
+    /** Reservas del día seleccionado por ambiente (solo cuentan las que ya tienen mesa asignada en ese ambiente). */
+    const reservationCountsForDay = React.useMemo(() => {
+        const byEnvironmentId = Object.fromEntries(environments.map((e) => [e.id, 0])) as Record<string, number>;
+        for (const r of dayReservations) {
+            if (r.environmentId && r.environmentId in byEnvironmentId) {
+                byEnvironmentId[r.environmentId]++;
+            }
+        }
+        return { total: dayReservations.length, byEnvironmentId };
+    }, [dayReservations, environments]);
+
+    const triggerFilterCount =
+        environmentFilterId === 'all'
+            ? reservationCountsForDay.total
+            : reservationCountsForDay.byEnvironmentId[environmentFilterId] ?? 0;
+
+    const listDescription =
+        environmentFilterId === 'all'
+            ? `${dayReservations.length} reservas`
+            : dayReservations.length === 0
+              ? '0 reservas'
+              : `${filteredDayReservations.length} de ${dayReservations.length} reservas`;
 
     const handleStatusChange = (id: string, newStatus: Reservation['status']) => {
         const dateKey = format(selectedDate, 'yyyy-MM-dd');
@@ -235,9 +264,65 @@ export default function ReservasPage() {
                     <Card flex padding="none" className="h-full overflow-hidden">
                         <CardHeader
                             title={format(selectedDate, "PPP", { locale: es })}
-                            description={`${dayReservations.length} reservas`}
+                            description={listDescription}
                             actions={
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap items-center justify-end gap-2">
+                                    <Select value={environmentFilterId} onValueChange={setEnvironmentFilterId}>
+                                        <SelectTrigger
+                                            width="xl"
+                                            className="min-w-[260px] max-w-[min(100%,320px)] !w-[min(100%,320px)] antialiased [&>span]:line-clamp-none [&>span]:flex [&>span]:min-w-0 [&>span]:flex-1 [&>span]:flex-nowrap [&>span]:items-center"
+                                            aria-label="Filtrar por ambiente"
+                                        >
+                                            <span className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden">
+                                                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                                <span className="min-w-0 flex-1 basis-0 overflow-hidden text-left">
+                                                    <SelectValue
+                                                        placeholder="Ambiente"
+                                                        className="block truncate whitespace-nowrap text-left text-sm leading-none"
+                                                    />
+                                                </span>
+                                                <Badge
+                                                    variant="secondary"
+                                                    size="xs"
+                                                    className="ml-0.5 shrink-0 tabular-nums px-2 py-0 leading-none"
+                                                    title="Reservas este día (este filtro)"
+                                                >
+                                                    {triggerFilterCount}
+                                                </Badge>
+                                            </span>
+                                        </SelectTrigger>
+                                        <SelectContent className="min-w-[var(--radix-select-trigger-width)]">
+                                            <SelectItemWithTrailing
+                                                value="all"
+                                                label="Todos los ambientes"
+                                                trailing={
+                                                    <Badge
+                                                        variant="secondary"
+                                                        size="xs"
+                                                        className="shrink-0 tabular-nums min-w-[1.25rem] justify-center px-1.5"
+                                                    >
+                                                        {reservationCountsForDay.total}
+                                                    </Badge>
+                                                }
+                                            />
+                                            {environments.map((env) => (
+                                                <SelectItemWithTrailing
+                                                    key={env.id}
+                                                    value={env.id}
+                                                    label={env.name}
+                                                    trailing={
+                                                        <Badge
+                                                            variant="secondary"
+                                                            size="xs"
+                                                            className="shrink-0 tabular-nums min-w-[1.25rem] justify-center px-1.5"
+                                                        >
+                                                            {reservationCountsForDay.byEnvironmentId[env.id] ?? 0}
+                                                        </Badge>
+                                                    }
+                                                />
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                     <Button variant='default' onClick={handleOpenNewReservation} size="md" startIcon={<PlusCircle />}>
                                     </Button>
                                     <Button variant="outline" size="md" onClick={() => setIsWhatsAppConfigOpen(true)}>
@@ -247,13 +332,15 @@ export default function ReservasPage() {
                             }
                         />
                         <CardContent flex padding="sm" gap="sm" className="flex-1 overflow-y-auto custom-scrollbar">
-                            {dayReservations.length > 0 ? (
+                            {filteredDayReservations.length > 0 ? (
                                 <div className="space-y-3">
-                                    {dayReservations.map(res => {
+                                    {filteredDayReservations.map(res => {
                                         const statusProps = getStatusProps(res.status);
                                         const availableEnvironments = getAvailableTablesForReservation(res);
                                         const assignedEnv = res.environmentId ? environments.find(e => e.id === res.environmentId) : null;
-                                        const assignedTable = assignedEnv ? assignedEnv.tables.find(t => t.id === res.tableId?.toString()) : null;
+                                        const assignedTable = assignedEnv
+                                            ? assignedEnv.tables.find((t) => t.id === String(res.tableId))
+                                            : null;
                                         
                                         const description = (
                                             <div className="flex flex-col gap-1">
@@ -304,7 +391,7 @@ export default function ReservasPage() {
                                                                                     <DropdownMenuSubTrigger className='w-full'>{env.name}</DropdownMenuSubTrigger>
                                                                                     <DropdownMenuSubContent>
                                                                                         {env.tables.map(table => (
-                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, parseInt(table.id))}>
+                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, Number(table.id))}>
                                                                                                 <Armchair />
                                                                                                 Mesa {table.number} (Cap: {table.capacity})
                                                                                             </DropdownMenuItem>
@@ -330,7 +417,11 @@ export default function ReservasPage() {
                                 </div>
                             ) : (
                                 <div className="text-center text-muted-foreground pt-16">
-                                    <TextSM>No hay reservas para este día.</TextSM>
+                                    <TextSM>
+                                        {dayReservations.length === 0
+                                            ? 'No hay reservas para este día.'
+                                            : 'No hay reservas para este ambiente en este día.'}
+                                    </TextSM>
                                 </div>
                             )}
                         </CardContent>

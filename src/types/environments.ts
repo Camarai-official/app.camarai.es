@@ -31,6 +31,7 @@ export type EnvironmentStatus = 'Abierto' | 'Cerrado';
 export type Environment = {
   id: string;
   name: string;
+  capacity: number;
   tables: Table[];
   status: EnvironmentStatus;
   icon: string;

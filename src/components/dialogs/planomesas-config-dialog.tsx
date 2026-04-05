@@ -6,7 +6,7 @@ import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ActionTile } from '@/components/ui/action-tile';
-import { type Table, type TableStatus } from '@/data/mock-data';
+import { type Table, type TableStatus } from '@/types/environments';
 
 const statusConfig: Record<TableStatus, { color: string; icon: React.ElementType; bgColor: string }> = {
     'Libre': { color: 'green-500', icon: CheckSquare, bgColor: 'bg-green-500/10' },
@@ -20,9 +20,9 @@ interface EditTableDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     editingTable: Table | null;
-    setEditingTable: (table: any) => void;
+    setEditingTable: (table: Table) => void;
     onSave: () => void;
-    onOpenQR: (table: any) => void;
+    onOpenQR: (table: Table) => void;
 }
 
 export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTable, onSave, onOpenQR }: EditTableDialogProps) {
@@ -46,7 +46,13 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                                 type="number" 
                                 value={editingTable.number} 
                                 className="w-full"
-                                onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) })}
+                                onChange={(e) => {
+                                    const n = parseInt(e.target.value, 10);
+                                    setEditingTable({
+                                        ...editingTable,
+                                        number: Number.isNaN(n) ? editingTable.number : n,
+                                    });
+                                }}
                             />
                         }
                     />
@@ -89,8 +95,24 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         rightContentType="custom"
                         customContent={
                             <div className="flex items-center gap-3">
-                                <Button variant="outline" size="md" startIcon={<Copy />}>Enlace</Button>
-                                <Button variant="outline" size="md" startIcon={<Download />}>Imagen</Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="md"
+                                    startIcon={<Copy />}
+                                    onClick={() => onOpenQR(editingTable)}
+                                >
+                                    Enlace
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="md"
+                                    startIcon={<Download />}
+                                    onClick={() => onOpenQR(editingTable)}
+                                >
+                                    Imagen
+                                </Button>
                             </div>
                         }
                     />

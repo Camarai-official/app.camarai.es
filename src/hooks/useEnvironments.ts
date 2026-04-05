@@ -31,6 +31,7 @@ export const useEnvironments = () => {
         const newEnvironment: Environment = {
             id: newEnvId,
             name: newEnvName,
+            capacity: 0,
             tables: [],
             status: 'Abierto',
             icon: 'Utensils',

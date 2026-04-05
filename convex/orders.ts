@@ -1,6 +1,52 @@
 import { v } from "convex/values";
 import { mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
+import type { MutationCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+
+/**
+ * Helper: Agregar orderId al array orders del ambiente (evita duplicados)
+ */
+async function addOrderToEnvironment(
+  ctx: MutationCtx,
+  tableId: Id<"tables">,
+  orderId: Id<"orders">
+) {
+  const table = await ctx.db.get(tableId);
+  if (!table) return;
+
+  const environment = await ctx.db.get(table.environment_id);
+  if (!environment) return;
+
+  const currentOrders = environment.orders || [];
+  if (!currentOrders.includes(orderId)) {
+    await ctx.db.patch(table.environment_id, {
+      orders: [...currentOrders, orderId],
+    });
+  }
+}
+
+/**
+ * Helper: Remover orderId del array orders del ambiente
+ */
+async function removeOrderFromEnvironment(
+  ctx: MutationCtx,
+  tableId: Id<"tables">,
+  orderId: Id<"orders">
+) {
+  const table = await ctx.db.get(tableId);
+  if (!table) return;
+
+  const environment = await ctx.db.get(table.environment_id);
+  if (!environment || !environment.orders) return;
+
+  const updatedOrders = environment.orders.filter((id) => id !== orderId);
+  if (updatedOrders.length < environment.orders.length) {
+    await ctx.db.patch(table.environment_id, {
+      orders: updatedOrders,
+    });
+  }
+}
 
 /**
  * Recalcula totales de una orden (Equivalente al cálculo en cerrar_pedido_mesa de SQL)
@@ -68,6 +114,8 @@ export const createOrder = mutation({
         status: "occupied",
         current_order_id: orderId,
       });
+
+      await addOrderToEnvironment(ctx, args.tableId, orderId);
     }
 
     await ctx.db.insert("event_log", {
@@ -123,12 +171,14 @@ export const finalizeAndPayOrder = mutation({
       orderId: args.orderId
     });
 
-    // 4. Liberamos la mesa a estado 'dirty'
+    // 4. Liberamos la mesa a estado 'dirty' y removemos del ambiente
     if (order.table_id) {
       await ctx.db.patch(order.table_id, {
         status: "dirty",
         current_order_id: undefined,
       });
+
+      await removeOrderFromEnvironment(ctx, order.table_id, args.orderId);
     }
 
     // Auditoría
@@ -138,6 +188,52 @@ export const finalizeAndPayOrder = mutation({
       level: "info",
       actor: order.staff_id,
       action: "ORDER_FINALIZED",
+      entity_type: "orders",
+      entity_id: args.orderId,
+      timestamp: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+/**
+ * Cancela una orden y limpia la mesa y el ambiente
+ */
+export const cancelOrder = mutation({
+  args: { 
+    orderId: v.id("orders"),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.orderId);
+    if (!order) throw new Error("Orden no encontrada");
+    if (order.status !== "open") throw new Error("Solo se pueden cancelar órdenes abiertas");
+
+    // 1. Marcar orden como cancelada
+    await ctx.db.patch(args.orderId, {
+      status: "cancelled",
+      closed_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
+    // 2. Liberar mesa y limpiar del ambiente
+    if (order.table_id) {
+      await ctx.db.patch(order.table_id, {
+        status: "free",
+        current_order_id: undefined,
+      });
+
+      await removeOrderFromEnvironment(ctx, order.table_id, args.orderId);
+    }
+
+    // 3. Auditoría
+    await ctx.db.insert("event_log", {
+      establishment_id: order.establishment_id,
+      type: "operational",
+      level: "warning",
+      actor: order.staff_id,
+      action: "ORDER_CANCELLED",
       entity_type: "orders",
       entity_id: args.orderId,
       timestamp: Date.now(),
