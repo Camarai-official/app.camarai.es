@@ -56,11 +56,7 @@ export function QRConfigDialog({
 
     const handleCopy = () => {
         navigator.clipboard.writeText(getQRUrl());
-        toast({ title: "Enlace Copiado", description: "El enlace de5. Numeración al añadir mesa (huecos por borrados)
-
-En addTable, reemplazar length + 1 por el mismo criterio que duplicateTable: max de number entre mesas no-objeto + 1 (filtrar !t.isObject), para no reutilizar números cuando hay huecos.5. Numeración al añadir mesa (huecos por borrados)
-
-En addTable, reemplazar length + 1 por el mismo criterio que duplicateTable: max de number entre mesas no-objeto + 1 (filtrar !t.isObject), para no reutilizar números cuando hay huecos. la mesa ha sido copiado al portapapeles." });
+        toast({ title: "Enlace Copiado", description: "El enlace de la mesa ha sido copiado al portapapeles." });
     };
 
     const handleDownload = () => {
