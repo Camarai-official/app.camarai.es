@@ -172,6 +172,50 @@ export const seedData = mutation({
       created_at: Date.now(),
     });
 
+    // 10. CONFIGURACIÓN DEL ESTABLECIMIENTO
+    await ctx.db.insert("establishment_settings", {
+      establishment_id: establishmentId,
+      clock_methods: ["app", "qr", "web"],
+      auto_incident_detection: true,
+      max_late_minutes: 15,
+      break_duration_minutes: 30,
+      workday_start: "09:00",
+      workday_end: "18:00",
+      overtime_alert: true,
+      
+      // Canales de fichaje
+      clock_in_channels: {
+        mobile_app: true,
+        whatsapp: false,
+        qr_code: true,
+        web_panel: true
+      },
+      
+      // Integración WhatsApp
+      whatsapp_integration: {
+        enabled: false,
+        status: "disconnected",
+        qr_code: undefined,
+        phone_number: undefined,
+        auto_send_clock_in: false,
+        default_action: "clock_in",
+        confirmation_required: true,
+        last_sync: undefined
+      },
+      
+      // Estadísticas de uso
+      channel_usage_stats: {
+        whatsapp: 0,
+        mobile_app: 0,
+        qr_code: 0,
+        web_panel: 0,
+        total_clock_ins: 0
+      },
+      
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
     return {
       success: true,
       establishmentId,

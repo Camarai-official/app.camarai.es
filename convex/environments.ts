@@ -147,14 +147,43 @@ export const createEnvironment = mutation({
 export const syncEnvironmentCapacityFromPlan = mutation({
   args: { environmentId: v.id("environments") },
   handler: async (ctx, args) => {
+    const environment = await ctx.db.get(args.environmentId);
+    if (!environment) throw new Error("Environment not found");
+
     const tables = await ctx.db
       .query("tables")
       .withIndex("by_environment", (q) => q.eq("environment_id", args.environmentId))
       .collect();
+    
     const total = tables
       .filter((t) => !t.is_object)
       .reduce((sum, t) => sum + t.capacity, 0);
+    
+    // Count occupied tables
+    const occupiedTables = tables.filter(t => t.status === "occupied").length;
+    
     await ctx.db.patch(args.environmentId, { capacity: total });
+
+    // Check if environment is full (90% or more occupied)
+    if (total > 0 && occupiedTables >= total * 0.9) {
+      await ctx.db.insert("event_log", {
+        establishment_id: environment.establishment_id,
+        type: "operational",
+        level: "critical",
+        actor: "system",
+        action: "Ambiente Lleno",
+        entity_type: "environment",
+        entity_id: args.environmentId,
+        after: { 
+          environment_name: environment.name,
+          occupied_tables: occupiedTables,
+          total_capacity: total,
+          occupancy_percentage: Math.round((occupiedTables / total) * 100)
+        },
+        timestamp: Date.now(),
+      });
+    }
+
     return total;
   },
 });

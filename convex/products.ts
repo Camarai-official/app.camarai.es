@@ -17,7 +17,7 @@ export const getProducts = query({
     let productsQuery = ctx.db
       .query("products")
       .withIndex("by_establishment", q => 
-        q.eq("establishment_id", args.establishmentId)
+        q.eq("establishment_id", args.establishmentId!)
       );
 
     if (args.categoryId) {

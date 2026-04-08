@@ -17,7 +17,7 @@ export const getIngredients = query({
     let ingredientsQuery = ctx.db
       .query("ingredients")
       .withIndex("by_establishment", q => 
-        q.eq("establishment_id", args.establishmentId)
+        q.eq("establishment_id", args.establishmentId!)
       );
 
     if (args.categoryId) {
@@ -273,6 +273,7 @@ export const adjustStock = mutation({
     newStock: v.number(),
     adjustmentType: v.union(v.literal("add"), v.literal("remove"), v.literal("set")),
     reason: v.optional(v.string()),
+    staffId: v.optional(v.id("staff")),
   },
   handler: async (ctx, args) => {
     const ingredient = await ctx.db.get(args.ingredientId);
@@ -280,6 +281,7 @@ export const adjustStock = mutation({
       throw new Error("Ingredient not found");
     }
 
+    const oldStock = ingredient.stock;
     let newStockValue: number;
     
     switch (args.adjustmentType) {
@@ -299,6 +301,41 @@ export const adjustStock = mutation({
     const updatedIngredient = await ctx.db.patch(args.ingredientId, {
       stock: newStockValue
     });
+
+    // Create event log entry for stock adjustment
+    let eventLevel: "info" | "warning" | "critical" = "info";
+    let eventAction = "";
+    
+    if (newStockValue < (ingredient.alert_min || 10)) {
+      eventLevel = "warning";
+      eventAction = "Alerta de Stock";
+    } else if (args.adjustmentType === "add") {
+      eventAction = "Pedido Stock";
+    } else {
+      eventAction = "Ajuste Inventario";
+    }
+    
+    try {
+      await ctx.db.insert("event_log", {
+        establishment_id: ingredient.establishment_id,
+        type: "inventory",
+        level: eventLevel,
+        actor: args.staffId || "system",
+        action: eventAction,
+        entity_type: "ingredient",
+        entity_id: ingredient._id,
+        before: { stock: oldStock },
+        after: { 
+          stock: newStockValue, 
+          ingredient_name: ingredient.name,
+          adjustment_type: args.adjustmentType,
+          reason: args.reason 
+        },
+        timestamp: Date.now(),
+      });
+    } catch (error) {
+      throw error;
+    }
 
     return updatedIngredient;
   },

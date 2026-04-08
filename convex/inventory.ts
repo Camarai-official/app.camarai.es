@@ -24,10 +24,13 @@ export const deductStockFromOrder = internalMutation({
         const ingredient = await ctx.db.get(ingredientInfo.ingredient_id);
         if (ingredient) {
           const totalToDeduct = ingredientInfo.quantity_required * item.quantity;
+          const oldStock = ingredient.stock;
+          const newStock = ingredient.stock - totalToDeduct;
+          
           
           // 2. Actualizamos el stock físico
           await ctx.db.patch(ingredient._id, {
-            stock: ingredient.stock - totalToDeduct,
+            stock: newStock,
           });
 
           // 3. Registramos el movimiento (Paridad con stock_movements de SQL)
@@ -42,6 +45,28 @@ export const deductStockFromOrder = internalMutation({
             staff_id: "system", // Triggered by internal mutation
             notes: `Auto-descuento por Venta Orden: ${args.orderId}`,
           });
+
+          // 4. Registramos evento de alerta de stock si es necesario
+          if (newStock < ingredient.alert_min) {
+            await ctx.db.insert("event_log", {
+              establishment_id: ingredient.establishment_id,
+              type: "inventory",
+              level: "warning",
+              actor: "system",
+              action: "Alerta de Stock",
+              entity_type: "ingredient",
+              entity_id: ingredient._id,
+              before: { stock: oldStock },
+              after: { 
+                stock: newStock, 
+                ingredient_name: ingredient.name,
+                alert_min: ingredient.alert_min,
+                deduction_amount: totalToDeduct,
+                order_id: args.orderId
+              },
+              timestamp: Date.now(),
+            });
+          }
         }
       }
     }
@@ -94,8 +119,11 @@ export const adjustStockManually = mutation({
     const ingredient = await ctx.db.get(args.ingredientId);
     if (!ingredient) throw new Error("Ingrediente no encontrado");
 
+    const oldStock = ingredient.stock;
+    const newStock = ingredient.stock + args.adjustmentQuantity;
+
     await ctx.db.patch(args.ingredientId, {
-      stock: ingredient.stock + args.adjustmentQuantity,
+      stock: newStock,
     });
 
     await ctx.db.insert("stock_movements", {
@@ -108,6 +136,39 @@ export const adjustStockManually = mutation({
       timestamp: Date.now(),
       staff_id: args.staffId,
       notes: args.notes || `Ajuste manual de ${args.type}`,
+    });
+
+    // Register event log for stock alerts
+    let eventLevel: "info" | "warning" | "critical" = "info";
+    let eventAction = "";
+    
+    if (newStock < ingredient.alert_min) {
+      eventLevel = "warning";
+      eventAction = "Alerta de Stock";
+    } else if (args.type === "purchase") {
+      eventAction = "Pedido Stock";
+    } else {
+      eventAction = "Ajuste Inventario";
+    }
+
+    await ctx.db.insert("event_log", {
+      establishment_id: ingredient.establishment_id,
+      type: "inventory",
+      level: eventLevel,
+      actor: args.staffId,
+      action: eventAction,
+      entity_type: "ingredient",
+      entity_id: ingredient._id,
+      before: { stock: oldStock },
+      after: { 
+        stock: newStock, 
+        ingredient_name: ingredient.name,
+        adjustment_type: args.type,
+        adjustment_quantity: args.adjustmentQuantity,
+        reason: args.notes,
+        alert_min: ingredient.alert_min
+      },
+      timestamp: Date.now(),
     });
   },
 });
