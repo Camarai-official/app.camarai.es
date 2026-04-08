@@ -483,8 +483,15 @@ export default function PersonalPage() {
         return { total: staffMembers.length, activos, trabajandoAhora, enDescanso, horasHoy };
     }, [staffMembers, timeLogs]);
 
-    // Si no hay establecimientos, mostrar mensaje de carga o error
-    if (establishmentsData === undefined) {
+    // State to handle hydration
+    const [isHydrated, setIsHydrated] = React.useState(false);
+    
+    React.useEffect(() => {
+        setIsHydrated(true);
+    }, []);
+    
+    // Si no hay establecimientos, mostrar mensaje de carga o error (solo después de hidratación)
+    if (!isHydrated || establishmentsData === undefined) {
         return <div>Cargando establecimientos...</div>;
     }
     
