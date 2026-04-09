@@ -12,10 +12,10 @@ export const useEstablishments = () => {
   const [activeEstablishmentId, setActiveEstablishmentId] = React.useState<string | null>(null);
   const [isInitialized, setIsInitialized] = React.useState(false);
 
-  // Obtener el establecimiento más reciente de Convex
-  const latestConvexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+  // Obtener el establecimiento más reciente de Convex - solo en el cliente
+  const latestConvexEstablishment = typeof window !== 'undefined' ? useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
     localId: 'latest' 
-  });
+  }) : null;
 
   // Sincronizar el establecimiento activo con el más reciente de Convex
   React.useEffect(() => {

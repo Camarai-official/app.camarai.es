@@ -133,21 +133,18 @@ export default function Home() {
 
     // ✅ Calcular métricas basadas en la fecha global
     const metricsData = React.useMemo(() => {
-        const dateFrom = date?.from ? date.from.getTime() : new Date(2024, 0, 1).getTime();
-        const dateTo = date?.to ? date.to.getTime() : dateFrom;
-        const dateFactor = (dateFrom + dateTo) / 1000000;
-
+        // Use static values to prevent hydration mismatch completely
         const numberFormatter = new Intl.NumberFormat('es-ES');
         return {
-            totalRevenue: `€${((2.6 + (dateFactor % 1))).toFixed(1)}M`,
-            avgTicket: `€${(38.5 + (dateFactor % 2)).toFixed(2)}`,
-            itemsPerOrder: (2.8 + (dateFactor % 0.5)).toFixed(1),
-            conversion: `${(35 + (dateFactor % 15)).toFixed(0)}%`,
-            serviceTime: `${(24 - (dateFactor % 8)).toFixed(0)} min`,
-            totalOrders: numberFormatter.format(Math.floor(1248 + (dateFactor % 1000))),
-            nps: (78 + (dateFactor % 12)).toFixed(0)
+            totalRevenue: '€2.6M',
+            avgTicket: '€38.50',
+            itemsPerOrder: '2.8',
+            conversion: '35%',
+            serviceTime: '24 min',
+            totalOrders: numberFormatter.format(1248),
+            nps: '78'
         };
-    }, [date]);
+    }, []);
 
     /**
      * Prepara los datos para el gráfico de ocupación por ambiente.
