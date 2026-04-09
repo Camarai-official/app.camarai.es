@@ -123,9 +123,10 @@ export default defineSchema({
   permissions: defineTable({
     name: v.string(),
     slug: v.string(),
+    key: v.optional(v.string()),
     description: v.string(),
     module: v.string(), // 'orders', 'staff', 'inventory', etc.
-    created_at: v.number(),
+    created_at: v.optional(v.number()),
   }).index("by_module", ["module"]),
 
   user_roles: defineTable({
