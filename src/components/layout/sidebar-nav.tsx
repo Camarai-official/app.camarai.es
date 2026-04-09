@@ -99,10 +99,11 @@ export function SidebarNav() {
 
   const handleDeleteEstablishment = () => {
     if (establishmentToDelete) {
-      const newActiveId = removeEstablishment(establishmentToDelete.id)
+      const willHaveRemaining = establishments.length > 1;
+      removeEstablishment(establishmentToDelete.id)
       setEstablishmentToDelete(null)
       if (pathname.includes('/settings/profile')) {
-        router.push(newActiveId ? '/settings/profile?tab=establishment' : '/settings/profile')
+        router.push(willHaveRemaining ? '/settings/profile?tab=establishment' : '/settings/profile')
       }
     }
   }

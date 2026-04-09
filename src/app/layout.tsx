@@ -16,11 +16,11 @@ import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-// Función para crear cliente Convex solo en el cliente
+// Función para crear cliente Convex
 function createConvexClient() {
-  if (typeof window === 'undefined') return null;
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_SELF_HOSTED_URL;
   try {
-    return new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+    return new ConvexReactClient(url);
   } catch (error) {
     console.error('Error inicializando Convex:', error);
     return null;
@@ -51,7 +51,7 @@ export default function RootLayout({
 }>) {
   // Fix layout shift when modals/dropdowns open
   useScrollbarCompensation();
-  
+
   const convex = createConvexClient();
 
   return (
