@@ -16,7 +16,7 @@ export const getCategories = query({
     let categoriesQuery = ctx.db
       .query("categories")
       .withIndex("by_establishment", q => 
-        q.eq("establishment_id", args.establishmentId)
+        q.eq("establishment_id", args.establishmentId!)
       );
 
     if (args.activeOnly) {

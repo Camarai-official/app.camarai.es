@@ -17,7 +17,7 @@ export const getCartas = query({
     const menus = await ctx.db
       .query("menu")
       .withIndex("by_establishment_type", q => 
-        q.eq("establishment_id", args.establishmentId).eq("type", "carta")
+        q.eq("establishment_id", args.establishmentId!).eq("type", "carta")
       )
       .collect();
 

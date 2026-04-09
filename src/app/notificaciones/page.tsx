@@ -21,6 +21,10 @@ import {
 
 import { cn } from '@/lib/utils';
 
+// Convex imports
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+
 // UI Components
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,20 +46,18 @@ import { PageContent } from '@/components/layout/page-content';
 
 import { NotificationsFilterDialog, type NotificationsFilterConfig } from '@/components/dialogs/notificaciones-filter-dialog';
 
-const eventData = [
-    { id: '1', event: 'Check-in Personal', actor: 'Carlos Mendoza', detail: 'Inició turno en Barra Principal', type: 'staff', time: '14:25', status: 'info', icon: UserPlus },
-    { id: '2', event: 'Alerta de Stock', actor: 'Sistema', detail: 'Stock de Cerveza Mahou bajo (8 unidades)', type: 'inventory', time: '14:10', status: 'warning', icon: Package },
-    { id: '3', event: 'Pago Recibido', actor: 'Mesa 4', detail: 'Ticket #4502 pagado por tarjeta (€42.50)', type: 'payment', time: '13:55', status: 'success', icon: CreditCard },
-    { id: '4', event: 'Nueva Reserva', actor: 'Laura Wilson', detail: 'Reserva para 4 personas (Mesa 12)', type: 'booking', time: '13:40', status: 'info', icon: Calendar },
-    { id: '5', event: 'Vuelta de Descanso', actor: 'Elena Rivas', detail: 'Terminó descanso de 15 min', type: 'staff', time: '13:20', status: 'info', icon: Coffee },
-    { id: '6', event: 'Solicitud Ausencia', actor: 'Roberto Gil', detail: 'Solicitó día libre para el 12/03', type: 'staff', time: '12:50', status: 'warning', icon: UserMinus },
-    { id: '7', event: 'Ambiente Lleno', actor: 'Sensor Salón', detail: 'Ocupación del Salón al 100%', type: 'env', time: '12:15', status: 'critical', icon: AlertTriangle },
-    { id: '8', event: 'Incidencia Fichaje', actor: 'Marcos Soto', detail: 'Olvidó fichar salida ayer (20:00)', type: 'staff', time: '11:30', status: 'critical', icon: Clock },
-    { id: '9', event: 'Check-out Personal', actor: 'Sofía Lara', detail: 'Finalizó turno (Total 8h 15m)', type: 'staff', time: '11:05', status: 'info', icon: UserMinus },
-    { id: '10', event: 'Pedido Stock', actor: 'Proveedor Central', detail: 'Pedido #902 confirmado (Carnes)', type: 'inventory', time: '10:45', status: 'success', icon: Package },
-];
-
 export default function NotificationsPage() {
+    // Obtener establecimientos de Convex
+    const establishmentsData = useQuery(api.establishments.getEstablishments);
+    
+    // Usar el primer establecimiento disponible o null si no hay ninguno
+    const establishmentId = establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length > 0 
+        ? establishmentsData[0]._id 
+        : null;
+    
+    // Obtener eventos del log de Convex
+    const eventsData = useQuery(api.eventLog.getEventLogs, establishmentId ? { establishmentId, limit: 100 } : "skip");
+    
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
     const [filterConfig, setFilterConfig] = React.useState<NotificationsFilterConfig>({
         showStaff: true,
@@ -91,7 +93,28 @@ export default function NotificationsPage() {
         }
     };
 
-    const filteredEvents = eventData.filter(item => {
+    const formatTime = (timestamp: number) => {
+        return new Date(timestamp).toLocaleTimeString('es-ES', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
+
+    const getIconComponent = (iconName: string) => {
+        switch (iconName) {
+            case 'UserPlus': return UserPlus;
+            case 'UserMinus': return UserMinus;
+            case 'Package': return Package;
+            case 'CreditCard': return CreditCard;
+            case 'Calendar': return Calendar;
+            case 'Coffee': return Coffee;
+            case 'AlertTriangle': return AlertTriangle;
+            case 'Clock': return Clock;
+            default: return Info;
+        }
+    };
+
+    const filteredEvents = (eventsData || []).filter(item => {
         // Filter by category
         if (item.type === 'staff' && !filterConfig.showStaff) return false;
         if (item.type === 'inventory' && !filterConfig.showInventory) return false;
@@ -100,7 +123,7 @@ export default function NotificationsPage() {
         if (item.type === 'env' && !filterConfig.showEnv) return false;
         
         // Filter by criticality if option is active
-        if (filterConfig.showCritical && item.status !== 'critical' && item.status !== 'warning') return false;
+        if (filterConfig.showCritical && item.level !== 'critical' && item.level !== 'warning') return false;
         
         return true;
     });
@@ -145,12 +168,12 @@ export default function NotificationsPage() {
                             </TableHeader>
                             <TableBody>
                                 {filteredEvents.map((item) => {
-                                    const Icon = item.icon;
+                                    const Icon = getIconComponent(item.icon);
                                     return (
                                         <TableRow key={item.id} className="group">
                                             <TableCell align="center">
                                                 <TextSM className="font-semibold text-muted-foreground">
-                                                    {item.time}
+                                                    {formatTime(item.timestamp)}
                                                 </TextSM>
                                             </TableCell>
                                             <TableCell>

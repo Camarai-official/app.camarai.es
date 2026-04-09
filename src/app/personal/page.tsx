@@ -168,12 +168,22 @@ export default function PersonalPage() {
     const clockIncidentsData = useQuery(api.staff.getClockIncidentsByEstablishment, establishmentId ? { establishmentId } : "skip");
     const clockDevicesData = useQuery(api.staff.getClockDevicesByEstablishment, establishmentId ? { establishmentId } : "skip");
     
+    // Queries para configuraciones del establecimiento (persistentes)
+    const clockInChannelsData = useQuery(api.establishmentSettings.getClockInChannels, establishmentId ? { establishmentId } : "skip");
+    const whatsappIntegrationData = useQuery(api.establishmentSettings.getWhatsAppIntegration, establishmentId ? { establishmentId } : "skip");
+    const channelUsageStatsData = useQuery(api.establishmentSettings.getChannelUsageStats, establishmentId ? { establishmentId } : "skip");
+    
     // Mutations para Incidencias y Dispositivos
     const createClockIncident = useMutation(api.staff.createClockIncident);
     const updateClockIncidentStatus = useMutation(api.staff.updateClockIncidentStatus);
     const createClockDevice = useMutation(api.staff.createClockDevice);
     const updateClockDevice = useMutation(api.staff.updateClockDevice);
     const deleteClockDevice = useMutation(api.staff.deleteClockDevice);
+    
+    // Mutations para configuraciones del establecimiento
+    const updateClockInChannels = useMutation(api.establishmentSettings.updateClockInChannels);
+    const updateWhatsAppIntegration = useMutation(api.establishmentSettings.updateWhatsAppIntegration);
+    const incrementChannelUsage = useMutation(api.establishmentSettings.incrementChannelUsage);
 
     // Convertir datos de Convex al formato esperado por el componente
     const timeLogs = React.useMemo(() => {
@@ -224,7 +234,20 @@ export default function PersonalPage() {
     
     // UI State
     const [searchTerm, setSearchTerm] = React.useState('');
-    const [metodosFichajeState, setMetodosFichajeState] = React.useState(metodosFichaje.map(m => ({ ...m, enabled: true })));
+    
+    // Métodos de fichaje desde la base de datos (persistentes)
+    const metodosFichajeState = React.useMemo(() => {
+        if (!clockInChannelsData) return metodosFichaje.map(m => ({ ...m, enabled: true }));
+        
+        return metodosFichaje.map(m => ({
+            ...m,
+            enabled: clockInChannelsData[m.id === 'app' ? 'mobile_app' : 
+                                         m.id === 'whatsapp' ? 'whatsapp' : 
+                                         m.id === 'qr' ? 'qr_code' : 
+                                         m.id === 'web' ? 'web_panel' : 'mobile_app']
+        }));
+    }, [clockInChannelsData]);
+    
     const [personalConfig, setPersonalConfig] = React.useState<PersonalConfig>({
         kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true 
     });
@@ -483,8 +506,15 @@ export default function PersonalPage() {
         return { total: staffMembers.length, activos, trabajandoAhora, enDescanso, horasHoy };
     }, [staffMembers, timeLogs]);
 
-    // Si no hay establecimientos, mostrar mensaje de carga o error
-    if (establishmentsData === undefined) {
+    // State to handle hydration
+    const [isHydrated, setIsHydrated] = React.useState(false);
+    
+    React.useEffect(() => {
+        setIsHydrated(true);
+    }, []);
+    
+    // Si no hay establecimientos, mostrar mensaje de carga o error (solo después de hidratación)
+    if (!isHydrated || establishmentsData === undefined) {
         return <div>Cargando establecimientos...</div>;
     }
     
@@ -552,6 +582,47 @@ export default function PersonalPage() {
         return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
     };
     
+    // Funciones para manejar configuraciones persistentes
+    const handleClockInChannelToggle = async (metodoId: string, currentEnabled: boolean) => {
+        if (!establishmentId) return;
+        
+        try {
+            // Mapear el ID del método al campo en la base de datos
+            const channelField = metodoId === 'app' ? 'mobile_app' : 
+                               metodoId === 'whatsapp' ? 'whatsapp' : 
+                               metodoId === 'qr' ? 'qr_code' : 
+                               metodoId === 'web' ? 'web_panel' : 'mobile_app';
+            
+            // Obtener configuración actual
+            const currentChannels = clockInChannelsData || {
+                mobile_app: true,
+                whatsapp: false,
+                qr_code: true,
+                web_panel: true
+            };
+            
+            // Actualizar configuración
+            await updateClockInChannels({
+                establishmentId,
+                channels: {
+                    ...currentChannels,
+                    [channelField]: !currentEnabled
+                }
+            });
+            
+            toast({
+                title: currentEnabled ? "Método desactivado" : "Método activado",
+                description: `${metodosFichaje.find(m => m.id === metodoId)?.label} se ha ${currentEnabled ? 'desactivado' : 'activado'} correctamente.`
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "No se pudo actualizar la configuración del canal.",
+                variant: "destructive"
+            });
+        }
+    };
+
     // Funciones de exportación
     const exportTimeLogs = () => {
         const csvContent = [
@@ -1359,13 +1430,7 @@ export default function PersonalPage() {
                                                     switchId={`method-${metodo.id}`}
                                                     switchChecked={metodo.enabled}
                                                     onSwitchChange={() => {
-                                                        setMetodosFichajeState(prev => prev.map(m => 
-                                                            m.id === metodo.id ? { ...m, enabled: !m.enabled } : m
-                                                        ));
-                                                        toast({
-                                                            title: metodo.enabled ? "Método desactivado" : "Método activado",
-                                                            description: `${metodo.label} se ha ${metodo.enabled ? 'desactivado' : 'activado'} correctamente.`
-                                                        });
+                                                        handleClockInChannelToggle(metodo.id, metodo.enabled);
                                                     }}
                                                 />
                                             ))}
@@ -1412,30 +1477,34 @@ export default function PersonalPage() {
                                                 icon={MessageSquare}
                                                 iconColor="#25D366"
                                                 title="Estado del Servicio"
-                                                description="Bot configurado y activo"
+                                                description={whatsappIntegrationData?.enabled ? "Bot configurado y activo" : "Bot no configurado"}
                                                 rightContentType="badge"
-                                                badgeText="Conectado"
-                                                badgeVariant="success"
+                                                badgeText={whatsappIntegrationData?.status === 'connected' ? "Conectado" : 
+                                                          whatsappIntegrationData?.status === 'disconnected' ? "Desconectado" : "Error"}
+                                                badgeVariant={whatsappIntegrationData?.status === 'connected' ? "success" : 
+                                                            whatsappIntegrationData?.status === 'disconnected' ? "secondary" : "destructive"}
                                             />
                                             
-                                            <div className="p-4 bg-muted/50 rounded-xl flex items-center gap-6">
-                                                <div className="p-2 bg-white rounded-lg border shrink-0">
-                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img 
-                                                        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/34600000000?text=Fichar"
-                                                        alt="QR WhatsApp Fichaje"
-                                                        width={100}
-                                                        height={100}
-                                                    />
+                                            {whatsappIntegrationData?.qr_code && (
+                                                <div className="p-4 bg-muted/50 rounded-xl flex items-center gap-6">
+                                                    <div className="p-2 bg-white rounded-lg border shrink-0">
+                                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                        <img 
+                                                            src={whatsappIntegrationData.qr_code}
+                                                            alt="QR WhatsApp Fichaje"
+                                                            width={100}
+                                                            height={100}
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <H5>Escanea el código QR</H5>
+                                                        <TextXS className="text-muted-foreground">Comparte este código con tus empleados para que añadan el bot rápidamente.</TextXS>
+                                                        <Button variant="link" size="sm" className="p-0 h-auto" startIcon={<Download className="h-3.5 w-3.5" />}>
+                                                            Descargar Imagen QR
+                                                        </Button>
+                                                    </div>
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <H5>Escanea el código QR</H5>
-                                                    <TextXS className="text-muted-foreground">Comparte este código con tus empleados para que añadan el bot rápidamente.</TextXS>
-                                                    <Button variant="link" size="sm" className="p-0 h-auto" startIcon={<Download className="h-3.5 w-3.5" />}>
-                                                        Descargar Imagen QR
-                                                    </Button>
-                                                </div>
-                                            </div>
+                                            )}
 
                                             <div className="space-y-3">
                                                 {[
@@ -1461,11 +1530,39 @@ export default function PersonalPage() {
                                             <CardDescription>Distribución de fichajes en los últimos 30 días.</CardDescription>
                                         </CardHeader>
                                         <CardContent className="space-y-1">
-                                            {[
-                                                { label: 'WhatsApp', value: 45, icon: MessageSquare, color: '#25D366' },
-                                                { label: 'App Móvil', value: 30, icon: Smartphone, color: '#9B6EFD' },
-                                                { label: 'QR Code', value: 15, icon: QrCode, color: '#78A3ED' },
-                                                { label: 'Panel Web', value: 10, icon: Monitor, color: '#F7B731' }
+                                            {channelUsageStatsData ? [
+                                                { 
+                                                    label: 'WhatsApp', 
+                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                        ? Math.round((channelUsageStatsData.whatsapp / channelUsageStatsData.total_clock_ins) * 100)
+                                                        : 0, 
+                                                    icon: MessageSquare, 
+                                                    color: '#25D366' 
+                                                },
+                                                { 
+                                                    label: 'App Móvil', 
+                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                        ? Math.round((channelUsageStatsData.mobile_app / channelUsageStatsData.total_clock_ins) * 100)
+                                                        : 0, 
+                                                    icon: Smartphone, 
+                                                    color: '#9B6EFD' 
+                                                },
+                                                { 
+                                                    label: 'QR Code', 
+                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                        ? Math.round((channelUsageStatsData.qr_code / channelUsageStatsData.total_clock_ins) * 100)
+                                                        : 0, 
+                                                    icon: QrCode, 
+                                                    color: '#78A3ED' 
+                                                },
+                                                { 
+                                                    label: 'Panel Web', 
+                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                        ? Math.round((channelUsageStatsData.web_panel / channelUsageStatsData.total_clock_ins) * 100)
+                                                        : 0, 
+                                                    icon: Monitor, 
+                                                    color: '#F7B731' 
+                                                }
                                             ].map((item, i) => (
                                                 <ActionTile
                                                     key={i}
@@ -1475,7 +1572,11 @@ export default function PersonalPage() {
                                                     rightContentType="progress"
                                                     progressValue={item.value}
                                                 />
-                                            ))}
+                                            )) : (
+                                                <div className="text-center py-8">
+                                                    <TextXS className="text-muted-foreground">No hay datos de uso disponibles</TextXS>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </div>

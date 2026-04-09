@@ -147,7 +147,8 @@ export default function InventarioPage() {
       await adjustStockMutation({ 
         ingredientId: id as Id<"ingredients">, 
         newStock: newStock, 
-        adjustmentType: "set" 
+        adjustmentType: "set",
+        staffId: tempStaffId as Id<"staff">
       });
       toast({ 
         title: "Stock actualizado", 

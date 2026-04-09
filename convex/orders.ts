@@ -181,15 +181,21 @@ export const finalizeAndPayOrder = mutation({
       await removeOrderFromEnvironment(ctx, order.table_id, args.orderId);
     }
 
-    // Auditoría
+    // Auditoría - Evento de pago recibido
     await ctx.db.insert("event_log", {
       establishment_id: order.establishment_id,
       type: "financial",
       level: "info",
-      actor: order.staff_id,
-      action: "ORDER_FINALIZED",
-      entity_type: "orders",
+      actor: order.staff_id || "system",
+      action: "Pago Recibido",
+      entity_type: "payment",
       entity_id: args.orderId,
+      after: { 
+        payment_method: args.method,
+        total_amount: order.total_amount,
+        tip: args.tip || 0,
+        table_number: order.table_id ? `Mesa ${order.table_id}` : "Para llevar"
+      },
       timestamp: Date.now(),
     });
 

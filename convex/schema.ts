@@ -527,6 +527,38 @@ export default defineSchema({
     workday_start: v.optional(v.string()), // "HH:mm"
     workday_end: v.optional(v.string()), // "HH:mm"
     overtime_alert: v.boolean(),
+    
+    // Gestión de Personal - Canales de Fichaje
+    clock_in_channels: v.object({
+      mobile_app: v.boolean(),
+      whatsapp: v.boolean(),
+      qr_code: v.boolean(),
+      web_panel: v.boolean()
+    }),
+    
+    // Integración WhatsApp
+    whatsapp_integration: v.object({
+      enabled: v.boolean(),
+      status: v.union(v.literal("connected"), v.literal("disconnected"), v.literal("error")),
+      qr_code: v.optional(v.string()),
+      phone_number: v.optional(v.string()),
+      auto_send_clock_in: v.boolean(),
+      default_action: v.union(v.literal("clock_in"), v.literal("clock_out")),
+      confirmation_required: v.boolean(),
+      last_sync: v.optional(v.number())
+    }),
+    
+    // Estadísticas de uso por canal
+    channel_usage_stats: v.object({
+      whatsapp: v.number(),
+      mobile_app: v.number(),
+      qr_code: v.number(),
+      web_panel: v.number(),
+      total_clock_ins: v.number()
+    }),
+    
+    created_at: v.number(),
+    updated_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 
   // --- DOMAIN 5: AUDIT AND INFRASTRUCTURE ---

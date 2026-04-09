@@ -330,6 +330,11 @@ export const createTimeLog = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Get staff details for event log
+    const staff = await ctx.db.get(args.staffId);
+    const staffName = staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Empleado";
+    
+    // Create time log
     const logId = await ctx.db.insert("time_logs", {
       establishment_id: args.establishmentId,
       staff_id: args.staffId,
@@ -340,6 +345,42 @@ export const createTimeLog = mutation({
       location: args.location,
       modified_by: args.modified_by,
       notes: args.notes,
+    });
+
+    // Create event log entry
+    let eventDescription = "";
+    let eventLevel: "info" | "warning" | "critical" = "info";
+    
+    switch (args.action) {
+      case "clock_in":
+        eventDescription = `Inició turno en ${args.location || "establecimiento"}`;
+        break;
+      case "clock_out":
+        eventDescription = `Finalizó turno`;
+        break;
+      case "break_start":
+        eventDescription = `Inició descanso`;
+        break;
+      case "break_end":
+        eventDescription = `Terminó descanso`;
+        break;
+    }
+
+    await ctx.db.insert("event_log", {
+      establishment_id: args.establishmentId,
+      type: "operational",
+      level: eventLevel,
+      actor: args.staffId,
+      action: `${args.action === "clock_in" ? "Check-in" : args.action === "clock_out" ? "Check-out" : args.action === "break_start" ? "Inicio Descanso" : "Vuelta de Descanso"} Personal`,
+      entity_type: "time_log",
+      entity_id: logId,
+      after: { 
+        action: args.action, 
+        method: args.method, 
+        location: args.location,
+        staff_name: staffName 
+      },
+      timestamp: Date.now(),
     });
 
     return logId;
@@ -389,6 +430,11 @@ export const createAbsenceRequest = mutation({
     reason: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Get staff details for event log
+    const staff = await ctx.db.get(args.staffId);
+    const staffName = staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Empleado";
+    
+    // Create absence request
     const requestId = await ctx.db.insert("absence_requests", {
       staff_id: args.staffId,
       establishment_id: args.establishmentId,
@@ -399,6 +445,26 @@ export const createAbsenceRequest = mutation({
       reason: args.reason,
       status: "pending",
       created_at: Date.now(),
+    });
+
+    // Create event log entry
+    await ctx.db.insert("event_log", {
+      establishment_id: args.establishmentId,
+      type: "operational",
+      level: "warning",
+      actor: args.staffId,
+      action: "Solicitud Ausencia",
+      entity_type: "absence_request",
+      entity_id: requestId,
+      after: { 
+        type: args.type, 
+        start_date: args.startDate, 
+        end_date: args.endDate,
+        total_days: args.total_days,
+        reason: args.reason,
+        staff_name: staffName 
+      },
+      timestamp: Date.now(),
     });
 
     return requestId;
