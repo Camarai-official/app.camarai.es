@@ -13,12 +13,19 @@ import { useScrollbarCompensation } from '@/hooks/use-scrollbar-compensation';
 
 // Convex Provider
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { getConvexClient } from "@/lib/mock-convex";
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
-// Crear el cliente de Convex con fallback para static generation
-const convex = getConvexClient();
+// Función para crear cliente Convex solo en el cliente
+function createConvexClient() {
+  if (typeof window === 'undefined') return null;
+  try {
+    return new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+  } catch (error) {
+    console.error('Error inicializando Convex:', error);
+    return null;
+  }
+}
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isMobile, isTablet } = useIsMobile();
@@ -44,20 +51,35 @@ export default function RootLayout({
 }>) {
   // Fix layout shift when modals/dropdowns open
   useScrollbarCompensation();
+  
+  const convex = createConvexClient();
 
   return (
     <html lang="es" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
-        <ConvexProvider client={convex}>
-          <SidebarProvider>
-            <MobileHeader />
-            <Sidebar variant="sidebar" collapsible="icon">
-              <SidebarNav />
-            </Sidebar>
-            <MainContent>{children}</MainContent>
-          </SidebarProvider>
-          <Toaster />
-        </ConvexProvider>
+        {convex ? (
+          <ConvexProvider client={convex}>
+            <SidebarProvider>
+              <MobileHeader />
+              <Sidebar variant="sidebar" collapsible="icon">
+                <SidebarNav />
+              </Sidebar>
+              <MainContent>{children}</MainContent>
+            </SidebarProvider>
+            <Toaster />
+          </ConvexProvider>
+        ) : (
+          <>
+            <SidebarProvider>
+              <MobileHeader />
+              <Sidebar variant="sidebar" collapsible="icon">
+                <SidebarNav />
+              </Sidebar>
+              <MainContent>{children}</MainContent>
+            </SidebarProvider>
+            <Toaster />
+          </>
+        )}
       </body>
     </html>
   );
