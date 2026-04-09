@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import { initialEstablishments, type Establishment } from '@/data/establishments';
 import { useQuery } from 'convex/react';
@@ -7,48 +6,26 @@ import { api } from '../../convex/_generated/api';
 const LOCAL_STORAGE_KEY = 'establishments';
 const ACTIVE_ESTABLISHMENT_KEY = 'activeEstablishmentId';
 
+// Safe useQuery wrapper for static export / SSR
+const useSafeQuery = (query: any, args?: any) => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return useQuery(query, args);
+  } catch (error) {
+    return null;
+  }
+};
+
 export const useEstablishments = () => {
   const [establishments, setEstablishments] = React.useState<Establishment[]>([]);
   const [activeEstablishmentId, setActiveEstablishmentId] = React.useState<string | null>(null);
   const [isInitialized, setIsInitialized] = React.useState(false);
 
-  // Obtener el establecimiento más reciente de Convex - solo en el cliente
-  const latestConvexEstablishment = typeof window !== 'undefined' ? useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+  const latestConvexEstablishment = useSafeQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
     localId: 'latest' 
-  }) : null;
+  });
 
-  // Sincronizar el establecimiento activo con el más reciente de Convex
-  React.useEffect(() => {
-    if (latestConvexEstablishment && !activeEstablishmentId) {
-      // Si no hay establecimiento activo local, usar el más reciente de Convex
-      // Buscar el establecimiento local correspondiente o crear uno temporal
-      const matchingLocal = establishments.find(e => e.name === latestConvexEstablishment.name);
-      if (matchingLocal) {
-        setActiveEstablishmentId(matchingLocal.id);
-      } else {
-        // Si no hay coincidencia, crear un establecimiento temporal basado en Convex
-        const tempEstablishment: Establishment = {
-          id: `convex-${latestConvexEstablishment._id}`,
-          name: latestConvexEstablishment.name,
-          image: latestConvexEstablishment.logo_url || 'https://placehold.co/40x40',
-          type: 'Restaurante',
-          address: latestConvexEstablishment.address || '',
-          postalCode: latestConvexEstablishment.postal_code || '',
-          city: latestConvexEstablishment.city || '',
-          province: latestConvexEstablishment.province || '',
-          country: latestConvexEstablishment.country || '',
-          phone: latestConvexEstablishment.phone || '',
-          email: latestConvexEstablishment.email || '',
-          hours: 'L-V: 12:00-23:00, S-D: 12:00-00:00',
-          active: true,
-        };
-        setEstablishments(prev => [...prev, tempEstablishment]);
-        setActiveEstablishmentId(tempEstablishment.id);
-      }
-    }
-  }, [latestConvexEstablishment, activeEstablishmentId, establishments]);
-
-  // Load from localStorage on initial render
+  // 1. Initial Load from LocalStorage
   React.useEffect(() => {
     try {
       const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -57,22 +34,53 @@ export const useEstablishments = () => {
       const loadedEstablishments = savedData ? JSON.parse(savedData) : initialEstablishments;
       setEstablishments(loadedEstablishments);
 
-      if (savedActiveId && loadedEstablishments.some((e: Establishment) => e.id === JSON.parse(savedActiveId))) {
-        setActiveEstablishmentId(JSON.parse(savedActiveId));
+      if (savedActiveId) {
+        const parsedId = JSON.parse(savedActiveId);
+        if (loadedEstablishments.some((e: Establishment) => e.id === parsedId)) {
+          setActiveEstablishmentId(parsedId);
+        }
       } else if (loadedEstablishments.length > 0) {
         setActiveEstablishmentId(loadedEstablishments[0].id);
-      } else {
-        setActiveEstablishmentId(null);
       }
     } catch (error) {
-      console.error("Failed to access localStorage", error);
+      console.error("Failed to load local establishments", error);
       setEstablishments(initialEstablishments);
-      setActiveEstablishmentId(initialEstablishments[0]?.id || null);
     }
     setIsInitialized(true);
   }, []);
 
-  // Save to localStorage whenever data changes
+  // 2. Sync with Convex (Remote -> Local)
+  React.useEffect(() => {
+    if (!latestConvexEstablishment || !isInitialized) return;
+
+    // Check if we already have this establishment (by name or a specific convex ID tag)
+    const exists = establishments.find(
+      e => e.name === latestConvexEstablishment.name || e.id === `convex-${latestConvexEstablishment._id}`
+    );
+
+    if (!exists) {
+      const newEstablishment: Establishment = {
+        id: `convex-${latestConvexEstablishment._id}`,
+        name: latestConvexEstablishment.name,
+        image: latestConvexEstablishment.logo_url || 'https://placehold.co/40x40',
+        type: 'Restaurante',
+        address: latestConvexEstablishment.address || '',
+        postalCode: latestConvexEstablishment.postal_code || '',
+        city: latestConvexEstablishment.city || '',
+        province: latestConvexEstablishment.province || '',
+        country: latestConvexEstablishment.country || '',
+        phone: latestConvexEstablishment.phone || '',
+        email: latestConvexEstablishment.email || '',
+        hours: 'L-V: 12:00-23:00, S-D: 12:00-00:00',
+        active: true,
+      };
+      setEstablishments(prev => [...prev, newEstablishment]);
+      // Only auto-switch if no active ID is set
+      if (!activeEstablishmentId) setActiveEstablishmentId(newEstablishment.id);
+    }
+  }, [latestConvexEstablishment, isInitialized]); // Removed 'establishments' to prevent infinite loops
+
+  // 3. Persist to LocalStorage
   React.useEffect(() => {
     if (isInitialized) {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(establishments));
@@ -84,51 +92,39 @@ export const useEstablishments = () => {
     }
   }, [establishments, activeEstablishmentId, isInitialized]);
 
-  const addEstablishment = () => {
+  // Actions
+  const addEstablishment = React.useCallback(() => {
     const newId = `est-${Date.now()}`;
-    const newEstablishment: Establishment = {
+    const newEst: Establishment = {
       id: newId,
       name: `Nuevo Restaurante ${establishments.length + 1}`,
       image: 'https://placehold.co/40x40',
       type: 'Restaurante',
-      address: '',
-      postalCode: '',
-      city: '',
-      province: '',
-      country: '',
-      phone: '',
-      email: '',
-      hours: '',
+      address: '', postalCode: '', city: '', province: '', country: '', phone: '', email: '', hours: '',
       active: true,
     };
-    setEstablishments(prev => [...prev, newEstablishment]);
-    setActiveEstablishmentId(newEstablishment.id);
+    setEstablishments(prev => [...prev, newEst]);
+    setActiveEstablishmentId(newId);
     return newId;
-  };
-  
-  const updateEstablishment = (id: string, updates: Partial<Establishment>) => {
-      setEstablishments(prev => prev.map(est => est.id === id ? { ...est, ...updates } : est));
-  };
+  }, [establishments.length]);
 
-  const removeEstablishment = (id: string): string | null => {
-    let newActiveId: string | null = null;
-    const remaining = establishments.filter(est => est.id !== id);
-    if (id === activeEstablishmentId) {
-        newActiveId = remaining[0]?.id || null;
-        setActiveEstablishmentId(newActiveId);
-    }
-    setEstablishments(remaining);
-    return newActiveId;
-  };
+  const updateEstablishment = React.useCallback((id: string, updates: Partial<Establishment>) => {
+    setEstablishments(prev => prev.map(est => est.id === id ? { ...est, ...updates } : est));
+  }, []);
 
-  const getEstablishmentById = (id: string) => {
-      return establishments.find(est => est.id === id);
-  }
+  const removeEstablishment = React.useCallback((id: string) => {
+    setEstablishments(prev => {
+      const remaining = prev.filter(est => est.id !== id);
+      if (id === activeEstablishmentId) {
+        setActiveEstablishmentId(remaining[0]?.id || null);
+      }
+      return remaining;
+    });
+  }, [activeEstablishmentId]);
 
-  const activeEstablishment = React.useMemo(() => {
-    if (!activeEstablishmentId) return null;
-    return establishments.find(e => e.id === activeEstablishmentId) || null;
-  }, [establishments, activeEstablishmentId]);
+  const activeEstablishment = React.useMemo(() => 
+    establishments.find(e => e.id === activeEstablishmentId) || null, 
+  [establishments, activeEstablishmentId]);
 
   return {
     establishments,
@@ -137,6 +133,6 @@ export const useEstablishments = () => {
     addEstablishment,
     updateEstablishment,
     removeEstablishment,
-    getEstablishmentById
+    isInitialized
   };
 };
