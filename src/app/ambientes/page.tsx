@@ -19,20 +19,14 @@ import { MultiSelect, type MultiSelectOption } from '@/components/ui/multi-selec
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { Id } from '../../../convex/_generated/dataModel';
-import { HARDCODED_ESTABLISHMENT_ID } from '@/lib/hardcoded-establishment';
 
 export default function AmbientesPage() {
     const { toast } = useToast();
     const router = useRouter();
     
-    // TODO: Temporalmente hardcodeado - Descomentar cuando se active la lógica dinámica
-    // const { activeEstablishment } = useEstablishments();
-    // const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-    //     localId: activeEstablishment?.id || 'camarai' 
-    // });
-    
-    // Simulación de convexEstablishment para mantener la lógica correcta
-    const convexEstablishment = { _id: HARDCODED_ESTABLISHMENT_ID };
+    const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
+        localId: 'latest' 
+    });
 
     // Obtener datos del establecimiento activo (hardcoded por ahora)
     const activeEstablishment = initialEstablishments[0]; // Por defecto Camarai
@@ -40,7 +34,7 @@ export default function AmbientesPage() {
     // Datos de Convex
     const environmentsData = useQuery(
         api.environments.getEnvironmentsByEstablishment, 
-        { establishmentId: HARDCODED_ESTABLISHMENT_ID }
+        convexEstablishment ? { establishmentId: convexEstablishment._id } : "skip"
     );
 
     // Mutations de Convex
