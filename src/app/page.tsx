@@ -133,25 +133,18 @@ export default function Home() {
 
     // ✅ Calcular métricas basadas en la fecha global
     const metricsData = React.useMemo(() => {
-        // Use fixed dates to prevent hydration mismatch
-        const dateFrom = date?.from ? date.from.getTime() : new Date(2024, 0, 1).getTime();
-        const dateTo = date?.to ? date.to.getTime() : dateFrom;
-        
-        // Create deterministic seed based on dates only (no time-based randomness)
-        const dateSeed = Math.floor(dateFrom / 1000000) + Math.floor(dateTo / 1000000);
-        
-        // Use deterministic calculations that produce same result on server and client
+        // Use static values to prevent hydration mismatch completely
         const numberFormatter = new Intl.NumberFormat('es-ES');
         return {
-            totalRevenue: `€${(2.6 + (dateSeed % 10) / 10).toFixed(1)}M`,
-            avgTicket: `€${(38.5 + (dateSeed % 20) / 10).toFixed(2)}`,
-            itemsPerOrder: (2.8 + (dateSeed % 5) / 10).toFixed(1),
-            conversion: `${35 + (dateSeed % 15)}%`,
-            serviceTime: `${24 - (dateSeed % 8)} min`,
-            totalOrders: numberFormatter.format(1248 + (dateSeed % 1000)),
-            nps: `${78 + (dateSeed % 12)}`
+            totalRevenue: '€2.6M',
+            avgTicket: '€38.50',
+            itemsPerOrder: '2.8',
+            conversion: '35%',
+            serviceTime: '24 min',
+            totalOrders: numberFormatter.format(1248),
+            nps: '78'
         };
-    }, [date]);
+    }, []);
 
     /**
      * Prepara los datos para el gráfico de ocupación por ambiente.
