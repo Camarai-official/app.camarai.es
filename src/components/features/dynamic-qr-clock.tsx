@@ -28,7 +28,8 @@ export function DynamicQRClock({
     const [isOnline, setIsOnline] = React.useState(true);
     const [isFullscreen, setIsFullscreen] = React.useState(false);
     const [offlineQueue, setOfflineQueue] = React.useState<Array<{timestamp: string; qrToken: string}>>([]);
-    const [currentTime, setCurrentTime] = React.useState(new Date());
+    const [currentTime, setCurrentTime] = React.useState<Date | null>(null);
+    const [isMounted, setIsMounted] = React.useState(false);
     const containerRef = React.useRef<HTMLDivElement>(null);
 
     // Generar token único
@@ -36,13 +37,17 @@ export function DynamicQRClock({
         return `${establecimientoId}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     }, [establecimientoId]);
 
-    // Inicializar token
+    // Initialize component on client side only
     React.useEffect(() => {
+        setIsMounted(true);
+        setCurrentTime(new Date());
         setQrToken(generateToken());
     }, [generateToken]);
 
     // Regenerar QR cada intervalo y actualizar reloj
     React.useEffect(() => {
+        if (!isMounted) return;
+        
         const timer = setInterval(() => {
             setCurrentTime(new Date());
             setCountdown(prev => {
@@ -54,7 +59,7 @@ export function DynamicQRClock({
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, [intervaloSegundos, generateToken]);
+    }, [intervaloSegundos, generateToken, isMounted]);
 
     // Detectar online/offline
     React.useEffect(() => {
@@ -156,7 +161,7 @@ export function DynamicQRClock({
                     <div className="flex justify-center">
                         <div className="relative inline-block">
                             <div className="p-4 bg-foreground rounded-lg border shadow-sm">
-                                {qrUrl ? (
+                                {isMounted && qrUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img 
                                         src={qrUrl} 
@@ -198,12 +203,25 @@ export function DynamicQRClock({
 
                     {/* Hora actual grande */}
                     <div className="text-center">
-                        <div className="text-5xl font-mono font-bold tracking-tight">
-                            {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                            {currentTime.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
-                        </div>
+                        {isMounted && currentTime ? (
+                            <>
+                                <div className="text-5xl font-mono font-bold tracking-tight">
+                                    {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-1">
+                                    {currentTime.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="text-5xl font-mono font-bold tracking-tight">
+                                    --:--:--
+                                </div>
+                                <div className="text-sm text-muted-foreground mt-1">
+                                    Cargando...
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Instrucciones */}

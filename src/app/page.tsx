@@ -133,19 +133,23 @@ export default function Home() {
 
     // ✅ Calcular métricas basadas en la fecha global
     const metricsData = React.useMemo(() => {
+        // Use fixed dates to prevent hydration mismatch
         const dateFrom = date?.from ? date.from.getTime() : new Date(2024, 0, 1).getTime();
         const dateTo = date?.to ? date.to.getTime() : dateFrom;
-        const dateFactor = (dateFrom + dateTo) / 1000000;
-
+        
+        // Create deterministic seed based on dates only (no time-based randomness)
+        const dateSeed = Math.floor(dateFrom / 1000000) + Math.floor(dateTo / 1000000);
+        
+        // Use deterministic calculations that produce same result on server and client
         const numberFormatter = new Intl.NumberFormat('es-ES');
         return {
-            totalRevenue: `€${((2.6 + (dateFactor % 1))).toFixed(1)}M`,
-            avgTicket: `€${(38.5 + (dateFactor % 2)).toFixed(2)}`,
-            itemsPerOrder: (2.8 + (dateFactor % 0.5)).toFixed(1),
-            conversion: `${(35 + (dateFactor % 15)).toFixed(0)}%`,
-            serviceTime: `${(24 - (dateFactor % 8)).toFixed(0)} min`,
-            totalOrders: numberFormatter.format(Math.floor(1248 + (dateFactor % 1000))),
-            nps: (78 + (dateFactor % 12)).toFixed(0)
+            totalRevenue: `€${(2.6 + (dateSeed % 10) / 10).toFixed(1)}M`,
+            avgTicket: `€${(38.5 + (dateSeed % 20) / 10).toFixed(2)}`,
+            itemsPerOrder: (2.8 + (dateSeed % 5) / 10).toFixed(1),
+            conversion: `${35 + (dateSeed % 15)}%`,
+            serviceTime: `${24 - (dateSeed % 8)} min`,
+            totalOrders: numberFormatter.format(1248 + (dateSeed % 1000)),
+            nps: `${78 + (dateSeed % 12)}`
         };
     }, [date]);
 

@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   output: 'export',
-
+  allowedDevOrigins: ['http://localhost:3000'],
   images: {
     unoptimized: true, // OBLIGATORIO para 'output: export' en GitHub Pages
     remotePatterns: [

@@ -41,3 +41,12 @@ next-env.d.ts
 
 # cursor
 .cursorrules
+
+# convex - AI tools
+.convex
+convex/_generated
+.windsurf
+.agents
+skills-lock.json
+AGENTS.md
+CLAUDE.md
