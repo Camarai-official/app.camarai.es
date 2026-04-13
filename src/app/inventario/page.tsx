@@ -49,24 +49,19 @@ export default function InventarioPage() {
   const { toast } = useToast();
   const { activeEstablishment } = useEstablishments();
   
-  // Obtener el establecimiento de Convex usando el ID local
-  const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-    localId: activeEstablishment?.id || 'camarai' 
-  });
-  
   // Obtener los ingredientes del establecimiento
   const ingredients = useQuery(api.ingredients.getIngredients, 
-    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+    activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
   ) || [];
   
   // Obtener las categorías de ingredientes
   const ingredientCategories = useQuery(api.ingredients.getIngredientCategories, 
-    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+    activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
   ) || [];
   
   // Obtener el staff del establecimiento para el staffId
   const staffData = useQuery(api.staff.getStaffByEstablishment, 
-    convexEstablishment?._id ? { establishmentId: convexEstablishment._id } : "skip"
+    activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
   ) || [];
 
   // StaffId temporal para pruebas - usar el primero disponible o null
@@ -115,18 +110,10 @@ export default function InventarioPage() {
   const itemsPerPage = 8;
   
   // Loading states - después de todos los hooks
-  if (convexEstablishment === undefined) {
+  if (!activeEstablishment) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-muted-foreground">Cargando establecimiento...</div>
-      </div>
-    );
-  }
-
-  if (!convexEstablishment) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-muted-foreground">No se encontró el establecimiento</div>
       </div>
     );
   }
@@ -164,7 +151,7 @@ export default function InventarioPage() {
   };
 
   const handleSaveIngredient = async (data: any) => {
-    if (!convexEstablishment) return;
+    if (!activeEstablishment) return;
     
     // Mapear unidades del frontend a Convex
     const unitMapping: Record<string, string> = {
@@ -209,7 +196,7 @@ export default function InventarioPage() {
         }
         
         await createIngredient({
-          establishmentId: convexEstablishment._id,
+          establishmentId: activeEstablishment.id,
           categoryId: categoryId as Id<"ingredient_categories">,
           name: data.nombre_ingrediente,
           stock: data.stock_actual || 0,

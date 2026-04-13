@@ -39,6 +39,7 @@ import { QRConfigDialog } from '@/components/dialogs/planomesas-qr-dialog';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import type { Id } from '../../../convex/_generated/dataModel';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 // --- Constants & Helpers ---
 
@@ -104,15 +105,12 @@ function PlanoMesasContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const envIdParam = searchParams.get('envId');
+    const { activeEstablishment } = useEstablishments();
 
     // Convex queries and mutations
-    const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-        localId: 'latest' 
-    });
-
     const convexEnvironments = useQuery(
         api.environments.getEnvironmentsByEstablishment, 
-        convexEstablishment ? { establishmentId: convexEstablishment._id } : "skip"
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
     );
     const createTableMutation = useMutation(api.environments.createTable);
     const updateTableMutation = useMutation(api.environments.updateTable);

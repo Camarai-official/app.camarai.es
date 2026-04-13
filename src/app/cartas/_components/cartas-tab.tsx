@@ -77,20 +77,15 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
     const { toast } = useToast();
     const { activeEstablishment } = useEstablishments();
     
-    // Obtener el establecimiento de Convex usando el ID local
-    const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-        localId: activeEstablishment?.id || 'camarai' 
-    });
-    
     // Obtener las cartas del establecimiento
-    const cartas = useQuery(api.menu.getCartas, { 
-        establishmentId: convexEstablishment?._id
-    }) || [];
+    const cartas = useQuery(api.menu.getCartas, 
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
+    ) || [];
     
     // Obtener las categorías reales del establecimiento
-    const realCategories = useQuery(api.categories.getCategories, { 
-        establishmentId: convexEstablishment?._id
-    }) || [];
+    const realCategories = useQuery(api.categories.getCategories, 
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
+    ) || [];
     
     // Convertir categorías al formato esperado
     const formattedCategories = React.useMemo(() => {
@@ -178,18 +173,10 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
     }, []);
 
     // Loading states - después de todos los hooks
-    if (convexEstablishment === undefined) {
+    if (!activeEstablishment) {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-muted-foreground">Cargando establecimiento...</div>
-            </div>
-        );
-    }
-
-    if (!convexEstablishment) {
-        return (
-            <div className="flex items-center justify-center h-64">
-                <div className="text-muted-foreground">No se encontró el establecimiento</div>
             </div>
         );
     }
@@ -307,7 +294,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
     };
 
     const handleSaveCarta = async (cartaData: Partial<Carta>) => {
-        if (cartaData && convexEstablishment) {
+        if (cartaData && activeEstablishment) {
             try {
                 let cartaId: string;
                 
@@ -335,7 +322,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
                 } else {
                     // Create new carta
                     cartaId = await createCarta({
-                        establishmentId: convexEstablishment._id,
+                        establishmentId: activeEstablishment.id,
                         name: cartaData.nombre_carta,
                         description: cartaData.descripcion_carta,
                         icon: cartaData.icon,
@@ -546,7 +533,7 @@ export function CartasTab({ searchTerm = '' }: CartasTabProps) {
 
             {/* Carta Hierarchy View */}
             {selectedCartaId && (() => {
-                const selectedCarta = cartas.find(c => c.id === selectedCartaId);
+                const selectedCarta = formattedCartas.find(c => c.id === selectedCartaId);
                 if (!selectedCarta) return null;
                 
                 return (
