@@ -30,10 +30,13 @@ export const useEstablishments = () => {
     }));
   }, [convexEstablishments]);
 
-  // Handle default active establishment if none set
+  // Handle default active establishment if none set or if current one not found
   React.useEffect(() => {
-    if (!activeId && establishments.length > 0) {
-      setActiveId(establishments[0].id);
+    if (establishments.length > 0) {
+      const exists = establishments.some(e => e.id === activeId);
+      if (!activeId || !exists) {
+        setActiveId(establishments[0].id);
+      }
     }
   }, [establishments, activeId, setActiveId]);
 
