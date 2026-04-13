@@ -3,14 +3,7 @@ import { query, mutation } from "./_generated/server";
 
 // Queries para Environments
 
-export const getFirstEstablishment = query({
-  args: {},
-  handler: async (ctx) => {
-    // Obtener el primer establecimiento disponible
-    const establishment = await ctx.db.query("establishments").first();
-    return establishment;
-  },
-});
+
 
 export const getEnvironmentsByEstablishment = query({
   args: { establishmentId: v.id("establishments") },

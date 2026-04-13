@@ -12,4 +12,5 @@ export type Establishment = {
   email: string;
   hours: string;
   active: boolean;
+  companyId?: string;
 };

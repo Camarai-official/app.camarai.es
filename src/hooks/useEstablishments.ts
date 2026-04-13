@@ -1,138 +1,120 @@
 import * as React from 'react';
-import { initialEstablishments, type Establishment } from '@/data/establishments';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import type { Establishment } from '@/data/establishments';
+import { useEstablishmentContext } from './EstablishmentContext';
 
-const LOCAL_STORAGE_KEY = 'establishments';
 const ACTIVE_ESTABLISHMENT_KEY = 'activeEstablishmentId';
 
-// Safe useQuery wrapper for static export / SSR
-const useSafeQuery = (query: any, args?: any) => {
-  if (typeof window === 'undefined') return null;
-  try {
-    return useQuery(query, args);
-  } catch (error) {
-    return null;
-  }
-};
-
 export const useEstablishments = () => {
-  const [establishments, setEstablishments] = React.useState<Establishment[]>([]);
-  const [activeEstablishmentId, setActiveEstablishmentId] = React.useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = React.useState(false);
+  const convexEstablishments = useQuery(api.establishments.getEstablishments);
+  const { activeId, setActiveId } = useEstablishmentContext();
 
-  const latestConvexEstablishment = useSafeQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-    localId: 'latest' 
-  });
-
-  // 1. Initial Load from LocalStorage
-  React.useEffect(() => {
-    try {
-      const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-      const savedActiveId = localStorage.getItem(ACTIVE_ESTABLISHMENT_KEY);
-
-      const loadedEstablishments = savedData ? JSON.parse(savedData) : initialEstablishments;
-      setEstablishments(loadedEstablishments);
-
-      if (savedActiveId) {
-        const parsedId = JSON.parse(savedActiveId);
-        if (loadedEstablishments.some((e: Establishment) => e.id === parsedId)) {
-          setActiveEstablishmentId(parsedId);
-        }
-      } else if (loadedEstablishments.length > 0) {
-        setActiveEstablishmentId(loadedEstablishments[0].id);
-      }
-    } catch (error) {
-      console.error("Failed to load local establishments", error);
-      setEstablishments(initialEstablishments);
-    }
-    setIsInitialized(true);
-  }, []);
-
-  // 2. Sync with Convex (Remote -> Local)
-  React.useEffect(() => {
-    if (!latestConvexEstablishment || !isInitialized) return;
-
-    // Check if we already have this establishment (by name or a specific convex ID tag)
-    const exists = establishments.find(
-      e => e.name === latestConvexEstablishment.name || e.id === `convex-${latestConvexEstablishment._id}`
-    );
-
-    if (!exists) {
-      const newEstablishment: Establishment = {
-        id: `convex-${latestConvexEstablishment._id}`,
-        name: latestConvexEstablishment.name,
-        image: latestConvexEstablishment.logo_url || 'https://placehold.co/40x40',
-        type: 'Restaurante',
-        address: latestConvexEstablishment.address || '',
-        postalCode: latestConvexEstablishment.postal_code || '',
-        city: latestConvexEstablishment.city || '',
-        province: latestConvexEstablishment.province || '',
-        country: latestConvexEstablishment.country || '',
-        phone: latestConvexEstablishment.phone || '',
-        email: latestConvexEstablishment.email || '',
-        hours: 'L-V: 12:00-23:00, S-D: 12:00-00:00',
-        active: true,
-      };
-      setEstablishments(prev => [...prev, newEstablishment]);
-      // Only auto-switch if no active ID is set
-      if (!activeEstablishmentId) setActiveEstablishmentId(newEstablishment.id);
-    }
-  }, [latestConvexEstablishment, isInitialized]); // Removed 'establishments' to prevent infinite loops
-
-  // 3. Persist to LocalStorage
-  React.useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(establishments));
-      if (activeEstablishmentId) {
-        localStorage.setItem(ACTIVE_ESTABLISHMENT_KEY, JSON.stringify(activeEstablishmentId));
-      } else {
-        localStorage.removeItem(ACTIVE_ESTABLISHMENT_KEY);
-      }
-    }
-  }, [establishments, activeEstablishmentId, isInitialized]);
-
-  // Actions
-  const addEstablishment = React.useCallback(() => {
-    const newId = `est-${Date.now()}`;
-    const newEst: Establishment = {
-      id: newId,
-      name: `Nuevo Restaurante ${establishments.length + 1}`,
-      image: 'https://placehold.co/40x40',
+  const establishments = React.useMemo(() => {
+    if (!convexEstablishments) return [];
+    return convexEstablishments.map((est) => ({
+      id: est._id,
+      name: est.name,
+      image: est.logo_url || 'https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png',
       type: 'Restaurante',
-      address: '', postalCode: '', city: '', province: '', country: '', phone: '', email: '', hours: '',
-      active: true,
-    };
-    setEstablishments(prev => [...prev, newEst]);
-    setActiveEstablishmentId(newId);
-    return newId;
-  }, [establishments.length]);
+      address: est.address || '',
+      postalCode: est.postal_code || '',
+      city: est.city || '',
+      province: est.province || '',
+      country: est.country || '',
+      phone: est.phone || '',
+      email: est.email || '',
+      hours: typeof est.operating_hours === 'string' ? est.operating_hours : (est as any).hours || 'L-V: 09:00-18:00',
+      active: typeof (est as any).active === 'boolean' ? (est as any).active : est.status === 'active',
+      companyId: est.company_id,
+    }));
+  }, [convexEstablishments]);
 
-  const updateEstablishment = React.useCallback((id: string, updates: Partial<Establishment>) => {
-    setEstablishments(prev => prev.map(est => est.id === id ? { ...est, ...updates } : est));
-  }, []);
+  // Handle default active establishment if none set
+  React.useEffect(() => {
+    if (!activeId && establishments.length > 0) {
+      setActiveId(establishments[0].id);
+    }
+  }, [establishments, activeId, setActiveId]);
 
-  const removeEstablishment = React.useCallback((id: string) => {
-    setEstablishments(prev => {
-      const remaining = prev.filter(est => est.id !== id);
-      if (id === activeEstablishmentId) {
-        setActiveEstablishmentId(remaining[0]?.id || null);
-      }
-      return remaining;
+  const activeEstablishment = React.useMemo(() =>
+    establishments.find(e => e.id === activeId) || null,
+  [establishments, activeId]);
+
+  const updateMutation = useMutation(api.establishments.updateEstablishment);
+  const deleteMutation = useMutation(api.establishments.deleteEstablishment);
+
+  const updateEstablishment = React.useCallback(async (id: string, updates: Partial<Establishment>) => {
+    await updateMutation({
+      id: id as any,
+      name: updates.name,
+      address: updates.address,
+      postal_code: updates.postalCode,
+      city: updates.city,
+      province: updates.province,
+      country: updates.country,
+      phone: updates.phone,
+      email: updates.email,
+      logo_url: updates.image,
+      operating_hours: updates.hours,
+      active: updates.active,
     });
-  }, [activeEstablishmentId]);
+  }, [updateMutation]);
 
-  const activeEstablishment = React.useMemo(() => 
-    establishments.find(e => e.id === activeEstablishmentId) || null, 
-  [establishments, activeEstablishmentId]);
+  const removeEstablishment = React.useCallback(async (id: string) => {
+    await deleteMutation({ id: id as any });
+  }, [deleteMutation]);
+
+  const createFirstMutation = useMutation(api.establishments.createFirstEstablishment);
+  const createMutation = useMutation(api.establishments.createEstablishment);
+
+  const addEstablishment = React.useCallback(async (data?: {
+    name: string;
+    type: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    email: string;
+  }) => {
+    if (data) {
+      if (activeEstablishment?.companyId) {
+        return await createMutation({
+          companyId: activeEstablishment.companyId as any,
+          name: data.name,
+          type: data.type,
+          address: data.address,
+          city: data.city,
+          postal_code: data.postalCode,
+          country: data.country,
+          email: data.email,
+          ownerId: "user_owner_01",
+        });
+      } else {
+        // TODO: REVISAR ESTA PARTE CUANDO EXISTA LOGIN
+        // First establishment with data
+        return await createFirstMutation({
+          name: data.name,
+          ownerId: "user_owner_01",
+          // We should ideally pass more data here, but for now we follow the existing schema
+        });
+      }
+    }
+
+    return await createFirstMutation({
+      name: "Mi Restaurante",
+      ownerId: "user_owner_01",
+    });
+  }, [createFirstMutation, createMutation, activeEstablishment?.companyId]);
 
   return {
     establishments,
     activeEstablishment,
-    setActiveEstablishmentId,
+    companyId: activeEstablishment?.companyId,
+    setActiveEstablishmentId: setActiveId,
     addEstablishment,
     updateEstablishment,
     removeEstablishment,
-    isInitialized
+    isInitialized: !!convexEstablishments
   };
 };

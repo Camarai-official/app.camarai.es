@@ -18,14 +18,14 @@ import {
   Avatar, AvatarFallback, AvatarImage,
 } from "@/components/ui/avatar"
 import {
-  SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, 
+  SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu,
   SidebarMenuItem, SidebarMenuButton, useSidebar, SidebarGroup,
   SidebarGroupLabel, SidebarGroupContent, SidebarMenuBadge
 } from "@/components/ui/sidebar"
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuGroup, 
-  DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, 
-  DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, 
+  DropdownMenu, DropdownMenuContent, DropdownMenuGroup,
+  DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator,
+  DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger,
   DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
@@ -35,6 +35,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 import { useToast } from "@/hooks/use-toast"
 import { useEstablishments } from "@/hooks/useEstablishments"
+import { CreateEstablishmentDialog } from "@/components/dialogs/create-establishment-dialog"
 import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest } from "@/data/mock-data"
 import type { Establishment } from "@/data/establishments"
 
@@ -71,6 +72,7 @@ export function SidebarNav() {
   const { establishments, activeEstablishment, setActiveEstablishmentId, addEstablishment, removeEstablishment } = useEstablishments()
   const [absenceRequests, setAbsenceRequests] = React.useState<AbsenceRequest[]>(mockAbsenceRequests)
   const [establishmentToDelete, setEstablishmentToDelete] = React.useState<Establishment | null>(null)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
 
   const pendingRequests = React.useMemo(() => absenceRequests.filter(req => req.status === 'pending'), [absenceRequests])
   const pendingReservationsCount = 0 // Placeholder
@@ -89,12 +91,10 @@ export function SidebarNav() {
 
   const handleSelectEstablishment = (id: string) => {
     setActiveEstablishmentId(id)
-    router.push('/settings/profile?tab=establishment')
   }
 
   const handleAddEstablishment = () => {
-    const newId = addEstablishment()
-    handleSelectEstablishment(newId)
+    addEstablishment()
   }
 
   const handleDeleteEstablishment = () => {
@@ -123,12 +123,13 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader padding="md">
-        <NavEstablishments 
+        <NavEstablishments
           active={activeEstablishment}
           list={establishments}
           isCollapsed={isCollapsed}
           onSelect={handleSelectEstablishment}
           onAdd={handleAddEstablishment}
+          onAssociate={() => setIsCreateDialogOpen(true)}
           onDelete={(est: any) => setEstablishmentToDelete(est)}
         />
       </SidebarHeader>
@@ -138,7 +139,7 @@ export function SidebarNav() {
       </SidebarContent>
 
       <SidebarFooter padding="md">
-        <NavUser 
+        <NavUser
           user={mockUser}
           isCollapsed={isCollapsed}
           isDarkMode={isDarkMode}
@@ -166,6 +167,12 @@ export function SidebarNav() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Establishment Dialog */}
+      <CreateEstablishmentDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
+      />
     </>
   )
 }
@@ -174,9 +181,9 @@ export function SidebarNav() {
 // SUB-COMPONENTS
 // ----------------------------------------------------------------------------
 
-function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelete }: any) {
+function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onAssociate, onDelete }: any) {
   if (!active) return (
-    <Button variant="outline" size="sm" width="full" onClick={onAdd} startIcon={<PlusCircle />}>
+    <Button variant="outline" size="sm" width="full" onClick={onAssociate} startIcon={<PlusCircle />}>
       Crear Establecimiento
     </Button>
   )
@@ -186,12 +193,12 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelet
       <DropdownMenuTrigger asChild>
         <SidebarMenuButton size="lg" variant="outline" className="h-14">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
-            <img 
-              src={active.id === 'camarai' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : active.image} 
-              alt={active.name} 
+            <img
+              src={active.id === 'camarai' || active.name === 'Camarai.es' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : active.image}
+              alt={active.name}
               className={cn(
                 "w-full h-full",
-                active.id === 'camarai' ? "object-contain p-1.5" : "object-cover"
+                active.id === 'camarai' || active.name === 'Camarai.es' ? "object-contain p-1.5" : "object-cover"
               )}
             />
           </div>
@@ -204,15 +211,39 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelet
       </DropdownMenuTrigger>
       <DropdownMenuContent width="trigger" align="start" sideOffset={8}>
         <DropdownMenuGroup>
-          {list.map((est: any) => (
+          {/* Active establishment first */}
+          <DropdownMenuItem onSelect={() => onSelect(active.id)}>
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
+              <img
+                src={active.id === 'camarai' || active.name === 'Camarai.es' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : active.image}
+                alt={active.name}
+                className={cn(
+                  "w-full h-full",
+                  active.id === 'camarai' || active.name === 'Camarai.es' ? "object-contain p-1.5" : "object-cover"
+                )}
+              />
+            </div>
+            <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
+              <span className="truncate font-bold text-sm text-foreground">{active.name}</span>
+              <span className="truncate text-[10px] text-muted-foreground">{active.type}</span>
+            </div>
+            <Check className="h-4 w-4 ml-auto text-primary" />
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          {/* Other establishments */}
+          {list
+            .filter((est: any) => est.id !== active.id)
+            .map((est: any) => (
             <DropdownMenuItem key={est.id} onSelect={() => onSelect(est.id)}>
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
-                <img 
-                  src={est.id === 'camarai' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : est.image} 
-                  alt={est.name} 
+                <img
+                  src={est.id === 'camarai' || est.name === 'Camarai.es' ? "https://res.cloudinary.com/dxh2i2rjo/image/upload/v1769436934/camarailogo_lbsc9d.png" : est.image}
+                  alt={est.name}
                   className={cn(
                     "w-full h-full",
-                    est.id === 'camarai' ? "object-contain p-1.5" : "object-cover"
+                    est.id === 'camarai' || est.name === 'Camarai.es' ? "object-contain p-1.5" : "object-cover"
                   )}
                 />
               </div>
@@ -223,10 +254,12 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onDelet
             </DropdownMenuItem>
           ))}
         </DropdownMenuGroup>
+
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={onAdd}>
-          <PlusCircle />
-          <span>Añadir nuevo local</span>
+
+        <DropdownMenuItem onSelect={onAssociate}>
+          <PlusCircle className="h-4 w-4" />
+          <span>Asociar establecimiento</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -283,7 +316,7 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
             <span>Mi cuenta</span>
           </Link>
         </DropdownMenuItem>
-        
+
         {/* Notifications Submenu */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
@@ -330,13 +363,13 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
             Privacidad
           </Link>
         </DropdownMenuItem>
-        
+
         <DropdownMenuItem onSelect={(e) => { e.preventDefault(); onDarkModeChange(!isDarkMode); }}>
           {isDarkMode ? <Moon /> : <Sun />}
           <span>{isDarkMode ? 'Modo noche' : 'Modo claro'}</span>
           <Switch checked={isDarkMode} onCheckedChange={onDarkModeChange} />
         </DropdownMenuItem>
-        
+
         <DropdownMenuItem onSelect={() => toast({ title: 'Saliendo...', description: 'Hasta pronto.' })}>
           <LogOut />
           Cerrar sesión

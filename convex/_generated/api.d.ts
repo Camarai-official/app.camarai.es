@@ -11,6 +11,7 @@
 import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
 import type * as categories from "../categories.js";
+import type * as companies from "../companies.js";
 import type * as crons from "../crons.js";
 import type * as environments from "../environments.js";
 import type * as erase from "../erase.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   auth: typeof auth;
   categories: typeof categories;
+  companies: typeof companies;
   crons: typeof crons;
   environments: typeof environments;
   erase: typeof erase;

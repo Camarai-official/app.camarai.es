@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
+import { EstablishmentProvider } from '../hooks/EstablishmentContext';
 import { Toaster } from '@/components/ui/toaster';
 import * as React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -59,17 +60,19 @@ export default function RootLayout({
       <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
         {convex ? (
           <ConvexProvider client={convex}>
-            <SidebarProvider>
-              <MobileHeader />
-              <Sidebar variant="sidebar" collapsible="icon">
-                <SidebarNav />
-              </Sidebar>
-              <MainContent>{children}</MainContent>
-            </SidebarProvider>
-            <Toaster />
+            <EstablishmentProvider>
+              <SidebarProvider>
+                <MobileHeader />
+                <Sidebar variant="sidebar" collapsible="icon">
+                  <SidebarNav />
+                </Sidebar>
+                <MainContent>{children}</MainContent>
+              </SidebarProvider>
+              <Toaster />
+            </EstablishmentProvider>
           </ConvexProvider>
         ) : (
-          <>
+          <EstablishmentProvider>
             <SidebarProvider>
               <MobileHeader />
               <Sidebar variant="sidebar" collapsible="icon">
@@ -78,7 +81,7 @@ export default function RootLayout({
               <MainContent>{children}</MainContent>
             </SidebarProvider>
             <Toaster />
-          </>
+          </EstablishmentProvider>
         )}
       </body>
     </html>

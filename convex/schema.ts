@@ -67,6 +67,7 @@ export default defineSchema({
       stripe_public: v.optional(v.string()),
       evolution_api_key: v.optional(v.string()),
     })),
+    active: v.optional(v.boolean()),
     created_at: v.number(),
   }).index("by_company", ["company_id"]),
 

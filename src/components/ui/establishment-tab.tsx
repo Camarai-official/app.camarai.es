@@ -1,5 +1,6 @@
 import { H2, H3, TextSM } from '@/components/ui/typography';
 import * as React from 'react';
+import { OperatingHoursEditor } from '@/components/ui/operating-hours-editor';
 import type { RefObject } from 'react';
 import { Camera, Trash } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
@@ -20,6 +21,7 @@ type EstablishmentTabProps = {
     activeEstablishment: Establishment | null;
     establishments: Establishment[];
     localEstablishment: Partial<Establishment> | null;
+    isInitialized?: boolean; 
     establishmentFileInputRef: RefObject<HTMLInputElement>;
     onEstablishmentImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onEstablishmentInputChange: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
@@ -33,6 +35,7 @@ export function EstablishmentTab({
     activeEstablishment,
     establishments,
     localEstablishment,
+    isInitialized,
     establishmentFileInputRef,
     onEstablishmentImageChange,
     onEstablishmentInputChange,
@@ -40,9 +43,35 @@ export function EstablishmentTab({
     onSaveEstablishmentChanges,
     onDeleteEstablishment,
     onCreateFirstEstablishment }: EstablishmentTabProps) {
+    
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <TabsContent value="establishment">
+                <Card>
+                    <CardHeader>
+                        <H3>Cargando...</H3>
+                        <CardDescription>Preparando vista de configuración...</CardDescription>
+                    </CardHeader>
+                </Card>
+            </TabsContent>
+        );
+    }
+
     return (
         <TabsContent value="establishment">
-            {!activeEstablishment && establishments.length === 0 ? (
+            {!isInitialized ? (
+                <Card>
+                    <CardHeader>
+                        <H3>Cargando...</H3>
+                        <CardDescription>Estamos preparando tus establecimientos.</CardDescription>
+                    </CardHeader>
+                </Card>
+            ) : !activeEstablishment && establishments.length === 0 ? (
                 <Card>
                     <CardHeader>
                         <H3>No hay establecimientos</H3>
@@ -129,8 +158,13 @@ export function EstablishmentTab({
                                     <Input id="email" type="email" value={localEstablishment.email || ''} onChange={onEstablishmentInputChange} />
                                 </div>
                                 <div className="space-y-2 col-span-1 md:col-span-2">
-                                    <Label htmlFor="hours">Horario</Label>
-                                    <Textarea id="hours" value={localEstablishment.hours || ''} onChange={onEstablishmentInputChange} />
+                                    <Label htmlFor="hours">Horario de Apertura</Label>
+                                    <OperatingHoursEditor 
+                                      value={localEstablishment.hours || ''} 
+                                      onChange={(val) => onEstablishmentInputChange({ 
+                                        target: { id: 'hours', value: val } 
+                                      } as any)} 
+                                    />
                                 </div>
                                 <ConfigToggle
                                     id="active"

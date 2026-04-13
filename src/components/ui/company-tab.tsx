@@ -71,21 +71,47 @@ function validateNIF(nif: string): { valid: boolean; type: string } {
     return { valid: false, type: 'invalid' };
 }
 
+import { useCompany } from '@/hooks/useCompany';
+
 export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: CompanyTabProps) {
     const { toast } = useToast();
+    const { company, updateCompany, isInitialized } = useCompany();
     const [isSaving, setIsSaving] = React.useState(false);
+    const [mounted, setMounted] = React.useState(false);
     
     // Form state
     const [formData, setFormData] = React.useState({
-        companyName: 'Grupo Camarai',
-        legalName: 'Camarai Hostelería S.L.',
-        nif: 'B12345678',
-        website: 'https://camarai.es',
-        address: 'Paseo de la Castellana, 1' });
+        companyName: '',
+        legalName: '',
+        nif: '',
+        website: '',
+        address: ''
+    });
     
     // Validation state
     const [nifValidation, setNifValidation] = React.useState<{ valid: boolean; type: string } | null>(null);
     const [hasChanges, setHasChanges] = React.useState(false);
+
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    // Sync formData with company data from Convex when loaded
+    React.useEffect(() => {
+        if (company) {
+            setFormData({
+                companyName: company.name || '',
+                legalName: company.legal_name || '',
+                nif: company.nif || '',
+                website: company.website || '',
+                address: company.address || ''
+            });
+            // Initial validation
+            if (company.nif) {
+                setNifValidation(validateNIF(company.nif));
+            }
+        }
+    }, [company]);
     
     const handleInputChange = (field: keyof typeof formData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -99,9 +125,9 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
     };
     
     const handleSave = async () => {
-        // Validate NIF before saving
+        // Validate NIF before saving (unless it's "PENDING")
         const nifCheck = validateNIF(formData.nif);
-        if (!nifCheck.valid) {
+        if (!nifCheck.valid && formData.nif !== 'PENDING') {
             toast({
                 variant: 'destructive',
                 title: 'NIF inválido',
@@ -110,15 +136,42 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
         }
         
         setIsSaving(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsSaving(false);
-        setHasChanges(false);
-        
-        toast({
-            title: 'Cambios guardados',
-            description: 'La información de la empresa se ha actualizado correctamente.' });
+        try {
+            await updateCompany({
+                name: formData.companyName,
+                legal_name: formData.legalName,
+                nif: formData.nif,
+                website: formData.website,
+                address: formData.address
+            });
+            
+            setHasChanges(false);
+            toast({
+                title: 'Cambios guardados',
+                description: 'La información de la empresa se ha actualizado correctamente.' 
+            });
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error al guardar',
+                description: 'No se pudieron guardar los cambios de la empresa.'
+            });
+        } finally {
+            setIsSaving(false);
+        }
     };
+    
+    if (!mounted || !isInitialized) {
+        return (
+            <TabsContent value="company">
+                <Card>
+                    <CardHeader>
+                        <H3>Cargando información de la empresa...</H3>
+                    </CardHeader>
+                </Card>
+            </TabsContent>
+        );
+    }
     
     return (
         <TabsContent value="company">
