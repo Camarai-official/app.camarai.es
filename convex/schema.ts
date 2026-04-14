@@ -421,13 +421,14 @@ export default defineSchema({
 
   reservations: defineTable({
     establishment_id: v.id("establishments"),
-    customer_id: v.id("customers"),
+    customer_id: v.optional(v.id("customers")),
     table_id: v.optional(v.id("tables")),
     customer_name: v.optional(v.string()), // For guest reservations
     customer_phone: v.optional(v.string()),
     customer_email: v.optional(v.string()),
     date: v.string(), // ISO "YYYY-MM-DD"
-    time: v.string(), // "HH:mm"
+    start_time: v.string(), // "HH:mm"
+    end_time: v.string(), // "HH:mm" - Hora de fin de la reserva
     guests: v.number(),
     status: v.union(v.literal("pending"), v.literal("confirmed"), v.literal("cancelled"), v.literal("completed"), v.literal("no_show")),
     notified: v.boolean(),
@@ -438,12 +439,12 @@ export default defineSchema({
   }).index("by_establishment", ["establishment_id"]),
 
   customers: defineTable({
-    establishment_id: v.id("establishments"),
+    establishments_id: v.array(v.id("establishments")),
     name: v.string(),
     phone: v.optional(v.string()),
     email: v.optional(v.string()),
     points: v.number(),
-    tags: v.optional(v.array(v.string())), // Segment tags
+    tags: v.optional(v.array(v.string())),
     preferred_payment_method: v.optional(v.union(v.literal("cash"), v.literal("card"), v.literal("bizum"))),
     birth_date: v.optional(v.string()),
     anniversary: v.optional(v.string()),
@@ -456,7 +457,7 @@ export default defineSchema({
     notes: v.optional(v.string()),
     source: v.union(v.literal("manual"), v.literal("whatsapp"), v.literal("reservation")),
     created_at: v.number(),
-  }).index("by_establishment", ["establishment_id"]),
+  }).index("by_establishment", ["establishments_id"]),
 
   // --- DOMAIN 4: HR AND ATTENDANCE ---
 

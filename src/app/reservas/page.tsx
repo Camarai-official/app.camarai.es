@@ -1,6 +1,10 @@
 'use client';
 import { H3, H5, TextSM } from '@/components/ui/typography';
 
+// Convex imports
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import type { Id } from '../../../convex/_generated/dataModel';
 
 import * as React from 'react';
 import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
@@ -10,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, MoreVertical, Users, Clock, Phone, PlusCircle, Edit, Trash, ChevronLeft, ChevronRight, MapPin, Settings, MessageSquare, Bell, Send, X, Calendar, Check, LayoutGrid, Armchair, Building2 } from 'lucide-react';
 import { ActionTile } from '@/components/ui/action-tile';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose } from '@/components/layout/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose, DialogWindow } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format, addMonths, startOfMonth, parse } from 'date-fns';
@@ -18,46 +22,129 @@ import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
-import { useEnvironments } from '@/hooks/useEnvironments';
+import { useEstablishments } from '@/hooks/useEstablishments';
 import { Select, SelectContent, SelectItemWithTrailing, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Environment } from '@/data/environments';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
-import { ReservationDialog, type Reservation } from '@/components/dialogs/reservas-edit-dialog';
+import { ReservationDialog, type Reservation, type ReservationStatus } from '@/components/dialogs/reservas-edit-dialog';
 import { WhatsAppNotificationsDialog } from '@/components/dialogs/reservas-notificaciones-dialog';
 
-const initialReservations: { [key: string]: Reservation[] } = {
-    [format(new Date(), 'yyyy-MM-dd')]: [
-        { id: 'res-1', customerName: 'Carlos Sánchez', phone: '600123456', guests: 4, startTime: '21:00', endTime: '22:30', status: 'Confirmada', environmentId: 'main-hall', tableId: 1 },
-        { id: 'res-2', customerName: 'Ana Martínez', phone: '600654321', guests: 2, startTime: '21:30', endTime: '23:30', status: 'Pendiente', notes: 'Mesa en la terraza, si es posible.' },
-    ],
-    [format(new Date(Date.now() + 86400000), 'yyyy-MM-dd')]: [ // Tomorrow
-        { id: 'res-3', customerName: 'Lucía Fernández', phone: '600789012', guests: 5, startTime: '14:00', endTime: '15:30', status: 'Confirmada' },
-    ],
-    [format(new Date(Date.now() + 2 * 86400000), 'yyyy-MM-dd')]: [ // Day after tomorrow
-        { id: 'res-4', customerName: 'Javier López', phone: '600234567', guests: 2, startTime: '20:30', endTime: '21:45', status: 'Pendiente' },
-        { id: 'res-5', customerName: 'Elena Gómez', phone: '600345678', guests: 8, startTime: '22:00', endTime: '00:30', status: 'Confirmada', notes: 'Celebración de cumpleaños.' },
-        { id: 'res-6', customerName: 'David Moreno', phone: '600456789', guests: 3, startTime: '21:00', endTime: '22:30', status: 'Cancelada' },
-    ]
+// Local type that matches actual Convex data structure
+type LocalReservation = {
+  id: string;
+  customerName: string;
+  phone: string;
+  guests: number;
+  startTime: string;
+  endTime: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+  notes?: string;
+  environmentId?: string;
+  tableId?: string;
+};
+
+// Type transformation functions
+const transformLocalToDialog = (local: LocalReservation): Reservation => {
+    const statusMap: Record<string, ReservationStatus> = {
+        'pending': 'Pendiente',
+        'confirmed': 'Confirmada',
+        'cancelled': 'Cancelada',
+        'completed': 'Completada',
+        'no_show': 'Pendiente' // Map no_show to Pendiente for dialog
+    };
+    
+    return {
+        id: local.id,
+        customerName: local.customerName,
+        phone: local.phone,
+        guests: local.guests,
+        startTime: local.startTime,
+        endTime: local.endTime,
+        status: statusMap[local.status] || 'Pendiente',
+        notes: local.notes,
+        environmentId: local.environmentId,
+        tableId: local.tableId
+    };
+};
+
+const transformDialogToLocal = (dialog: Reservation): LocalReservation => {
+    const statusMap: Record<string, 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show'> = {
+        'Pendiente': 'pending',
+        'Confirmada': 'confirmed',
+        'Cancelada': 'cancelled',
+        'Completada': 'completed'
+    };
+    
+    return {
+        id: dialog.id,
+        customerName: dialog.customerName,
+        phone: dialog.phone,
+        guests: dialog.guests,
+        startTime: dialog.startTime,
+        endTime: dialog.endTime,
+        status: statusMap[dialog.status] || 'pending',
+        notes: dialog.notes,
+        environmentId: dialog.environmentId,
+        tableId: dialog.tableId
+    };
 };
 
 export default function ReservasPage() {
-    const [reservations, setReservations] = React.useState(initialReservations);
     const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [isWhatsAppConfigOpen, setIsWhatsAppConfigOpen] = React.useState(false);
-    const [editingReservation, setEditingReservation] = React.useState<Reservation | null>(null);
+    const [editingReservation, setEditingReservation] = React.useState<LocalReservation | null>(null);
     const { toast } = useToast();
     const [displayMonth, setDisplayMonth] = React.useState(startOfMonth(new Date()));
     const [environmentFilterId, setEnvironmentFilterId] = React.useState<string>('all');
-    const { environments } = useEnvironments();
+    const { activeEstablishment } = useEstablishments();
+    const [collapsedReservations, setCollapsedReservations] = React.useState<Set<string>>(new Set());
+    const [showTableAssignmentPopup, setShowTableAssignmentPopup] = React.useState<{ reservationId: string; availableTables: any[] } | null>(null);
+    const environments = useQuery(api.environments.getEnvironmentsByEstablishment, 
+        activeEstablishment ? { establishmentId: activeEstablishment.id as Id<"establishments"> } : "skip"
+    ) || [];
+    
+    // Convex hooks
+    const createReservation = useMutation(api.reservations.createReservation);
+    const updateReservation = useMutation(api.reservations.updateReservation);
+    const updateReservationStatus = useMutation(api.reservations.updateReservationStatus);
+    const getReservations = useQuery(api.reservations.getReservations, 
+        activeEstablishment ? {
+            establishment_id: activeEstablishment.id as Id<"establishments">,
+            date: format(selectedDate, 'yyyy-MM-dd')
+        } : "skip"
+    );
+    const getReservationsByMonth = useQuery(api.reservations.getReservationsByMonth,
+        activeEstablishment ? {
+            establishment_id: activeEstablishment.id as Id<"establishments">,
+            year: displayMonth.getFullYear(),
+            month: displayMonth.getMonth()
+        } : "skip"
+    );
 
 
-    const dayReservations = reservations[format(selectedDate, 'yyyy-MM-dd')] || [];
+    // Transform Convex data to frontend format
+    const dayReservations = React.useMemo(() => {
+        if (!getReservations) return [];
+        return getReservations.map((r: any) => ({
+            id: r._id,
+            customerName: r.customer_name || 'Cliente',
+            phone: r.customer_phone || '',
+            email: r.customer_email || '',
+            date: r.date,
+            startTime: r.start_time,
+            endTime: r.end_time,
+            guests: r.guests,
+            status: r.status,
+            notes: r.notes,
+            tableId: r.table_id,
+            environmentId: r.environmentId
+        }));
+    }, [getReservations]);
 
     const filteredDayReservations = React.useMemo(() => {
         if (environmentFilterId === 'all') return dayReservations;
@@ -87,58 +174,131 @@ export default function ReservasPage() {
               ? '0 reservas'
               : `${filteredDayReservations.length} de ${dayReservations.length} reservas`;
 
-    const handleStatusChange = (id: string, newStatus: Reservation['status']) => {
-        const dateKey = format(selectedDate, 'yyyy-MM-dd');
-        setReservations(prev => ({
-            ...prev,
-            [dateKey]: prev[dateKey].map(res => res.id === id ? { ...res, status: newStatus } : res)
-        }));
-        toast({
-            title: `Reserva ${newStatus}`,
-            description: `La reserva ha sido marcada como ${newStatus.toLowerCase()}.`
-        });
-    }
-
-    const handleSaveReservation = (reservationData: Omit<Reservation, 'id'>, existingId?: string) => {
-        const dateKey = format(selectedDate, 'yyyy-MM-dd');
-
-        if (existingId) {
-            // Editing existing reservation
-            setReservations(prev => ({
-                ...prev,
-                [dateKey]: prev[dateKey].map(res =>
-                    res.id === existingId
-                        ? { ...res, ...reservationData }
-                        : res
-                ).sort((a, b) => a.startTime.localeCompare(b.startTime))
-            }));
-            toast({
-                title: "Reserva Actualizada",
-                description: `La reserva de ${reservationData.customerName} ha sido modificada.`
-            });
-        } else {
-            // Creating new reservation
-            const newReservation: Reservation = {
-                ...reservationData,
-                id: `res-${Date.now()}`
-            };
-            setReservations(prev => {
-                const dayReservations = prev[dateKey] || [];
-                return {
-                    ...prev,
-                    [dateKey]: [...dayReservations, newReservation].sort((a, b) => a.startTime.localeCompare(b.startTime))
+    const handleStatusChange = async (id: string, newStatus: string) => {
+        try {
+            // Check for conflicts when changing to confirmed status
+            if (newStatus === 'confirmed') {
+                const reservation = dayReservations.find(r => r.id === id);
+                if (reservation && reservation.tableId && reservation.environmentId) {
+                    // Check for conflicts with other confirmed reservations only
+                    const todaysReservations = getReservations || [];
+                    const hasConflict = todaysReservations.some(r => {
+                        // Skip the current reservation and cancelled reservations
+                        if (r._id === id || r.status === 'cancelled') return false;
+                        
+                        // Check if same table and overlapping time
+                        if (r.table_id === reservation.tableId && r.environmentId === reservation.environmentId) {
+                            const rStart = parse(r.start_time, 'HH:mm', new Date());
+                            const rEnd = parse(r.end_time, 'HH:mm', new Date());
+                            const reservationStart = parse(reservation.startTime, 'HH:mm', new Date());
+                            const reservationEnd = parse(reservation.endTime, 'HH:mm', new Date());
+                            
+                            // Handle overnight
+                            if (rEnd < rStart) rEnd.setDate(rEnd.getDate() + 1);
+                            if (reservationEnd < reservationStart) reservationEnd.setDate(reservationEnd.getDate() + 1);
+                            
+                            // Check for overlap: (Start1 < End2) AND (End1 > Start2)
+                            return reservationStart < rEnd && reservationEnd > rStart;
+                        }
+                        return false;
+                    });
+                    
+                    if (hasConflict) {
+                        toast({
+                            title: "Conflicto de Reserva",
+                            description: "No se puede confirmar esta reserva porque la mesa ya está ocupada en este horario por otra reserva confirmada.",
+                            variant: "destructive"
+                        });
+                        return;
+                    }
                 }
+            }
+            
+            await updateReservationStatus({
+                reservationId: id as Id<"reservations">,
+                status: newStatus as any
             });
+            
             toast({
-                title: "Reserva Creada",
-                description: `Se ha añadido la reserva para ${reservationData.customerName}.`
+                title: `Reserva ${newStatus === 'confirmed' ? 'Confirmada' : newStatus === 'cancelled' ? 'Cancelada' : newStatus === 'completed' ? 'Completada' : newStatus === 'pending' ? 'Pendiente' : 'No Show'}`,
+                description: `La reserva ha sido marcada como ${newStatus === 'confirmed' ? 'Confirmada' : newStatus === 'cancelled' ? 'Cancelada' : newStatus === 'completed' ? 'Completada' : newStatus === 'pending' ? 'Pendiente' : 'No Show'}.`
+            });
+        } catch (error) {
+            console.error('Error updating reservation status:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo actualizar el estado de la reserva.",
+                variant: "destructive"
             });
         }
-        setEditingReservation(null);
+    }
+
+    const handleSaveReservation = async (reservationData: Omit<LocalReservation, 'id'>, existingId?: string) => {
+        try {
+            if (!activeEstablishment) {
+                toast({
+                    title: "Error",
+                    description: "No hay un establecimiento activo seleccionado.",
+                    variant: "destructive"
+                });
+                return;
+            }
+
+            if (existingId) {
+                // Update existing reservation
+                await updateReservation({
+                    reservation_id: existingId as Id<"reservations">,
+                    customer_name: reservationData.customerName,
+                    customer_phone: reservationData.phone,
+                    customer_email: undefined,
+                    date: format(selectedDate, 'yyyy-MM-dd'),
+                    start_time: reservationData.startTime,
+                    end_time: reservationData.endTime,
+                    guests: reservationData.guests,
+                    table_id: reservationData.tableId ? (reservationData.tableId as Id<"tables">) : undefined,
+                    notes: reservationData.notes,
+                });
+                
+                toast({
+                    title: "Reserva Actualizada",
+                    description: `La reserva de ${reservationData.customerName} ha sido modificada.`
+                });
+            } else {
+                // Creating new reservation
+                await createReservation({
+                    establishment_id: activeEstablishment.id as Id<"establishments">,
+                    customer_name: reservationData.customerName,
+                    customer_phone: reservationData.phone,
+                    customer_email: undefined, // TODO: Add to form if needed
+                    date: format(selectedDate, 'yyyy-MM-dd'),
+                    start_time: reservationData.startTime,
+                    end_time: reservationData.endTime,
+                    guests: reservationData.guests,
+                    table_id: reservationData.tableId ? (reservationData.tableId as Id<"tables">) : undefined,
+                    notes: reservationData.notes,
+                    source: "dashboard"
+                });
+                
+                toast({
+                    title: "Reserva Creada",
+                    description: `La reserva de ${reservationData.customerName} ha sido creada.`
+                });
+            }
+            setIsDialogOpen(false);
+            setEditingReservation(null);
+        } catch (error) {
+            console.error('Error saving reservation:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo guardar la reserva. Inténtelo de nuevo.",
+                variant: "destructive"
+            });
+        }
     };
 
     const handleEditReservation = (reservation: Reservation) => {
-        setEditingReservation(reservation);
+        const transformedReservation = transformDialogToLocal(reservation);
+        setEditingReservation(transformedReservation);
         setIsDialogOpen(true);
     };
 
@@ -147,23 +307,135 @@ export default function ReservasPage() {
         setIsDialogOpen(true);
     }
 
-    const handleAssignTable = (reservationId: string, environmentId: string, tableId: number) => {
-        const dateKey = format(selectedDate, 'yyyy-MM-dd');
-        setReservations(prev => ({
-            ...prev,
-            [dateKey]: prev[dateKey].map(res =>
-                res.id === reservationId
-                    ? { ...res, environmentId, tableId, status: 'Confirmada' }
-                    : res
-            )
-        }));
-        toast({
-            title: "Mesa Asignada",
-            description: "La mesa se ha asignado a la reserva y ha sido confirmada."
+    const handleAssignTable = async (reservationId: string, environmentId: string, tableId: string) => {
+        try {
+            // Update reservation with new table assignment
+            await updateReservation({
+                reservation_id: reservationId as Id<"reservations">,
+                table_id: tableId as Id<"tables">,
+            });
+
+            toast({
+                title: "Mesa Asignada",
+                description: "La mesa se ha asignado correctamente a la reserva."
+            });
+        } catch (error) {
+            console.error('Error assigning table:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo asignar la mesa. Inténtelo de nuevo.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    // Wrapper functions to handle type transformations for dialog component
+    const handleSaveReservationWrapper = (reservationData: Omit<Reservation, 'id'>, existingId?: string) => {
+        // Transform from dialog type to local type
+        const localData: Omit<LocalReservation, 'id'> = {
+            customerName: reservationData.customerName,
+            phone: reservationData.phone,
+            guests: reservationData.guests,
+            startTime: reservationData.startTime,
+            endTime: reservationData.endTime,
+            status: transformDialogToLocal({ ...reservationData, id: '' } as Reservation).status,
+            notes: reservationData.notes,
+            environmentId: reservationData.environmentId,
+            tableId: reservationData.tableId
+        };
+        handleSaveReservation(localData, existingId);
+    };
+
+    const getAvailableTablesWrapper = (reservation: Partial<Reservation>) => {
+        // Transform from dialog type to local type
+        const localReservation: Partial<LocalReservation> = {
+            customerName: reservation.customerName,
+            phone: reservation.phone,
+            guests: reservation.guests,
+            startTime: reservation.startTime,
+            endTime: reservation.endTime,
+            status: reservation.status ? transformDialogToLocal({ ...reservation, id: '' } as Reservation).status : undefined,
+            notes: reservation.notes,
+            environmentId: reservation.environmentId,
+            tableId: reservation.tableId
+        };
+        return getAvailableTablesForReservation(localReservation);
+    };
+
+    const handleConfirmReservation = (reservation: LocalReservation) => {
+        // Check if reservation is cancelled and collapsed
+        if (reservation.status === 'cancelled' && collapsedReservations.has(reservation.id)) {
+            // Get available tables for this reservation
+            const availableEnvironments = getAvailableTablesForReservation(reservation);
+            
+            // Format available tables for popup
+            const availableTables = availableEnvironments.flatMap(env => 
+                env.tables.map(table => ({
+                    environment: env,
+                    table: table
+                }))
+            );
+
+            // Show popup with available tables
+            setShowTableAssignmentPopup({
+                reservationId: reservation.id,
+                availableTables
+            });
+        } else {
+            // Normal confirmation flow
+            handleStatusChange(reservation.id, 'confirmed');
+        }
+    };
+
+    const handleAssignTableAndConfirm = async (reservationId: string, environmentId: string, tableId: string) => {
+        try {
+            // Update reservation with table assignment and confirm status
+            await updateReservation({
+                reservation_id: reservationId as Id<"reservations">,
+                table_id: tableId as Id<"tables">,
+            });
+
+            // Update status to confirmed
+            await updateReservationStatus({
+                reservationId: reservationId as Id<"reservations">,
+                status: 'confirmed'
+            });
+
+            toast({
+                title: "Reserva Confirmada",
+                description: "La reserva ha sido confirmada y la mesa asignada automáticamente."
+            });
+
+            // Remove from collapsed reservations since it's now confirmed
+            setCollapsedReservations(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(reservationId);
+                return newSet;
+            });
+
+        } catch (error) {
+            console.error('Error assigning table and confirming reservation:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo asignar la mesa y confirmar la reserva.",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const toggleReservationCollapse = (reservationId: string) => {
+        setCollapsedReservations(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(reservationId)) {
+                newSet.delete(reservationId);
+            } else {
+                newSet.add(reservationId);
+            }
+            return newSet;
         });
     };
 
-    const getAvailableTablesForReservation = React.useCallback((reservation: Partial<Reservation>) => {
+    const getAvailableTablesForReservation = React.useCallback((reservation: Partial<LocalReservation>) => {
         if (!reservation.startTime || !reservation.endTime) return environments;
 
         const reservationStart = parse(`${reservation.startTime}`, 'HH:mm', new Date());
@@ -174,35 +446,44 @@ export default function ReservasPage() {
             reservationEnd.setDate(reservationEnd.getDate() + 1);
         }
 
-        const todaysReservations = reservations[format(selectedDate, 'yyyy-MM-dd')] || [];
+        const todaysReservations = getReservations || [];
         const occupiedTables = new Set<string>(); // "envId-tableId"
 
         todaysReservations.forEach(r => {
-            if (r.id !== reservation.id && r.tableId && r.environmentId) {
-                const rStart = parse(r.startTime, 'HH:mm', new Date());
-                const rEnd = parse(r.endTime, 'HH:mm', new Date());
+            // Skip cancelled reservations - they don't block tables
+            if (r.status === 'cancelled') return;
+            
+            if (r.table_id && r.environmentId) {
+                const rStart = parse(r.start_time, 'HH:mm', new Date());
+                const rEnd = parse(r.end_time, 'HH:mm', new Date());
                 if (rEnd < rStart) rEnd.setDate(rEnd.getDate() + 1);
 
-                // Check for overlap
-                if (reservationStart < rEnd && reservationEnd > rStart) {
-                    occupiedTables.add(`${r.environmentId}-${r.tableId}`);
+                const hasOverlap = reservationStart < rEnd && reservationEnd > rStart;
+                const isSameReservation = r._id === reservation.id;
+                const shouldCheckConflict = !isSameReservation;
+                
+                if (hasOverlap && shouldCheckConflict) {
+                    occupiedTables.add(`${r.environmentId}-${r.table_id}`);
                 }
             }
         });
 
-        return environments.map(env => ({
+        const availableEnvironments = environments.map(env => ({
             ...env,
             tables: env.tables.filter(table => !occupiedTables.has(`${env.id}-${table.id}`) && table.capacity >= (reservation.guests || 0))
         })).filter(env => env.tables.length > 0);
-    }, [reservations, selectedDate, environments])
+
+        return availableEnvironments;
+    }, [getReservations, selectedDate, environments])
 
 
-    const getStatusProps = (status: Reservation['status']) => {
+    const getStatusProps = (status: string) => {
         switch (status) {
-            case 'Confirmada': return { variant: 'completed' as const, text: 'Confirmada' };
-            case 'Pendiente': return { variant: 'in-progress' as const, text: 'Pendiente' };
-            case 'Cancelada': return { variant: 'destructive' as const, text: 'Cancelada' };
-            case 'Completada': return { variant: 'secondary' as const, text: 'Completada' };
+            case 'confirmed': return { variant: 'completed' as const, text: 'Confirmada' };
+            case 'pending': return { variant: 'in-progress' as const, text: 'Pendiente' };
+            case 'cancelled': return { variant: 'destructive' as const, text: 'Cancelada' };
+            case 'completed': return { variant: 'secondary' as const, text: 'Completada' };
+            case 'no_show': return { variant: 'outline' as const, text: 'No Show' };
             default: return { variant: 'outline' as const, text: 'Desconocido' };
         }
     }
@@ -244,7 +525,8 @@ export default function ReservasPage() {
                                     )
                                 },
                                 DayContent: ({ date }) => {
-                                    const dayReservationsCount = reservations[format(date, 'yyyy-MM-dd')]?.length || 0;
+                                    const dateStr = format(date, 'yyyy-MM-dd');
+                                    const dayReservationsCount = getReservationsByMonth?.[dateStr] || 0;
                                     return (
                                         <div className="relative flex flex-col items-center justify-center h-full w-full py-1">
                                             <span className="text-xs sm:text-sm">{format(date, 'd')}</span>
@@ -339,7 +621,7 @@ export default function ReservasPage() {
                                         const availableEnvironments = getAvailableTablesForReservation(res);
                                         const assignedEnv = res.environmentId ? environments.find(e => e.id === res.environmentId) : null;
                                         const assignedTable = assignedEnv
-                                            ? assignedEnv.tables.find((t) => t.id === String(res.tableId))
+                                            ? assignedEnv.tables.find((t) => t.id === res.tableId)
                                             : null;
                                         
                                         const description = (
@@ -378,7 +660,7 @@ export default function ReservasPage() {
                                                                     Editar reserva
                                                                 </DropdownMenuItem>
                                                                 <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Confirmada')} disabled={res.status === 'Confirmada'}>
+                                                                <DropdownMenuItem onClick={() => handleConfirmReservation(res)} disabled={res.status === 'confirmed'}>
                                                                     <Check />
                                                                     Confirmar
                                                                 </DropdownMenuItem>
@@ -391,9 +673,12 @@ export default function ReservasPage() {
                                                                                     <DropdownMenuSubTrigger className='w-full'>{env.name}</DropdownMenuSubTrigger>
                                                                                     <DropdownMenuSubContent>
                                                                                         {env.tables.map(table => (
-                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, Number(table.id))}>
+                                                                                            <DropdownMenuItem key={table.id} onSelect={() => handleAssignTable(res.id, env.id, table.id)}>
                                                                                                 <Armchair />
-                                                                                                Mesa {table.number} (Cap: {table.capacity})
+                                                                                                Mesa {table.number}
+                                                                                                {res.tableId === table.id.toString() && (
+                                                                                                    <Check className="ml-auto h-4 w-4 text-green-600" />
+                                                                                                )}
                                                                                             </DropdownMenuItem>
                                                                                         ))}
                                                                                     </DropdownMenuSubContent>
@@ -403,7 +688,7 @@ export default function ReservasPage() {
                                                                     </DropdownMenuSubContent>
                                                                 </DropdownMenuSub>
                                                                 <DropdownMenuSeparator />
-                                                                <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'Cancelada')}>
+                                                                <DropdownMenuItem onClick={() => handleStatusChange(res.id, 'cancelled')} disabled={res.status === 'cancelled'}>
                                                                     <X />
                                                                     Cancelar
                                                                 </DropdownMenuItem>
@@ -430,16 +715,66 @@ export default function ReservasPage() {
                 <ReservationDialog
                     open={isDialogOpen}
                     onOpenChange={setIsDialogOpen}
-                    onSave={handleSaveReservation}
-                    getAvailableTables={getAvailableTablesForReservation}
+                    onSave={handleSaveReservationWrapper}
+                    getAvailableTables={getAvailableTablesWrapper}
                     environments={environments}
-                    editingReservation={editingReservation}
+                    editingReservation={editingReservation ? transformLocalToDialog(editingReservation) : null}
                 />
 
                 <WhatsAppNotificationsDialog
                     open={isWhatsAppConfigOpen}
                     onOpenChange={setIsWhatsAppConfigOpen}
                 />
+
+                {/* Table Assignment Popup */}
+                <Dialog open={!!showTableAssignmentPopup} onOpenChange={() => setShowTableAssignmentPopup(null)}>
+                    <DialogWindow size="sm">
+                        <DialogHeader
+                            icon={Armchair}
+                            title="Asignar Mesa Automática"
+                            description="Esta reserva está cancelada y colapsada. Se asignará automáticamente una mesa disponible y se confirmará la reserva."
+                        />
+                        <DialogContent spaced>
+                            {showTableAssignmentPopup?.availableTables.length > 0 ? (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-muted-foreground">
+                                        Mesa disponible encontrada:
+                                    </p>
+                                    <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-md">
+                                        <Armchair className="h-5 w-5 text-green-600" />
+                                        <span className="font-medium text-green-800">
+                                            {showTableAssignmentPopup.availableTables[0].environment.name} - Mesa {showTableAssignmentPopup.availableTables[0].table.number}
+                                        </span>
+                                        <Badge variant="secondary" size="xs">
+                                            {showTableAssignmentPopup.availableTables[0].table.capacity} personas
+                                        </Badge>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                                    <X className="h-5 w-5 text-red-600" />
+                                    <span className="text-red-800">
+                                        No hay mesas disponibles para esta reserva.
+                                    </span>
+                                </div>
+                            )}
+                        </DialogContent>
+                        <DialogFooter
+                            onCancel={() => setShowTableAssignmentPopup(null)}
+                            cancelText="Cancelar"
+                            onConfirm={() => {
+                                if (showTableAssignmentPopup?.availableTables.length > 0) {
+                                    const { reservationId, availableTables } = showTableAssignmentPopup;
+                                    const firstAvailable = availableTables[0];
+                                    handleAssignTableAndConfirm(reservationId, firstAvailable.environment.id, firstAvailable.table.id);
+                                }
+                                setShowTableAssignmentPopup(null);
+                            }}
+                            confirmText={showTableAssignmentPopup?.availableTables.length > 0 ? "Confirmar y Asignar Mesa" : "Cerrar"}
+                            confirmDisabled={!showTableAssignmentPopup?.availableTables.length}
+                        />
+                    </DialogWindow>
+                </Dialog>
             </PageContent>
         </PageContainer>
     );

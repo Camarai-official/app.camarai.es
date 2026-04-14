@@ -8,9 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { Environment } from '@/data/environments';
 
-type ReservationStatus = 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada';
+export type ReservationStatus = 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada';
 
 export type Reservation = {
   id: string;
@@ -22,15 +21,15 @@ export type Reservation = {
   status: ReservationStatus;
   notes?: string;
   environmentId?: string;
-  tableId?: number;
+  tableId?: string;
 };
 
 interface ReservationDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSave: (res: Omit<Reservation, 'id'>, id?: string) => void;
-    getAvailableTables: (res: Partial<Reservation>) => Environment[];
-    environments: Environment[];
+    getAvailableTables: (res: Partial<Reservation>) => any[];
+    environments: any[];
     editingReservation?: Reservation | null;
 }
 
@@ -55,7 +54,7 @@ export function ReservationDialog({
         tableId: undefined 
     });
 
-    const [selectedEnvId, setSelectedEnvId] = React.useState<string | undefined>(undefined);
+    const [selectedEnvId, setSelectedEnvId] = React.useState<string>('');
 
     // Initialize form when editing
     React.useEffect(() => {
@@ -82,7 +81,7 @@ export function ReservationDialog({
                 environmentId: undefined,
                 tableId: undefined 
             });
-            setSelectedEnvId(undefined);
+            setSelectedEnvId('');
         }
     }, [editingReservation, open]);
 
@@ -185,8 +184,8 @@ export function ReservationDialog({
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="table-select">Mesa</Label>
                             <Select 
-                                value={reservation.tableId?.toString()} 
-                                onValueChange={(val) => setReservation(p => ({...p, tableId: parseInt(val), environmentId: selectedEnvId }))}
+                                value={reservation.tableId || ''} 
+                                onValueChange={(val) => setReservation(p => ({...p, tableId: val, environmentId: selectedEnvId}))}
                                 disabled={!selectedEnvId || availableTablesByEnv.length === 0}
                             >
                                 <SelectTrigger id="table-select">
@@ -194,7 +193,7 @@ export function ReservationDialog({
                                 </SelectTrigger>
                                 <SelectContent>
                                     {availableTablesByEnv.map(table => (
-                                        <SelectItem key={table.id} value={table.id.toString()}>Mesa {table.number} (Cap: {table.capacity})</SelectItem>
+                                        <SelectItem key={table.id} value={table.id.toString()}>Mesa {table.number} (Asientos: {table.capacity})</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
