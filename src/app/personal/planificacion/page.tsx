@@ -17,11 +17,19 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import jspdf from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
@@ -97,34 +105,50 @@ export default function PlanificacionPage() {
     }
   };
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     if (!staff || !days) return;
 
-    const headers = ["Día", ...days.map(d => format(d, "dd/MM"))];
+    const headers = ["Empleado", ...days.map(d => format(d, "dd/MM"))];
     const rows = staff.map(member => {
       return [
         member.nombre,
         ...days.map(day => {
-          const entry = getEntries(member.id, day)[0];
-          return entry ? `${entry.start_time}-${entry.end_time}` : "";
+          const entries = getEntries(member.id, day);
+          return entries.length > 0 
+            ? entries.map(e => `${e.start_time} - ${e.end_time}`).join(" | ") 
+            : "";
         })
       ];
     });
 
-    const csvContent = [headers, ...rows]
-      .map(e => e.join(","))
-      .join("\n");
+    const allData: any[][] = [headers, ...rows];
 
-    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `planificacion_${format(currentDate, "yyyy_MM")}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const motivosRows: string[][] = [];
+    staff.forEach(member => {
+      days.forEach(day => {
+        const entries = getEntries(member.id, day);
+        entries.forEach(entry => {
+          if (entry.notes && entry.notes.trim() !== "") {
+            motivosRows.push([member.nombre, format(day, "dd/MM/yyyy"), entry.notes]);
+          }
+        });
+      });
+    });
 
-    toast({ title: "Excel exportado" });
+    if (motivosRows.length > 0) {
+      allData.push([]); // fila en blanco
+      allData.push(["Registro de Motivos"]);
+      allData.push(["Empleado", "Día", "Motivo"]);
+      motivosRows.forEach(row => allData.push(row));
+    }
+
+    const worksheet = XLSX.utils.aoa_to_sheet(allData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Planificación");
+    
+    XLSX.writeFile(workbook, `planificacion_${format(currentDate, "yyyy_MM")}.xlsx`);
+
+    toast({ title: "Excel exportado correctamente" });
   };
 
   const handleExportPDF = async () => {
@@ -276,16 +300,24 @@ export default function PlanificacionPage() {
             </Button>
             <Separator orientation="vertical" className="h-8 mx-2" />
 
-            <div className="flex bg-muted p-1 rounded-lg gap-1 mr-2">
-              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleExportCSV}>
-                <Download className="w-4 h-4 mr-2" />
-                Excel
-              </Button>
-              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleExportPDF}>
-                <FileDown className="w-4 h-4 mr-2" />
-                PDF
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="mr-2">
+                  <Download className="w-4 h-4 mr-2" />
+                  Descargar
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleExportExcel} className="cursor-pointer">
+                  <Download className="w-4 h-4 mr-2 text-primary" />
+                  Excel (.xlsx)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                  <FileDown className="w-4 h-4 mr-2 text-destructive" />
+                  PDF (.pdf)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button
               variant="default"
