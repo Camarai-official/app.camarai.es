@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { TextSM, TextXS } from "@/components/ui/typography";
-import { 
-    User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield, 
-    Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette, 
-    ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer, 
-    Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package, 
+import {
+    User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield,
+    Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette,
+    ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer,
+    Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package,
     Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle
 } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
@@ -106,30 +106,30 @@ const permisosDisponibles = [
 type NivelAcceso = 'camarero' | 'encargado' | 'jefe' | 'personalizado';
 
 const nivelesAcceso: { id: NivelAcceso; label: string; description: string; permisos: string[]; icon: React.ElementType }[] = [
-    { 
-        id: 'camarero', 
-        label: 'Camarero', 
+    {
+        id: 'camarero',
+        label: 'Camarero',
         description: 'Acceso básico: POS, KDS, comandas propias',
         permisos: ['pos', 'kds', 'cierre_caja'],
         icon: Utensils
     },
-    { 
-        id: 'encargado', 
-        label: 'Encargado', 
+    {
+        id: 'encargado',
+        label: 'Encargado',
         description: 'Todo lo de camarero + funciones de gestión',
         permisos: ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'],
         icon: Shield
     },
-    { 
-        id: 'jefe', 
-        label: 'Jefe / Admin', 
+    {
+        id: 'jefe',
+        label: 'Jefe / Admin',
         description: 'Acceso total a todas las funciones',
         permisos: permisosDisponibles.map(p => p.id),
         icon: Crown
     },
-    { 
-        id: 'personalizado', 
-        label: 'Personalizado', 
+    {
+        id: 'personalizado',
+        label: 'Personalizado',
         description: 'Selecciona permisos manualmente',
         permisos: [],
         icon: Palette
@@ -171,7 +171,7 @@ export function EmployeeDialog({
         const jefePermisos = nivelesAcceso.find(n => n.id === 'jefe')!.permisos;
         const encargadoPermisos = nivelesAcceso.find(n => n.id === 'encargado')!.permisos;
         const camareroPermisos = nivelesAcceso.find(n => n.id === 'camarero')!.permisos;
-        
+
         if (jefePermisos.every(p => permisos.includes(p))) return 'jefe';
         if (encargadoPermisos.every(p => permisos.includes(p))) return 'encargado';
         if (camareroPermisos.every(p => permisos.includes(p))) return 'camarero';
@@ -185,14 +185,14 @@ export function EmployeeDialog({
                 ...employeeToEdit,
                 permisos: employeeToEdit.permisos || [],
                 documentos: employeeToEdit.documentos || [],
-                establecimientos_asignados: employeeToEdit.establecimientos_asignados || [] 
+                establecimientos_asignados: employeeToEdit.establecimientos_asignados || []
             });
             // Use the nivelAcceso that was already calculated in page.tsx
             setNivelAcceso(employeeToEdit.nivelAcceso || 'camarero');
         } else {
             setEmployee({
                 ...emptyEmployee,
-                pin: Math.floor(1000 + Math.random() * 9000).toString() 
+                pin: Math.floor(1000 + Math.random() * 9000).toString()
             });
             setNivelAcceso('camarero');
         }
@@ -204,10 +204,10 @@ export function EmployeeDialog({
         setNivelAcceso(nivel);
         // Map access level to Convex role
         const roleMapping: Record<NivelAcceso, string> = {
-            'camarero': 'waiter',
-            'encargado': 'manager', 
+            'camarero': 'camarero',
+            'encargado': 'gerente',
             'jefe': 'admin',
-            'personalizado': 'waiter' // Default for custom
+            'personalizado': 'camarero' // Default for custom
         };
 
         // Define clock methods for each access level
@@ -217,13 +217,13 @@ export function EmployeeDialog({
             'jefe': ['app', 'whatsapp', 'qr', 'web'], // All methods
             'personalizado': ['app', 'qr'] // Default for custom
         };
-        
+
         // Update the employee role and permissions when access level changes
         if (nivel !== 'personalizado') {
             const nivelConfig = nivelesAcceso.find(n => n.id === nivel);
             if (nivelConfig) {
-                setEmployee(prev => ({ 
-                    ...prev, 
+                setEmployee(prev => ({
+                    ...prev,
                     rol: roleMapping[nivel],
                     permisos: [...nivelConfig.permisos],
                     metodos_fichaje_permitidos: clockMethodsByLevel[nivel]
@@ -231,8 +231,8 @@ export function EmployeeDialog({
             }
         } else {
             // For personalizado, only update the role, keep existing permissions and methods
-            setEmployee(prev => ({ 
-                ...prev, 
+            setEmployee(prev => ({
+                ...prev,
                 rol: roleMapping[nivel]
                 // Don't override permissions or clock methods for custom level
             }));
@@ -281,9 +281,9 @@ export function EmployeeDialog({
                 ...employee,
                 id: employee.id || `staff-${Date.now()}`,
                 fotoUrl: employee.fotoUrl,
-                roles: employee.rol ? [employee.rol] : [] 
+                roles: employee.rol ? [employee.rol] : []
             };
-            
+
             await onSave(employeeToSave);
             onOpenChange(false);
         } catch (error) {
@@ -326,13 +326,13 @@ export function EmployeeDialog({
                                                 className="w-44 h-full"
                                             />
                                         </div>
-                                        
+
                                         <div className="flex-1 flex flex-col justify-between gap-4 py-1">
                                             <div className="grid gap-2">
                                                 <Label htmlFor="nombre">Nombre Completo</Label>
-                                                <Input 
-                                                    id="nombre" 
-                                                    value={employee.nombre} 
+                                                <Input
+                                                    id="nombre"
+                                                    value={employee.nombre}
                                                     onChange={(e) => handleInputChange('nombre', e.target.value)}
                                                     placeholder="Ej. Juan Pérez García"
                                                     className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
@@ -341,10 +341,10 @@ export function EmployeeDialog({
                                             <div className="grid sm:grid-cols-2 gap-4">
                                                 <div className="grid gap-2">
                                                     <Label htmlFor="email">Email de Contacto</Label>
-                                                    <Input 
-                                                        id="email" 
+                                                    <Input
+                                                        id="email"
                                                         type="email"
-                                                        value={employee.email} 
+                                                        value={employee.email}
                                                         onChange={(e) => handleInputChange('email', e.target.value)}
                                                         placeholder="juan@camarai.com"
                                                         className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
@@ -352,9 +352,9 @@ export function EmployeeDialog({
                                                 </div>
                                                 <div className="grid gap-2">
                                                     <Label htmlFor="telefono">Teléfono</Label>
-                                                    <Input 
-                                                        id="telefono" 
-                                                        value={employee.telefono} 
+                                                    <Input
+                                                        id="telefono"
+                                                        value={employee.telefono}
                                                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                                                         placeholder="+34 600 000 000"
                                                         className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
@@ -426,11 +426,12 @@ export function EmployeeDialog({
                                                 variant="none"
                                                 padding="none"
                                                 selectOptions={[
+                                                    { value: 'admin', label: 'Administrador/a' },
                                                     { value: 'camarero', label: 'Camarero/a' },
                                                     { value: 'cocinero', label: 'Cocinero/a' },
                                                     { value: 'bartender', label: 'Bartender' },
                                                     { value: 'gerente', label: 'Gerente' },
-                                                    { value: 'host', label: 'Host' },
+                                                    { value: 'anfitrión', label: 'Host' },
                                                     { value: 'ayudante_cocina', label: 'Ayudante de Cocina' },
                                                 ]}
                                             />
@@ -546,8 +547,8 @@ export function EmployeeDialog({
                                                             customContent={
                                                                 <div className={cn(
                                                                     "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                                                                    nivelAcceso === nivel.id 
-                                                                        ? "border-primary bg-primary" 
+                                                                    nivelAcceso === nivel.id
+                                                                        ? "border-primary bg-primary"
                                                                         : "border-muted-foreground/30"
                                                                 )}>
                                                                     {nivelAcceso === nivel.id && <Check className="h-3 w-3 text-white" />}
@@ -563,8 +564,8 @@ export function EmployeeDialog({
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-base">Permisos del Sistema</CardTitle>
                                                 <CardDescription>
-                                                    {nivelAcceso === 'personalizado' 
-                                                        ? 'Selecciona los permisos manualmente.' 
+                                                    {nivelAcceso === 'personalizado'
+                                                        ? 'Selecciona los permisos manualmente.'
                                                         : 'Permisos asignados automáticamente según el nivel de acceso.'}
                                                 </CardDescription>
                                             </CardHeader>
@@ -638,9 +639,9 @@ export function EmployeeDialog({
                                                 variant="none"
                                                 padding="none"
                                                 customContent={
-                                                    <Input 
-                                                        type="number" 
-                                                        className="w-24 text-right h-10 rounded-xl" 
+                                                    <Input
+                                                        type="number"
+                                                        className="w-24 text-right h-10 rounded-xl"
                                                         value={employee.salarioPorHora}
                                                         onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value))}
                                                     />
@@ -654,9 +655,9 @@ export function EmployeeDialog({
                                                 variant="none"
                                                 padding="none"
                                                 customContent={
-                                                    <Input 
-                                                        type="number" 
-                                                        className="w-24 text-right h-10 rounded-xl" 
+                                                    <Input
+                                                        type="number"
+                                                        className="w-24 text-right h-10 rounded-xl"
                                                         value={employee.horasContratadas}
                                                         onChange={(e) => handleInputChange('horasContratadas', parseFloat(e.target.value))}
                                                     />
@@ -689,7 +690,7 @@ export function EmployeeDialog({
                                         </div>
                                         <Button size="sm" variant="outline" className="mt-2">Seleccionar Archivos</Button>
                                     </div>
-                                    
+
                                     {employee.documentos && employee.documentos.map(doc => (
                                         <ActionTile
                                             key={doc.id}
@@ -709,9 +710,9 @@ export function EmployeeDialog({
                 <DialogFooter>
                     <div className="flex-1 flex items-center justify-start">
                         {employeeToEdit && onDelete && (
-                            <Button 
-                                variant="ghost-destructive" 
-                                size="md" 
+                            <Button
+                                variant="ghost-destructive"
+                                size="md"
                                 disabled={isDeleting || isSaving}
                                 onClick={async () => {
                                     if (window.confirm('¿Deseas eliminar permanentemente a este empleado?')) {
@@ -733,15 +734,15 @@ export function EmployeeDialog({
                         )}
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button 
-                            variant="ghost" 
+                        <Button
+                            variant="ghost"
                             onClick={() => onOpenChange(false)}
                             disabled={isSaving || isDeleting}
                         >
                             Cancelar
                         </Button>
-                        <Button 
-                            variant="default" 
+                        <Button
+                            variant="default"
                             onClick={handleSave}
                             disabled={!employee.nombre || !employee.email || !employee.rol || isSaving || isDeleting}
                         >

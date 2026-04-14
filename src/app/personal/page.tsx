@@ -732,6 +732,7 @@ export default function PersonalPage() {
             const roleMapping: Record<string, string> = {
                 "camarero": "waiter",
                 "cocinero": "cook", 
+                "ayudante_cocina": "cook",
                 "bartender": "bartender",
                 "anfitrión": "host",
                 "dueño": "owner",
