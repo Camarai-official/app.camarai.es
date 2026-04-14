@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { format, parseISO } from "date-fns"
 import {
   Home, ClipboardList, View, LayoutGrid, BookOpen, Layers,
-  Package, Beaker, Archive, Monitor, Laptop, Users,
+  Package, Beaker, Archive, Monitor, Laptop, Users, Calendar,
   Bell, BarChart3, CalendarCheck, BadgePercent,
   Settings, ChevronDown, PlusCircle, Trash, User, Shield,
   MessageSquareText, Sun, Moon, LogOut, Check, X
@@ -51,6 +51,7 @@ const navItems = [
   { href: "/inventario", label: "Inventario", icon: Archive },
   { href: "/pos-kds", label: "POS y KDS", icon: Monitor },
   { href: "/personal", label: "Personal", icon: Users },
+  { href: "/personal/planificacion", label: "Planificación", icon: Calendar },
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/reservas", label: "Reservas", icon: CalendarCheck },

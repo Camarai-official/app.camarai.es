@@ -24,6 +24,7 @@ import type * as inventory from "../inventory.js";
 import type * as inventoryQueries from "../inventoryQueries.js";
 import type * as menu from "../menu.js";
 import type * as orders from "../orders.js";
+import type * as planning from "../planning.js";
 import type * as products from "../products.js";
 import type * as seed from "../seed.js";
 import type * as sessions from "../sessions.js";
@@ -52,6 +53,7 @@ declare const fullApi: ApiFromModules<{
   inventoryQueries: typeof inventoryQueries;
   menu: typeof menu;
   orders: typeof orders;
+  planning: typeof planning;
   products: typeof products;
   seed: typeof seed;
   sessions: typeof sessions;

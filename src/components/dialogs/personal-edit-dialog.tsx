@@ -7,8 +7,11 @@ import {
     Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette,
     ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer,
     Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package,
-    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle
+    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle, Clock, CalendarIcon
 } from 'lucide-react';
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +24,7 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { IconPicker, iconMap } from '@/components/ui/icon-picker';
 import { AccessSection } from '@/components/personal/access-section';
 import { cn } from '@/lib/utils';
+import { OperatingHoursEditor } from '@/components/ui/operating-hours-editor';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { StaffMember } from '@/data/mock-data';
@@ -51,6 +55,8 @@ export interface ExtendedStaffMember extends StaffMember {
     icon?: string;
     // Campos financieros adicionales
     irpf?: number;
+    // Horario laboral
+    working_hours?: string;
 }
 
 interface StaffDocument {
@@ -84,7 +90,8 @@ const emptyEmployee: ExtendedStaffMember = {
     dispositivo_asignado: undefined,
     color: 'blue-500',
     icon: 'User',
-    irpf: 0
+    irpf: 0,
+    working_hours: '',
 };
 
 const permisosDisponibles = [
@@ -150,6 +157,7 @@ interface EmployeeDialogProps {
     employeeToEdit: ExtendedStaffMember | null;
     onSave: (employee: ExtendedStaffMember) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
+    establishmentId?: string;
 }
 
 export function EmployeeDialog({
@@ -157,8 +165,10 @@ export function EmployeeDialog({
     onOpenChange,
     employeeToEdit,
     onSave,
-    onDelete
+    onDelete,
+    establishmentId
 }: EmployeeDialogProps): React.ReactElement {
+
     const [employee, setEmployee] = React.useState<ExtendedStaffMember>(emptyEmployee);
     const [activeTab, setActiveTab] = React.useState('datos');
     const [showPin, setShowPin] = React.useState(false);
@@ -311,6 +321,7 @@ export function EmployeeDialog({
                                 <TabsTrigger value="acceso" icon={Key}>Acceso</TabsTrigger>
                                 <TabsTrigger value="nomina" icon={Wallet}>Nómina</TabsTrigger>
                                 <TabsTrigger value="documentos" icon={FileText}>Docs</TabsTrigger>
+                                <TabsTrigger value="horario" icon={Clock}>Horario</TabsTrigger>
                             </TabsList>
                         </div>
 
@@ -701,6 +712,27 @@ export function EmployeeDialog({
                                             customContent={<Button variant="ghost" size="sm">Ver</Button>}
                                         />
                                     ))}
+                                </TabsContent>
+
+                                {/* TAB: HORARIO */}
+                                <TabsContent value="horario" className="mt-0 space-y-4">
+                                    <div className="grid gap-6">
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    Horario de trabajo
+                                                </CardTitle>
+                                                <CardDescription>Configura una jornada específica si no usas un turno predefinido.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <OperatingHoursEditor
+                                                    value={employee.working_hours || ''}
+                                                    onChange={(val) => handleInputChange('working_hours', val)}
+                                                />
+                                            </CardContent>
+                                        </Card>
+                                    </div>
                                 </TabsContent>
                             </div>
                         </ScrollArea>

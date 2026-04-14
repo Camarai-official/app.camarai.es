@@ -24,7 +24,7 @@ export const useEstablishments = () => {
       country: est.country || '',
       phone: est.phone || '',
       email: est.email || '',
-      hours: typeof est.operating_hours === 'string' ? est.operating_hours : (est as any).hours || 'L-V: 09:00-18:00',
+      hours: typeof est.operating_hours === 'string' ? est.operating_hours : (est as any).hours || '',
       active: typeof (est as any).active === 'boolean' ? (est as any).active : est.status === 'active',
       companyId: est.company_id,
     }));

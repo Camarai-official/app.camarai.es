@@ -35,7 +35,7 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
   // Parse string to ranges on mount or when value changes from outside
   React.useEffect(() => {
     if (!value) {
-      setRanges([{ id: "1", startDay: "L", endDay: "V", openTime: "09:00", closeTime: "18:00" }]);
+      setRanges([]);
       return;
     }
 
@@ -51,20 +51,34 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
     try {
       // Very basic parser for "L-V: 12:00-23:00, S-D: 12:00-00:00"
       const parts = value.split(",").map((s) => s.trim());
-      const parsedRanges: HourRange[] = parts.map((part, index) => {
-        const [daysPart, timesPart] = part.split(":").map((s) => s.trim());
-        const [startDay, endDay] = daysPart.split("-").map((s) => s.trim());
-        const [openTimeRaw, closeTimeRaw] = timesPart.split("-").map((s) => s.trim());
-        
-        return {
-          id: String(index + 1),
-          startDay: startDay || "L",
-          endDay: endDay || startDay || "D",
-          openTime: normalizeTime(openTimeRaw),
-          closeTime: normalizeTime(closeTimeRaw),
-        };
-      });
-      setRanges(parsedRanges);
+      const parsedRanges: HourRange[] = parts
+        .filter(p => p.includes(":"))
+        .map((part, index) => {
+          // Buscamos el primer ":" para separar días de horas
+          const colonIndex = part.indexOf(":");
+          if (colonIndex === -1) return null;
+
+          const daysPart = part.substring(0, colonIndex).trim();
+          const timesPart = part.substring(colonIndex + 1).trim();
+          
+          const [startDay, endDay] = daysPart.split("-").map((s) => s.trim());
+          const [openTimeRaw, closeTimeRaw] = (timesPart || "").split("-").map((s) => s.trim());
+          
+          return {
+            id: String(index + 1),
+            startDay: startDay || "L",
+            endDay: endDay || startDay || "V",
+            openTime: normalizeTime(openTimeRaw),
+            closeTime: normalizeTime(closeTimeRaw),
+          };
+        })
+        .filter((r): r is HourRange => r !== null);
+
+      if (parsedRanges.length > 0) {
+        setRanges(parsedRanges);
+      } else {
+        setRanges([]);
+      }
     } catch (e) {
       // If parsing fails, start fresh or keep empty
       console.error("Failed to parse hours", e);
@@ -76,7 +90,9 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
     const serialized = newRanges
       .map((r) => `${r.startDay}-${r.endDay}: ${r.openTime}-${r.closeTime}`)
       .join(", ");
-    onChange(serialized);
+    if (serialized !== value) {
+        onChange(serialized);
+    }
   };
 
   const addRange = () => {
