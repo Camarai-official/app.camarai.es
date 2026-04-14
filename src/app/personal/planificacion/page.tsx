@@ -218,6 +218,44 @@ export default function PlanificacionPage() {
         }
       });
 
+      const finalY = (doc as any).lastAutoTable.finalY || 100;
+      const motivosRows: string[][] = [];
+      
+      staff.forEach(member => {
+        days.forEach(day => {
+          const entries = getEntries(member.id, day);
+          entries.forEach(entry => {
+            if (entry.notes && entry.notes.trim() !== "") {
+              motivosRows.push([member.nombre, format(day, "dd/MM/yyyy"), entry.notes]);
+            }
+          });
+        });
+      });
+
+      if (motivosRows.length > 0) {
+        doc.setFontSize(12);
+        doc.text("Registro de Motivos", 40, finalY + 30);
+        
+        autoTable(doc, {
+          head: [["Empleado", "Día", "Motivo"]],
+          body: motivosRows,
+          startY: finalY + 40,
+          theme: 'grid',
+          styles: {
+            fontSize: 8,
+            cellPadding: 4,
+            halign: 'left',
+            valign: 'middle'
+          },
+          headStyles: {
+            fillColor: [30, 41, 59],
+            textColor: [255, 255, 255],
+            fontSize: 8,
+            fontStyle: 'bold'
+          }
+        });
+      }
+
       doc.save(`planificacion_${format(currentDate, "yyyy_MM")}.pdf`);
       toast({ title: "PDF exportado" });
     } catch (error) {
