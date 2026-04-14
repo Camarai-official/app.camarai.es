@@ -2,19 +2,12 @@
 
 import * as React from 'react';
 import {
-  Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
   Plus,
   Clock,
-  User,
-  Edit2,
   Trash2,
-  CalendarCheck,
   Wand2,
-  MoreHorizontal,
-  Save,
-  X,
   Download,
   FileDown
 } from 'lucide-react';
@@ -23,68 +16,63 @@ import { cn } from '@/lib/utils';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import jspdf from 'jspdf';
-import html2canvas from 'html2canvas';
+import autoTable from 'jspdf-autotable';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
-import { H3, H4, H5, TextXS } from '@/components/ui/typography';
 import { PageContainer } from '@/components/layout/page-container';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
   DialogWindow,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
 } from "@/components/layout/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameDay, parseISO } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function PlanificacionPage() {
   const { toast } = useToast();
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const tableRef = React.useRef<HTMLDivElement>(null);
-  
+
   // Convex Hooks
   const establishments = useQuery(api.establishments.getEstablishments);
   const establishmentId = establishments?.[0]?._id;
-  
+
   const staff = useQuery(api.staff.getStaffByEstablishment, establishmentId ? { establishmentId } : "skip");
-  
+
   const startDate = format(startOfMonth(currentDate), "yyyy-MM-dd");
   const endDate = format(endOfMonth(currentDate), "yyyy-MM-dd");
-  
-  const planning = useQuery(api.planning.getPlanningByDateRange, 
+
+  const planning = useQuery(api.planning.getPlanningByDateRange,
     establishmentId ? { establishmentId, startDate, endDate } : "skip"
   );
-  
+
   const generateMonthlyPlanning = useMutation(api.planning.generateMonthlyPlanning);
   const upsertPlanningEntry = useMutation(api.planning.upsertPlanningEntry);
   const deletePlanningEntry = useMutation(api.planning.deletePlanningEntry);
-  
+
   // UI State
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
   const [editingEntry, setEditingEntry] = React.useState<any>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
-  
+
   const days = eachDayOfInterval({
     start: startOfMonth(currentDate),
     end: endOfMonth(currentDate)
   });
-  
+
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
   const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
-  
+
   const handleAutoFill = async () => {
     if (!establishmentId) return;
     setIsGenerating(true);
@@ -108,16 +96,16 @@ export default function PlanificacionPage() {
       setIsGenerating(false);
     }
   };
-  
+
   const handleExportCSV = () => {
     if (!staff || !days) return;
-    
-    const headers = ["Empleado", ...days.map(d => format(d, "dd/MM"))];
+
+    const headers = ["Día", ...days.map(d => format(d, "dd/MM"))];
     const rows = staff.map(member => {
       return [
         member.nombre,
         ...days.map(day => {
-          const entry = getEntry(member.id, day);
+          const entry = getEntries(member.id, day)[0];
           return entry ? `${entry.start_time}-${entry.end_time}` : "";
         })
       ];
@@ -135,35 +123,81 @@ export default function PlanificacionPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     toast({ title: "Excel exportado" });
   };
 
   const handleExportPDF = async () => {
-    if (!tableRef.current) return;
-    
+    if (!staff || !days) return;
+
     toast({ title: "Generando PDF...", description: "Por favor espera un momento." });
-    
+
     try {
-      const canvas = await html2canvas(tableRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: document.documentElement.classList.contains('dark') ? '#020617' : '#ffffff'
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jspdf({
+      const doc = new jspdf({
         orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
+        unit: 'pt',
+        format: 'a4'
       });
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save(`planificacion_${format(currentDate, "yyyy_MM")}.pdf`);
-      
+
+      // Add Title
+      const title = `Planificación: ${format(currentDate, "MMMM yyyy", { locale: es }).toUpperCase()}`;
+      doc.setFontSize(16);
+      doc.text(title, 40, 40);
+
+      const headers = ["Día", ...days.map(d => format(d, "d"))];
+      const body = staff.map(member => [
+        member.nombre,
+        ...days.map(day => {
+          const entries = getEntries(member.id, day);
+          return entries.map(e => `${e.start_time}\n${e.end_time}`).join('\n---\n');
+        })
+      ]);
+
+      autoTable(doc, {
+        head: [headers],
+        body: body,
+        startY: 60,
+        theme: 'grid',
+        styles: {
+          fontSize: days.length > 20 ? 6 : 8,
+          cellPadding: 4,
+          halign: 'center',
+          valign: 'middle',
+          overflow: 'linebreak',
+          cellWidth: 'auto'
+        },
+        headStyles: {
+          fillColor: [30, 41, 59],
+          textColor: [255, 255, 255],
+          fontSize: 7,
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 80, halign: 'left', fontStyle: 'bold' }
+        },
+        didParseCell: (data) => {
+          // Highlight weekends
+          if (data.section === 'head' && data.column.index > 0) {
+            const dayIndex = data.column.index - 1;
+            const day = days[dayIndex];
+            if (day && (day.getDay() === 0 || day.getDay() === 6)) {
+              data.cell.styles.fillColor = [71, 85, 105];
+            }
+          }
+          if (data.section === 'body' && data.column.index > 0) {
+            const dayIndex = data.column.index - 1;
+            const day = days[dayIndex];
+            if (day && (day.getDay() === 0 || day.getDay() === 6)) {
+              data.cell.styles.fillColor = [241, 245, 249];
+            }
+          }
+        }
+      });
+
+      doc.save(`planificacion_${format(currentDate, "yyyy_MM")}.pdf`);
       toast({ title: "PDF exportado" });
     } catch (error) {
+      console.error(error);
       toast({ title: "Error al generar PDF", variant: "destructive" });
     }
   };
@@ -181,10 +215,10 @@ export default function PlanificacionPage() {
     });
     setIsEditDialogOpen(true);
   };
-  
+
   const handleSaveEntry = async () => {
     if (!establishmentId || !editingEntry) return;
-    
+
     try {
       await upsertPlanningEntry({
         id: editingEntry.id,
@@ -226,8 +260,8 @@ export default function PlanificacionPage() {
 
   return (
     <PageContainer>
-      <PageHeader 
-        title="Planificación Mensual" 
+      <PageHeader
+        title="Planificación Mensual"
         subtitle="Gestiona los turnos y horarios reales del equipo."
         actions={
           <div className="flex items-center gap-2">
@@ -241,7 +275,7 @@ export default function PlanificacionPage() {
               <ChevronRight className="w-4 h-4" />
             </Button>
             <Separator orientation="vertical" className="h-8 mx-2" />
-            
+
             <div className="flex bg-muted p-1 rounded-lg gap-1 mr-2">
               <Button variant="ghost" size="sm" className="h-8 px-2" onClick={handleExportCSV}>
                 <Download className="w-4 h-4 mr-2" />
@@ -253,8 +287,8 @@ export default function PlanificacionPage() {
               </Button>
             </div>
 
-            <Button 
-              variant="default" 
+            <Button
+              variant="default"
               className="bg-primary/10 text-primary hover:bg-primary/20"
               onClick={handleAutoFill}
               disabled={isGenerating}
@@ -265,18 +299,18 @@ export default function PlanificacionPage() {
           </div>
         }
       />
-      
+
       <PageContent>
-        <Card className="border-none shadow-sm overflow-hidden" ref={tableRef}>
-          <div className="overflow-x-auto">
+        <Card className="border-none shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-[400px]" ref={tableRef}>
+          <div className="overflow-auto relative flex-1">
             <Table>
-              <TableHeader className="bg-muted/50">
+              <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[200px] border-r sticky left-0 bg-muted/50 z-10">Empleado</TableHead>
+                  <TableHead className="w-[200px] border-r border-b sticky left-0 top-0 bg-muted z-30">Empleado</TableHead>
                   {days.map(day => (
                     <TableHead key={day.toISOString()} className={cn(
-                      "text-center min-w-[100px] border-r",
-                      (day.getDay() === 0 || day.getDay() === 6) && "bg-muted/30"
+                      "text-center min-w-[100px] border-r border-b sticky top-0 bg-muted/95 backdrop-blur z-20",
+                      (day.getDay() === 0 || day.getDay() === 6) && "bg-muted"
                     )}>
                       <div className="text-[10px] uppercase font-bold text-muted-foreground">
                         {format(day, "EEE", { locale: es })}
@@ -303,8 +337,8 @@ export default function PlanificacionPage() {
                     {days.map(day => {
                       const entries = getEntries(member.id, day);
                       return (
-                        <TableCell 
-                          key={day.toISOString()} 
+                        <TableCell
+                          key={day.toISOString()}
                           className={cn(
                             "p-1 text-center border-r transition-colors align-top min-w-[120px]",
                             (day.getDay() === 0 || day.getDay() === 6) && "bg-muted/5"
@@ -312,12 +346,12 @@ export default function PlanificacionPage() {
                         >
                           <div className="flex flex-col gap-1 min-h-[40px]">
                             {entries.map(entry => (
-                              <div 
+                              <div
                                 key={entry._id}
                                 className={cn(
                                   "text-[10px] p-1 rounded flex flex-col gap-0.5 cursor-pointer hover:brightness-95 transition-all shadow-sm",
-                                  entry.is_custom 
-                                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800" 
+                                  entry.is_custom
+                                    ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
                                     : "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
                                 )}
                                 onClick={() => openEditDialog(member, day, entry)}
@@ -326,9 +360,9 @@ export default function PlanificacionPage() {
                                 {entry.notes && <div className="truncate opacity-70 italic text-[9px]">"{entry.notes}"</div>}
                               </div>
                             ))}
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
+                            <Button
+                              variant="ghost"
+                              size="sm"
                               className="h-6 w-full opacity-0 hover:opacity-100 group-hover:opacity-100 text-[10px] text-muted-foreground dashed border border-dashed hover:border-solid mt-auto"
                               onClick={() => openEditDialog(member, day)}
                             >
@@ -345,7 +379,7 @@ export default function PlanificacionPage() {
             </Table>
           </div>
         </Card>
-        
+
         <div className="mt-4 flex gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded bg-blue-100 border border-blue-200 dark:bg-blue-900/30 dark:border-blue-800" />
@@ -371,43 +405,43 @@ export default function PlanificacionPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="start">Entrada</Label>
-                  <Input 
-                    id="start" 
-                    type="time" 
-                    value={editingEntry?.start_time || ""} 
+                  <Input
+                    id="start"
+                    type="time"
+                    value={editingEntry?.start_time || ""}
                     onChange={(e) => setEditingEntry({...editingEntry, start_time: e.target.value})}
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="end">Salida</Label>
-                  <Input 
-                    id="end" 
-                    type="time" 
-                    value={editingEntry?.end_time || ""} 
+                  <Input
+                    id="end"
+                    type="time"
+                    value={editingEntry?.end_time || ""}
                     onChange={(e) => setEditingEntry({...editingEntry, end_time: e.target.value})}
                   />
                 </div>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="notes">Notas o Motivo del cambio</Label>
-                <Textarea 
-                  id="notes" 
-                  placeholder="Ej: Cubre a Juan por baja..." 
-                  value={editingEntry?.notes || ""} 
+                <Textarea
+                  id="notes"
+                  placeholder="Ej: Cubre a Juan por baja..."
+                  value={editingEntry?.notes || ""}
                   onChange={(e) => setEditingEntry({...editingEntry, notes: e.target.value})}
                 />
               </div>
             </div>
           </DialogContent>
-          <DialogFooter 
+          <DialogFooter
             onCancel={() => setIsEditDialogOpen(false)}
             onConfirm={handleSaveEntry}
             confirmText="Guardar Cambios"
             actions={
               editingEntry?.id && (
-                <Button 
-                  variant="ghost" 
-                  className="mr-auto text-destructive hover:text-destructive hover:bg-destructive/10" 
+                <Button
+                  variant="ghost"
+                  className="mr-auto text-destructive hover:text-destructive hover:bg-destructive/10"
                   onClick={handleDeleteEntry}
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
