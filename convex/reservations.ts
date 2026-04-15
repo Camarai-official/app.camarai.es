@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
 
 export const createReservation = mutation({
   args: {
@@ -16,10 +17,58 @@ export const createReservation = mutation({
     source: v.union(v.literal("dashboard"), v.literal("whatsapp"), v.literal("web")),
   },
   handler: async (ctx, args) => {
-    // Para clientes invitados, necesitamos crear o encontrar un customer_id válido
-    // Por ahora, omitiremos customer_id ya que es opcional según el schema
+    let customerId: Id<"customers"> | undefined = undefined;
+
+    // Create or find customer if customer information is provided
+    if (args.customer_name && (args.customer_phone || args.customer_email)) {
+      // Try to find existing customer by phone first
+      if (args.customer_phone) {
+        const existingCustomer = await ctx.db
+          .query("customers")
+          .filter((q) => q.eq(q.field("phone"), args.customer_phone!))
+          .first();
+
+        if (existingCustomer && existingCustomer.establishments_id.includes(args.establishment_id)) {
+          // Update existing customer
+          await ctx.db.patch(existingCustomer._id, {
+            name: args.customer_name,
+            email: args.customer_email || existingCustomer.email,
+            last_visit: Date.now(),
+            total_visits: existingCustomer.total_visits + 1,
+            source: "reservation",
+          });
+          customerId = existingCustomer._id;
+        }
+      }
+
+      // If no existing customer found, create new one
+      if (!customerId) {
+        customerId = await ctx.db.insert("customers", {
+          establishments_id: [args.establishment_id],
+          name: args.customer_name,
+          phone: args.customer_phone,
+          email: args.customer_email,
+          points: 0,
+          tags: [],
+          preferred_payment_method: undefined,
+          birth_date: undefined,
+          anniversary: undefined,
+          last_visit: Date.now(),
+          total_visits: 1,
+          total_spent: 0,
+          average_ticket: 0,
+          preferred_table: args.table_id,
+          allergens: [],
+          notes: args.notes,
+          source: "reservation",
+          created_at: Date.now(),
+        });
+      }
+    }
+
     const reservationId = await ctx.db.insert("reservations", {
       establishment_id: args.establishment_id,
+      customer_id: customerId,
       customer_name: args.customer_name,
       customer_phone: args.customer_phone,
       customer_email: args.customer_email,
@@ -215,6 +264,12 @@ export const updateReservation = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Get the existing reservation to check if customer information is changing
+    const existingReservation = await ctx.db.get(args.reservation_id);
+    if (!existingReservation) {
+      throw new Error("Reservation not found");
+    }
+
     const updateData: any = {};
     
     if (args.customer_name !== undefined) updateData.customer_name = args.customer_name;
@@ -227,7 +282,66 @@ export const updateReservation = mutation({
     if (args.table_id !== undefined) updateData.table_id = args.table_id;
     if (args.notes !== undefined) updateData.notes = args.notes;
 
+    // Update reservation
     await ctx.db.patch(args.reservation_id, updateData);
+
+    // Handle customer updates if customer information is provided
+    if (args.customer_name && (args.customer_phone || args.customer_email)) {
+      let customerId = existingReservation.customer_id;
+
+      // If reservation has no customer_id, try to find existing customer or create new one
+      if (!customerId) {
+        if (args.customer_phone) {
+          const existingCustomer = await ctx.db
+            .query("customers")
+            .filter((q) => q.eq(q.field("phone"), args.customer_phone!))
+            .first();
+
+          if (existingCustomer && existingCustomer.establishments_id.includes(existingReservation.establishment_id)) {
+            customerId = existingCustomer._id;
+          }
+        }
+
+        // Create new customer if not found
+        if (!customerId) {
+          customerId = await ctx.db.insert("customers", {
+            establishments_id: [existingReservation.establishment_id],
+            name: args.customer_name,
+            phone: args.customer_phone,
+            email: args.customer_email,
+            points: 0,
+            tags: [],
+            preferred_payment_method: undefined,
+            birth_date: undefined,
+            anniversary: undefined,
+            last_visit: Date.now(),
+            total_visits: 1,
+            total_spent: 0,
+            average_ticket: 0,
+            preferred_table: args.table_id || existingReservation.table_id,
+            allergens: [],
+            notes: args.notes,
+            source: "reservation",
+            created_at: Date.now(),
+          });
+        }
+
+        // Update reservation with customer_id
+        await ctx.db.patch(args.reservation_id, { customer_id: customerId });
+      } else {
+        // Update existing customer
+        const customerUpdateData: any = {};
+        if (args.customer_name !== undefined) customerUpdateData.name = args.customer_name;
+        if (args.customer_phone !== undefined) customerUpdateData.phone = args.customer_phone;
+        if (args.customer_email !== undefined) customerUpdateData.email = args.customer_email;
+        if (args.table_id !== undefined) customerUpdateData.preferred_table = args.table_id;
+        if (args.notes !== undefined) customerUpdateData.notes = args.notes;
+
+        if (Object.keys(customerUpdateData).length > 0) {
+          await ctx.db.patch(customerId, customerUpdateData);
+        }
+      }
+    }
 
     return args.reservation_id;
   },

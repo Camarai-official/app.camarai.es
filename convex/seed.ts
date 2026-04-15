@@ -160,7 +160,7 @@ export const seedData = mutation({
 
     // 9. CLIENTES
     await ctx.db.insert("customers", {
-      establishment_id: establishmentId,
+      establishments_id: [establishmentId],
       name: "Cliente VIP",
       phone: "+34 600 000 000",
       points: 100,

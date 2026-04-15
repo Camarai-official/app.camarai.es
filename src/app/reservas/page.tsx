@@ -45,6 +45,7 @@ type LocalReservation = {
   notes?: string;
   environmentId?: string;
   tableId?: string;
+  customerId?: string;
 };
 
 // Type transformation functions
@@ -67,7 +68,8 @@ const transformLocalToDialog = (local: LocalReservation): Reservation => {
         status: statusMap[local.status] || 'Pendiente',
         notes: local.notes,
         environmentId: local.environmentId,
-        tableId: local.tableId
+        tableId: local.tableId,
+        customerId: local.customerId
     };
 };
 
@@ -89,7 +91,8 @@ const transformDialogToLocal = (dialog: Reservation): LocalReservation => {
         status: statusMap[dialog.status] || 'pending',
         notes: dialog.notes,
         environmentId: dialog.environmentId,
-        tableId: dialog.tableId
+        tableId: dialog.tableId,
+        customerId: dialog.customerId
     };
 };
 
@@ -142,7 +145,8 @@ export default function ReservasPage() {
             status: r.status,
             notes: r.notes,
             tableId: r.table_id,
-            environmentId: r.environmentId
+            environmentId: r.environmentId,
+            customerId: r.customer_id
         }));
     }, [getReservations]);
 
@@ -718,6 +722,7 @@ export default function ReservasPage() {
                     onSave={handleSaveReservationWrapper}
                     getAvailableTables={getAvailableTablesWrapper}
                     environments={environments}
+                    establishmentId={activeEstablishment?.id as Id<"establishments">}
                     editingReservation={editingReservation ? transformLocalToDialog(editingReservation) : null}
                 />
 
