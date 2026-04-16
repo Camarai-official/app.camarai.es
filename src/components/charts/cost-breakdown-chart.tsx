@@ -4,18 +4,43 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { DashboardList, DashboardListItem } from '@/components/ui/dashboard-list';
 import { DateRange } from "react-day-picker";
 import { Activity } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 export function CostBreakdownChart({ date }: { date?: DateRange }) {
-  const dynamicData = React.useMemo(() => {
-    const dateFactor = date?.from ? date.from.getTime() : 1;
-    return [
-      { name: 'Ingredientes', value: 40 + (dateFactor % 10), color: "bg-chart-1" },
-      { name: 'Personal', value: 20 + (dateFactor % 8), color: "bg-chart-2" },
-      { name: 'Alquiler', value: 15, color: "bg-chart-3" },
-      { name: 'Suministros', value: 8 + (dateFactor % 5), color: "bg-chart-4" },
-      { name: 'Marketing', value: 3 + (dateFactor % 4), color: "bg-chart-5" },
-    ];
-  }, [date]);
+  const { activeEstablishment } = useEstablishments();
+  
+  const from = date?.from || new Date();
+  const to = date?.to || from;
+
+  const costBreakdown = useQuery(
+    api.analytics.getCostBreakdown,
+    activeEstablishment?.id && from && to
+      ? {
+          establishmentId: activeEstablishment.id as any,
+          startDate: from.getTime(),
+          endDate: to.getTime(),
+        }
+      : 'skip'
+  );
+
+  const totalCost = React.useMemo(() => {
+    if (!costBreakdown || costBreakdown.length === 0) return 0;
+    return costBreakdown.reduce((sum, item) => sum + item.value, 0);
+  }, [costBreakdown]);
+
+  const chartData = React.useMemo(() => {
+    if (!costBreakdown || costBreakdown.length === 0) {
+      return [];
+    }
+
+    return costBreakdown.map((item) => ({
+      name: item.name,
+      value: totalCost > 0 ? ((item.value / totalCost) * 100).toFixed(1) : '0',
+      color: item.color,
+    }));
+  }, [costBreakdown, totalCost]);
 
   return (
     <Card className="h-full">
@@ -24,16 +49,22 @@ export function CostBreakdownChart({ date }: { date?: DateRange }) {
         icon={Activity} 
       />
       <CardContent className="pt-0">
-        <DashboardList>
-          {dynamicData.map((item) => (
-            <DashboardListItem
-              key={item.name}
-              title={item.name}
-              icon={<div className={`h-2 w-2 rounded-full ${item.color}`} />}
-              value={`${item.value}%`}
-            />
-          ))}
-        </DashboardList>
+        {chartData.length === 0 ? (
+          <div className="py-10 text-center text-sm text-muted-foreground">
+            No hay datos de costes disponibles
+          </div>
+        ) : (
+          <DashboardList>
+            {chartData.map((item) => (
+              <DashboardListItem
+                key={item.name}
+                title={item.name}
+                icon={<div className={`h-2 w-2 rounded-full ${item.color}`} />}
+                value={`${item.value}%`}
+              />
+            ))}
+          </DashboardList>
+        )}
       </CardContent>
     </Card>
   );

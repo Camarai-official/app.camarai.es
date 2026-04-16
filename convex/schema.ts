@@ -695,6 +695,29 @@ export default defineSchema({
     .index("by_external_id", ["external_id"])
     .index("by_status", ["status"]),
 
+  // --- DOMAIN 5.6: KPI PRE-AGGREGATION (HyperFast Reading) ---
+
+  establishment_kpis: defineTable({
+    establishment_id: v.id("establishments"),
+    total_revenue: v.number(), // In cents
+    total_orders: v.number(),
+    average_ticket: v.number(), // In cents
+    total_items_sold: v.number(),
+    avg_service_time_ms: v.number(),
+    upsell_rate: v.number(), // Percentage (0-100)
+    last_updated: v.number(),
+  }).index("by_establishment", ["establishment_id"]),
+
+  month_kpi_establishment: defineTable({
+    establishment_id: v.id("establishments"),
+    year_month: v.string(), // Format "YYYY-MM"
+    total_revenue: v.number(), // In cents
+    total_orders: v.number(),
+    average_ticket: v.number(), // In cents
+    total_items_sold: v.number(),
+    last_updated: v.number(),
+  }).index("by_establishment_month", ["establishment_id", "year_month"]),
+
   // --- DOMAIN 6: COMMUNICATION AND MARKETING ---
 
   conversations: defineTable({
@@ -851,7 +874,8 @@ export default defineSchema({
     staff_id: v.optional(v.union(v.id("staff"), v.literal("system"))),
     timestamp: v.number(),
   }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"])
-    .index("by_ingredient_type", ["ingredient_id", "type"]),
+    .index("by_ingredient_type", ["ingredient_id", "type"])
+    .index("by_establishment_timestamp", ["establishment_id", "timestamp"]),
 
   // --- DOMAIN 8: ADVANCED BUSINESS INTELLIGENCE ---
 

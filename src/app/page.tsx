@@ -10,15 +10,25 @@ import { MetricCard } from '@/components/widgets/metric-card';
 import { LowStockAlerts } from '@/components/widgets/low-stock-alerts';
 import { TeamLeaderboard } from '@/components/features/dashboard/team-leaderboard';
 import { useToast } from '@/hooks/use-toast';
+import { useKPIs } from '@/hooks/useKPIs';
+import { useEstablishments } from '@/hooks/useEstablishments';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 import { DashboardConfigDialog, type DashboardConfig } from '@/components/dialogs/dashboard-config-dialog';
 
-// ✅ MOCK DATA - Importado directamente
-import { mockUser, mockOrders, mockIngredients, mockStaffMembers, mockEnvironments, mockProducts, getCategoryName } from '@/data/mock-data';
+// ✅ MOCK DATA - Solo para usuario (sin datos reales de auth aún)
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { generateCSV, prepareDashboardExportData } from '@/lib/export-utils';
+
+const mockUser = {
+    firstName: 'Fenix',
+    lastName: 'Admin',
+    email: 'admin@camarai.es',
+    avatar: ''
+};
 
 const ChartFallback = () => (
     <div className="h-[200px] w-full rounded-md bg-muted/30" />
@@ -56,26 +66,24 @@ const RecentOrders = dynamic(() => import('@/components/features/dashboard/recen
 
 /**
  * @fileoverview Página principal del panel de administración (Dashboard).
- * Ofrece una vista general del rendimiento del restaurante utilizando datos de demostración.
+ * Ofrece una vista general del rendimiento del restaurante utilizando datos reales de Convex.
  * 
- * ✅ DESACOPLADO: Ahora usa mock data directamente sin hooks de datos
+ * ✅ DATOS REALES: Usa Convex para KPIs, ventas, reservas, ambientes, stock, staff y productos
  */
 
-
-const allOrders = mockOrders;
 
 /**
  * Componente principal para la página del Dashboard.
  * 
  * Este componente integra varios sub-componentes para mostrar una vista general del negocio.
- * Actualmente, todos los datos son simulados y se obtienen de mock-data.ts
+ * Todos los datos principales provienen de Convex (KPIs HyperFast, ventas, reservas, etc.)
  *
  * Funcionalidades clave:
  * - Saludo personalizado al usuario.
- * - Tarjetas de métricas principales (ingresos, ticket medio, etc.).
- * - Tabla paginada de comandas recientes.
- * - Alertas de ingredientes con bajo stock.
- * - Diversos gráficos sobre ventas, reservas, ocupación y costes.
+ * - Tarjetas de métricas principales (ingresos, ticket medio, etc.) con datos reales de Convex.
+ * - Gráficos de ventas, reservas y ocupación con datos reales.
+ * - Alertas de ingredientes con bajo stock desde Convex.
+ * - Ranking de equipo con datos reales de staff.
  */
 // Dashboard widget configuration
 
@@ -95,14 +103,63 @@ const defaultDashboardConfig: DashboardConfig = {
 export default function Home() {
     // ✅ Datos mock directos (sin hooks)
     const user = mockUser;
-    const ingredients = mockIngredients;
-    const staffMembers = mockStaffMembers;
-    const environments = mockEnvironments;
     const { toast } = useToast();
 
+    // ✅ HyperFast KPIs - Datos reales de Convex
+    const { formattedKPIs, isLoading } = useKPIs();
+
+    // ✅ Real Environments from Convex
+    const { activeEstablishment } = useEstablishments();
+    const environmentsWithTables = useQuery(
+        api.environments.getEnvironmentsByEstablishment,
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : 'skip'
+    );
+
+    // Use real environments data or empty array
+    const environments = environmentsWithTables || [];
+
+    // ✅ Real Stock Alerts from Convex
+    const stockAlerts = useQuery(
+        api.analytics.getStockAlerts,
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : 'skip'
+    );
+
+    // Map real stock alerts to component format
+    const ingredients = stockAlerts?.map((alert, index) => ({
+        id: `alert-${index}`,
+        nombre_ingrediente: alert.name,
+        stock_actual: alert.stock,
+        stock_minimo_alerta: alert.alert_min,
+        unidad_medida: 'un',
+    })) || [];
+
+    // ✅ Real Staff from Convex
+    const staffData = useQuery(
+        api.staff.getStaffByEstablishment,
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : 'skip'
+    );
+
+    // Use real staff data or empty array
+    const staffMembers = staffData || [];
+
+    // ✅ Real Products from Convex
+    const productsData = useQuery(
+        api.products.getProducts,
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : 'skip'
+    );
+
+    // Use real products data or empty array
+    const products = productsData || [];
+
+    // Helper to get category name from real data
+    const getRealCategoryName = (categoryId: string) => {
+        const category = productsData?.find(p => p.category_id === categoryId)?.category_name;
+        return category || 'Sin categoría';
+    };
+
     const [date, setDate] = React.useState<DateRange | undefined>({
-        from: addDays(new Date(2024, 0, 1), 0), // Base fija para evitar hidratación
-        to: addDays(new Date(2024, 0, 1), 7),
+        from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+        to: new Date(),
     });
     const [mounted, setMounted] = React.useState(false);
 
@@ -133,18 +190,9 @@ export default function Home() {
 
     // ✅ Calcular métricas basadas en la fecha global
     const metricsData = React.useMemo(() => {
-        // Use static values to prevent hydration mismatch completely
-        const numberFormatter = new Intl.NumberFormat('es-ES');
-        return {
-            totalRevenue: '€2.6M',
-            avgTicket: '€38.50',
-            itemsPerOrder: '2.8',
-            conversion: '35%',
-            serviceTime: '24 min',
-            totalOrders: numberFormatter.format(1248),
-            nps: '78'
-        };
-    }, []);
+        // Use real KPI data from Convex (HyperFast)
+        return formattedKPIs;
+    }, [formattedKPIs]);
 
     /**
      * Prepara los datos para el gráfico de ocupación por ambiente.
@@ -182,11 +230,9 @@ export default function Home() {
                             size="md"
                             title="Exportar Informe Global"
                             onClick={() => {
-                                const data = prepareDashboardExportData({}, allOrders, mockProducts);
-                                generateCSV(data, 'camarai_global_report');
                                 toast({
-                                    title: "Exportación iniciada",
-                                    description: "El reporte global se está descargando."
+                                    title: "Exportación no disponible",
+                                    description: "Función de exportación requiere datos reales de Convex."
                                 });
                             }}
                         >       
@@ -313,12 +359,12 @@ export default function Home() {
                         {/* Ranking de Equipo */}
                         {dashboardConfig.teamRanking && (
                             <div className="lg:col-span-1">
-                                <TeamLeaderboard staff={staffMembers} date={date} />
+                                <TeamLeaderboard date={date} />
                             </div>
                         )}
                         {/* Gráfico de Ventas por Categoría (Product Mix) */}
                         {dashboardConfig.topProducts && (
-                            <CategorySalesChart products={mockProducts} getCategoryName={getCategoryName} date={date} className="lg:col-span-1" />
+                            <CategorySalesChart products={products} getCategoryName={getRealCategoryName} date={date} className="lg:col-span-1" />
                         )}
                         {/* Gráfico de Desglose de Costes */}
                         {dashboardConfig.costBreakdown && (

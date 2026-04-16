@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import type { StaffMember } from '@/data/mock-data';
+import type { StaffMember } from '@/types/staff';
 import type { Order } from '@/data/reportes';
 
 type BillingTabProps = {

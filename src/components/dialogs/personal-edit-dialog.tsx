@@ -27,7 +27,7 @@ import { cn } from '@/lib/utils';
 import { OperatingHoursEditor } from '@/components/ui/operating-hours-editor';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { StaffMember } from '@/data/mock-data';
+import type { StaffMember } from '@/types/staff';
 import { mockEstablishments } from '@/data/mock-data';
 
 // Métodos de fichaje disponibles

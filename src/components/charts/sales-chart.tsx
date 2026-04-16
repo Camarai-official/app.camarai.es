@@ -8,6 +8,8 @@ import { format, addHours, startOfDay, subDays, differenceInDays } from 'date-fn
 import { es } from 'date-fns/locale';
 import { DateRange } from "react-day-picker";
 import { Download, CalendarIcon, LineChart } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +17,7 @@ import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEstablishmentContext } from '@/hooks/EstablishmentContext';
 
 // Internal Logic Types
 type ViewMode = 'hours' | 'days' | 'months' | 'years';
@@ -28,6 +31,7 @@ type ChartDataPoint = {
 export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   const [date, setDate] = React.useState<DateRange | undefined>(globalDate);
   const [isDetached, setIsDetached] = React.useState(false);
+  const { activeId } = useEstablishmentContext();
 
   React.useEffect(() => {
     if (!isDetached && globalDate) {
@@ -49,50 +53,37 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const { isMobile } = useIsMobile();
 
-  // Smart Data Generation
-  const chartData = React.useMemo(() => {
-    const data: ChartDataPoint[] = [];
-    const from = date?.from || new Date();
-    const to = date?.to || from;
-    const isRange = differenceInDays(to, from) > 0;
-    const effectiveMode = isRange ? 'days' : viewMode;
+  // Real data from Convex
+  const from = date?.from || new Date();
+  const to = date?.to || from;
+  const isRange = differenceInDays(to, from) > 0;
+  const effectiveMode = isRange ? 'days' : viewMode;
 
-    if (effectiveMode === 'hours') {
-      const start = startOfDay(from);
-      for (let i = 0; i < 24; i++) {
-        const currentHour = addHours(start, i);
-        let baseValue = Math.random() * 200 + 50;
-        if (i >= 13 && i <= 15) baseValue += 400;
-        if (i >= 20 && i <= 23) baseValue += 500;
-        data.push({ label: format(currentHour, 'HH:00'), value: Math.floor(baseValue), fullDate: currentHour });
-      }
-    } else if (effectiveMode === 'days') {
-      let current = isRange ? from : subDays(from, 29);
-      const end = isRange ? to : from;
-      let iterations = 0;
-      while (current <= end && iterations < 365) {
-        const baseValue = Math.random() * 2000 + 1000;
-        data.push({ label: format(current, 'dd MMM', { locale: es }), value: Math.floor(baseValue), fullDate: current });
-        current = addHours(current, 24);
-        iterations++;
-      }
-    } else if (effectiveMode === 'months') {
-      const currentYear = from.getFullYear();
-      for (let i = 0; i < 12; i++) {
-        const monthDate = new Date(currentYear, i, 1);
-        const baseValue = Math.random() * 50000 + 20000;
-        data.push({ label: format(monthDate, 'MMM', { locale: es }), value: Math.floor(baseValue), fullDate: monthDate });
-      }
-    } else if (effectiveMode === 'years') {
-      const currentYear = from.getFullYear();
-      for (let i = 4; i >= 0; i--) {
-        const yearDate = new Date(currentYear - i, 0, 1);
-        const baseValue = Math.random() * 500000 + 100000;
-        data.push({ label: format(yearDate, 'yyyy'), value: Math.floor(baseValue), fullDate: yearDate });
-      }
+  const salesData = useQuery(
+    api.analytics.getSalesByPeriod,
+    activeId && from && to && (effectiveMode === 'hours' || effectiveMode === 'days' || effectiveMode === 'months')
+      ? {
+          establishmentId: activeId as any,
+          startDate: from.getTime(),
+          endDate: to.getTime(),
+          viewMode: effectiveMode,
+        }
+      : 'skip'
+  );
+
+  // Format data for chart
+  const chartData = React.useMemo(() => {
+    if (!salesData || salesData.length === 0) {
+      // Return empty structure if no data
+      return [];
     }
-    return data;
-  }, [date, viewMode]);
+
+    return salesData.map((item) => ({
+      label: item.label,
+      value: item.value,
+      fullDate: from,
+    }));
+  }, [salesData, from]);
 
   const handleExport = () => {
     console.log("Exporting data...", chartData);

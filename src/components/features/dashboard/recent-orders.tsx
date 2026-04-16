@@ -10,7 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { mockOrders } from '@/data/mock-data';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useEstablishments } from '@/hooks/useEstablishments';
 import { DateRange } from 'react-day-picker';
 
 interface RecentOrdersProps {
@@ -19,21 +21,41 @@ interface RecentOrdersProps {
 }
 
 export function RecentOrders({ className, date }: RecentOrdersProps) {
+    const { activeEstablishment } = useEstablishments();
+    
     // Estado para la paginación de la tabla de comandas.
     const [currentPage, setCurrentPage] = React.useState(1);
     const [ordersPerPage] = React.useState(8);
     const [isAnimating, setIsAnimating] = React.useState(false);
 
-    // ✅ Filtrar comandas basadas en la fecha global (Simulado)
-    const { currentOrders } = React.useMemo(() => {
-        // En una implementación real, filtraríamos mockOrders por la prop 'date'
-        const filtered = mockOrders.slice(0, 15);
-        return {
-            currentOrders: filtered.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage),
-        };
-    }, [date, currentPage, ordersPerPage]);
+    // ✅ Real orders from Convex
+    const recentOrders = useQuery(
+        api.orders.getRecentOrders,
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any, limit: 50 } : 'skip'
+    );
 
-    const totalPages = Math.ceil(mockOrders.length / ordersPerPage);
+    // ✅ Filtrar comandas basadas en la fecha global
+    const { currentOrders, totalPages } = React.useMemo(() => {
+        if (!recentOrders || recentOrders.length === 0) {
+            return { currentOrders: [], totalPages: 1 };
+        }
+
+        let filtered = recentOrders;
+        
+        // Filter by date range if provided
+        if (date?.from && date?.to) {
+            const from = date.from.getTime();
+            const to = date.to.getTime();
+            filtered = recentOrders.filter(order => 
+                order.created_at >= from && order.created_at <= to
+            );
+        }
+
+        const totalPages = Math.ceil(filtered.length / ordersPerPage);
+        const paginated = filtered.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+        
+        return { currentOrders: paginated, totalPages };
+    }, [recentOrders, date, currentPage, ordersPerPage]);
 
     /**
      * Cambia la página actual de la tabla de comandas.
@@ -52,6 +74,36 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
     for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
     }
+
+    // Format time from timestamp
+    const formatTime = (timestamp: number) => {
+        return new Date(timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    // Format total from cents to euros
+    const formatTotal = (amount: number) => {
+        return `€${(amount / 100).toFixed(2)}`;
+    };
+
+    // Map status to badge variant
+    const getStatusVariant = (status: string) => {
+        switch (status) {
+            case 'paid': return 'completed';
+            case 'open': return 'in-progress';
+            case 'cancelled': return 'cancelled';
+            default: return 'default';
+        }
+    };
+
+    // Map status to display text
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case 'paid': return 'Completado';
+            case 'open': return 'En Progreso';
+            case 'cancelled': return 'Cancelado';
+            default: return status;
+        }
+    };
 
     return (
         <Card height="full" className={className}>
@@ -94,68 +146,76 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody isAnimating={isAnimating}>
-                            {currentOrders.map((order) => (
-                                <TableRow key={order.order}>
-                                    <TableCell visibility="hidden-mobile" align="center">
-                                        <Checkbox />
-                                    </TableCell>
-                                    <TableCell variant="medium">{order.order}</TableCell>
-                                    <TableCell>{order.time}</TableCell>
-                                    <TableCell>{order.table}</TableCell>
-                                    <TableCell>{order.name}</TableCell>
-                                    <TableCell>{order.total}</TableCell>
-                                    <TableCell align="center">
-                                        <Badge variant={order.status === 'Completado' ? 'completed' : order.status === 'En Progreso' ? 'in-progress' : 'cancelled'}>
-                                            {order.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell align="center">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size='md'>
-                                                    <MoreHorizontal />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem>
-                                                    <Eye />
-                                                    Ver detalles
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSub>
-                                                    <DropdownMenuSubTrigger>
-                                                        <Activity />
-                                                        Cambiar Estado
-                                                    </DropdownMenuSubTrigger>
-                                                    <DropdownMenuSubContent>
-                                                        <DropdownMenuItem>
-                                                            <PlayCircle />
-                                                            En Progreso
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem>
-                                                            <CheckCircle />
-                                                            Completado
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem>
-                                                            <XCircle />
-                                                            Cancelado
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuSubContent>
-                                                </DropdownMenuSub>
-                                                <DropdownMenuItem>
-                                                    <Printer />
-                                                    Reimprimir
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem>
-                                                    <Ban />
-                                                    Anular comanda
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                            {currentOrders.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
+                                        No hay comandas disponibles
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            ) : (
+                                currentOrders.map((order) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell visibility="hidden-mobile" align="center">
+                                            <Checkbox />
+                                        </TableCell>
+                                        <TableCell variant="medium">{order.orderNumber}</TableCell>
+                                        <TableCell>{formatTime(order.created_at)}</TableCell>
+                                        <TableCell>{order.tableLabel}</TableCell>
+                                        <TableCell>{order.staffName}</TableCell>
+                                        <TableCell>{formatTotal(order.totalAmount)}</TableCell>
+                                        <TableCell align="center">
+                                            <Badge variant={getStatusVariant(order.status)}>
+                                                {getStatusText(order.status)}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell align="center">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size='md'>
+                                                        <MoreHorizontal />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                    <DropdownMenuItem>
+                                                        <Eye />
+                                                        Ver detalles
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSub>
+                                                        <DropdownMenuSubTrigger>
+                                                            <Activity />
+                                                            Cambiar Estado
+                                                        </DropdownMenuSubTrigger>
+                                                        <DropdownMenuSubContent>
+                                                            <DropdownMenuItem>
+                                                                <PlayCircle />
+                                                                En Progreso
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <CheckCircle />
+                                                                Completado
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem>
+                                                                <XCircle />
+                                                                Cancelado
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuSubContent>
+                                                    </DropdownMenuSub>
+                                                    <DropdownMenuItem>
+                                                        <Printer />
+                                                        Reimprimir
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuSeparator />
+                                                    <DropdownMenuItem>
+                                                        <Ban />
+                                                        Anular comanda
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
                         </TableBody>
                     </Table>
                 </div>

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ActionTile } from '@/components/ui/action-tile';
 import { iconMap } from '@/components/ui/icon-picker';
-import type { TimeLog } from '@/data/mock-data';
+import type { TimeLog } from '@/types/staff';
 import type { ExtendedStaffMember } from './personal-edit-dialog';
 
 interface TimeLogDialogProps {
