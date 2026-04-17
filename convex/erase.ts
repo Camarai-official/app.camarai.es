@@ -15,26 +15,93 @@ export const eraseAllData = internalMutation({
     
     // Lista de todas las tablas en orden de dependencia
     const tables = [
+      // Tablas de auditoría y logs (sin dependencias fuertes)
       "event_log",
-      "stock_movements", 
-      "clock_incidents",
-      "clock_devices",
-      "absence_requests",
-      "time_logs",
-      "order_items",
+      "audit_log",
+      "payment_audit",
+      
+      // Tablas de comunicación
+      "messages",
+      "conversations",
+      
+      // Tablas de marketing
+      "coupons",
+      "campaigns",
+      "customer_tags",
+      "notifications",
+      
+      // Tablas de sesiones y verificación
+      "qr_sessions",
+      "table_sessions",
+      "verification_codes",
+      
+      // Tablas de operaciones financieras
+      "purchase_items",
+      "purchases",
+      "stock_movements",
+      "cash_registers",
+      "invoices",
       "payments",
+      
+      // Tablas de integraciones
+      "integration_orders",
+      "integrations",
+      "whatsapp_config",
+      
+      // Tablas de KPIs y análisis
+      "performance_kpis",
+      "establishment_statistics",
+      "company_profit_analysis",
+      "profit_analysis",
+      "month_kpi_establishment",
+      "establishment_kpis",
+      
+      // Tablas de recursos humanos
+      "clock_incidents",
+      "absence_requests",
+      "staff_planning",
+      "time_logs",
+      "clock_devices",
+      
+      // Tablas de operaciones
+      "order_items",
       "orders",
-      "customers",
-      "tables",
-      "environments",
+      "reservations",
+      
+      // Tablas de catálogo
       "product_ingredients",
       "ingredients",
       "ingredient_categories",
       "products",
       "categories",
-      "staff",
-      "establishment_settings",
+      "menu_sections",
+      "menu",
       "taxes",
+      
+      // Tablas de infraestructura
+      "tables",
+      "environments",
+      "devices",
+      
+      // Tablas de clientes y proveedores
+      "customers",
+      "suppliers",
+      
+      // Tablas de configuración
+      "establishment_settings",
+      "notification_settings",
+      "system_configs",
+      
+      // Tablas de staff y roles
+      "user_roles",
+      "staff",
+      "roles",
+      "permissions",
+      
+      // Tablas de suscripciones
+      "subscriptions",
+      
+      // Tablas principales
       "establishments",
       "companies",
       "subscription_plans"

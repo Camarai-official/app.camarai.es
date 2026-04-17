@@ -20,7 +20,7 @@ export function CategorySalesChart({ products, getCategoryName, date }: Category
     const sales: { [key: string]: number } = {};
     products.forEach(p => {
       const categoryName = getCategoryName(p.id_categoria) || 'Sin Categoría';
-      const seed = (p.id.length + dateFactor) % 100;
+      const seed = (p.id?.length || 0 + dateFactor) % 100;
       const simulatedSales = p.precio_venta * (seed + 20);
       sales[categoryName] = (sales[categoryName] || 0) + simulatedSales;
     });
