@@ -17,7 +17,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import jspdf from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -105,7 +105,7 @@ export default function PlanificacionPage() {
     }
   };
 
-  const handleExportExcel = () => {
+  const handleExportExcel = async () => {
     if (!staff || !days) return;
 
     const headers = ["Empleado", ...days.map(d => format(d, "dd/MM"))];
@@ -142,11 +142,26 @@ export default function PlanificacionPage() {
       motivosRows.forEach(row => allData.push(row));
     }
 
-    const worksheet = XLSX.utils.aoa_to_sheet(allData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Planificación");
+    // Usar ExcelJS con buffer para navegador
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Planificación");
     
-    XLSX.writeFile(workbook, `planificacion_${format(currentDate, "yyyy_MM")}.xlsx`);
+    allData.forEach((row, rowIndex) => {
+      worksheet.addRow(row);
+    });
+    
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `planificacion_${format(currentDate, "yyyy_MM")}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
     toast({ title: "Excel exportado correctamente" });
   };
