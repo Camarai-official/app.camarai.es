@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
@@ -169,6 +170,7 @@ export function EmployeeDialog({
     establishmentId
 }: EmployeeDialogProps): React.ReactElement {
 
+    const { toast } = useToast();
     const [employee, setEmployee] = React.useState<ExtendedStaffMember>(emptyEmployee);
     const [activeTab, setActiveTab] = React.useState('datos');
     const [showPin, setShowPin] = React.useState(false);
@@ -286,6 +288,19 @@ export function EmployeeDialog({
     const handleDocFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Limit file size to 750KB (Convex has 1MB limit, base64 adds ~33% overhead)
+            const maxSize = 750 * 1024; // 750KB in bytes
+            if (file.size > maxSize) {
+                toast({
+                    title: "Archivo demasiado grande",
+                    description: "El documento no puede superar 750KB",
+                    variant: "destructive"
+                });
+                if (docInputRef.current) {
+                    docInputRef.current.value = '';
+                }
+                return;
+            }
             setNewDocFile(file);
             if (!newDocTitle.trim()) {
                 setNewDocTitle(file.name.split('.')[0]);
