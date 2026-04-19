@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Upload, X } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,12 +22,61 @@ export function AbsenceRequestDialog({
     staffMembers,
     onSave
 }: AbsenceRequestDialogProps) {
+    const [documentFile, setDocumentFile] = React.useState<File | null>(null);
+    const [documentDataUrl, setDocumentDataUrl] = React.useState<string>('');
+    const documentInputRef = React.useRef<HTMLInputElement>(null);
+
+    const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Limit file size to 750KB (Convex has 1MB limit, base64 adds ~33% overhead)
+            const maxSize = 750 * 1024; // 750KB in bytes
+            if (file.size > maxSize) {
+                alert('El documento no puede superar 750KB');
+                if (documentInputRef.current) {
+                    documentInputRef.current.value = '';
+                }
+                return;
+            }
+            setDocumentFile(file);
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setDocumentDataUrl(e.target?.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleRemoveDocument = () => {
+        setDocumentFile(null);
+        setDocumentDataUrl('');
+        if (documentInputRef.current) {
+            documentInputRef.current.value = '';
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const formData = new FormData(e.target as HTMLFormElement);
-        onSave(Object.fromEntries(formData));
+        const data = Object.fromEntries(formData);
+        if (documentDataUrl) {
+            data.document = documentDataUrl;
+        }
+        onSave(data);
         onOpenChange(false);
+        setDocumentFile(null);
+        setDocumentDataUrl('');
     };
+
+    React.useEffect(() => {
+        if (!open) {
+            setDocumentFile(null);
+            setDocumentDataUrl('');
+            if (documentInputRef.current) {
+                documentInputRef.current.value = '';
+            }
+        }
+    }, [open]);
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,6 +126,40 @@ export function AbsenceRequestDialog({
                     <div className="space-y-2">
                         <Label htmlFor="reason">Motivo Detallado</Label>
                         <Input name="reason" placeholder="Opcional" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="document">Documento (PDF o Imagen)</Label>
+                        <input
+                            ref={documentInputRef}
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={handleDocumentChange}
+                            className="hidden"
+                        />
+                        {documentFile ? (
+                            <div className="flex items-center gap-2 p-2 border rounded-md">
+                                <span className="text-sm flex-1 truncate">{documentFile.name}</span>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={handleRemoveDocument}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => documentInputRef.current?.click()}
+                                className="w-full"
+                            >
+                                <Upload className="h-4 w-4 mr-2" />
+                                Seleccionar documento
+                            </Button>
+                        )}
                     </div>
 
                     </DialogContent>

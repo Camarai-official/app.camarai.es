@@ -489,6 +489,7 @@ export default defineSchema({
     end_date: v.string(),
     total_days: v.number(),
     reason: v.optional(v.string()),
+    document: v.optional(v.string()),
     status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")),
     reviewed_by: v.optional(v.id("staff")),
     reviewed_at: v.optional(v.number()),

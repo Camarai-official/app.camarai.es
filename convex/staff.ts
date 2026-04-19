@@ -168,6 +168,7 @@ export const getAbsenceRequestsByEstablishment = query({
       endDate: req.end_date,
       total_days: req.total_days,
       reason: req.reason,
+      document: req.document,
       status: req.status,
       reviewed_by: req.reviewed_by,
       reviewed_at: req.reviewed_at,
@@ -457,6 +458,7 @@ export const createAbsenceRequest = mutation({
     endDate: v.string(),
     total_days: v.number(),
     reason: v.optional(v.string()),
+    document: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Get staff details for event log
@@ -472,6 +474,7 @@ export const createAbsenceRequest = mutation({
       end_date: args.endDate,
       total_days: args.total_days,
       reason: args.reason,
+      document: args.document,
       status: "pending",
       created_at: Date.now(),
     });
@@ -491,6 +494,7 @@ export const createAbsenceRequest = mutation({
         end_date: args.endDate,
         total_days: args.total_days,
         reason: args.reason,
+        document: args.document,
         staff_name: staffName
       },
       timestamp: Date.now(),

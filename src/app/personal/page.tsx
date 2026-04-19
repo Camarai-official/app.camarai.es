@@ -405,6 +405,7 @@ export default function PersonalPage() {
             startDate: req.startDate,
             endDate: req.endDate,
             reason: req.reason,
+            document: (req as any).document,
             status: req.status,
         }));
     }, [absenceRequestsData]);
@@ -884,6 +885,37 @@ export default function PersonalPage() {
     };
 
     // Handlers: Absences
+    const handleViewDocument = (documentDataUrl: string) => {
+        try {
+            // Convert Base64 to Blob
+            const byteCharacters = atob(documentDataUrl.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: documentDataUrl.split(';')[0].split(':')[1] });
+
+            // Create object URL and open in new window
+            const url = URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+
+            // Clean up object URL after window opens
+            if (newWindow) {
+                newWindow.onload = () => {
+                    URL.revokeObjectURL(url);
+                };
+            }
+        } catch (error) {
+            console.error('Error viewing document:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo abrir el documento.",
+                variant: "destructive"
+            });
+        }
+    };
+
     const handleSaveAbsenceRequest = async (data: any) => {
         try {
             if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
@@ -905,6 +937,7 @@ export default function PersonalPage() {
                 endDate: data.endDate,
                 total_days: Math.ceil((new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
                 reason: data.reason,
+                document: data.document,
             };
 
             await createAbsenceRequest(absenceData);
@@ -1315,6 +1348,8 @@ export default function PersonalPage() {
                                                         <TableHead>Empleado</TableHead>
                                                         <TableHead className="hidden sm:table-cell">Tipo</TableHead>
                                                         <TableHead>Fechas</TableHead>
+                                                        <TableHead className="hidden sm:table-cell">Motivo</TableHead>
+                                                        <TableHead className="hidden sm:table-cell">Documento</TableHead>
                                                         <TableHead className="text-center">Estado</TableHead>
                                                         <TableHead className="text-right">Acciones</TableHead>
                                                     </TableRow>
@@ -1328,6 +1363,19 @@ export default function PersonalPage() {
                                                                 <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
                                                                 <TableCell className="text-xs sm:text-sm">
                                                                     {new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}
+                                                                </TableCell>
+                                                                <TableCell className="hidden sm:table-cell text-xs sm:text-sm max-w-[200px] truncate">{req.reason || '-'}</TableCell>
+                                                                <TableCell className="hidden sm:table-cell">
+                                                                    {req.document ? (
+                                                                        <button
+                                                                            onClick={() => handleViewDocument(req.document)}
+                                                                            className="text-blue-600 hover:text-blue-800 underline text-xs cursor-pointer"
+                                                                        >
+                                            Ver documento
+                                        </button>
+                                                                    ) : (
+                                                                        <span className="text-gray-400 text-xs">-</span>
+                                                                    )}
                                                                 </TableCell>
                                                                 <TableCell className="text-center">
                                                                     <Badge variant={req.status === 'approved' ? 'success' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
