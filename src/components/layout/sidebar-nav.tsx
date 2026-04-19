@@ -55,7 +55,7 @@ const navItems = [
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
   { href: "/reportes", label: "Reportes", icon: BarChart3 },
   { href: "/reservas", label: "Reservas", icon: CalendarCheck },
-  { href: "/promociones", label: "Promociones", icon: BadgePercent },
+  { href: "/promociones", label: "Promociones", icon: BadgePercent, hidden: true },
   { href: "/settings", label: "Configuración", icon: Settings },
 ];
 
@@ -272,7 +272,7 @@ function NavMain({ items, pathname }: any) {
     <SidebarGroup>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item: any) => {
+          {items.filter((item: any) => !item.hidden).map((item: any) => {
             const isActive = pathname === item.href
             return (
               <SidebarMenuItem key={item.label}>
