@@ -203,7 +203,12 @@ export const createStaffMember = mutation({
     max_late_minutes: v.optional(v.number()),
     dashboard_sections: v.optional(v.array(v.string())),
     clock_methods: v.optional(v.array(v.string())),
-    documents: v.optional(v.array(v.string())),
+    documents: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      type: v.string(),
+      uploadDate: v.number(),
+    }))),
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Nuevo campo
     working_hours: v.optional(v.string()), // Horario laboral
@@ -275,7 +280,12 @@ export const updateStaffMember = mutation({
     max_late_minutes: v.optional(v.number()),
     dashboard_sections: v.optional(v.array(v.string())),
     clock_methods: v.optional(v.array(v.string())),
-    documents: v.optional(v.array(v.string())),
+    documents: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      type: v.string(),
+      uploadDate: v.number(),
+    }))),
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Nuevo campo
     working_hours: v.optional(v.string()), // Horario laboral

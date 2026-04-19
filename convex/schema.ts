@@ -103,7 +103,12 @@ export default defineSchema({
     max_late_minutes: v.optional(v.number()), // From SQL
     dashboard_sections: v.array(v.string()),
     clock_methods: v.array(v.string()),
-    documents: v.optional(v.array(v.string())),
+    documents: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      type: v.string(),
+      uploadDate: v.number(),
+    }))),
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Departamento o área de trabajo
     working_hours: v.optional(v.string()), // Horario laboral estructurado (custom)

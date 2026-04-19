@@ -7,7 +7,7 @@ import {
     Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette,
     ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer,
     Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package,
-    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle, Clock, CalendarIcon
+    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle, Clock, CalendarIcon, Plus
 } from 'lucide-react';
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -46,7 +46,7 @@ export interface ExtendedStaffMember extends StaffMember {
     permisos?: string[];
     establecimientos_asignados?: string[];
     horas_extra_habilitadas?: boolean;
-    documentos?: StaffDocument[];
+    documents?: StaffDocument[];
     // Campos para fichaje
     metodos_fichaje_permitidos?: ('app' | 'whatsapp' | 'qr' | 'web')[];
     dispositivo_asignado?: string;
@@ -60,10 +60,10 @@ export interface ExtendedStaffMember extends StaffMember {
 }
 
 interface StaffDocument {
-    id: string;
-    nombre: string;
-    tipo: string;
-    fecha_subida: string;
+    title: string;
+    url: string;
+    type: string;
+    uploadDate: number;
 }
 
 const emptyEmployee: ExtendedStaffMember = {
@@ -85,7 +85,7 @@ const emptyEmployee: ExtendedStaffMember = {
     permisos: [], // Start with empty permissions for true customization
     establecimientos_asignados: [],
     horas_extra_habilitadas: false,
-    documentos: [],
+    documents: [],
     metodos_fichaje_permitidos: [], // Start with empty for true customization
     dispositivo_asignado: undefined,
     color: 'blue-500',
@@ -175,6 +175,9 @@ export function EmployeeDialog({
     const [nivelAcceso, setNivelAcceso] = React.useState<NivelAcceso>('camarero');
     const [isSaving, setIsSaving] = React.useState(false);
     const [isDeleting, setIsDeleting] = React.useState(false);
+    const [newDocTitle, setNewDocTitle] = React.useState('');
+    const [newDocFile, setNewDocFile] = React.useState<File | null>(null);
+    const docInputRef = React.useRef<HTMLInputElement>(null);
 
     // Detectar nivel de acceso basado en permisos existentes
     const detectNivelAcceso = (permisos: string[]): NivelAcceso => {
@@ -194,7 +197,7 @@ export function EmployeeDialog({
                 ...emptyEmployee,
                 ...employeeToEdit,
                 permisos: employeeToEdit.permisos || [],
-                documentos: employeeToEdit.documentos || [],
+                documents: employeeToEdit.documents || [],
                 establecimientos_asignados: employeeToEdit.establecimientos_asignados || []
             });
             // Use the nivelAcceso that was already calculated in page.tsx
@@ -278,6 +281,84 @@ export function EmployeeDialog({
                 ? prev.metodos_fichaje_permitidos.filter(m => m !== metodoId)
                 : [...(prev.metodos_fichaje_permitidos || []), metodoId]
         }));
+    };
+
+    const handleDocFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setNewDocFile(file);
+            if (!newDocTitle.trim()) {
+                setNewDocTitle(file.name.split('.')[0]);
+            }
+        }
+    };
+
+    const handleAddDocument = () => {
+        if (!newDocFile || !newDocTitle.trim()) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const newDoc: StaffDocument = {
+                title: newDocTitle.trim(),
+                url: e.target?.result as string,
+                type: newDocFile.type,
+                uploadDate: Date.now(),
+            };
+            setEmployee(prev => ({
+                ...prev,
+                documents: [...(prev.documents || []), newDoc]
+            }));
+            setNewDocTitle('');
+            setNewDocFile(null);
+            if (docInputRef.current) {
+                docInputRef.current.value = '';
+            }
+        };
+        reader.readAsDataURL(newDocFile);
+    };
+
+    const handleRemoveDocument = (index: number) => {
+        setEmployee(prev => ({
+            ...prev,
+            documents: prev.documents?.filter((_, i) => i !== index) || []
+        }));
+    };
+
+    const handleViewDocument = (doc: StaffDocument) => {
+        try {
+            // Convert Base64 to Blob
+            const byteCharacters = atob(doc.url.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: doc.type });
+            
+            // Create object URL and open in new window
+            const url = URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+            
+            // Clean up object URL after window opens
+            if (newWindow) {
+                newWindow.onload = () => {
+                    URL.revokeObjectURL(url);
+                };
+            } else {
+                // If popup blocked, try to download instead
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${doc.title}.${doc.type.split('/')[1]}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error('Error viewing document:', error);
+            // Fallback: try opening the Base64 URL directly
+            window.open(doc.url, '_blank');
+        }
     };
 
     const handleSave = async () => {
@@ -653,8 +734,8 @@ export function EmployeeDialog({
                                                     <Input
                                                         type="number"
                                                         className="w-24 text-right h-10 rounded-xl"
-                                                        value={employee.salarioPorHora}
-                                                        onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value))}
+                                                        value={employee.salarioPorHora || ''}
+                                                        onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value) || 0)}
                                                     />
                                                 }
                                             />
@@ -691,27 +772,92 @@ export function EmployeeDialog({
 
                                 {/* TAB: DOCUMENTOS */}
                                 <TabsContent value="documentos" className="mt-0 space-y-4">
-                                    <div className="border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-3 bg-muted/5">
-                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                            <Upload className="h-6 w-6 text-primary" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <TextSM>Subir Documentos</TextSM>
-                                            <TextXS className="text-muted-foreground">DNI, Contratos, Seguros Sociales o Certificados (PDF, JPG).</TextXS>
-                                        </div>
-                                        <Button size="sm" variant="outline" className="mt-2">Seleccionar Archivos</Button>
-                                    </div>
+                                    <Card>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <Upload className="h-4 w-4" />
+                                                Subir Documentos
+                                            </CardTitle>
+                                            <CardDescription>Añade DNI, Contratos, Seguros Sociales o Certificados (PDF, JPG).</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    placeholder="Título del documento"
+                                                    value={newDocTitle}
+                                                    onChange={(e) => setNewDocTitle(e.target.value)}
+                                                    className="flex-1"
+                                                />
+                                                <input
+                                                    ref={docInputRef}
+                                                    type="file"
+                                                    accept=".pdf,.jpg,.jpeg,.png"
+                                                    onChange={handleDocFileChange}
+                                                    className="hidden"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => docInputRef.current?.click()}
+                                                >
+                                                    <Upload className="h-4 w-4 mr-2" />
+                                                    Seleccionar
+                                                </Button>
+                                                {newDocFile && (
+                                                    <Button
+                                                        type="button"
+                                                        onClick={handleAddDocument}
+                                                        disabled={!newDocTitle.trim()}
+                                                    >
+                                                        <Plus className="h-4 w-4 mr-2" />
+                                                        Añadir
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            {newDocFile && (
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                    <FileText className="h-4 w-4" />
+                                                    <span>{newDocFile.name}</span>
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
 
-                                    {employee.documentos && employee.documentos.map(doc => (
-                                        <ActionTile
-                                            key={doc.id}
-                                            icon={FileText}
-                                            title={doc.nombre}
-                                            description={`${doc.tipo} • Subido el ${doc.fecha_subida}`}
-                                            rightContentType="custom"
-                                            customContent={<Button variant="ghost" size="sm">Ver</Button>}
-                                        />
-                                    ))}
+                                    <div className="space-y-2">
+                                        {employee.documents && employee.documents.length > 0 ? (
+                                            employee.documents.map((doc, index) => (
+                                                <ActionTile
+                                                    key={index}
+                                                    icon={FileText}
+                                                    title={doc.title}
+                                                    description={`${doc.type} • Subido el ${new Date(doc.uploadDate).toLocaleDateString()}`}
+                                                    rightContentType="custom"
+                                                    customContent={
+                                                        <div className="flex gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleViewDocument(doc)}
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleRemoveDocument(index)}
+                                                            >
+                                                                <Trash className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    }
+                                                />
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8 text-muted-foreground text-sm">
+                                                No hay documentos subidos
+                                            </div>
+                                        )}
+                                    </div>
                                 </TabsContent>
 
                                 {/* TAB: HORARIO */}

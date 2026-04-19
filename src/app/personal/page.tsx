@@ -259,137 +259,139 @@ export default function PersonalPage() {
     // Memoized data transformations
     const staffMembers = React.useMemo(() => {
         if (!staffMembersData) return [];
-        return staffMembersData.map(member => ({
-            // Campos principales de la UI
-            id: member.id,
-            nombre: member.nombre,
-            email: member.email,
-            rol: member.rol,
-            estado: member.estado as "Activo" | "Inactivo" | "Vacaciones" | "Baja",
-            pin: member.pin,
-            telefono: member.telefono,
-            fotoUrl: member.fotoUrl,
-            horasContratadas: member.horasContratadas,
-            salarioPorHora: member.salarioPorHora,
-            fecha_contratacion: member.fecha_contratacion,
+        return staffMembersData.map(member => {
+            return {
+                // Campos principales de la UI
+                id: member.id,
+                nombre: member.nombre,
+                email: member.email,
+                rol: member.rol,
+                estado: member.estado as "Activo" | "Inactivo" | "Vacaciones" | "Baja",
+                pin: member.pin,
+                telefono: member.telefono,
+                fotoUrl: member.fotoUrl,
+                horasContratadas: member.horasContratadas,
+                salarioPorHora: member.salarioPorHora,
+                fecha_contratacion: member.fecha_contratacion,
 
-            // Campos adicionales del schema Convex
-            last_name: member.last_name,
-            auth_id: member.auth_id,
-            contract_type: member.contract_type,
-            // Map Convex contract_type back to form values
-            tipo_contrato: (() => {
-                const reverseMapping: Record<string, string> = {
-                    "indefinite": "indefinido",
-                    "temporary": "temporal",
-                    "practices": "practicas",
-                    "freelance": "autonomo"
-                };
-                return reverseMapping[member.contract_type] || "indefinido";
-            })(),
-            contract_end: member.contract_end,
-            salary: member.salary,
-            iban: member.iban,
-            irpf: member.irpf,
-            ss_number: member.ss_number,
-            break_duration_minutes: member.break_duration_minutes,
-            max_late_minutes: member.max_late_minutes,
-            dashboard_sections: member.dashboard_sections,
-            clock_methods: member.clock_methods,
-            documents: member.documents,
-            notes: member.notes,
-            departamento: member.departamento,
-            working_hours: member.working_hours,
-            created_at: member.created_at,
+                // Campos adicionales del schema Convex
+                last_name: member.last_name,
+                auth_id: member.auth_id,
+                contract_type: member.contract_type,
+                // Map Convex contract_type back to form values
+                tipo_contrato: (() => {
+                    const reverseMapping: Record<string, string> = {
+                        "indefinite": "indefinido",
+                        "temporary": "temporal",
+                        "practices": "practicas",
+                        "freelance": "autonomo"
+                    };
+                    return reverseMapping[member.contract_type] || "indefinido";
+                })(),
+                contract_end: member.contract_end,
+                salary: member.salary,
+                iban: member.iban,
+                irpf: member.irpf,
+                ss_number: member.ss_number,
+                break_duration_minutes: member.break_duration_minutes,
+                max_late_minutes: member.max_late_minutes,
+                dashboard_sections: member.dashboard_sections,
+                clock_methods: member.clock_methods,
+                documents: member.documents,
+                notes: member.notes,
+                departamento: member.departamento,
+                working_hours: member.working_hours,
+                created_at: member.created_at,
 
-            // Campos de acceso para compatibilidad con ExtendedStaffMember
-            roles: [member.rol],
-            nivelAcceso: (() => {
-                // Check if permissions match predefined patterns or are custom
-                const permissions = member.dashboard_sections || [];
-                const jefePermisos = ['pos', 'kds', 'reportes', 'reportes_completos', 'inventario', 'personal', 'configuracion', 'integraciones', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas', 'whatsapp_config'];
-                const encargadoPermisos = ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'];
-                const camareroPermisos = ['pos', 'kds', 'cierre_caja'];
+                // Campos de acceso para compatibilidad con ExtendedStaffMember
+                roles: [member.rol],
+                nivelAcceso: (() => {
+                    // Check if permissions match predefined patterns or are custom
+                    const permissions = member.dashboard_sections || [];
+                    const jefePermisos = ['pos', 'kds', 'reportes', 'reportes_completos', 'inventario', 'personal', 'configuracion', 'integraciones', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas', 'whatsapp_config'];
+                    const encargadoPermisos = ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'];
+                    const camareroPermisos = ['pos', 'kds', 'cierre_caja'];
 
-                // More flexible detection: check if permissions contain all required items for a level
-                const isJefe = jefePermisos.every(p => permissions.includes(p));
-                const isEncargado = encargadoPermisos.every(p => permissions.includes(p)) && !isJefe;
-                const isCamarero = camareroPermisos.every(p => permissions.includes(p)) && !isEncargado && !isJefe;
+                    // More flexible detection: check if permissions contain all required items for a level
+                    const isJefe = jefePermisos.every(p => permissions.includes(p));
+                    const isEncargado = encargadoPermisos.every(p => permissions.includes(p)) && !isJefe;
+                    const isCamarero = camareroPermisos.every(p => permissions.includes(p)) && !isEncargado && !isJefe;
 
-                // If permissions exactly match any predefined set, use that level, otherwise use custom
-                if (isJefe && permissions.length === jefePermisos.length) {
-                    return 'jefe' as const;
-                } else if (isEncargado && permissions.length === encargadoPermisos.length) {
-                    return "encargado" as const;
-                } else if (isCamarero && permissions.length === camareroPermisos.length) {
-                    return 'camarero' as const;
-                } else {
-                    return 'personalizado' as const; // Custom permissions (different count or extra permissions)
-                }
-            })(),
-            // Use the actual saved permissions from dashboard_sections, not predefined ones
-            permisos: member.dashboard_sections || [],
-            metodos_fichaje_permitidos: (member.clock_methods || ['app', 'qr']) as ('app' | 'whatsapp' | 'qr' | 'web')[],
-            // Calcular horas trabajadas esta semana
-            horasTrabajadas: (() => {
-                const now = new Date();
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
-                startOfWeek.setHours(0, 0, 0, 0);
-
-                const endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
-                endOfWeek.setHours(23, 59, 59, 999);
-
-                // Obtener logs del empleado esta semana
-                const staffLogs = timeLogs
-                    .filter(log => log.staffId === member.id)
-                    .filter(log => {
-                        const logDate = new Date(log.timestamp);
-                        return logDate >= startOfWeek && logDate <= endOfWeek;
-                    })
-                    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-
-                let totalHours = 0;
-                let clockInTime: Date | null = null;
-                let breakStartTime: Date | null = null;
-
-                for (const log of staffLogs) {
-                    const logTime = new Date(log.timestamp);
-
-                    if (log.action === 'clock-in') {
-                        clockInTime = logTime;
-                        breakStartTime = null;
-                    } else if (log.action === 'clock-out' && clockInTime) {
-                        // Calcular horas trabajadas (excluyendo pausas)
-                        let workEndTime = logTime;
-                        let workStartTime = clockInTime;
-
-                        // Si hubo una pausa, calcular solo el tiempo trabajado
-                        if (breakStartTime) {
-                            // Tiempo antes de la pausa
-                            totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                            // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
-                            // En un sistema real, necesitaríamos un log de break-end
-                            workStartTime = breakStartTime; // Simplificación
-                        }
-
-                        totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                        clockInTime = null;
-                        breakStartTime = null;
-                    } else if (log.action === 'break' && clockInTime) {
-                        breakStartTime = logTime;
+                    // If permissions exactly match any predefined set, use that level, otherwise use custom
+                    if (isJefe && permissions.length === jefePermisos.length) {
+                        return 'jefe' as const;
+                    } else if (isEncargado && permissions.length === encargadoPermisos.length) {
+                        return "encargado" as const;
+                    } else if (isCamarero && permissions.length === camareroPermisos.length) {
+                        return 'camarero' as const;
+                    } else {
+                        return 'personalizado' as const; // Custom permissions (different count or extra permissions)
                     }
-                }
+                })(),
+                // Use the actual saved permissions from dashboard_sections, not predefined ones
+                permisos: member.dashboard_sections || [],
+                metodos_fichaje_permitidos: (member.clock_methods || ['app', 'qr']) as ('app' | 'whatsapp' | 'qr' | 'web')[],
+                // Calcular horas trabajadas esta semana
+                horasTrabajadas: (() => {
+                    const now = new Date();
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
+                    startOfWeek.setHours(0, 0, 0, 0);
 
-                // Si todavía está trabajando (sin clock-out), contar hasta ahora
-                if (clockInTime) {
-                    totalHours += (new Date().getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
-                }
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
+                    endOfWeek.setHours(23, 59, 59, 999);
 
-                return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
-            })(),
-        }));
+                    // Obtener logs del empleado esta semana
+                    const staffLogs = timeLogs
+                        .filter(log => log.staffId === member.id)
+                        .filter(log => {
+                            const logDate = new Date(log.timestamp);
+                            return logDate >= startOfWeek && logDate <= endOfWeek;
+                        })
+                        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+                    let totalHours = 0;
+                    let clockInTime: Date | null = null;
+                    let breakStartTime: Date | null = null;
+
+                    for (const log of staffLogs) {
+                        const logTime = new Date(log.timestamp);
+
+                        if (log.action === 'clock-in') {
+                            clockInTime = logTime;
+                            breakStartTime = null;
+                        } else if (log.action === 'clock-out' && clockInTime) {
+                            // Calcular horas trabajadas (excluyendo pausas)
+                            let workEndTime = logTime;
+                            let workStartTime = clockInTime;
+
+                            // Si hubo una pausa, calcular solo el tiempo trabajado
+                            if (breakStartTime) {
+                                // Tiempo antes de la pausa
+                                totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                                // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
+                                // En un sistema real, necesitaríamos un log de break-end
+                                workStartTime = breakStartTime; // Simplificación
+                            }
+
+                            totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                            clockInTime = null;
+                            breakStartTime = null;
+                        } else if (log.action === 'break' && clockInTime) {
+                            breakStartTime = logTime;
+                        }
+                    }
+
+                    // Si todavía está trabajando (sin clock-out), contar hasta ahora
+                    if (clockInTime) {
+                        totalHours += (new Date().getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
+                    }
+
+                    return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
+                })(),
+            };
+        });
     }, [staffMembersData, timeLogs]);
 
     const absenceRequests = React.useMemo(() => {
@@ -686,7 +688,7 @@ export default function PersonalPage() {
                 horasContratadas: employee.horasContratadas || 40, // Ya viene formateado de Convex
                 // Campos que podrían faltar
                 permisos: employee.permisos || [],
-                documentos: employee.documentos || [],
+                documents: employee.documents || [],
                 establecimientos_asignados: employee.establecimientos_asignados || [],
                 // Usar el valor exacto de Convex para el departamento y horario
                 departamento: employee.departamento,
@@ -762,6 +764,7 @@ export default function PersonalPage() {
                 dashboard_sections: employee.permisos || [],
                 departamento: employee.departamento || "", // Campo departamento
                 working_hours: employee.working_hours || "", // Horario semanal personalizado
+                documents: employee.documents || [], // Documentos con título, url, tipo y fecha
             };
 
             if (isEditing) {
