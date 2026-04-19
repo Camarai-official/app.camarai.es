@@ -650,7 +650,7 @@ export default function ReservasPage() {
                                                                 </div>
                                                             </TooltipTrigger>
                                                             <TooltipContent>
-                                                                <p className="whitespace-pre-wrap">Nota del cliente: {res.notes}</p>
+                                                                <p className="whitespace-pre-wrap">{res.notes}</p>
                                                             </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
