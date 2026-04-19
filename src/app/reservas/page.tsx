@@ -32,6 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { WhatsAppPreview, createWhatsAppMessage } from '@/components/features/whatsapp-preview';
 import { ReservationDialog, type Reservation, type ReservationStatus } from '@/components/dialogs/reservas-edit-dialog';
 import { WhatsAppNotificationsDialog } from '@/components/dialogs/reservas-notificaciones-dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Local type that matches actual Convex data structure
 type LocalReservation = {
@@ -639,6 +640,20 @@ export default function ReservasPage() {
                                                         <MapPin className="h-3 w-3" />
                                                         {assignedEnv.name} - Mesa {assignedTable.number}
                                                     </div>
+                                                )}
+                                                {res.notes && (
+                                                    <TooltipProvider>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <div className="text-xs text-foreground truncate max-w-[300px] cursor-help">
+                                                                    Nota del cliente: {res.notes}
+                                                                </div>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p className="whitespace-pre-wrap">Nota del cliente: {res.notes}</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
                                                 )}
                                             </div>
                                         );
