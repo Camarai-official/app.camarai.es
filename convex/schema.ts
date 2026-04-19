@@ -112,6 +112,8 @@ export default defineSchema({
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Departamento o área de trabajo
     working_hours: v.optional(v.string()), // Horario laboral estructurado (custom)
+    color: v.optional(v.string()), // Color de identidad visual
+    icon: v.optional(v.string()), // Icono de representación
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 

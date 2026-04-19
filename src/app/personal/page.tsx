@@ -301,6 +301,8 @@ export default function PersonalPage() {
                 notes: member.notes,
                 departamento: member.departamento,
                 working_hours: member.working_hours,
+                color: member.color,
+                icon: member.icon,
                 created_at: member.created_at,
 
                 // Campos de acceso para compatibilidad con ExtendedStaffMember
@@ -765,6 +767,8 @@ export default function PersonalPage() {
                 departamento: employee.departamento || "", // Campo departamento
                 working_hours: employee.working_hours || "", // Horario semanal personalizado
                 documents: employee.documents || [], // Documentos con título, url, tipo y fecha
+                color: employee.color || "blue-500", // Color de identidad visual
+                icon: employee.icon || "User", // Icono de representación
             };
 
             if (isEditing) {

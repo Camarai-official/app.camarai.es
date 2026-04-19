@@ -41,6 +41,8 @@ export const getStaffByEstablishment = query({
         notes: member.notes,
         departamento: member.departamento || "", // Campo departamento
         working_hours: member.working_hours || "", // Horario laboral
+        color: member.color, // Color de identidad visual
+        icon: member.icon, // Icono de representación
         created_at: member.created_at,
       };
       return mappedData;
@@ -80,6 +82,10 @@ export const getStaffMemberById = query({
       clock_methods: staff.clock_methods,
       documents: staff.documents,
       notes: staff.notes,
+      departamento: staff.departamento,
+      working_hours: staff.working_hours,
+      color: staff.color, // Color de identidad visual
+      icon: staff.icon, // Icono de representación
       created_at: staff.created_at,
     };
   },
@@ -212,6 +218,8 @@ export const createStaffMember = mutation({
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Nuevo campo
     working_hours: v.optional(v.string()), // Horario laboral
+    color: v.optional(v.string()), // Color de identidad visual
+    icon: v.optional(v.string()), // Icono de representación
   },
   handler: async (ctx, args) => {
     const staffId = await ctx.db.insert("staff", {
@@ -241,6 +249,8 @@ export const createStaffMember = mutation({
       notes: args.notes,
       departamento: args.departamento, // Nuevo campo
       working_hours: args.working_hours, // Horario laboral (custom)
+      color: args.color, // Color de identidad visual
+      icon: args.icon, // Icono de representación
       created_at: Date.now(),
     });
 
@@ -289,6 +299,8 @@ export const updateStaffMember = mutation({
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Nuevo campo
     working_hours: v.optional(v.string()), // Horario laboral
+    color: v.optional(v.string()), // Color de identidad visual
+    icon: v.optional(v.string()), // Icono de representación
   },
   handler: async (ctx, args) => {
     const { staffId, ...updateData } = args;
@@ -319,6 +331,8 @@ export const updateStaffMember = mutation({
       notes: updateData.notes,
       departamento: updateData.departamento,
       working_hours: updateData.working_hours,
+      color: updateData.color, // Color de identidad visual
+      icon: updateData.icon, // Icono de representación
     });
 
     return staffId;
