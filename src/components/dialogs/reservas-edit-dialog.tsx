@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import type { Environment } from '@/data/environments';
+import { CustomerSelect } from '@/components/ui/customer-select';
+import type { Id } from '../../../convex/_generated/dataModel';
 
-type ReservationStatus = 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada';
+export type ReservationStatus = 'Pendiente' | 'Confirmada' | 'Cancelada' | 'Completada';
 
 export type Reservation = {
   id: string;
@@ -22,15 +23,17 @@ export type Reservation = {
   status: ReservationStatus;
   notes?: string;
   environmentId?: string;
-  tableId?: number;
+  tableId?: string;
+  customerId?: string;
 };
 
 interface ReservationDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSave: (res: Omit<Reservation, 'id'>, id?: string) => void;
-    getAvailableTables: (res: Partial<Reservation>) => Environment[];
-    environments: Environment[];
+    getAvailableTables: (res: Partial<Reservation>) => any[];
+    environments: any[];
+    establishmentId: Id<"establishments">;
     editingReservation?: Reservation | null;
 }
 
@@ -40,6 +43,7 @@ export function ReservationDialog({
     onSave, 
     getAvailableTables, 
     environments,
+    establishmentId,
     editingReservation 
 }: ReservationDialogProps) {
     const isEditing = !!editingReservation;
@@ -55,7 +59,8 @@ export function ReservationDialog({
         tableId: undefined 
     });
 
-    const [selectedEnvId, setSelectedEnvId] = React.useState<string | undefined>(undefined);
+    const [selectedEnvId, setSelectedEnvId] = React.useState<string>('');
+    const [selectedCustomer, setSelectedCustomer] = React.useState<any>(null);
 
     // Initialize form when editing
     React.useEffect(() => {
@@ -68,9 +73,12 @@ export function ReservationDialog({
                 endTime: editingReservation.endTime,
                 notes: editingReservation.notes || '',
                 environmentId: editingReservation.environmentId,
-                tableId: editingReservation.tableId 
+                tableId: editingReservation.tableId,
+                customerId: editingReservation.customerId
             });
-            setSelectedEnvId(editingReservation.environmentId);
+            setSelectedEnvId(editingReservation.environmentId || '');
+            // Reset customer selection - will be populated by CustomerSelect
+            setSelectedCustomer(null);
         } else {
             setReservation({
                 customerName: '',
@@ -80,9 +88,11 @@ export function ReservationDialog({
                 endTime: '22:00',
                 notes: '',
                 environmentId: undefined,
-                tableId: undefined 
+                tableId: undefined,
+                customerId: undefined
             });
-            setSelectedEnvId(undefined);
+            setSelectedEnvId('');
+            setSelectedCustomer(null);
         }
     }, [editingReservation, open]);
 
@@ -100,6 +110,26 @@ export function ReservationDialog({
         }
     }, [selectedEnvId, isEditing]);
 
+    // Handle customer selection
+    const handleCustomerSelect = (customer: any) => {
+        setSelectedCustomer(customer);
+        if (customer) {
+            setReservation(p => ({
+                ...p,
+                customerName: customer.name,
+                phone: customer.phone || '',
+                customerId: customer._id || undefined
+            }));
+        } else {
+            setReservation(p => ({
+                ...p,
+                customerName: '',
+                phone: '',
+                customerId: undefined
+            }));
+        }
+    };
+
     const handleSave = () => {
         const status = isEditing ? editingReservation.status : 'Confirmada';
         onSave({ ...reservation, status }, editingReservation?.id);
@@ -115,26 +145,14 @@ export function ReservationDialog({
                     description={isEditing ? 'Modifica los datos de la reserva.' : 'Introduce los datos para crear una reserva manualmente.'}
                 />
                 <DialogContent spaced>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="customerName">Nombre del Cliente</Label>
-                            <Input 
-                                id="customerName" 
-                                placeholder="Ej: Juan Pérez"
-                                value={reservation.customerName} 
-                                onChange={e => setReservation(p => ({...p, customerName: e.target.value}))}
-                            />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="phone">Teléfono</Label>
-                            <Input 
-                                id="phone" 
-                                type="tel" 
-                                placeholder="Ej: +34 600 000 000"
-                                value={reservation.phone} 
-                                onChange={e => setReservation(p => ({...p, phone: e.target.value}))}
-                            />
-                        </div>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="customer-select">Cliente</Label>
+                        <CustomerSelect
+                            establishmentId={establishmentId}
+                            selectedCustomer={selectedCustomer}
+                            onCustomerSelect={handleCustomerSelect}
+                            placeholder="Buscar o crear cliente..."
+                        />
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
@@ -185,8 +203,8 @@ export function ReservationDialog({
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="table-select">Mesa</Label>
                             <Select 
-                                value={reservation.tableId?.toString()} 
-                                onValueChange={(val) => setReservation(p => ({...p, tableId: parseInt(val), environmentId: selectedEnvId }))}
+                                value={reservation.tableId || ''} 
+                                onValueChange={(val) => setReservation(p => ({...p, tableId: val, environmentId: selectedEnvId}))}
                                 disabled={!selectedEnvId || availableTablesByEnv.length === 0}
                             >
                                 <SelectTrigger id="table-select">
@@ -194,7 +212,7 @@ export function ReservationDialog({
                                 </SelectTrigger>
                                 <SelectContent>
                                     {availableTablesByEnv.map(table => (
-                                        <SelectItem key={table.id} value={table.id.toString()}>Mesa {table.number} (Cap: {table.capacity})</SelectItem>
+                                        <SelectItem key={table.id} value={table.id.toString()}>Mesa {table.number} (Asientos: {table.capacity})</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>

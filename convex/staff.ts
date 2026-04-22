@@ -40,6 +40,9 @@ export const getStaffByEstablishment = query({
         documents: member.documents,
         notes: member.notes,
         departamento: member.departamento || "", // Campo departamento
+        working_hours: member.working_hours || "", // Horario laboral
+        color: member.color, // Color de identidad visual
+        icon: member.icon, // Icono de representación
         created_at: member.created_at,
       };
       return mappedData;
@@ -79,6 +82,10 @@ export const getStaffMemberById = query({
       clock_methods: staff.clock_methods,
       documents: staff.documents,
       notes: staff.notes,
+      departamento: staff.departamento,
+      working_hours: staff.working_hours,
+      color: staff.color, // Color de identidad visual
+      icon: staff.icon, // Icono de representación
       created_at: staff.created_at,
     };
   },
@@ -86,14 +93,14 @@ export const getStaffMemberById = query({
 
 // Queries para Time Logs
 export const getTimeLogsByEstablishment = query({
-  args: { 
+  args: {
     establishmentId: v.id("establishments"),
     limit: v.optional(v.number()),
     staffId: v.optional(v.id("staff")),
     action: v.optional(v.union(
-      v.literal("clock_in"), 
-      v.literal("clock_out"), 
-      v.literal("break_start"), 
+      v.literal("clock_in"),
+      v.literal("clock_out"),
+      v.literal("break_start"),
       v.literal("break_end")
     ))
   },
@@ -105,7 +112,7 @@ export const getTimeLogsByEstablishment = query({
 
     // Filtrar por establecimiento
     let filteredLogs = allLogs.filter(log => log.establishment_id === args.establishmentId);
-    
+
     // Filtrar por staffId si se proporciona
     if (args.staffId) {
       filteredLogs = filteredLogs.filter(log => log.staff_id === args.staffId);
@@ -136,7 +143,7 @@ export const getTimeLogsByEstablishment = query({
 
 // Queries para Absence Requests
 export const getAbsenceRequestsByEstablishment = query({
-  args: { 
+  args: {
     establishmentId: v.id("establishments"),
     staffId: v.optional(v.id("staff"))
   },
@@ -161,6 +168,7 @@ export const getAbsenceRequestsByEstablishment = query({
       endDate: req.end_date,
       total_days: req.total_days,
       reason: req.reason,
+      document: req.document,
       status: req.status,
       reviewed_by: req.reviewed_by,
       reviewed_at: req.reviewed_at,
@@ -202,9 +210,17 @@ export const createStaffMember = mutation({
     max_late_minutes: v.optional(v.number()),
     dashboard_sections: v.optional(v.array(v.string())),
     clock_methods: v.optional(v.array(v.string())),
-    documents: v.optional(v.array(v.string())),
+    documents: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      type: v.string(),
+      uploadDate: v.number(),
+    }))),
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Nuevo campo
+    working_hours: v.optional(v.string()), // Horario laboral
+    color: v.optional(v.string()), // Color de identidad visual
+    icon: v.optional(v.string()), // Icono de representación
   },
   handler: async (ctx, args) => {
     const staffId = await ctx.db.insert("staff", {
@@ -233,6 +249,9 @@ export const createStaffMember = mutation({
       documents: args.documents,
       notes: args.notes,
       departamento: args.departamento, // Nuevo campo
+      working_hours: args.working_hours, // Horario laboral (custom)
+      color: args.color, // Color de identidad visual
+      icon: args.icon, // Icono de representación
       created_at: Date.now(),
     });
 
@@ -272,13 +291,21 @@ export const updateStaffMember = mutation({
     max_late_minutes: v.optional(v.number()),
     dashboard_sections: v.optional(v.array(v.string())),
     clock_methods: v.optional(v.array(v.string())),
-    documents: v.optional(v.array(v.string())),
+    documents: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      type: v.string(),
+      uploadDate: v.number(),
+    }))),
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Nuevo campo
+    working_hours: v.optional(v.string()), // Horario laboral
+    color: v.optional(v.string()), // Color de identidad visual
+    icon: v.optional(v.string()), // Icono de representación
   },
   handler: async (ctx, args) => {
     const { staffId, ...updateData } = args;
-    
+
     await ctx.db.patch(staffId, {
       name: updateData.name,
       last_name: updateData.last_name,
@@ -304,6 +331,9 @@ export const updateStaffMember = mutation({
       documents: updateData.documents,
       notes: updateData.notes,
       departamento: updateData.departamento,
+      working_hours: updateData.working_hours,
+      color: updateData.color, // Color de identidad visual
+      icon: updateData.icon, // Icono de representación
     });
 
     return staffId;
@@ -333,7 +363,7 @@ export const createTimeLog = mutation({
     // Get staff details for event log
     const staff = await ctx.db.get(args.staffId);
     const staffName = staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Empleado";
-    
+
     // Create time log
     const logId = await ctx.db.insert("time_logs", {
       establishment_id: args.establishmentId,
@@ -350,7 +380,7 @@ export const createTimeLog = mutation({
     // Create event log entry
     let eventDescription = "";
     let eventLevel: "info" | "warning" | "critical" = "info";
-    
+
     switch (args.action) {
       case "clock_in":
         eventDescription = `Inició turno en ${args.location || "establecimiento"}`;
@@ -374,11 +404,11 @@ export const createTimeLog = mutation({
       action: `${args.action === "clock_in" ? "Check-in" : args.action === "clock_out" ? "Check-out" : args.action === "break_start" ? "Inicio Descanso" : "Vuelta de Descanso"} Personal`,
       entity_type: "time_log",
       entity_id: logId,
-      after: { 
-        action: args.action, 
-        method: args.method, 
+      after: {
+        action: args.action,
+        method: args.method,
         location: args.location,
-        staff_name: staffName 
+        staff_name: staffName
       },
       timestamp: Date.now(),
     });
@@ -428,12 +458,13 @@ export const createAbsenceRequest = mutation({
     endDate: v.string(),
     total_days: v.number(),
     reason: v.optional(v.string()),
+    document: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     // Get staff details for event log
     const staff = await ctx.db.get(args.staffId);
     const staffName = staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Empleado";
-    
+
     // Create absence request
     const requestId = await ctx.db.insert("absence_requests", {
       staff_id: args.staffId,
@@ -443,6 +474,7 @@ export const createAbsenceRequest = mutation({
       end_date: args.endDate,
       total_days: args.total_days,
       reason: args.reason,
+      document: args.document,
       status: "pending",
       created_at: Date.now(),
     });
@@ -456,13 +488,14 @@ export const createAbsenceRequest = mutation({
       action: "Solicitud Ausencia",
       entity_type: "absence_request",
       entity_id: requestId,
-      after: { 
-        type: args.type, 
-        start_date: args.startDate, 
+      after: {
+        type: args.type,
+        start_date: args.startDate,
         end_date: args.endDate,
         total_days: args.total_days,
         reason: args.reason,
-        staff_name: staffName 
+        document: args.document,
+        staff_name: staffName
       },
       timestamp: Date.now(),
     });
@@ -472,9 +505,9 @@ export const createAbsenceRequest = mutation({
 });
 
 export const updateAbsenceRequestStatus = mutation({
-  args: { 
-    requestId: v.id("absence_requests"), 
-    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")), 
+  args: {
+    requestId: v.id("absence_requests"),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")),
     reviewed_by: v.id("staff")
   },
   handler: async (ctx, args) => {
@@ -618,3 +651,4 @@ export const deleteClockDevice = mutation({
     return args.deviceId;
   },
 });
+

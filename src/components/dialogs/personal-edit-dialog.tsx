@@ -2,13 +2,17 @@
 
 import * as React from 'react';
 import { TextSM, TextXS } from "@/components/ui/typography";
-import { 
-    User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield, 
-    Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette, 
-    ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer, 
-    Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package, 
-    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle
+import {
+    User, Briefcase, Key, Wallet, FileText, Smartphone, MessageSquare, QrCode, Shield,
+    Building2, Upload, Eye, EyeOff, Trash, Check, Mail, Phone, Palette,
+    ChefHat, Utensils, Wine, Coffee, Music, Heart, Star, Pizza, Beer,
+    Zap, Gem, Target, Camera, Smile, Monitor, ScreenShare, BarChart, PieChart, Package,
+    Users, Settings, Percent, Trash2, Edit, Lock, Crown, UserCircle, Clock, CalendarIcon, Plus
 } from 'lucide-react';
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+import { useToast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,9 +25,10 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { IconPicker, iconMap } from '@/components/ui/icon-picker';
 import { AccessSection } from '@/components/personal/access-section';
 import { cn } from '@/lib/utils';
+import { OperatingHoursEditor } from '@/components/ui/operating-hours-editor';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import type { StaffMember } from '@/data/mock-data';
+import type { StaffMember } from '@/types/staff';
 import { mockEstablishments } from '@/data/mock-data';
 
 // Métodos de fichaje disponibles
@@ -42,7 +47,7 @@ export interface ExtendedStaffMember extends StaffMember {
     permisos?: string[];
     establecimientos_asignados?: string[];
     horas_extra_habilitadas?: boolean;
-    documentos?: StaffDocument[];
+    documents?: StaffDocument[];
     // Campos para fichaje
     metodos_fichaje_permitidos?: ('app' | 'whatsapp' | 'qr' | 'web')[];
     dispositivo_asignado?: string;
@@ -51,13 +56,15 @@ export interface ExtendedStaffMember extends StaffMember {
     icon?: string;
     // Campos financieros adicionales
     irpf?: number;
+    // Horario laboral
+    working_hours?: string;
 }
 
 interface StaffDocument {
-    id: string;
-    nombre: string;
-    tipo: string;
-    fecha_subida: string;
+    title: string;
+    url: string;
+    type: string;
+    uploadDate: number;
 }
 
 const emptyEmployee: ExtendedStaffMember = {
@@ -79,12 +86,13 @@ const emptyEmployee: ExtendedStaffMember = {
     permisos: [], // Start with empty permissions for true customization
     establecimientos_asignados: [],
     horas_extra_habilitadas: false,
-    documentos: [],
+    documents: [],
     metodos_fichaje_permitidos: [], // Start with empty for true customization
     dispositivo_asignado: undefined,
     color: 'blue-500',
     icon: 'User',
-    irpf: 0
+    irpf: 0,
+    working_hours: '',
 };
 
 const permisosDisponibles = [
@@ -106,30 +114,30 @@ const permisosDisponibles = [
 type NivelAcceso = 'camarero' | 'encargado' | 'jefe' | 'personalizado';
 
 const nivelesAcceso: { id: NivelAcceso; label: string; description: string; permisos: string[]; icon: React.ElementType }[] = [
-    { 
-        id: 'camarero', 
-        label: 'Camarero', 
+    {
+        id: 'camarero',
+        label: 'Camarero',
         description: 'Acceso básico: POS, KDS, comandas propias',
         permisos: ['pos', 'kds', 'cierre_caja'],
         icon: Utensils
     },
-    { 
-        id: 'encargado', 
-        label: 'Encargado', 
+    {
+        id: 'encargado',
+        label: 'Encargado',
         description: 'Todo lo de camarero + funciones de gestión',
         permisos: ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'],
         icon: Shield
     },
-    { 
-        id: 'jefe', 
-        label: 'Jefe / Admin', 
+    {
+        id: 'jefe',
+        label: 'Jefe / Admin',
         description: 'Acceso total a todas las funciones',
         permisos: permisosDisponibles.map(p => p.id),
         icon: Crown
     },
-    { 
-        id: 'personalizado', 
-        label: 'Personalizado', 
+    {
+        id: 'personalizado',
+        label: 'Personalizado',
         description: 'Selecciona permisos manualmente',
         permisos: [],
         icon: Palette
@@ -150,6 +158,7 @@ interface EmployeeDialogProps {
     employeeToEdit: ExtendedStaffMember | null;
     onSave: (employee: ExtendedStaffMember) => Promise<void>;
     onDelete?: (id: string) => Promise<void>;
+    establishmentId?: string;
 }
 
 export function EmployeeDialog({
@@ -157,21 +166,27 @@ export function EmployeeDialog({
     onOpenChange,
     employeeToEdit,
     onSave,
-    onDelete
+    onDelete,
+    establishmentId
 }: EmployeeDialogProps): React.ReactElement {
+
+    const { toast } = useToast();
     const [employee, setEmployee] = React.useState<ExtendedStaffMember>(emptyEmployee);
     const [activeTab, setActiveTab] = React.useState('datos');
     const [showPin, setShowPin] = React.useState(false);
     const [nivelAcceso, setNivelAcceso] = React.useState<NivelAcceso>('camarero');
     const [isSaving, setIsSaving] = React.useState(false);
     const [isDeleting, setIsDeleting] = React.useState(false);
+    const [newDocTitle, setNewDocTitle] = React.useState('');
+    const [newDocFile, setNewDocFile] = React.useState<File | null>(null);
+    const docInputRef = React.useRef<HTMLInputElement>(null);
 
     // Detectar nivel de acceso basado en permisos existentes
     const detectNivelAcceso = (permisos: string[]): NivelAcceso => {
         const jefePermisos = nivelesAcceso.find(n => n.id === 'jefe')!.permisos;
         const encargadoPermisos = nivelesAcceso.find(n => n.id === 'encargado')!.permisos;
         const camareroPermisos = nivelesAcceso.find(n => n.id === 'camarero')!.permisos;
-        
+
         if (jefePermisos.every(p => permisos.includes(p))) return 'jefe';
         if (encargadoPermisos.every(p => permisos.includes(p))) return 'encargado';
         if (camareroPermisos.every(p => permisos.includes(p))) return 'camarero';
@@ -184,15 +199,15 @@ export function EmployeeDialog({
                 ...emptyEmployee,
                 ...employeeToEdit,
                 permisos: employeeToEdit.permisos || [],
-                documentos: employeeToEdit.documentos || [],
-                establecimientos_asignados: employeeToEdit.establecimientos_asignados || [] 
+                documents: employeeToEdit.documents || [],
+                establecimientos_asignados: employeeToEdit.establecimientos_asignados || []
             });
             // Use the nivelAcceso that was already calculated in page.tsx
             setNivelAcceso(employeeToEdit.nivelAcceso || 'camarero');
         } else {
             setEmployee({
                 ...emptyEmployee,
-                pin: Math.floor(1000 + Math.random() * 9000).toString() 
+                pin: Math.floor(1000 + Math.random() * 9000).toString()
             });
             setNivelAcceso('camarero');
         }
@@ -204,10 +219,10 @@ export function EmployeeDialog({
         setNivelAcceso(nivel);
         // Map access level to Convex role
         const roleMapping: Record<NivelAcceso, string> = {
-            'camarero': 'waiter',
-            'encargado': 'manager', 
+            'camarero': 'camarero',
+            'encargado': 'gerente',
             'jefe': 'admin',
-            'personalizado': 'waiter' // Default for custom
+            'personalizado': 'camarero' // Default for custom
         };
 
         // Define clock methods for each access level
@@ -217,13 +232,13 @@ export function EmployeeDialog({
             'jefe': ['app', 'whatsapp', 'qr', 'web'], // All methods
             'personalizado': ['app', 'qr'] // Default for custom
         };
-        
+
         // Update the employee role and permissions when access level changes
         if (nivel !== 'personalizado') {
             const nivelConfig = nivelesAcceso.find(n => n.id === nivel);
             if (nivelConfig) {
-                setEmployee(prev => ({ 
-                    ...prev, 
+                setEmployee(prev => ({
+                    ...prev,
                     rol: roleMapping[nivel],
                     permisos: [...nivelConfig.permisos],
                     metodos_fichaje_permitidos: clockMethodsByLevel[nivel]
@@ -231,8 +246,8 @@ export function EmployeeDialog({
             }
         } else {
             // For personalizado, only update the role, keep existing permissions and methods
-            setEmployee(prev => ({ 
-                ...prev, 
+            setEmployee(prev => ({
+                ...prev,
                 rol: roleMapping[nivel]
                 // Don't override permissions or clock methods for custom level
             }));
@@ -270,6 +285,97 @@ export function EmployeeDialog({
         }));
     };
 
+    const handleDocFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // Limit file size to 750KB (Convex has 1MB limit, base64 adds ~33% overhead)
+            const maxSize = 750 * 1024; // 750KB in bytes
+            if (file.size > maxSize) {
+                toast({
+                    title: "Archivo demasiado grande",
+                    description: "El documento no puede superar 750KB",
+                    variant: "destructive"
+                });
+                if (docInputRef.current) {
+                    docInputRef.current.value = '';
+                }
+                return;
+            }
+            setNewDocFile(file);
+            if (!newDocTitle.trim()) {
+                setNewDocTitle(file.name.split('.')[0]);
+            }
+        }
+    };
+
+    const handleAddDocument = () => {
+        if (!newDocFile || !newDocTitle.trim()) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const newDoc: StaffDocument = {
+                title: newDocTitle.trim(),
+                url: e.target?.result as string,
+                type: newDocFile.type,
+                uploadDate: Date.now(),
+            };
+            setEmployee(prev => ({
+                ...prev,
+                documents: [...(prev.documents || []), newDoc]
+            }));
+            setNewDocTitle('');
+            setNewDocFile(null);
+            if (docInputRef.current) {
+                docInputRef.current.value = '';
+            }
+        };
+        reader.readAsDataURL(newDocFile);
+    };
+
+    const handleRemoveDocument = (index: number) => {
+        setEmployee(prev => ({
+            ...prev,
+            documents: prev.documents?.filter((_, i) => i !== index) || []
+        }));
+    };
+
+    const handleViewDocument = (doc: StaffDocument) => {
+        try {
+            // Convert Base64 to Blob
+            const byteCharacters = atob(doc.url.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: doc.type });
+            
+            // Create object URL and open in new window
+            const url = URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+            
+            // Clean up object URL after window opens
+            if (newWindow) {
+                newWindow.onload = () => {
+                    URL.revokeObjectURL(url);
+                };
+            } else {
+                // If popup blocked, try to download instead
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${doc.title}.${doc.type.split('/')[1]}`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error('Error viewing document:', error);
+            // Fallback: try opening the Base64 URL directly
+            window.open(doc.url, '_blank');
+        }
+    };
+
     const handleSave = async () => {
         if (!employee.nombre || !employee.email || !employee.rol) {
             return;
@@ -281,9 +387,9 @@ export function EmployeeDialog({
                 ...employee,
                 id: employee.id || `staff-${Date.now()}`,
                 fotoUrl: employee.fotoUrl,
-                roles: employee.rol ? [employee.rol] : [] 
+                roles: employee.rol ? [employee.rol] : []
             };
-            
+
             await onSave(employeeToSave);
             onOpenChange(false);
         } catch (error) {
@@ -311,6 +417,7 @@ export function EmployeeDialog({
                                 <TabsTrigger value="acceso" icon={Key}>Acceso</TabsTrigger>
                                 <TabsTrigger value="nomina" icon={Wallet}>Nómina</TabsTrigger>
                                 <TabsTrigger value="documentos" icon={FileText}>Docs</TabsTrigger>
+                                <TabsTrigger value="horario" icon={Clock}>Horario</TabsTrigger>
                             </TabsList>
                         </div>
 
@@ -326,13 +433,13 @@ export function EmployeeDialog({
                                                 className="w-44 h-full"
                                             />
                                         </div>
-                                        
+
                                         <div className="flex-1 flex flex-col justify-between gap-4 py-1">
                                             <div className="grid gap-2">
                                                 <Label htmlFor="nombre">Nombre Completo</Label>
-                                                <Input 
-                                                    id="nombre" 
-                                                    value={employee.nombre} 
+                                                <Input
+                                                    id="nombre"
+                                                    value={employee.nombre}
                                                     onChange={(e) => handleInputChange('nombre', e.target.value)}
                                                     placeholder="Ej. Juan Pérez García"
                                                     className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
@@ -341,10 +448,10 @@ export function EmployeeDialog({
                                             <div className="grid sm:grid-cols-2 gap-4">
                                                 <div className="grid gap-2">
                                                     <Label htmlFor="email">Email de Contacto</Label>
-                                                    <Input 
-                                                        id="email" 
+                                                    <Input
+                                                        id="email"
                                                         type="email"
-                                                        value={employee.email} 
+                                                        value={employee.email}
                                                         onChange={(e) => handleInputChange('email', e.target.value)}
                                                         placeholder="juan@camarai.com"
                                                         className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
@@ -352,9 +459,9 @@ export function EmployeeDialog({
                                                 </div>
                                                 <div className="grid gap-2">
                                                     <Label htmlFor="telefono">Teléfono</Label>
-                                                    <Input 
-                                                        id="telefono" 
-                                                        value={employee.telefono} 
+                                                    <Input
+                                                        id="telefono"
+                                                        value={employee.telefono}
                                                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                                                         placeholder="+34 600 000 000"
                                                         className="h-11 rounded-xl bg-muted/5 focus-visible:ring-primary/20"
@@ -426,11 +533,12 @@ export function EmployeeDialog({
                                                 variant="none"
                                                 padding="none"
                                                 selectOptions={[
+                                                    { value: 'admin', label: 'Administrador/a' },
                                                     { value: 'camarero', label: 'Camarero/a' },
                                                     { value: 'cocinero', label: 'Cocinero/a' },
                                                     { value: 'bartender', label: 'Bartender' },
                                                     { value: 'gerente', label: 'Gerente' },
-                                                    { value: 'host', label: 'Host' },
+                                                    { value: 'anfitrión', label: 'Host' },
                                                     { value: 'ayudante_cocina', label: 'Ayudante de Cocina' },
                                                 ]}
                                             />
@@ -546,8 +654,8 @@ export function EmployeeDialog({
                                                             customContent={
                                                                 <div className={cn(
                                                                     "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                                                                    nivelAcceso === nivel.id 
-                                                                        ? "border-primary bg-primary" 
+                                                                    nivelAcceso === nivel.id
+                                                                        ? "border-primary bg-primary"
                                                                         : "border-muted-foreground/30"
                                                                 )}>
                                                                     {nivelAcceso === nivel.id && <Check className="h-3 w-3 text-white" />}
@@ -563,8 +671,8 @@ export function EmployeeDialog({
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-base">Permisos del Sistema</CardTitle>
                                                 <CardDescription>
-                                                    {nivelAcceso === 'personalizado' 
-                                                        ? 'Selecciona los permisos manualmente.' 
+                                                    {nivelAcceso === 'personalizado'
+                                                        ? 'Selecciona los permisos manualmente.'
                                                         : 'Permisos asignados automáticamente según el nivel de acceso.'}
                                                 </CardDescription>
                                             </CardHeader>
@@ -638,11 +746,11 @@ export function EmployeeDialog({
                                                 variant="none"
                                                 padding="none"
                                                 customContent={
-                                                    <Input 
-                                                        type="number" 
-                                                        className="w-24 text-right h-10 rounded-xl" 
-                                                        value={employee.salarioPorHora}
-                                                        onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value))}
+                                                    <Input
+                                                        type="number"
+                                                        className="w-24 text-right h-10 rounded-xl"
+                                                        value={employee.salarioPorHora || ''}
+                                                        onChange={(e) => handleInputChange('salarioPorHora', parseFloat(e.target.value) || 0)}
                                                     />
                                                 }
                                             />
@@ -654,9 +762,9 @@ export function EmployeeDialog({
                                                 variant="none"
                                                 padding="none"
                                                 customContent={
-                                                    <Input 
-                                                        type="number" 
-                                                        className="w-24 text-right h-10 rounded-xl" 
+                                                    <Input
+                                                        type="number"
+                                                        className="w-24 text-right h-10 rounded-xl"
                                                         value={employee.horasContratadas}
                                                         onChange={(e) => handleInputChange('horasContratadas', parseFloat(e.target.value))}
                                                     />
@@ -679,27 +787,113 @@ export function EmployeeDialog({
 
                                 {/* TAB: DOCUMENTOS */}
                                 <TabsContent value="documentos" className="mt-0 space-y-4">
-                                    <div className="border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center gap-3 bg-muted/5">
-                                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                                            <Upload className="h-6 w-6 text-primary" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <TextSM>Subir Documentos</TextSM>
-                                            <TextXS className="text-muted-foreground">DNI, Contratos, Seguros Sociales o Certificados (PDF, JPG).</TextXS>
-                                        </div>
-                                        <Button size="sm" variant="outline" className="mt-2">Seleccionar Archivos</Button>
+                                    <Card>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                <Upload className="h-4 w-4" />
+                                                Subir Documentos
+                                            </CardTitle>
+                                            <CardDescription>Añade DNI, Contratos, Seguros Sociales o Certificados (PDF, JPG).</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    placeholder="Título del documento"
+                                                    value={newDocTitle}
+                                                    onChange={(e) => setNewDocTitle(e.target.value)}
+                                                    className="flex-1"
+                                                />
+                                                <input
+                                                    ref={docInputRef}
+                                                    type="file"
+                                                    accept=".pdf,.jpg,.jpeg,.png"
+                                                    onChange={handleDocFileChange}
+                                                    className="hidden"
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => docInputRef.current?.click()}
+                                                >
+                                                    <Upload className="h-4 w-4 mr-2" />
+                                                    Seleccionar
+                                                </Button>
+                                                {newDocFile && (
+                                                    <Button
+                                                        type="button"
+                                                        onClick={handleAddDocument}
+                                                        disabled={!newDocTitle.trim()}
+                                                    >
+                                                        <Plus className="h-4 w-4 mr-2" />
+                                                        Añadir
+                                                    </Button>
+                                                )}
+                                            </div>
+                                            {newDocFile && (
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                    <FileText className="h-4 w-4" />
+                                                    <span>{newDocFile.name}</span>
+                                                </div>
+                                            )}
+                                        </CardContent>
+                                    </Card>
+
+                                    <div className="space-y-2">
+                                        {employee.documents && employee.documents.length > 0 ? (
+                                            employee.documents.map((doc, index) => (
+                                                <ActionTile
+                                                    key={index}
+                                                    icon={FileText}
+                                                    title={doc.title}
+                                                    description={`${doc.type} • Subido el ${new Date(doc.uploadDate).toLocaleDateString()}`}
+                                                    rightContentType="custom"
+                                                    customContent={
+                                                        <div className="flex gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleViewDocument(doc)}
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => handleRemoveDocument(index)}
+                                                            >
+                                                                <Trash className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    }
+                                                />
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8 text-muted-foreground text-sm">
+                                                No hay documentos subidos
+                                            </div>
+                                        )}
                                     </div>
-                                    
-                                    {employee.documentos && employee.documentos.map(doc => (
-                                        <ActionTile
-                                            key={doc.id}
-                                            icon={FileText}
-                                            title={doc.nombre}
-                                            description={`${doc.tipo} • Subido el ${doc.fecha_subida}`}
-                                            rightContentType="custom"
-                                            customContent={<Button variant="ghost" size="sm">Ver</Button>}
-                                        />
-                                    ))}
+                                </TabsContent>
+
+                                {/* TAB: HORARIO */}
+                                <TabsContent value="horario" className="mt-0 space-y-4">
+                                    <div className="grid gap-6">
+                                        <Card>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-base flex items-center gap-2">
+                                                    <Clock className="h-4 w-4" />
+                                                    Horario de trabajo
+                                                </CardTitle>
+                                                <CardDescription>Configura una jornada específica si no usas un turno predefinido.</CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <OperatingHoursEditor
+                                                    value={employee.working_hours || ''}
+                                                    onChange={(val) => handleInputChange('working_hours', val)}
+                                                />
+                                            </CardContent>
+                                        </Card>
+                                    </div>
                                 </TabsContent>
                             </div>
                         </ScrollArea>
@@ -709,9 +903,9 @@ export function EmployeeDialog({
                 <DialogFooter>
                     <div className="flex-1 flex items-center justify-start">
                         {employeeToEdit && onDelete && (
-                            <Button 
-                                variant="ghost-destructive" 
-                                size="md" 
+                            <Button
+                                variant="ghost-destructive"
+                                size="md"
                                 disabled={isDeleting || isSaving}
                                 onClick={async () => {
                                     if (window.confirm('¿Deseas eliminar permanentemente a este empleado?')) {
@@ -733,15 +927,15 @@ export function EmployeeDialog({
                         )}
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button 
-                            variant="ghost" 
+                        <Button
+                            variant="ghost"
                             onClick={() => onOpenChange(false)}
                             disabled={isSaving || isDeleting}
                         >
                             Cancelar
                         </Button>
-                        <Button 
-                            variant="default" 
+                        <Button
+                            variant="default"
                             onClick={handleSave}
                             disabled={!employee.nombre || !employee.email || !employee.rol || isSaving || isDeleting}
                         >

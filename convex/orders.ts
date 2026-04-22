@@ -1,8 +1,48 @@
 import { v } from "convex/values";
-import { mutation, internalMutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
+
+// Queries para Orders
+
+export const getRecentOrders = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit || 10;
+    
+    const orders = await ctx.db
+      .query("orders")
+      .withIndex("by_establishment_created", (q) =>
+        q.eq("establishment_id", args.establishmentId)
+      )
+      .order("desc")
+      .take(limit);
+
+    // Get table and staff details for each order
+    const ordersWithDetails = await Promise.all(
+      orders.map(async (order) => {
+        const table = order.table_id ? await ctx.db.get(order.table_id) : null;
+        const staff = await ctx.db.get(order.staff_id);
+        
+        return {
+          id: order._id,
+          orderNumber: order.order_number,
+          created_at: order.created_at,
+          tableLabel: table?.label || "Sin mesa",
+          staffName: staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Unknown",
+          totalAmount: order.total_amount,
+          status: order.status,
+        };
+      })
+    );
+
+    return ordersWithDetails;
+  },
+});
 
 /**
  * Helper: Agregar orderId al array orders del ambiente (evita duplicados)
@@ -165,13 +205,23 @@ export const finalizeAndPayOrder = mutation({
       updated_at: Date.now(),
     });
 
-    // 3. DISPARADOR DE STOCK (Equivalente al CALL sp_deduct_order_stock de SQL)
+    // 3. ACTUALIZACIÓN DE KPIs (HyperFast - Pre-aggregado)
+    // Actualiza los totales incrementales sin escanear la tabla de órdenes
+    await ctx.scheduler.runAfter(0, internal.kpis.updateKPIsOnOrderPaid, {
+      establishmentId: order.establishment_id,
+      orderAmount: order.total_amount,
+      orderCreatedAt: order.created_at,
+      orderClosedAt: Date.now(),
+      isCommissionOrder: order.is_commission_order,
+    });
+
+    // 4. DISPARADOR DE STOCK (Equivalente al CALL sp_deduct_order_stock de SQL)
     // Se ejecuta de forma asíncrona para no bloquear la respuesta del POS
     await ctx.scheduler.runAfter(0, internal.inventory.deductStockFromOrder, {
       orderId: args.orderId
     });
 
-    // 4. Liberamos la mesa a estado 'dirty' y removemos del ambiente
+    // 5. Liberamos la mesa a estado 'dirty' y removemos del ambiente
     if (order.table_id) {
       await ctx.db.patch(order.table_id, {
         status: "dirty",
@@ -246,5 +296,79 @@ export const cancelOrder = mutation({
     });
 
     return { success: true };
+  },
+});
+
+/**
+ * Agrega un item a una orden existente
+ * EJEMPLO DE REFACTORIZACIÓN: Integración con KPIs pre-agregados
+ */
+export const addOrderItem = mutation({
+  args: {
+    orderId: v.id("orders"),
+    productId: v.id("products"),
+    quantity: v.number(),
+    unitPrice: v.number(),
+    variant: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    course: v.union(v.literal("first"), v.literal("second"), v.literal("dessert"), v.literal("drink")),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.orderId);
+    if (!order) throw new Error("Orden no encontrada");
+    if (order.status !== "open") throw new Error("Solo se pueden agregar items a órdenes abiertas");
+
+    const product = await ctx.db.get(args.productId);
+    if (!product) throw new Error("Producto no encontrado");
+
+    const totalPrice = args.unitPrice * args.quantity;
+
+    // 1. Insertar el item
+    const itemId = await ctx.db.insert("order_items", {
+      order_id: args.orderId,
+      product_id: args.productId,
+      product_name: product.name,
+      quantity: args.quantity,
+      unit_price: args.unitPrice,
+      total_price: totalPrice,
+      variant: args.variant,
+      notes: args.notes,
+      course: args.course,
+      item_status: "pending",
+    });
+
+    // 2. Recalcular totales de la orden
+    await ctx.scheduler.runAfter(0, internal.orders.recalculateOrderTotals, {
+      orderId: args.orderId,
+    });
+
+    // 3. ACTUALIZACIÓN KPI - Items vendidos (HyperFast)
+    // Actualiza el contador de productos vendidos incrementalmente
+    await ctx.scheduler.runAfter(0, internal.kpis.updateKPIsOnItemsAdded, {
+      establishmentId: order.establishment_id,
+      itemQuantity: args.quantity,
+      orderCreatedAt: order.created_at,
+    });
+
+    // 4. Auditoría
+    await ctx.db.insert("event_log", {
+      establishment_id: order.establishment_id,
+      type: "operational",
+      level: "info",
+      actor: order.staff_id,
+      action: "ITEM_ADDED",
+      entity_type: "order_items",
+      entity_id: itemId,
+      after: {
+        product_name: product.name,
+        quantity: args.quantity,
+        unit_price: args.unitPrice,
+        total_price: totalPrice,
+        course: args.course,
+      },
+      timestamp: Date.now(),
+    });
+
+    return { itemId, totalPrice };
   },
 });

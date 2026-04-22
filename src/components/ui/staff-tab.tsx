@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { H5, TextSM } from '@/components/ui/typography';
-import type { StaffMember, AbsenceRequest } from '@/data/mock-data';
+import type { StaffMember, AbsenceRequest } from '@/types/staff';
 import type { TimeReportEntry } from '@/data/reportes';
 
 type StaffTotals = Record<string, { name: string; regular: number; extra: number }>;

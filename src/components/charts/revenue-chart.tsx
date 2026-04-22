@@ -5,6 +5,8 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { getDaysInMonth } from 'date-fns';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { DateRange } from "react-day-picker";
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { H4, TextMD, TextXS } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
@@ -12,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, Download, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useEstablishmentContext } from '@/hooks/EstablishmentContext';
 
 
 const months = [
@@ -26,7 +29,33 @@ interface RevenueChartProps {
 
 export function RevenueChart({ date, className }: RevenueChartProps) {
   const { isMobile } = useIsMobile();
-  const [selectedMonth, setSelectedMonth] = React.useState<string>('Junio');
+  const currentMonthIndex = new Date().getMonth();
+  const [selectedMonth, setSelectedMonth] = React.useState<string>(months[currentMonthIndex]);
+  const { activeId } = useEstablishmentContext();
+
+  // Map month name to number (0-11)
+  const monthToNumber = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    months.forEach((month, index) => {
+      map[month] = index;
+    });
+    return map;
+  }, []);
+
+  const selectedMonthNum = monthToNumber[selectedMonth];
+  const currentYear = new Date().getFullYear();
+
+  // Get real reservation data from Convex
+  const reservationsByDay = useQuery(
+    api.reservations.getReservationsByMonth,
+    activeId && selectedMonthNum !== undefined
+      ? {
+          establishment_id: activeId as any,
+          year: currentYear,
+          month: selectedMonthNum,
+        }
+      : 'skip'
+  );
 
   const data = React.useMemo(() => {
     const now = date?.from || new Date();
@@ -34,17 +63,19 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
     const chartData = [];
 
     for (let i = 1; i <= daysInMonth; i++) {
-      const baseBookings = 10;
-      const dayOfWeek = new Date(now.getFullYear(), now.getMonth(), i).getDay();
-      const weekendBoost = (dayOfWeek === 5 || dayOfWeek === 6 || dayOfWeek === 0) ? Math.random() * 15 + 5 : 0;
-      const randomNoise = Math.random() * 5;
+      const dayStr = i.toString().padStart(2, '0');
+      const dateStr = `${currentYear}-${String(selectedMonthNum + 1).padStart(2, '0')}-${dayStr}`;
+      
+      // Use real data if available, otherwise 0
+      const revenue = reservationsByDay?.[dateStr] || 0;
+      
       chartData.push({
-        day: i.toString().padStart(2, '0'),
-        revenue: Math.floor(baseBookings + weekendBoost + randomNoise),
+        day: dayStr,
+        revenue,
       });
     }
     return chartData;
-  }, [date, isMobile]);
+  }, [date, isMobile, reservationsByDay, selectedMonthNum, currentYear]);
 
   const tickFormatter = (value: string) => {
     if (isMobile) {
@@ -84,13 +115,13 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
                 </div>
               </PopoverContent>
             </Popover>
-            <Select defaultValue="2024">
+            <Select defaultValue={currentYear.toString()}>
               <SelectTrigger className="w-[90px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
+                <SelectItem value={currentYear.toString()}>{currentYear}</SelectItem>
+                <SelectItem value={(currentYear - 1).toString()}>{currentYear - 1}</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="md">

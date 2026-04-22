@@ -1,5 +1,7 @@
 'use client';
 import { H3, TextXS } from '@/components/ui/typography';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 
 import * as React from 'react';
@@ -126,11 +128,17 @@ const initialCampaigns: Campaign[] = [
 ];
 
 export default function PromocionesPage() {
+    const router = useRouter();
     const [campaigns, setCampaigns] = React.useState(initialCampaigns);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [editingCampaign, setEditingCampaign] = React.useState<Campaign | null>(null);
     const [activeTab, setActiveTab] = React.useState('campaigns');
     const { toast } = useToast();
+
+    // Prevent access to this page
+    useEffect(() => {
+        router.push('/');
+    }, [router]);
 
     // Stats calculations
     const stats = React.useMemo(() => {

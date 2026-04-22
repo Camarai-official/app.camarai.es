@@ -67,6 +67,7 @@ export default defineSchema({
       stripe_public: v.optional(v.string()),
       evolution_api_key: v.optional(v.string()),
     })),
+    active: v.optional(v.boolean()),
     created_at: v.number(),
   }).index("by_company", ["company_id"]),
 
@@ -102,9 +103,17 @@ export default defineSchema({
     max_late_minutes: v.optional(v.number()), // From SQL
     dashboard_sections: v.array(v.string()),
     clock_methods: v.array(v.string()),
-    documents: v.optional(v.array(v.string())),
+    documents: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      type: v.string(),
+      uploadDate: v.number(),
+    }))),
     notes: v.optional(v.string()),
     departamento: v.optional(v.string()), // Departamento o área de trabajo
+    working_hours: v.optional(v.string()), // Horario laboral estructurado (custom)
+    color: v.optional(v.string()), // Color de identidad visual
+    icon: v.optional(v.string()), // Icono de representación
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
 
@@ -192,7 +201,7 @@ export default defineSchema({
     establishment_id: v.id("establishments"),
     category_id: v.id("categories"),
     name: v.string(),
-    translations: v.optional(v.record(v.string(), v.string())), 
+    translations: v.optional(v.record(v.string(), v.string())),
     description: v.optional(v.string()),
     price: v.number(), // In cents
     cost: v.number(), // In cents
@@ -205,7 +214,7 @@ export default defineSchema({
     active: v.boolean(),
     tax_id: v.id("taxes"),
     allergens: v.array(v.string()),
-    variants: v.optional(v.any()), 
+    variants: v.optional(v.any()),
     preparation_time: v.number(), // In minutes
     available_pos: v.boolean(),
     available_delivery: v.boolean(),
@@ -283,7 +292,7 @@ export default defineSchema({
   }).index("by_establishment", ["establishment_id"])
     .index("by_establishment_active", ["establishment_id", "active"])
     .index("by_establishment_type", ["establishment_id", "type"]),
-  
+
   menu_sections: defineTable({
     menu_id: v.id("menu"),
     element_type: v.union(v.literal("category"), v.literal("product"), v.literal("menu")),
@@ -419,13 +428,14 @@ export default defineSchema({
 
   reservations: defineTable({
     establishment_id: v.id("establishments"),
-    customer_id: v.id("customers"),
+    customer_id: v.optional(v.id("customers")),
     table_id: v.optional(v.id("tables")),
     customer_name: v.optional(v.string()), // For guest reservations
     customer_phone: v.optional(v.string()),
     customer_email: v.optional(v.string()),
     date: v.string(), // ISO "YYYY-MM-DD"
-    time: v.string(), // "HH:mm"
+    start_time: v.string(), // "HH:mm"
+    end_time: v.string(), // "HH:mm" - Hora de fin de la reserva
     guests: v.number(),
     status: v.union(v.literal("pending"), v.literal("confirmed"), v.literal("cancelled"), v.literal("completed"), v.literal("no_show")),
     notified: v.boolean(),
@@ -436,12 +446,12 @@ export default defineSchema({
   }).index("by_establishment", ["establishment_id"]),
 
   customers: defineTable({
-    establishment_id: v.id("establishments"),
+    establishments_id: v.array(v.id("establishments")),
     name: v.string(),
     phone: v.optional(v.string()),
     email: v.optional(v.string()),
     points: v.number(),
-    tags: v.optional(v.array(v.string())), // Segment tags
+    tags: v.optional(v.array(v.string())),
     preferred_payment_method: v.optional(v.union(v.literal("cash"), v.literal("card"), v.literal("bizum"))),
     birth_date: v.optional(v.string()),
     anniversary: v.optional(v.string()),
@@ -454,7 +464,7 @@ export default defineSchema({
     notes: v.optional(v.string()),
     source: v.union(v.literal("manual"), v.literal("whatsapp"), v.literal("reservation")),
     created_at: v.number(),
-  }).index("by_establishment", ["establishment_id"]),
+  }).index("by_establishment", ["establishments_id"]),
 
   // --- DOMAIN 4: HR AND ATTENDANCE ---
 
@@ -470,15 +480,6 @@ export default defineSchema({
     notes: v.optional(v.string()),
   }).index("by_staff_timestamp", ["staff_id", "timestamp"]),
 
-  shifts: defineTable({ 
-    establishment_id: v.id("establishments"),
-    name: v.string(),
-    start_time: v.string(),
-    end_time: v.string(),
-    days_of_week: v.array(v.string()),
-    staff_ids: v.array(v.id("staff")),
-    active: v.boolean(),
-  }).index("by_establishment", ["establishment_id"]),
 
   absence_requests: defineTable({
     staff_id: v.id("staff"),
@@ -488,6 +489,7 @@ export default defineSchema({
     end_date: v.string(),
     total_days: v.number(),
     reason: v.optional(v.string()),
+    document: v.optional(v.string()),
     status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")),
     reviewed_by: v.optional(v.id("staff")),
     reviewed_at: v.optional(v.number()),
@@ -505,6 +507,18 @@ export default defineSchema({
     resolved_at: v.optional(v.number()),
     notes: v.optional(v.string()),
   }).index("by_establishment", ["establishment_id"]),
+
+  staff_planning: defineTable({
+    staff_id: v.id("staff"),
+    establishment_id: v.id("establishments"),
+    date: v.string(), // "2024-04-15"
+    start_time: v.string(),
+    end_time: v.string(),
+    is_custom: v.boolean(), // Si es diferente a su horario base
+    notes: v.optional(v.string()), // Ej: "Cubre a Juan por baja"
+  }).index("by_establishment_date", ["establishment_id", "date"])
+    .index("by_staff_date", ["staff_id", "date"])
+    .index("by_date", ["date"]),
 
   clock_devices: defineTable({
     establishment_id: v.id("establishments"),
@@ -528,7 +542,7 @@ export default defineSchema({
     workday_start: v.optional(v.string()), // "HH:mm"
     workday_end: v.optional(v.string()), // "HH:mm"
     overtime_alert: v.boolean(),
-    
+
     // Gestión de Personal - Canales de Fichaje
     clock_in_channels: v.object({
       mobile_app: v.boolean(),
@@ -536,7 +550,7 @@ export default defineSchema({
       qr_code: v.boolean(),
       web_panel: v.boolean()
     }),
-    
+
     // Integración WhatsApp
     whatsapp_integration: v.object({
       enabled: v.boolean(),
@@ -548,7 +562,7 @@ export default defineSchema({
       confirmation_required: v.boolean(),
       last_sync: v.optional(v.number())
     }),
-    
+
     // Estadísticas de uso por canal
     channel_usage_stats: v.object({
       whatsapp: v.number(),
@@ -557,7 +571,7 @@ export default defineSchema({
       web_panel: v.number(),
       total_clock_ins: v.number()
     }),
-    
+
     created_at: v.number(),
     updated_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
@@ -642,7 +656,7 @@ export default defineSchema({
     establishment_id: v.id("establishments"),
     type: v.union(
       v.literal("uber_eats"),
-      v.literal("glovo"), 
+      v.literal("glovo"),
       v.literal("just_eat"),
       v.literal("deliveroo"),
       v.literal("tpv"),
@@ -672,7 +686,7 @@ export default defineSchema({
     order_data: v.any(), // Full order data from external platform
     status: v.union(
       v.literal("recibido"),
-      v.literal("aceptado"), 
+      v.literal("aceptado"),
       v.literal("rechazado"),
       v.literal("preparando"),
       v.literal("listo"),
@@ -688,6 +702,29 @@ export default defineSchema({
     .index("by_integration", ["integration_id"])
     .index("by_external_id", ["external_id"])
     .index("by_status", ["status"]),
+
+  // --- DOMAIN 5.6: KPI PRE-AGGREGATION (HyperFast Reading) ---
+
+  establishment_kpis: defineTable({
+    establishment_id: v.id("establishments"),
+    total_revenue: v.number(), // In cents
+    total_orders: v.number(),
+    average_ticket: v.number(), // In cents
+    total_items_sold: v.number(),
+    avg_service_time_ms: v.number(),
+    upsell_rate: v.number(), // Percentage (0-100)
+    last_updated: v.number(),
+  }).index("by_establishment", ["establishment_id"]),
+
+  month_kpi_establishment: defineTable({
+    establishment_id: v.id("establishments"),
+    year_month: v.string(), // Format "YYYY-MM"
+    total_revenue: v.number(), // In cents
+    total_orders: v.number(),
+    average_ticket: v.number(), // In cents
+    total_items_sold: v.number(),
+    last_updated: v.number(),
+  }).index("by_establishment_month", ["establishment_id", "year_month"]),
 
   // --- DOMAIN 6: COMMUNICATION AND MARKETING ---
 
@@ -845,7 +882,8 @@ export default defineSchema({
     staff_id: v.optional(v.union(v.id("staff"), v.literal("system"))),
     timestamp: v.number(),
   }).index("by_ingredient_timestamp", ["ingredient_id", "timestamp"])
-    .index("by_ingredient_type", ["ingredient_id", "type"]),
+    .index("by_ingredient_type", ["ingredient_id", "type"])
+    .index("by_establishment_timestamp", ["establishment_id", "timestamp"]),
 
   // --- DOMAIN 8: ADVANCED BUSINESS INTELLIGENCE ---
 
@@ -854,38 +892,38 @@ export default defineSchema({
     establishment_id: v.optional(v.id("establishments")),
     analysis_date: v.number(), // Unix timestamp for the date
     period_type: v.union(v.literal("daily"), v.literal("weekly"), v.literal("monthly"), v.literal("quarterly"), v.literal("yearly")),
-    
+
     // Revenue metrics
     total_revenue: v.number(),
     orders_count: v.number(),
     average_ticket: v.number(),
-    
+
     // Cost breakdown
     staff_costs: v.number(),
     product_costs: v.number(),
     operating_costs: v.number(),
     platform_fees: v.number(),
-    
+
     // Profit metrics
     gross_profit: v.number(),
     net_profit: v.number(),
     profit_margin: v.number(),
-    
+
     // Operational metrics
     table_rotation_before: v.optional(v.number()),
     table_rotation_after: v.optional(v.number()),
     peak_hour_revenue: v.optional(v.number()),
     customer_return_rate: v.optional(v.number()),
-    
+
     // Comparison metrics
     revenue_growth: v.optional(v.number()), // Percentage growth vs previous period
     profit_growth: v.optional(v.number()),
     efficiency_score: v.optional(v.number()), // 0-100 score
-    
+
     // AI Insights
     ai_insights: v.optional(v.any()), // Generated insights and recommendations
     trend_predictions: v.optional(v.any()), // Predicted trends
-    
+
     created_at: v.number(),
   }).index("by_company", ["company_id"])
     .index("by_establishment", ["establishment_id"])
@@ -944,29 +982,29 @@ export default defineSchema({
     table_id: v.id("tables"),
     session_code: v.string(), // Unique session identifier
     status: v.union(v.literal("active"), v.literal("closed"), v.literal("expired")),
-    
+
     // Session metadata
     start_time: v.number(),
     end_time: v.optional(v.number()),
     duration_minutes: v.optional(v.number()),
-    
+
     // Customer data
     customers: v.optional(v.array(v.any())), // Array of customer data
     customer_count: v.number(),
-    
+
     // Session behavior
     interaction_count: v.number(), // How many times they interacted
     order_count: v.number(), // Orders placed in this session
     total_amount: v.number(), // Total revenue from this session
-    
+
     // Device and platform info
     device_type: v.union(v.literal("mobile"), v.literal("tablet"), v.literal("desktop")),
     platform: v.union(v.literal("whatsapp"), v.literal("web"), v.literal("app")),
-    
+
     // Analytics
     bounce_rate: v.optional(v.number()), // Sessions without orders
     conversion_time: v.optional(v.number()), // Time to first order
-    
+
     created_at: v.number(),
     updated_at: v.number(),
   }).index("by_table", ["table_id"])

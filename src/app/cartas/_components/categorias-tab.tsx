@@ -54,20 +54,15 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
   const { toast } = useToast();
   const { activeEstablishment } = useEstablishments();
   
-  // Obtener el establecimiento de Convex usando el ID local
-  const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-    localId: activeEstablishment?.id || 'camarai' 
-  });
-  
   // Obtener los productos del establecimiento
-  const products = useQuery(api.products.getProducts, { 
-    establishmentId: convexEstablishment?._id
-  }) || [];
+  const products = useQuery(api.products.getProducts, 
+    activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
+  ) || [];
   
   // Obtener categorías para el diálogo establecimiento
-  const categories = useQuery(api.categories.getCategories, { 
-    establishmentId: convexEstablishment?._id
-  }) || [];
+  const categories = useQuery(api.categories.getCategories, 
+    activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
+  ) || [];
   
   const createCategory = useMutation(api.categories.createCategory);
   const updateCategoryMutation = useMutation(api.categories.updateCategory);
@@ -122,18 +117,10 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
   }, []);
 
   // Loading states
-  if (convexEstablishment === undefined) {
+  if (!activeEstablishment) {
       return (
           <div className="flex items-center justify-center h-64">
               <div className="text-muted-foreground">Cargando establecimiento...</div>
-          </div>
-      );
-  }
-
-  if (!convexEstablishment) {
-      return (
-          <div className="flex items-center justify-center h-64">
-              <div className="text-muted-foreground">No se encontró el establecimiento</div>
           </div>
       );
   }
@@ -145,7 +132,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
   };
 
   const handleSaveCategory = async (categoryData: Partial<ExtendedCategory>, assignedProductIds?: string[]) => {
-    if (categoryData && convexEstablishment) {
+    if (categoryData && activeEstablishment) {
       try {
         let categoryId: string;
         
@@ -172,7 +159,7 @@ export function CategoriasTab({ searchTerm = '' }: CategoriasTabProps) {
         } else {
           // Create new category
           categoryId = await createCategory({
-            establishmentId: convexEstablishment._id,
+            establishmentId: activeEstablishment.id,
             name: categoryData.nombre_categoria!,
             description: categoryData.descripcion,
             icon: categoryData.icono,

@@ -37,6 +37,7 @@ import { ProvidersTab } from '@/components/ui/providers-tab';
 import { IntegrationsTab } from '@/components/ui/integrations-tab';
 
 import { TaxesTab } from '@/components/ui/taxes-tab';
+import { useToast } from "@/hooks/use-toast";
 
 
 
@@ -68,7 +69,15 @@ function ProfileSettingsPageContent() {
 
     const companyFileInputRef = React.useRef<HTMLInputElement>(null);
 
-    const { activeEstablishment, updateEstablishment, removeEstablishment, establishments, addEstablishment } = useEstablishments();
+    const { toast } = useToast();
+    const { 
+        activeEstablishment, 
+        updateEstablishment, 
+        removeEstablishment, 
+        establishments, 
+        addEstablishment,
+        isInitialized 
+    } = useEstablishments();
 
 
 
@@ -238,14 +247,22 @@ function ProfileSettingsPageContent() {
 
 
 
-    const handleSaveEstablishmentChanges = () => {
-
+    const handleSaveEstablishmentChanges = async () => {
         if (activeEstablishment && localEstablishment) {
-
-            updateEstablishment(activeEstablishment.id, localEstablishment);
-
+            try {
+                await updateEstablishment(activeEstablishment.id, localEstablishment);
+                toast({
+                    title: "Establecimiento actualizado",
+                    description: "Los cambios se han guardado correctamente.",
+                });
+            } catch (error) {
+                toast({
+                    title: "Error al guardar",
+                    description: "No se pudieron guardar los cambios. Inténtalo de nuevo.",
+                    variant: "destructive",
+                });
+            }
         }
-
     };
 
 
@@ -290,12 +307,21 @@ function ProfileSettingsPageContent() {
 
 
 
-    const handleCreateFirstEstablishment = () => {
-
-        const newId = addEstablishment();
-
-        router.push('/settings/profile?tab=establishment');
-
+    const handleCreateFirstEstablishment = async () => {
+        try {
+            await addEstablishment();
+            toast({
+                title: "Establecimiento creado",
+                description: "Bienvenido a Camarai. Tu primer local ha sido configurado.",
+            });
+            router.push('/settings/profile?tab=establishment');
+        } catch (error) {
+            toast({
+                title: "Error al crear",
+                description: "No se pudo crear el establecimiento. Inténtalo de nuevo.",
+                variant: "destructive",
+            });
+        }
     };
 
 
@@ -424,6 +450,24 @@ function ProfileSettingsPageContent() {
 
 
 
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <PageContainer>
+                <PageHeader title="Ajustes Generales" />
+                <PageContent>
+                    <div className="flex items-center justify-center min-h-[400px]">
+                        <div className="text-muted-foreground animate-pulse">Cargando ajustes...</div>
+                    </div>
+                </PageContent>
+            </PageContainer>
+        );
+    }
+
     return (
 
         <PageContainer>
@@ -491,7 +535,7 @@ function ProfileSettingsPageContent() {
                         onDeleteEstablishment={handleDeleteEstablishment}
 
                         onCreateFirstEstablishment={handleCreateFirstEstablishment}
-
+                        isInitialized={isInitialized}
                     />
 
                     <DevicesTab

@@ -3,8 +3,7 @@ import * as React from 'react';
 import type { Environment } from '@/types/environments';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { initialEstablishments } from '@/data/establishments';
-// import { useEstablishments } from '@/hooks/useEstablishments'; // Descomenter cuando se active la lógica dinámica
+import { useEstablishments } from '@/hooks/useEstablishments';
 import { PageHeader } from '@/components/layout/page-header';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
@@ -23,18 +22,12 @@ import { Id } from '../../../convex/_generated/dataModel';
 export default function AmbientesPage() {
     const { toast } = useToast();
     const router = useRouter();
-    
-    const convexEstablishment = useQuery(api.establishmentsHelpers.getEstablishmentByLocalId, { 
-        localId: 'latest' 
-    });
-
-    // Obtener datos del establecimiento activo (hardcoded por ahora)
-    const activeEstablishment = initialEstablishments[0]; // Por defecto Camarai
+    const { activeEstablishment } = useEstablishments();
 
     // Datos de Convex
     const environmentsData = useQuery(
         api.environments.getEnvironmentsByEstablishment, 
-        convexEstablishment ? { establishmentId: convexEstablishment._id } : "skip"
+        activeEstablishment?.id ? { establishmentId: activeEstablishment.id } : "skip"
     );
 
     // Mutations de Convex
@@ -117,35 +110,8 @@ export default function AmbientesPage() {
         return result;
     }, [environments, statusFilter, sortOrder, selectedManualEnvIds]);
 
-    // Estados de carga - Descomentarlos cuando se active la lógica dinámica
-    // if (convexEstablishment === undefined) {
-    //     return (
-    //         <PageContainer className="bg-background/50">
-    //             <PageHeader title="Gestión de Ambientes" />
-    //             <PageContent>
-    //                 <div className="flex items-center justify-center h-64">
-    //                     <div className="text-muted-foreground">Cargando establecimiento...</div>
-    //                 </div>
-    //             </PageContent>
-    //         </PageContainer>
-    //     );
-    // }
-
-    // if (!convexEstablishment) {
-    //     return (
-    //         <PageContainer className="bg-background/50">
-    //             <PageHeader title="Gestión de Ambientes" />
-    //             <PageContent>
-    //                 <div className="flex items-center justify-center h-64">
-    //                     <div className="text-muted-foreground">No se encontró el establecimiento</div>
-    //                 </div>
-    //             </PageContent>
-    //         </PageContainer>
-    //     );
-    // }
-
     const addEnvironment = async () => {
-        if (!convexEstablishment?._id) {
+        if (!activeEstablishment?.id) {
             toast({
                 title: "Error",
                 description: "No se encontró el establecimiento activo.",
@@ -156,7 +122,7 @@ export default function AmbientesPage() {
 
         try {
             await createEnvironment({
-                establishmentId: convexEstablishment._id,
+                establishmentId: activeEstablishment.id,
                 name: 'Nuevo Ambiente',
                 icon: 'Building',
                 color: '#78A3ED',
@@ -241,6 +207,19 @@ export default function AmbientesPage() {
     const handleViewPlan = (envId: string) => {
         router.push(`/plano-mesas?envId=${envId}`);
     };
+
+    if (!activeEstablishment) {
+        return (
+            <PageContainer className="bg-background/50">
+                <PageHeader title="Gestión de Ambientes" />
+                <PageContent>
+                    <div className="flex items-center justify-center h-64">
+                        <div className="text-muted-foreground">Cargando establecimiento o no se encontró ninguno...</div>
+                    </div>
+                </PageContent>
+            </PageContainer>
+        );
+    }
 
     return (
         <PageContainer className="bg-background/50">

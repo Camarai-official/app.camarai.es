@@ -1,22 +1,22 @@
 'use client';
 import * as React from 'react';
-import { 
-    Search, 
-    User, 
-    Calendar, 
-    Clock, 
-    Settings, 
-    Activity, 
-    MoreHorizontal, 
-    MessageSquare, 
-    Smartphone, 
-    Users, 
-    Wifi, 
-    WifiOff, 
-    Monitor, 
-    Tablet, 
-    Check, 
-    X, 
+import {
+    Search,
+    User,
+    Calendar,
+    Clock,
+    Settings,
+    Activity,
+    MoreHorizontal,
+    MessageSquare,
+    Smartphone,
+    Users,
+    Wifi,
+    WifiOff,
+    Monitor,
+    Tablet,
+    Check,
+    X,
     Download,
     TrendingUp,
     TrendingDown,
@@ -72,18 +72,6 @@ import { AbsenceRequestDialog } from '@/components/dialogs/personal-solicitudaus
 import { DeviceDialog } from '@/components/dialogs/device-dialog';
 import { PersonalConfigDialog, type PersonalConfig } from '@/components/dialogs/personal-config-dialog';
 
-// Mock data temporal (hasta tener datos reales) - ELIMINADO
-// import {
-//     mockIncidencias,
-//     mockDispositivos,
-//     tipoIncidenciaLabels,
-//     estadoIncidenciaLabels,
-//     estadoDispositivoLabels,
-//     type IncidenciaFichaje,
-//     type DispositivoFichaje,
-//     type EstadoIncidencia 
-// } from '@/types/fichaje';
-
 // Tipos para compatibilidad con Convex
 type IncidenciaFichaje = {
     id: string;
@@ -136,50 +124,50 @@ const metodosFichaje = [
 
 export default function PersonalPage() {
     const { toast } = useToast();
-    
+
     // Obtener establecimientos de Convex
     const establishmentsData = useQuery(api.establishments.getEstablishments);
-    
+
     // Usar el primer establecimiento disponible o null si no hay ninguno
-    const establishmentId = establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length > 0 
-        ? establishmentsData[0]._id 
+    const establishmentId = establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length > 0
+        ? establishmentsData[0]._id
         : null;
-    
+
     // Datos de Convex
     const staffMembersData = useQuery(api.staff.getStaffByEstablishment, establishmentId ? { establishmentId } : "skip");
     const timeLogsData = useQuery(api.staff.getTimeLogsByEstablishment, establishmentId ? { establishmentId, limit: 50 } : "skip");
     const absenceRequestsData = useQuery(api.staff.getAbsenceRequestsByEstablishment, establishmentId ? { establishmentId } : "skip");
-    
+
     // Mutations de Convex
     const createStaffMember = useMutation(api.staff.createStaffMember);
     const updateStaffMember = useMutation(api.staff.updateStaffMember);
     const deleteStaffMember = useMutation(api.staff.deleteStaffMember);
-    
+
     // Mutations para Time Logs
     const createTimeLog = useMutation(api.staff.createTimeLog);
     const updateTimeLog = useMutation(api.staff.updateTimeLog);
     const deleteTimeLog = useMutation(api.staff.deleteTimeLog);
-    
+
     // Mutations para Ausencias
     const createAbsenceRequest = useMutation(api.staff.createAbsenceRequest);
     const updateAbsenceRequestStatus = useMutation(api.staff.updateAbsenceRequestStatus);
-    
+
     // Queries para Incidencias y Dispositivos
     const clockIncidentsData = useQuery(api.staff.getClockIncidentsByEstablishment, establishmentId ? { establishmentId } : "skip");
     const clockDevicesData = useQuery(api.staff.getClockDevicesByEstablishment, establishmentId ? { establishmentId } : "skip");
-    
+
     // Queries para configuraciones del establecimiento (persistentes)
     const clockInChannelsData = useQuery(api.establishmentSettings.getClockInChannels, establishmentId ? { establishmentId } : "skip");
     const whatsappIntegrationData = useQuery(api.establishmentSettings.getWhatsAppIntegration, establishmentId ? { establishmentId } : "skip");
     const channelUsageStatsData = useQuery(api.establishmentSettings.getChannelUsageStats, establishmentId ? { establishmentId } : "skip");
-    
+
     // Mutations para Incidencias y Dispositivos
     const createClockIncident = useMutation(api.staff.createClockIncident);
     const updateClockIncidentStatus = useMutation(api.staff.updateClockIncidentStatus);
     const createClockDevice = useMutation(api.staff.createClockDevice);
     const updateClockDevice = useMutation(api.staff.updateClockDevice);
     const deleteClockDevice = useMutation(api.staff.deleteClockDevice);
-    
+
     // Mutations para configuraciones del establecimiento
     const updateClockInChannels = useMutation(api.establishmentSettings.updateClockInChannels);
     const updateWhatsAppIntegration = useMutation(api.establishmentSettings.updateWhatsAppIntegration);
@@ -200,7 +188,7 @@ export default function PersonalPage() {
     // Core State - Solo datos reales de Convex
     const [incidencias, setIncidencias] = React.useState<IncidenciaFichaje[]>([]);
     const [dispositivos, setDispositivos] = React.useState<DispositivoFichaje[]>([]);
-    
+
     // Cargar datos reales de Convex
     React.useEffect(() => {
         if (clockIncidentsData) {
@@ -213,7 +201,7 @@ export default function PersonalPage() {
             setIncidencias(mappedIncidencias);
         }
     }, [clockIncidentsData]);
-    
+
     React.useEffect(() => {
         if (clockDevicesData && establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length > 0) {
             // Mapear tipos de Convex a tipos de UI con type assertion
@@ -231,25 +219,25 @@ export default function PersonalPage() {
             setDispositivos(mappedDispositivos);
         }
     }, [clockDevicesData, establishmentsData]);
-    
+
     // UI State
     const [searchTerm, setSearchTerm] = React.useState('');
-    
+
     // Métodos de fichaje desde la base de datos (persistentes)
     const metodosFichajeState = React.useMemo(() => {
         if (!clockInChannelsData) return metodosFichaje.map(m => ({ ...m, enabled: true }));
-        
+
         return metodosFichaje.map(m => ({
             ...m,
-            enabled: clockInChannelsData[m.id === 'app' ? 'mobile_app' : 
-                                         m.id === 'whatsapp' ? 'whatsapp' : 
-                                         m.id === 'qr' ? 'qr_code' : 
+            enabled: clockInChannelsData[m.id === 'app' ? 'mobile_app' :
+                                         m.id === 'whatsapp' ? 'whatsapp' :
+                                         m.id === 'qr' ? 'qr_code' :
                                          m.id === 'web' ? 'web_panel' : 'mobile_app']
         }));
     }, [clockInChannelsData]);
-    
+
     const [personalConfig, setPersonalConfig] = React.useState<PersonalConfig>({
-        kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true 
+        kpis: true, equipo: true, controlHorario: true, ausencias: true, incidencias: true, fichaje: true
     });
     const [timeLogFilterStaff, setTimeLogFilterStaff] = React.useState<string>('all');
     const [timeLogFilterAction, setTimeLogFilterAction] = React.useState<string>('all');
@@ -257,152 +245,157 @@ export default function PersonalPage() {
     // Dialogs State
     const [isEmployeeDialogOpen, setIsEmployeeDialogOpen] = React.useState(false);
     const [editingEmployee, setEditingEmployee] = React.useState<ExtendedStaffMember | null>(null);
-    
+
     const [isTimeLogDialogOpen, setIsTimeLogDialogOpen] = React.useState(false);
     const [editingTimeLog, setEditingTimeLog] = React.useState<TimeLog | null>(null);
-    
+
     const [isAbsenceRequestDialogOpen, setIsAbsenceRequestDialogOpen] = React.useState(false);
-    
+
     const [isDeviceDialogOpen, setIsDeviceDialogOpen] = React.useState(false);
     const [editingDevice, setEditingDevice] = React.useState<DispositivoFichaje | null>(null);
-    
+
     const [isConfigDialogOpen, setIsConfigDialogOpen] = React.useState(false);
 
     // Memoized data transformations
     const staffMembers = React.useMemo(() => {
         if (!staffMembersData) return [];
-        return staffMembersData.map(member => ({
-            // Campos principales de la UI
-            id: member.id,
-            nombre: member.nombre,
-            email: member.email,
-            rol: member.rol,
-            estado: member.estado as "Activo" | "Inactivo" | "Vacaciones" | "Baja",
-            pin: member.pin,
-            telefono: member.telefono,
-            fotoUrl: member.fotoUrl,
-            horasContratadas: member.horasContratadas,
-            salarioPorHora: member.salarioPorHora,
-            fecha_contratacion: member.fecha_contratacion,
-            
-            // Campos adicionales del schema Convex
-            last_name: member.last_name,
-            auth_id: member.auth_id,
-            contract_type: member.contract_type,
-            // Map Convex contract_type back to form values
-            tipo_contrato: (() => {
-                const reverseMapping: Record<string, string> = {
-                    "indefinite": "indefinido",
-                    "temporary": "temporal",
-                    "practices": "practicas",
-                    "freelance": "autonomo"
-                };
-                return reverseMapping[member.contract_type] || "indefinido";
-            })(),
-            contract_end: member.contract_end,
-            salary: member.salary,
-            iban: member.iban,
-            irpf: member.irpf,
-            ss_number: member.ss_number,
-            break_duration_minutes: member.break_duration_minutes,
-            max_late_minutes: member.max_late_minutes,
-            dashboard_sections: member.dashboard_sections,
-            clock_methods: member.clock_methods,
-            documents: member.documents,
-            notes: member.notes,
-            departamento: member.departamento, // ¡CAMPO FALTANTE!
-            created_at: member.created_at,
-            
-            // Campos de acceso para compatibilidad con ExtendedStaffMember
-            roles: [member.rol],
-            nivelAcceso: (() => {
-                // Check if permissions match predefined patterns or are custom
-                const permissions = member.dashboard_sections || [];
-                const jefePermisos = ['pos', 'kds', 'reportes', 'reportes_completos', 'inventario', 'personal', 'configuracion', 'integraciones', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas', 'whatsapp_config'];
-                const encargadoPermisos = ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'];
-                const camareroPermisos = ['pos', 'kds', 'cierre_caja'];
-                
-                // More flexible detection: check if permissions contain all required items for a level
-                const isJefe = jefePermisos.every(p => permissions.includes(p));
-                const isEncargado = encargadoPermisos.every(p => permissions.includes(p)) && !isJefe;
-                const isCamarero = camareroPermisos.every(p => permissions.includes(p)) && !isEncargado && !isJefe;
-                
-                // If permissions exactly match any predefined set, use that level, otherwise use custom
-                if (isJefe && permissions.length === jefePermisos.length) {
-                    return 'jefe' as const;
-                } else if (isEncargado && permissions.length === encargadoPermisos.length) {
-                    return "encargado" as const;
-                } else if (isCamarero && permissions.length === camareroPermisos.length) {
-                    return 'camarero' as const;
-                } else {
-                    return 'personalizado' as const; // Custom permissions (different count or extra permissions)
-                }
-            })(),
-            // Use the actual saved permissions from dashboard_sections, not predefined ones
-            permisos: member.dashboard_sections || [],
-            metodos_fichaje_permitidos: (member.clock_methods || ['app', 'qr']) as ('app' | 'whatsapp' | 'qr' | 'web')[],
-            // Calcular horas trabajadas esta semana
-            horasTrabajadas: (() => {
-                const now = new Date();
-                const startOfWeek = new Date(now);
-                startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
-                startOfWeek.setHours(0, 0, 0, 0);
-                
-                const endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
-                endOfWeek.setHours(23, 59, 59, 999);
+        return staffMembersData.map(member => {
+            return {
+                // Campos principales de la UI
+                id: member.id,
+                nombre: member.nombre,
+                email: member.email,
+                rol: member.rol,
+                estado: member.estado as "Activo" | "Inactivo" | "Vacaciones" | "Baja",
+                pin: member.pin,
+                telefono: member.telefono,
+                fotoUrl: member.fotoUrl,
+                horasContratadas: member.horasContratadas,
+                salarioPorHora: member.salarioPorHora,
+                fecha_contratacion: member.fecha_contratacion,
 
-                // Obtener logs del empleado esta semana
-                const staffLogs = timeLogs
-                    .filter(log => log.staffId === member.id)
-                    .filter(log => {
-                        const logDate = new Date(log.timestamp);
-                        return logDate >= startOfWeek && logDate <= endOfWeek;
-                    })
-                    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                // Campos adicionales del schema Convex
+                last_name: member.last_name,
+                auth_id: member.auth_id,
+                contract_type: member.contract_type,
+                // Map Convex contract_type back to form values
+                tipo_contrato: (() => {
+                    const reverseMapping: Record<string, string> = {
+                        "indefinite": "indefinido",
+                        "temporary": "temporal",
+                        "practices": "practicas",
+                        "freelance": "autonomo"
+                    };
+                    return reverseMapping[member.contract_type] || "indefinido";
+                })(),
+                contract_end: member.contract_end,
+                salary: member.salary,
+                iban: member.iban,
+                irpf: member.irpf,
+                ss_number: member.ss_number,
+                break_duration_minutes: member.break_duration_minutes,
+                max_late_minutes: member.max_late_minutes,
+                dashboard_sections: member.dashboard_sections,
+                clock_methods: member.clock_methods,
+                documents: member.documents,
+                notes: member.notes,
+                departamento: member.departamento,
+                working_hours: member.working_hours,
+                color: member.color,
+                icon: member.icon,
+                created_at: member.created_at,
 
-                let totalHours = 0;
-                let clockInTime: Date | null = null;
-                let breakStartTime: Date | null = null;
+                // Campos de acceso para compatibilidad con ExtendedStaffMember
+                roles: [member.rol],
+                nivelAcceso: (() => {
+                    // Check if permissions match predefined patterns or are custom
+                    const permissions = member.dashboard_sections || [];
+                    const jefePermisos = ['pos', 'kds', 'reportes', 'reportes_completos', 'inventario', 'personal', 'configuracion', 'integraciones', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas', 'whatsapp_config'];
+                    const encargadoPermisos = ['pos', 'kds', 'reportes', 'inventario', 'personal', 'cierre_caja', 'descuentos', 'anular_comandas', 'editar_comandas'];
+                    const camareroPermisos = ['pos', 'kds', 'cierre_caja'];
 
-                for (const log of staffLogs) {
-                    const logTime = new Date(log.timestamp);
-                    
-                    if (log.action === 'clock-in') {
-                        clockInTime = logTime;
-                        breakStartTime = null;
-                    } else if (log.action === 'clock-out' && clockInTime) {
-                        // Calcular horas trabajadas (excluyendo pausas)
-                        let workEndTime = logTime;
-                        let workStartTime = clockInTime;
-                        
-                        // Si hubo una pausa, calcular solo el tiempo trabajado
-                        if (breakStartTime) {
-                            // Tiempo antes de la pausa
-                            totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                            // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
-                            // En un sistema real, necesitaríamos un log de break-end
-                            workStartTime = breakStartTime; // Simplificación
-                        }
-                        
-                        totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
-                        clockInTime = null;
-                        breakStartTime = null;
-                    } else if (log.action === 'break' && clockInTime) {
-                        breakStartTime = logTime;
+                    // More flexible detection: check if permissions contain all required items for a level
+                    const isJefe = jefePermisos.every(p => permissions.includes(p));
+                    const isEncargado = encargadoPermisos.every(p => permissions.includes(p)) && !isJefe;
+                    const isCamarero = camareroPermisos.every(p => permissions.includes(p)) && !isEncargado && !isJefe;
+
+                    // If permissions exactly match any predefined set, use that level, otherwise use custom
+                    if (isJefe && permissions.length === jefePermisos.length) {
+                        return 'jefe' as const;
+                    } else if (isEncargado && permissions.length === encargadoPermisos.length) {
+                        return "encargado" as const;
+                    } else if (isCamarero && permissions.length === camareroPermisos.length) {
+                        return 'camarero' as const;
+                    } else {
+                        return 'personalizado' as const; // Custom permissions (different count or extra permissions)
                     }
-                }
+                })(),
+                // Use the actual saved permissions from dashboard_sections, not predefined ones
+                permisos: member.dashboard_sections || [],
+                metodos_fichaje_permitidos: (member.clock_methods || ['app', 'qr']) as ('app' | 'whatsapp' | 'qr' | 'web')[],
+                // Calcular horas trabajadas esta semana
+                horasTrabajadas: (() => {
+                    const now = new Date();
+                    const startOfWeek = new Date(now);
+                    startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
+                    startOfWeek.setHours(0, 0, 0, 0);
 
-                // Si todavía está trabajando (sin clock-out), contar hasta ahora
-                if (clockInTime) {
-                    totalHours += (new Date().getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
-                }
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
+                    endOfWeek.setHours(23, 59, 59, 999);
 
-                return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
-            })(),
-        }));
+                    // Obtener logs del empleado esta semana
+                    const staffLogs = timeLogs
+                        .filter(log => log.staffId === member.id)
+                        .filter(log => {
+                            const logDate = new Date(log.timestamp);
+                            return logDate >= startOfWeek && logDate <= endOfWeek;
+                        })
+                        .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+                    let totalHours = 0;
+                    let clockInTime: Date | null = null;
+                    let breakStartTime: Date | null = null;
+
+                    for (const log of staffLogs) {
+                        const logTime = new Date(log.timestamp);
+
+                        if (log.action === 'clock-in') {
+                            clockInTime = logTime;
+                            breakStartTime = null;
+                        } else if (log.action === 'clock-out' && clockInTime) {
+                            // Calcular horas trabajadas (excluyendo pausas)
+                            let workEndTime = logTime;
+                            let workStartTime = clockInTime;
+
+                            // Si hubo una pausa, calcular solo el tiempo trabajado
+                            if (breakStartTime) {
+                                // Tiempo antes de la pausa
+                                totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                                // Tiempo después de la pausa (simulamos que clock-out es después de break-end)
+                                // En un sistema real, necesitaríamos un log de break-end
+                                workStartTime = breakStartTime; // Simplificación
+                            }
+
+                            totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
+                            clockInTime = null;
+                            breakStartTime = null;
+                        } else if (log.action === 'break' && clockInTime) {
+                            breakStartTime = logTime;
+                        }
+                    }
+
+                    // Si todavía está trabajando (sin clock-out), contar hasta ahora
+                    if (clockInTime) {
+                        totalHours += (new Date().getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
+                    }
+
+                    return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
+                })(),
+            };
+        });
     }, [staffMembersData, timeLogs]);
-    
+
     const absenceRequests = React.useMemo(() => {
         if (!absenceRequestsData) return [];
         return absenceRequestsData.map(req => ({
@@ -412,6 +405,7 @@ export default function PersonalPage() {
             startDate: req.startDate,
             endDate: req.endDate,
             reason: req.reason,
+            document: (req as any).document,
             status: req.status,
         }));
     }, [absenceRequestsData]);
@@ -446,9 +440,9 @@ export default function PersonalPage() {
             today.setHours(0, 0, 0, 0);
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
-            
+
             let totalHours = 0;
-            
+
             // Agrupar logs por empleado
             const logsByEmployee = timeLogs.reduce((acc, log) => {
                 const logDate = new Date(log.timestamp);
@@ -458,19 +452,19 @@ export default function PersonalPage() {
                 }
                 return acc;
             }, {} as Record<string, typeof timeLogs>);
-            
+
             // Calcular horas por empleado
             Object.values(logsByEmployee).forEach(employeeLogs => {
-                const sortedLogs = employeeLogs.sort((a, b) => 
+                const sortedLogs = employeeLogs.sort((a, b) =>
                     new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
                 );
-                
+
                 let clockInTime: Date | null = null;
                 let breakStartTime: Date | null = null;
-                
+
                 for (const log of sortedLogs) {
                     const logTime = new Date(log.timestamp);
-                    
+
                     if (log.action === 'clock-in') {
                         clockInTime = logTime;
                         breakStartTime = null;
@@ -478,12 +472,12 @@ export default function PersonalPage() {
                         // Calcular horas trabajadas (excluyendo pausas)
                         let workEndTime = logTime;
                         let workStartTime = clockInTime;
-                        
+
                         if (breakStartTime) {
                             totalHours += (breakStartTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
                             workStartTime = breakStartTime;
                         }
-                        
+
                         totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
                         clockInTime = null;
                         breakStartTime = null;
@@ -493,14 +487,14 @@ export default function PersonalPage() {
                         breakStartTime = null;
                     }
                 }
-                
+
                 // Si todavía está trabajando, contar hasta ahora
                 if (clockInTime) {
                     const now = new Date();
                     totalHours += (now.getTime() - clockInTime.getTime()) / (1000 * 60 * 60);
                 }
             });
-            
+
             return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
         })();
         return { total: staffMembers.length, activos, trabajandoAhora, enDescanso, horasHoy };
@@ -508,16 +502,16 @@ export default function PersonalPage() {
 
     // State to handle hydration
     const [isHydrated, setIsHydrated] = React.useState(false);
-    
+
     React.useEffect(() => {
         setIsHydrated(true);
     }, []);
-    
+
     // Si no hay establecimientos, mostrar mensaje de carga o error (solo después de hidratación)
     if (!isHydrated || establishmentsData === undefined) {
         return <div>Cargando establecimientos...</div>;
     }
-    
+
     if (establishmentsData && Array.isArray(establishmentsData) && establishmentsData.length === 0) {
         return <div>No hay establecimientos disponibles. Contacta con el administrador.</div>;
     }
@@ -528,7 +522,7 @@ export default function PersonalPage() {
         const startOfWeek = new Date(now);
         startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo como primer día
         startOfWeek.setHours(0, 0, 0, 0);
-        
+
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6); // Sábado como último día
         endOfWeek.setHours(23, 59, 59, 999);
@@ -548,7 +542,7 @@ export default function PersonalPage() {
 
         for (const log of staffLogs) {
             const logTime = new Date(log.timestamp);
-            
+
             if (log.action === 'clock-in') {
                 clockInTime = logTime;
                 breakStartTime = null;
@@ -556,7 +550,7 @@ export default function PersonalPage() {
                 // Calcular horas trabajadas (excluyendo pausas)
                 let workEndTime = logTime;
                 let workStartTime = clockInTime;
-                
+
                 // Si hubo una pausa, calcular solo el tiempo trabajado
                 if (breakStartTime) {
                     // Tiempo antes de la pausa
@@ -565,7 +559,7 @@ export default function PersonalPage() {
                     // En un sistema real, necesitaríamos un log de break-end
                     workStartTime = breakStartTime; // Simplificación
                 }
-                
+
                 totalHours += (workEndTime.getTime() - workStartTime.getTime()) / (1000 * 60 * 60);
                 clockInTime = null;
                 breakStartTime = null;
@@ -581,18 +575,18 @@ export default function PersonalPage() {
 
         return Math.round(totalHours * 10) / 10; // Redondear a 1 decimal
     };
-    
+
     // Funciones para manejar configuraciones persistentes
     const handleClockInChannelToggle = async (metodoId: string, currentEnabled: boolean) => {
         if (!establishmentId) return;
-        
+
         try {
             // Mapear el ID del método al campo en la base de datos
-            const channelField = metodoId === 'app' ? 'mobile_app' : 
-                               metodoId === 'whatsapp' ? 'whatsapp' : 
-                               metodoId === 'qr' ? 'qr_code' : 
+            const channelField = metodoId === 'app' ? 'mobile_app' :
+                               metodoId === 'whatsapp' ? 'whatsapp' :
+                               metodoId === 'qr' ? 'qr_code' :
                                metodoId === 'web' ? 'web_panel' : 'mobile_app';
-            
+
             // Obtener configuración actual
             const currentChannels = clockInChannelsData || {
                 mobile_app: true,
@@ -600,7 +594,7 @@ export default function PersonalPage() {
                 qr_code: true,
                 web_panel: true
             };
-            
+
             // Actualizar configuración
             await updateClockInChannels({
                 establishmentId,
@@ -609,7 +603,7 @@ export default function PersonalPage() {
                     [channelField]: !currentEnabled
                 }
             });
-            
+
             toast({
                 title: currentEnabled ? "Método desactivado" : "Método activado",
                 description: `${metodosFichaje.find(m => m.id === metodoId)?.label} se ha ${currentEnabled ? 'desactivado' : 'activado'} correctamente.`
@@ -629,7 +623,7 @@ export default function PersonalPage() {
             ['Empleado', 'Fecha', 'Hora', 'Accion', 'Metodo'],
             ...timeLogs
                 .filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff)
-                .filter(log => timeLogFilterAction === 'all' || 
+                .filter(log => timeLogFilterAction === 'all' ||
                     (timeLogFilterAction === 'break-start' && (log.action === 'break-start' || log.action === 'break-end')) ||
                     log.action === timeLogFilterAction)
                 .map(log => {
@@ -697,15 +691,16 @@ export default function PersonalPage() {
                 horasContratadas: employee.horasContratadas || 40, // Ya viene formateado de Convex
                 // Campos que podrían faltar
                 permisos: employee.permisos || [],
-                documentos: employee.documentos || [],
+                documents: employee.documents || [],
                 establecimientos_asignados: employee.establecimientos_asignados || [],
-                // Usar el valor exacto de Convex para el departamento
+                // Usar el valor exacto de Convex para el departamento y horario
                 departamento: employee.departamento,
+                working_hours: employee.working_hours,
                 // Mapeo inverso de roles (Convex usa inglés, diálogo usa español)
-                rol: employee.rol === 'waiter' ? 'camarero' : 
-                     employee.rol === 'cook' ? 'cocinero' : 
-                     employee.rol === 'host' ? 'anfitrión' : 
-                     employee.rol === 'owner' ? 'dueño' : 
+                rol: employee.rol === 'waiter' ? 'camarero' :
+                     employee.rol === 'cook' ? 'cocinero' :
+                     employee.rol === 'host' ? 'anfitrión' :
+                     employee.rol === 'owner' ? 'dueño' :
                      employee.rol === 'manager' ? 'gerente' : employee.rol,
             };
             setEditingEmployee(mappedEmployee);
@@ -718,8 +713,8 @@ export default function PersonalPage() {
     const handleSaveEmployee = async (employee: ExtendedStaffMember) => {
         try {
             if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
-                toast({ 
-                    title: "Error", 
+                toast({
+                    title: "Error",
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
                     variant: "destructive"
                 });
@@ -731,7 +726,8 @@ export default function PersonalPage() {
             // Mapear roles del formulario al schema de Convex
             const roleMapping: Record<string, string> = {
                 "camarero": "waiter",
-                "cocinero": "cook", 
+                "cocinero": "cook",
+                "ayudante_cocina": "cook",
                 "bartender": "bartender",
                 "anfitrión": "host",
                 "dueño": "owner",
@@ -742,14 +738,14 @@ export default function PersonalPage() {
             // Mapear tipos de contrato del formulario al schema de Convex
             const contractTypeMapping: Record<string, string> = {
                 "indefinido": "indefinite",
-                "temporal": "temporary", 
+                "temporal": "temporary",
                 "practicas": "practices",
                 "autonomo": "freelance"
             };
 
             // Determinar si es una edición o creación
             const isEditing = employee.id && staffMembersData?.some(s => s.id === employee.id);
-            
+
             const staffData = {
                 name: employee.nombre,
                 role: (roleMapping[employee.rol] || employee.rol) as any,
@@ -770,6 +766,10 @@ export default function PersonalPage() {
                 // Save the actual permissions directly without restrictive mapping
                 dashboard_sections: employee.permisos || [],
                 departamento: employee.departamento || "", // Campo departamento
+                working_hours: employee.working_hours || "", // Horario semanal personalizado
+                documents: employee.documents || [], // Documentos con título, url, tipo y fecha
+                color: employee.color || "blue-500", // Color de identidad visual
+                icon: employee.icon || "User", // Icono de representación
             };
 
             if (isEditing) {
@@ -782,8 +782,8 @@ export default function PersonalPage() {
                 toast({ title: "Empleado añadido", description: `${employee.nombre} se agregó al equipo.` });
             }
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo guardar el empleado. Inténtalo de nuevo.",
                 variant: "destructive"
             });
@@ -796,8 +796,8 @@ export default function PersonalPage() {
             await deleteStaffMember({ staffId: id as any });
             toast({ title: "Empleado eliminado", description: "El perfil se eliminó del equipo." });
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo eliminar el empleado.",
                 variant: "destructive"
             });
@@ -817,8 +817,8 @@ export default function PersonalPage() {
     const handleSaveOrUpdateTimeLog = async (data: any) => {
         try {
             if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
-                toast({ 
-                    title: "Error", 
+                toast({
+                    title: "Error",
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
                     variant: "destructive"
                 });
@@ -830,13 +830,13 @@ export default function PersonalPage() {
             // Mapear tipos del diálogo al schema de Convex
             const actionMapping: Record<string, string> = {
                 "clock-in": "clock_in",
-                "clock-out": "clock_out", 
+                "clock-out": "clock_out",
                 "start-break": "break_start",
                 "end-break": "break_end"
             };
-            
+
             const isEditing = !!editingTimeLog;
-            
+
             if (isEditing) {
                 // Actualizar Time Log existente
                 const timestamp = new Date(`${data.date}T${data.time}`).getTime();
@@ -860,11 +860,11 @@ export default function PersonalPage() {
                 await createTimeLog(timeLogData);
                 toast({ title: "Fichaje registrado", description: "El registro de tiempo se ha guardado correctamente." });
             }
-            
+
             setIsTimeLogDialogOpen(false);
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: `No se pudo ${editingTimeLog ? 'actualizar' : 'registrar'} el fichaje.`,
                 variant: "destructive"
             });
@@ -876,8 +876,8 @@ export default function PersonalPage() {
             await deleteTimeLog({ logId: logId as any });
             toast({ title: "Fichaje eliminado", description: "El registro se ha eliminado correctamente." });
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo eliminar el fichaje.",
                 variant: "destructive"
             });
@@ -885,11 +885,42 @@ export default function PersonalPage() {
     };
 
     // Handlers: Absences
+    const handleViewDocument = (documentDataUrl: string) => {
+        try {
+            // Convert Base64 to Blob
+            const byteCharacters = atob(documentDataUrl.split(',')[1]);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: documentDataUrl.split(';')[0].split(':')[1] });
+
+            // Create object URL and open in new window
+            const url = URL.createObjectURL(blob);
+            const newWindow = window.open(url, '_blank');
+
+            // Clean up object URL after window opens
+            if (newWindow) {
+                newWindow.onload = () => {
+                    URL.revokeObjectURL(url);
+                };
+            }
+        } catch (error) {
+            console.error('Error viewing document:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo abrir el documento.",
+                variant: "destructive"
+            });
+        }
+    };
+
     const handleSaveAbsenceRequest = async (data: any) => {
         try {
             if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
-                toast({ 
-                    title: "Error", 
+                toast({
+                    title: "Error",
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
                     variant: "destructive"
                 });
@@ -906,13 +937,14 @@ export default function PersonalPage() {
                 endDate: data.endDate,
                 total_days: Math.ceil((new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
                 reason: data.reason,
+                document: data.document,
             };
 
             await createAbsenceRequest(absenceData);
             toast({ title: "Solicitud enviada", description: "La solicitud de ausencia ha sido registrada y está pendiente de aprobación." });
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo enviar la solicitud.",
                 variant: "destructive"
             });
@@ -921,9 +953,9 @@ export default function PersonalPage() {
 
     const updateAbsenceStatus = async (id: string, status: 'approved' | 'rejected') => {
         try {
-            await updateAbsenceRequestStatus({ 
-                requestId: id as any, 
-                status, 
+            await updateAbsenceRequestStatus({
+                requestId: id as any,
+                status,
                 reviewed_by: (staffMembersData?.[0]?.id as any) || "system" // Use first staff member or system as fallback
             });
             toast({
@@ -931,8 +963,8 @@ export default function PersonalPage() {
                 description: `La solicitud ha sido ${status === 'approved' ? 'aprobada' : 'rechazada'}.`
             });
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo actualizar el estado de la solicitud.",
                 variant: "destructive"
             });
@@ -942,17 +974,17 @@ export default function PersonalPage() {
     // Handlers: Incidencias
     const handleIncidenciaAction = async (id: string, nuevoEstado: EstadoIncidencia) => {
         try {
-            await updateClockIncidentStatus({ 
-                incidentId: id as any, 
-                status: nuevoEstado as any 
+            await updateClockIncidentStatus({
+                incidentId: id as any,
+                status: nuevoEstado as any
             });
             toast({
                 title: nuevoEstado === 'aprobada' ? "Incidencia aprobada" : "Incidencia rechazada",
                 description: `La incidencia ha sido ${estadoIncidenciaLabels[nuevoEstado].toLowerCase()}.`
             });
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo actualizar el estado de la incidencia.",
                 variant: "destructive"
             });
@@ -963,8 +995,8 @@ export default function PersonalPage() {
     const handleSaveDevice = async (device: DispositivoFichaje) => {
         try {
             if (!establishmentsData || !Array.isArray(establishmentsData) || establishmentsData.length === 0) {
-                toast({ 
-                    title: "Error", 
+                toast({
+                    title: "Error",
                     description: "No hay establecimientos disponibles. Contacta con el administrador.",
                     variant: "destructive"
                 });
@@ -994,8 +1026,8 @@ export default function PersonalPage() {
             }
             setEditingDevice(null);
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo guardar el dispositivo.",
                 variant: "destructive"
             });
@@ -1007,8 +1039,8 @@ export default function PersonalPage() {
             await deleteClockDevice({ deviceId: id as any });
             toast({ title: "Dispositivo eliminado", description: "El dispositivo ha sido eliminado." });
         } catch (error) {
-            toast({ 
-                title: "Error", 
+            toast({
+                title: "Error",
                 description: "No se pudo eliminar el dispositivo.",
                 variant: "destructive"
             });
@@ -1024,12 +1056,12 @@ export default function PersonalPage() {
                         <TooltipProvider delayDuration={0}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button 
-                                        variant="outline" 
-                                        size="md" 
-                                        onClick={() => setIsConfigDialogOpen(true)} 
-                                        aria-label="Configurar vista" 
-                                        startIcon={<Settings/>} 
+                                    <Button
+                                        variant="outline"
+                                        size="md"
+                                        onClick={() => setIsConfigDialogOpen(true)}
+                                        aria-label="Configurar vista"
+                                        startIcon={<Settings/>}
                                     />
                                 </TooltipTrigger>
                                 <TooltipContent>Configurar Vista</TooltipContent>
@@ -1038,7 +1070,7 @@ export default function PersonalPage() {
                     </div>
                 }
             />
-            
+
             <PageContent>
                 <Tabs defaultValue="team" className="w-full">
                     <div className="flex flex-col md:flex-row md:items-center justify-start gap-4 mb-6">
@@ -1099,21 +1131,21 @@ export default function PersonalPage() {
                                 />
                             </div>
                         )}
-                        
+
                         {/* New Actions Row */}
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
                             <div className="flex items-center gap-2 w-full sm:w-auto">
-                                <Button 
-                                    variant="default" 
-                                    size="md" 
+                                <Button
+                                    variant="default"
+                                    size="md"
                                     onClick={() => handleOpenEmployeeDialog()}
                                     startIcon={<Plus />}
                                 >
                                     Añadir empleado
                                 </Button>
-                                <Button 
-                                    variant="outline" 
-                                    size="md" 
+                                <Button
+                                    variant="outline"
+                                    size="md"
                                     onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}
                                     startIcon={<Clock />}
                                 >
@@ -1132,7 +1164,7 @@ export default function PersonalPage() {
                             {personalConfig.equipo && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {filteredStaff.length === 0 && staffMembers.length === 0 ? (
-                                        <EmptyState 
+                                        <EmptyState
                                             icon={User}
                                             title="Equipo vacío"
                                             description="Añade empleados para gestionar turnos y asistencias"
@@ -1140,7 +1172,7 @@ export default function PersonalPage() {
                                             className="col-span-full py-16 bg-muted/10 border-muted/50"
                                         />
                                     ) : filteredStaff.length === 0 ? (
-                                        <EmptyState 
+                                        <EmptyState
                                             icon={Search}
                                             title="Sin resultados"
                                             description="No se encontraron empleados con ese criterio de búsqueda"
@@ -1191,16 +1223,16 @@ export default function PersonalPage() {
                                             </SelectContent>
                                         </Select>
 
-                                        <Button 
-                                            variant="outline" 
-                                            size="md" 
+                                        <Button
+                                            variant="outline"
+                                            size="md"
                                             onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}
                                             startIcon={<Plus />}
                                         >
                                             Añadir registro manual
                                         </Button>
                                     </div>
-                                    
+
                                     <Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />} onClick={exportTimeLogs}>
                                         Exportar
                                     </Button>
@@ -1231,7 +1263,7 @@ export default function PersonalPage() {
                                                 <TableBody>
                                                     {timeLogs
                                                         .filter(log => timeLogFilterStaff === 'all' || log.staffId === timeLogFilterStaff)
-                                                        .filter(log => timeLogFilterAction === 'all' || 
+                                                        .filter(log => timeLogFilterAction === 'all' ||
                         (timeLogFilterAction === 'break-start' && (log.action === 'break-start' || log.action === 'break-end')) ||
                         log.action === timeLogFilterAction)
                                                         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
@@ -1251,9 +1283,9 @@ export default function PersonalPage() {
                                                                     </TableCell>
                                                                     <TableCell className="hidden md:table-cell text-muted-foreground text-xs capitalize">{log.method}</TableCell>
                                                                     <TableCell>
-                                                                        <Button 
-                                                                            variant="ghost" 
-                                                                            size="md" 
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="md"
                                                                             onClick={() => { setEditingTimeLog(log); setIsTimeLogDialogOpen(true); }}
                                                                         >
                                                                             <MoreHorizontal />
@@ -1288,16 +1320,16 @@ export default function PersonalPage() {
                                             </SelectContent>
                                         </Select>
 
-                                        <Button 
-                                            variant="default" 
-                                            size="md" 
+                                        <Button
+                                            variant="default"
+                                            size="md"
                                             onClick={() => setIsAbsenceRequestDialogOpen(true)}
                                             startIcon={<Plus />}
                                         >
                                             Nueva Solicitud
                                         </Button>
                                     </div>
-                                    
+
                                     <Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />} onClick={exportAbsenceRequests}>
                                         Exportar
                                     </Button>
@@ -1316,6 +1348,8 @@ export default function PersonalPage() {
                                                         <TableHead>Empleado</TableHead>
                                                         <TableHead className="hidden sm:table-cell">Tipo</TableHead>
                                                         <TableHead>Fechas</TableHead>
+                                                        <TableHead className="hidden sm:table-cell">Motivo</TableHead>
+                                                        <TableHead className="hidden sm:table-cell">Documento</TableHead>
                                                         <TableHead className="text-center">Estado</TableHead>
                                                         <TableHead className="text-right">Acciones</TableHead>
                                                     </TableRow>
@@ -1329,6 +1363,19 @@ export default function PersonalPage() {
                                                                 <TableCell className="hidden sm:table-cell capitalize">{req.type.replace('_', ' ')}</TableCell>
                                                                 <TableCell className="text-xs sm:text-sm">
                                                                     {new Date(req.startDate).toLocaleDateString()} - {new Date(req.endDate).toLocaleDateString()}
+                                                                </TableCell>
+                                                                <TableCell className="hidden sm:table-cell text-xs sm:text-sm max-w-[200px] truncate">{req.reason || '-'}</TableCell>
+                                                                <TableCell className="hidden sm:table-cell">
+                                                                    {req.document ? (
+                                                                        <button
+                                                                            onClick={() => handleViewDocument(req.document)}
+                                                                            className="text-blue-600 hover:text-blue-800 underline text-xs cursor-pointer"
+                                                                        >
+                                            Ver documento
+                                        </button>
+                                                                    ) : (
+                                                                        <span className="text-gray-400 text-xs">-</span>
+                                                                    )}
                                                                 </TableCell>
                                                                 <TableCell className="text-center">
                                                                     <Badge variant={req.status === 'approved' ? 'success' : req.status === 'rejected' ? 'destructive' : 'secondary'}>
@@ -1354,7 +1401,7 @@ export default function PersonalPage() {
                             </>
                         )}
                     </TabsContent>
-                    
+
                     <TabsContent value="incidencias">
                         {personalConfig.incidencias && (
                             <Card>
@@ -1409,7 +1456,7 @@ export default function PersonalPage() {
                             </Card>
                         )}
                     </TabsContent>
-                    
+
                     <TabsContent value="fichaje" className="space-y-6">
                         {personalConfig.fichaje && (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1457,10 +1504,10 @@ export default function PersonalPage() {
                                                     ]}
                                                 />
                                             ))}
-                                            <CreateActionCard 
+                                            <CreateActionCard
                                                 variant="list"
-                                                label="Vincular nuevo dispositivo" 
-                                                onClick={() => setIsDeviceDialogOpen(true)} 
+                                                label="Vincular nuevo dispositivo"
+                                                onClick={() => setIsDeviceDialogOpen(true)}
                                             />
                                         </CardContent>
                                     </Card>
@@ -1479,17 +1526,17 @@ export default function PersonalPage() {
                                                 title="Estado del Servicio"
                                                 description={whatsappIntegrationData?.enabled ? "Bot configurado y activo" : "Bot no configurado"}
                                                 rightContentType="badge"
-                                                badgeText={whatsappIntegrationData?.status === 'connected' ? "Conectado" : 
+                                                badgeText={whatsappIntegrationData?.status === 'connected' ? "Conectado" :
                                                           whatsappIntegrationData?.status === 'disconnected' ? "Desconectado" : "Error"}
-                                                badgeVariant={whatsappIntegrationData?.status === 'connected' ? "success" : 
+                                                badgeVariant={whatsappIntegrationData?.status === 'connected' ? "success" :
                                                             whatsappIntegrationData?.status === 'disconnected' ? "secondary" : "destructive"}
                                             />
-                                            
+
                                             {whatsappIntegrationData?.qr_code && (
                                                 <div className="p-4 bg-muted/50 rounded-xl flex items-center gap-6">
                                                     <div className="p-2 bg-white rounded-lg border shrink-0">
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img 
+                                                        <img
                                                             src={whatsappIntegrationData.qr_code}
                                                             alt="QR WhatsApp Fichaje"
                                                             width={100}
@@ -1531,37 +1578,37 @@ export default function PersonalPage() {
                                         </CardHeader>
                                         <CardContent className="space-y-1">
                                             {channelUsageStatsData ? [
-                                                { 
-                                                    label: 'WhatsApp', 
-                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                {
+                                                    label: 'WhatsApp',
+                                                    value: channelUsageStatsData.total_clock_ins > 0
                                                         ? Math.round((channelUsageStatsData.whatsapp / channelUsageStatsData.total_clock_ins) * 100)
-                                                        : 0, 
-                                                    icon: MessageSquare, 
-                                                    color: '#25D366' 
+                                                        : 0,
+                                                    icon: MessageSquare,
+                                                    color: '#25D366'
                                                 },
-                                                { 
-                                                    label: 'App Móvil', 
-                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                {
+                                                    label: 'App Móvil',
+                                                    value: channelUsageStatsData.total_clock_ins > 0
                                                         ? Math.round((channelUsageStatsData.mobile_app / channelUsageStatsData.total_clock_ins) * 100)
-                                                        : 0, 
-                                                    icon: Smartphone, 
-                                                    color: '#9B6EFD' 
+                                                        : 0,
+                                                    icon: Smartphone,
+                                                    color: '#9B6EFD'
                                                 },
-                                                { 
-                                                    label: 'QR Code', 
-                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                {
+                                                    label: 'QR Code',
+                                                    value: channelUsageStatsData.total_clock_ins > 0
                                                         ? Math.round((channelUsageStatsData.qr_code / channelUsageStatsData.total_clock_ins) * 100)
-                                                        : 0, 
-                                                    icon: QrCode, 
-                                                    color: '#78A3ED' 
+                                                        : 0,
+                                                    icon: QrCode,
+                                                    color: '#78A3ED'
                                                 },
-                                                { 
-                                                    label: 'Panel Web', 
-                                                    value: channelUsageStatsData.total_clock_ins > 0 
+                                                {
+                                                    label: 'Panel Web',
+                                                    value: channelUsageStatsData.total_clock_ins > 0
                                                         ? Math.round((channelUsageStatsData.web_panel / channelUsageStatsData.total_clock_ins) * 100)
-                                                        : 0, 
-                                                    icon: Monitor, 
-                                                    color: '#F7B731' 
+                                                        : 0,
+                                                    icon: Monitor,
+                                                    color: '#F7B731'
                                                 }
                                             ].map((item, i) => (
                                                 <ActionTile
@@ -1593,6 +1640,7 @@ export default function PersonalPage() {
                 employeeToEdit={editingEmployee}
                 onSave={handleSaveEmployee}
                 onDelete={handleRemoveStaff}
+                establishmentId={establishmentId || undefined}
             />
 
             <TimeLogDialog
