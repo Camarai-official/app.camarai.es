@@ -37,11 +37,15 @@ Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { title?: string; description?: string; icon?: React.ElementType; actions?: React.ReactNode }
->(({ className, title, description, icon: Icon, actions, children, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & { title?: string; description?: string; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
+>(({ className, title, description, icon: Icon, actions, children, compact, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn(
+      "flex flex-col space-y-1.5 p-6",
+      compact && "p-4 space-y-1",
+      className
+    )}
     {...props}
   >
     <div className="flex items-center justify-between">
@@ -93,12 +97,14 @@ const CardContent = React.forwardRef<
     flex?: boolean; 
     padding?: 'none' | 'sm' | 'md' | 'lg' | 'default';
     gap?: 'none' | 'sm' | 'md' | 'lg';
+    compact?: boolean;
   }
->(({ className, flex = false, padding = 'default', gap = 'none', ...props }, ref) => (
+>(({ className, flex = false, padding = 'default', gap = 'none', compact, ...props }, ref) => (
   <div 
     ref={ref} 
     className={cn(
       "p-6", 
+      compact && "p-4",
       padding === 'default' && "pt-0",
       flex && "flex-grow",
       padding === 'none' && "p-0",

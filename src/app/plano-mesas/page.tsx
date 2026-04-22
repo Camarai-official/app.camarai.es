@@ -2,15 +2,16 @@
 import * as React from 'react';
 import { 
     PlusCircle, Trash, Users, CheckSquare, 
-    Clock, AlertTriangle, XSquare, FolderOpen, LayoutGrid, Power,
-    ChevronLeft, ChevronRight, Utensils, Sun, Beer, Wine, Coffee, Building,
-    Square, Circle, Lock, Unlock, Save, Loader2
+    Clock, AlertTriangle, FolderOpen, LayoutGrid, Power,
+    ChevronLeft, ChevronRight, Utensils, Building,
+    Lock, Unlock, Loader2, QrCode, MoreVertical, Edit
 } from 'lucide-react';
 
 // UI Components
 import { TextXS, TextSM } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -30,7 +31,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 import { type Table, type TableStatus, type Environment } from '@/data/environments';
-import { FloorPlanCanvas } from '../../components/ui/floor-plan-canvas';
 import { QuickTemplatesDialog, type QuickTemplate } from '@/components/dialogs/planomesas-templates-dialog';
 import { EditTableDialog } from '@/components/dialogs/planomesas-config-dialog';
 import { QRConfigDialog } from '@/components/dialogs/planomesas-qr-dialog';
@@ -61,8 +61,8 @@ const CONVEX_STATUS_TO_UI: Record<string, TableStatus> = {
 };
 
 const iconMap: { [key: string]: React.ElementType } = {
-    Utensils, Wine, Coffee, Beer, Sun, Building, Users,
-    PlusCircle, CheckSquare, Clock, AlertTriangle, XSquare
+    Utensils, Building, Users,
+    PlusCircle, CheckSquare, Clock, AlertTriangle
 };
 
 const generateAllChairs = (width: number, height: number, shape: 'rectangle' | 'round' = 'rectangle') => {
@@ -121,7 +121,6 @@ function PlanoMesasContent() {
     // Local state (Convex es fuente de verdad para existencia; local preserva ediciones en curso)
     const [environments, setEnvironments] = React.useState<Environment[]>([]);
     const [activeEnvId, setActiveEnvId] = React.useState<string>('');
-    const [isSaving, setIsSaving] = React.useState(false);
     const deletingTableIdsRef = React.useRef(new Set<string>());
     const [pendingDeleteTableId, setPendingDeleteTableId] = React.useState<string | null>(null);
 
@@ -140,36 +139,25 @@ function PlanoMesasContent() {
     React.useEffect(() => {
         if (!convexEnvironments) return;
 
-        setEnvironments(prev =>
-            convexEnvironments.map(env => {
-                const localEnv = prev.find(e => e.id === env.id);
-                return {
-                    id: env.id,
-                    name: env.name,
-                    capacity: env.capacity ?? 0,
-                    status: localEnv?.status ?? (env.status as 'Abierto' | 'Cerrado'),
-                    icon: env.icon || 'Building',
-                    color: env.color || '#9B6EFD',
-                    tables: env.tables.map(table => {
-                        const local = localEnv?.tables.find(t => t.id === table.id);
-                        return {
-                            id: table.id,
-                            number: local?.number ?? table.number,
-                            x: local?.x ?? table.x,
-                            y: local?.y ?? table.y,
-                            width: local?.width ?? table.width,
-                            height: local?.height ?? table.height,
-                            capacity: table.capacity,
-                            status: local?.status ?? (CONVEX_STATUS_TO_UI[table.status] || 'Libre') as TableStatus,
-                            shape: table.shape === 'circle' ? 'round' : 'rectangle',
-                            rotation: local?.rotation ?? (table.rotation ?? 0),
-                            chairs: local?.chairs ?? table.chairs,
-                            isObject: table.is_object,
-                            objectType: table.object_type,
-                        };
-                    }),
-                };
-            })
+        setEnvironments(
+            convexEnvironments.map(env => ({
+                id: env.id,
+                name: env.name,
+                capacity: env.capacity ?? 0,
+                status: env.status as 'Abierto' | 'Cerrado',
+                icon: env.icon || 'Building',
+                color: env.color || '#9B6EFD',
+                tables: env.tables.map(table => ({
+                    id: table.id,
+                    number: table.number,
+                    capacity: table.capacity,
+                    status: (CONVEX_STATUS_TO_UI[table.status] || 'Libre') as TableStatus,
+                    shape: table.shape === 'circle' ? 'round' : 'rectangle',
+                    chairs: table.chairs,
+                    isObject: table.is_object,
+                    objectType: table.object_type,
+                })),
+            }))
         );
     }, [convexEnvironments]);
 
@@ -224,59 +212,13 @@ function PlanoMesasContent() {
     const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
     const [isQRDialogOpen, setIsQRDialogOpen] = React.useState(false);
     const [isTemplatesOpen, setIsTemplatesOpen] = React.useState(false);
-    const [editingChairsId, setEditingChairsId] = React.useState<string | null>(null);
     const [isLocked, setIsLocked] = React.useState(false);
 
     const activeEnv = environments.find(e => e.id === activeEnvId);
 
     // --- Table operations ---
 
-    // Updates local state only (used for live drag/resize/rotate feedback)
-    const updateTable = (tableId: string, updates: Partial<Table>) => {
-        setEnvironments(prev => prev.map(env => {
-            if (env.id !== activeEnvId) return env;
-            return {
-                ...env,
-                tables: env.tables.map(t => {
-                    if (t.id !== tableId) return t;
-                    const newTable = { ...t, ...updates };
-                    if (updates.width !== undefined || updates.height !== undefined || updates.chairs) {
-                        if (newTable.chairs) {
-                            const ROUND_CHAIR_SPACING = 56;
-                            if (newTable.shape === 'round') {
-                                const rx = newTable.width / 2;
-                                const ry = newTable.height / 2;
-                                const circumference = Math.PI * (rx + ry);
-                                const maxRound = Math.floor(circumference / ROUND_CHAIR_SPACING);
-                                newTable.chairs.round = (newTable.chairs.round || []).filter(i => i < maxRound);
-                            } else {
-                                const maxTopBottom = Math.floor(newTable.width / CHAIR_SPACING);
-                                const maxLeftRight = Math.floor(newTable.height / CHAIR_SPACING);
-                                newTable.chairs.top = (newTable.chairs.top || []).filter(i => i < maxTopBottom);
-                                newTable.chairs.bottom = (newTable.chairs.bottom || []).filter(i => i < maxTopBottom);
-                                newTable.chairs.left = (newTable.chairs.left || []).filter(i => i < maxLeftRight);
-                                newTable.chairs.right = (newTable.chairs.right || []).filter(i => i < maxLeftRight);
-                            }
-                        }
-                        newTable.capacity = computeCapacity(newTable.chairs);
-                    }
-                    return newTable;
-                })
-            };
-        }));
 
-        // Persist chair changes immediately to Convex (non-positional)
-        const isPositional = 'x' in updates || 'y' in updates || 'width' in updates || 'height' in updates || 'rotation' in updates;
-        if (!isPositional && updates.chairs !== undefined) {
-            updateTableMutation({
-                tableId: tableId as Id<'tables'>,
-                chairs: updates.chairs,
-                capacity: computeCapacity(updates.chairs),
-            })
-                .then(() => syncEnvCapacityFromPlan())
-                .catch(console.error);
-        }
-    };
 
     // Saves table edits from dialog to Convex
     const saveTableFromDialog = async () => {
@@ -421,9 +363,7 @@ function PlanoMesasContent() {
         }
     };
 
-    const editChairs = (table: Table) => {
-        setEditingChairsId(table.id === editingChairsId ? null : table.id);
-    };
+
 
     // Applies a quick template: deletes existing tables, creates new ones in Convex
     const applyTemplate = async (template: QuickTemplate) => {
@@ -479,31 +419,7 @@ function PlanoMesasContent() {
         }
     };
 
-    // Saves current table positions/sizes/rotations to Convex
-    const savePlan = async () => {
-        if (!activeEnv || isSaving) return;
-        setIsSaving(true);
-        try {
-            await Promise.all(activeEnv.tables.map(table =>
-                updateTableMutation({
-                    tableId: table.id as Id<'tables'>,
-                    x: table.x,
-                    y: table.y,
-                    width: table.width,
-                    height: table.height,
-                    rotation: table.rotation || 0,
-                    chairs: table.chairs,
-                    capacity: table.capacity,
-                })
-            ));
-            await syncEnvCapacityFromPlan();
-            toast({ title: "Plano Guardado", description: "La disposición de mesas ha sido guardada correctamente." });
-        } catch {
-            toast({ title: "Error al guardar", description: "No se pudieron guardar los cambios.", variant: "destructive" });
-        } finally {
-            setIsSaving(false);
-        }
-    };
+
 
     return (
         <PageContainer>
@@ -533,43 +449,15 @@ function PlanoMesasContent() {
                         >
                             Plantillas
                         </Button>
+
                         <Button
-                            variant="outline"
                             size="md"
-                            onClick={savePlan}
-                            disabled={isSaving || isLocked || !activeEnv}
-                            startIcon={isSaving ? <Loader2 className="animate-spin h-4 w-4" /> : <Save className="h-4 w-4" />}
+                            startIcon={<PlusCircle />}
+                            disabled={isLocked || !activeEnv}
+                            onClick={() => addTable()}
                         >
-                            Guardar Plano
+                            Añadir Mesa
                         </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button size="md" startIcon={<PlusCircle />} disabled={isLocked}>
-                                    Añadir
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Mesas</div>
-                                <DropdownMenuItem onClick={() => addTable('rectangle')}>
-                                    <Square className="mr-2 h-4 w-4" />
-                                    Mesa Rectangular
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => addTable('round')}>
-                                    <Circle className="mr-2 h-4 w-4" />
-                                    Mesa Circular
-                                </DropdownMenuItem>
-                                <Separator className="my-1" />
-                                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Objetos</div>
-                                <DropdownMenuItem onClick={() => addTable('rectangle', true, 'Objeto Rectangular')}>
-                                    <Square className="mr-2 h-4 w-4 fill-muted-foreground/20" />
-                                    Objeto Rectangular
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => addTable('round', true, 'Objeto Circular')}>
-                                    <Circle className="mr-2 h-4 w-4 fill-muted-foreground/20" />
-                                    Objeto Circular
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </div>
                 }
             />
@@ -722,18 +610,79 @@ function PlanoMesasContent() {
                     </div>
 
                     {activeEnv && (
-                        <FloorPlanCanvas 
-                            activeEnv={activeEnv}
-                            onUpdateTable={updateTable}
-                            onRemoveTable={removeTable}
-                            onOpenEdit={(t) => { setEditingTable(t); setIsEditDialogOpen(true); }}
-                            onOpenQR={(t) => { setEditingTable(t); setIsQRDialogOpen(true); }}
-                            onDuplicateTable={duplicateTable}
-                            onEditChairs={editChairs}
-                            editingChairsId={editingChairsId}
-                            isLocked={isLocked}
-                            pendingDeleteTableId={pendingDeleteTableId}
-                        />
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            {activeEnv.tables
+                                .filter(t => !t.isObject)
+                                .sort((a, b) => a.number - b.number)
+                                .map(table => (
+                                <Card key={table.id} className="relative group hover:border-primary transition-all duration-300">
+                                    <CardHeader className="pb-3" compact>
+                                        <div className="flex items-center justify-between gap-4">
+                                            <CardTitle className="text-xl font-bold truncate flex-1" title={`Mesa ${table.number}`}>
+                                                Mesa {table.number}
+                                            </CardTitle>
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                {isLocked ? (
+                                                    <Button 
+                                                        variant="secondary" 
+                                                        size="sm" 
+                                                        onClick={() => { setEditingTable(table); setIsQRDialogOpen(true); }}
+                                                        title="Código QR"
+                                                    >
+                                                        <QrCode className="h-4 w-4" />
+                                                    </Button>
+                                                ) : (
+                                                    <DropdownMenu>
+                                                        <DropdownMenuTrigger asChild>
+                                                            <Button variant="secondary" size="sm">
+                                                                <MoreVertical className="h-4 w-4" />
+                                                            </Button>
+                                                        </DropdownMenuTrigger>
+                                                        <DropdownMenuContent align="end" className="w-40 rounded-xl">
+                                                            <DropdownMenuItem onClick={() => { setEditingTable(table); setIsEditDialogOpen(true); }}>
+                                                                    <Edit className="h-4 w-4 mr-2" />
+                                                                    Editar Mesa
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => { setEditingTable(table); setIsQRDialogOpen(true); }}>
+                                                                <QrCode className="h-4 w-4 mr-2" />
+                                                                Código QR
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem onClick={() => duplicateTable(table)}>
+                                                                <PlusCircle className="h-4 w-4 mr-2" />
+                                                                Duplicar
+                                                            </DropdownMenuItem>
+                                                            <Separator className="my-1" />
+                                                            <DropdownMenuItem 
+                                                                onClick={() => removeTable(table.id)}
+                                                            >
+                                                                <Trash className="h-4 w-4 mr-2" />
+                                                                Eliminar
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuContent>
+                                                    </DropdownMenu>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-0" compact>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
+                                                <Users className="h-4 w-4" />
+                                                <span className="text-sm font-medium">{table.capacity} pers.</span>
+                                            </div>
+                                            <Badge variant={
+                                                table.status === 'Libre' ? 'success' :
+                                                table.status === 'Ocupada' ? 'info' :
+                                                table.status === 'Reservada' ? 'purple' :
+                                                table.status === 'Inactiva' ? 'neutral' : 'warning'
+                                            } size="default" className="truncate">
+                                                {table.status}
+                                            </Badge>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     )}
 
                     {!activeEnv && convexEnvironments !== undefined && environments.length === 0 && (
