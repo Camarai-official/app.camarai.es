@@ -267,7 +267,7 @@ export default function ComandasPage() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent padding="flush">
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader>

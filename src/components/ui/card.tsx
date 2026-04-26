@@ -37,31 +37,35 @@ Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { title?: string; description?: string; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
+  React.HTMLAttributes<HTMLDivElement> & { title?: React.ReactNode; description?: string; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
 >(({ className, title, description, icon: Icon, actions, children, compact, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "flex flex-col space-y-1.5 p-3 sm:p-6",
-      compact && "p-3 sm:p-4 space-y-1",
+      "flex flex-col p-5 sm:p-8 w-full",
+      compact && "p-3 sm:p-4",
       className
     )}
     {...props}
   >
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2">
-        {Icon && (
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
-            <Icon className="h-5 w-5" />
-          </div>
-        )}
-        <div>
-          {title && <h3 className="text-xs sm:text-lg font-bold leading-none tracking-tight text-muted-foreground sm:text-foreground">{title}</h3>}
-          {description && <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>}
+    <div className="flex items-stretch gap-3 w-full">
+      {Icon && (
+        <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+          <Icon className="h-6 w-6" />
         </div>
+      )}
+      <div className="space-y-1.5 flex-1 w-full min-w-0">
+        {title && (
+          typeof title === 'string' ? (
+            <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">{title}</h3>
+          ) : (
+            <div className="w-full">{title}</div>
+          )
+        )}
+        {description && <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>}
       </div>
-      {actions && <div className="flex items-center gap-2 flex-wrap">{actions}</div>}
     </div>
+    {actions && <div className="mt-4 w-full">{actions}</div>}
     {children}
   </div>
 ))
@@ -95,7 +99,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { 
     flex?: boolean; 
-    padding?: 'none' | 'sm' | 'md' | 'lg' | 'default';
+    padding?: 'none' | 'sm' | 'md' | 'lg' | 'default' | 'flush';
     gap?: 'none' | 'sm' | 'md' | 'lg';
     compact?: boolean;
   }
@@ -106,6 +110,7 @@ const CardContent = React.forwardRef<
       "p-3 sm:p-6", 
       compact && "p-3 sm:p-4",
       padding === 'default' && "pt-2 sm:pt-0",
+      padding === 'flush' && "px-0 sm:px-6 pt-2 sm:pt-0",
       flex && "flex-grow",
       padding === 'none' && "p-0",
       padding === 'sm' && "p-2",

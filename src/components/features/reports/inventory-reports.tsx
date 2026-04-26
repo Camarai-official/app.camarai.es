@@ -52,12 +52,16 @@ export function LowStockCard({ ingredients }: { ingredients: Ingredient[] }) {
   return (
     <Card className="h-full">
       <CardHeader 
-        title="Alertas de Stock" 
-        actions={<Badge variant="destructive">{lowStockItems.length}</Badge>}
+        title={
+          <div className="flex items-center gap-2">
+            <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">Alertas de Stock</h3>
+            <Badge variant="destructive">{lowStockItems.length}</Badge>
+          </div>
+        }
       >
         <CardDescription>Productos que requieren reposición inmediata.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent padding="flush">
         <Table>
           <TableHeader>
             <TableRow>
@@ -143,7 +147,7 @@ export function InventoryValuationCard({ ingredients, ingredientCategories }: In
       <CardHeader title="Valoración de Inventario">
         <CardDescription>Valor total por categoría.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent padding="flush">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
@@ -213,7 +217,7 @@ export function WasteReportCard() {
       >
         <CardDescription>Seguimiento de productos desechados en el período.</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent padding="flush">
         <Table>
           <TableHeader>
             <TableRow>

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { addDays } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone, Clock, Calendar } from 'lucide-react';
+import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone, Clock, Calendar, Wallet } from 'lucide-react';
 import {
     mockStaffMembers,
     mockProducts,
@@ -87,6 +87,7 @@ export default function ReportesPage() {
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
         to: new Date() });
+    const [activeTab, setActiveTab] = React.useState('billing');
     const [reportType, setReportType] = React.useState<string>('accounts');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [ordersPerPage] = React.useState(11);
@@ -185,7 +186,7 @@ export default function ReportesPage() {
         <PageContainer>
             <PageHeader title="Panel de Reportes & Cierre de Caja" />
             <PageContent>
-                <Tabs defaultValue="billing">
+                <Tabs defaultValue="billing" onValueChange={setActiveTab}>
                         <TabsList className="mb-4">
                             <TabsTrigger value="billing" icon={DollarSign}>Facturación</TabsTrigger>
                             <TabsTrigger value="performance" icon={TrendingUp}>Ventas</TabsTrigger>
@@ -193,76 +194,92 @@ export default function ReportesPage() {
                             <TabsTrigger value="absences" icon={Calendar}>Ausencias</TabsTrigger>
                             <TabsTrigger value="inventory" icon={Archive}>Inventario</TabsTrigger>
                             <TabsTrigger value="whatsapp" icon={MessageSquare}>WhatsApp</TabsTrigger>
-                            <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
+                            <TabsTrigger value="cash-closing" icon={Wallet}>Cierre</TabsTrigger>
                         </TabsList>
 
-                    <BillingTab
-                        date={date}
-                        onDateChange={setDate}
-                        selectedStaffId={selectedStaffId}
-                        onStaffChange={setSelectedStaffId}
-                        reportType={reportType}
-                        onReportTypeChange={setReportType}
-                        staffMembers={appData.staffMembers}
-                        currentOrders={currentOrders}
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        pageNumbers={pageNumbers}
-                        isAnimating={isAnimating}
-                        onPaginate={paginate}
-                        onViewDetails={handleViewDetails}
-                    />
-                    <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
-                    <StaffTab
-                        mode="hours"
-                        staffMembers={appData.staffMembers}
-                        selectedStaffId={selectedStaffId}
-                        onStaffChange={setSelectedStaffId}
-                        date={date}
-                        onDateChange={setDate}
-                        timeReportData={timeReportData}
-                        staffTotals={mockStaffTotals}
-                        selectedAbsenceType={selectedAbsenceType}
-                        onAbsenceTypeChange={setSelectedAbsenceType}
-                        selectedAbsenceStatus={selectedAbsenceStatus}
-                        onAbsenceStatusChange={setSelectedAbsenceStatus}
-                        filteredAbsenceRequests={filteredAbsenceRequests}
-                        onUpdateRequest={handleUpdateRequest}
-                    />
-                    <StaffTab
-                        mode="absences"
-                        staffMembers={appData.staffMembers}
-                        selectedStaffId={selectedStaffId}
-                        onStaffChange={setSelectedStaffId}
-                        date={date}
-                        onDateChange={setDate}
-                        timeReportData={timeReportData}
-                        staffTotals={mockStaffTotals}
-                        selectedAbsenceType={selectedAbsenceType}
-                        onAbsenceTypeChange={setSelectedAbsenceType}
-                        selectedAbsenceStatus={selectedAbsenceStatus}
-                        onAbsenceStatusChange={setSelectedAbsenceStatus}
-                        filteredAbsenceRequests={filteredAbsenceRequests}
-                        onUpdateRequest={handleUpdateRequest}
-                    />
-                    <InventoryTab
-                        products={appData.products}
-                        taxes={appData.taxes}
-                        ingredients={appData.ingredients}
-                        ingredientCategories={appData.ingredientCategories}
-                        getTaxName={getTaxName}
-                    />
-                    <CashClosingTab
-                        realCash={realCash}
-                        onRealCashChange={setRealCash}
-                        initialCash={initialCash}
-                        totalSales={totalSales}
-                        cashSales={cashSales}
-                        cardSales={cardSales}
-                        theoreticalCash={theoreticalCash}
-                        cashDifference={cashDifference}
-                        onOpenMovements={() => setIsMovementsOpen(true)}
-                    />
+                    {activeTab === 'billing' && (
+                        <BillingTab
+                            date={date}
+                            onDateChange={setDate}
+                            selectedStaffId={selectedStaffId}
+                            onStaffChange={setSelectedStaffId}
+                            reportType={reportType}
+                            onReportTypeChange={setReportType}
+                            staffMembers={appData.staffMembers}
+                            currentOrders={currentOrders}
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            pageNumbers={pageNumbers}
+                            isAnimating={isAnimating}
+                            onPaginate={paginate}
+                            onViewDetails={handleViewDetails}
+                        />
+                    )}
+
+                    {activeTab === 'performance' && (
+                        <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
+                    )}
+
+                    {activeTab === 'hours' && (
+                        <StaffTab
+                            mode="hours"
+                            staffMembers={appData.staffMembers}
+                            selectedStaffId={selectedStaffId}
+                            onStaffChange={setSelectedStaffId}
+                            date={date}
+                            onDateChange={setDate}
+                            timeReportData={timeReportData}
+                            staffTotals={mockStaffTotals}
+                            selectedAbsenceType={selectedAbsenceType}
+                            onAbsenceTypeChange={setSelectedAbsenceType}
+                            selectedAbsenceStatus={selectedAbsenceStatus}
+                            onAbsenceStatusChange={setSelectedAbsenceStatus}
+                            filteredAbsenceRequests={filteredAbsenceRequests}
+                            onUpdateRequest={handleUpdateRequest}
+                        />
+                    )}
+
+                    {activeTab === 'absences' && (
+                        <StaffTab
+                            mode="absences"
+                            staffMembers={appData.staffMembers}
+                            selectedStaffId={selectedStaffId}
+                            onStaffChange={setSelectedStaffId}
+                            date={date}
+                            onDateChange={setDate}
+                            timeReportData={timeReportData}
+                            staffTotals={mockStaffTotals}
+                            selectedAbsenceType={selectedAbsenceType}
+                            onAbsenceTypeChange={setSelectedAbsenceType}
+                            selectedAbsenceStatus={selectedAbsenceStatus}
+                            onAbsenceStatusChange={setSelectedAbsenceStatus}
+                            filteredAbsenceRequests={filteredAbsenceRequests}
+                            onUpdateRequest={handleUpdateRequest}
+                        />
+                    )}
+
+                    {activeTab === 'inventory' && (
+                        <InventoryTab
+                            products={appData.products}
+                            taxes={appData.taxes}
+                            ingredients={appData.ingredients}
+                            ingredientCategories={appData.ingredientCategories}
+                            getTaxName={getTaxName}
+                        />
+                    )}
+                    {activeTab === 'cash-closing' && (
+                        <CashClosingTab
+                            realCash={realCash}
+                            onRealCashChange={setRealCash}
+                            initialCash={initialCash}
+                            totalSales={totalSales}
+                            cashSales={cashSales}
+                            cardSales={cardSales}
+                            theoreticalCash={theoreticalCash}
+                            cashDifference={cashDifference}
+                            onOpenMovements={() => setIsMovementsOpen(true)}
+                        />
+                    )}
 
                     {/* WhatsApp Metrics Tab */}
                     <TabsContent value="whatsapp" className="space-y-4">
@@ -358,7 +375,7 @@ export default function ReportesPage() {
                             <CardHeader title="Conversaciones Recientes">
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent padding="flush">
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>

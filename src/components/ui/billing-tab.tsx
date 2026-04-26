@@ -50,15 +50,40 @@ export function BillingTab({
     onViewDetails }: BillingTabProps) {
     return (
         <TabsContent value="billing" className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-2">
+                <div className="flex flex-col gap-3 w-full lg:w-auto">
+                    <div className="flex items-center gap-2 w-full">
+                        <Select value={selectedStaffId} onValueChange={onStaffChange}>
+                            <SelectTrigger id="staff-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
+                                <SelectValue placeholder="Empleado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos</SelectItem>
+                                {staffMembers.map(staff => (
+                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={reportType} onValueChange={onReportTypeChange}>
+                            <SelectTrigger id="report-type" size="md" className="flex-1 lg:w-[200px] lg:flex-none h-12">
+                                <SelectValue placeholder="Tipo de Informe" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="accounts">Reporte de Cuentas</SelectItem>
+                                <SelectItem value="billing">Reporte de Facturación</SelectItem>
+                                <SelectItem value="cash-drawer">Reporte de Cajas</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
                                 id="date"
                                 variant="outline"
                                 size="md"
-                                className={cn('justify-start text-left font-normal truncate min-w-[240px]', !date && 'text-muted-foreground')}
+                                className={cn('justify-start text-left font-normal truncate w-full lg:w-[240px] h-12', !date && 'text-muted-foreground')}
                                 startIcon={<CalendarIcon />}
                             >
                                 {date?.from ? (
@@ -78,35 +103,12 @@ export function BillingTab({
                             />
                         </PopoverContent>
                     </Popover>
-
-                    <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                        <SelectTrigger id="staff-select" className="w-[180px]">
-                            <SelectValue placeholder="Empleado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos</SelectItem>
-                            {staffMembers.map(staff => (
-                                <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-
-                    <Select value={reportType} onValueChange={onReportTypeChange}>
-                        <SelectTrigger id="report-type" className="w-[200px]">
-                            <SelectValue placeholder="Tipo de Informe" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="accounts">Reporte de Cuentas</SelectItem>
-                            <SelectItem value="billing">Reporte de Facturación</SelectItem>
-                            <SelectItem value="cash-drawer">Reporte de Cajas</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex items-center gap-2 w-full lg:w-auto">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="default" size="md" className="w-full sm:w-auto" startIcon={<Download />}>
+                            <Button variant="default" size="md" className="w-full lg:w-auto h-12" startIcon={<Download />}>
                                 Exportar
                             </Button>
                         </DropdownMenuTrigger>
@@ -120,7 +122,7 @@ export function BillingTab({
             </div>
             <Card>
                 <CardHeader title="Reporte de Cuentas" />
-                <CardContent className="px-6 pb-2">
+                <CardContent padding="flush" className="pb-2">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>

@@ -71,10 +71,10 @@ export function StaffTab({
     if (mode === 'hours') {
         return (
             <TabsContent value="hours" spaced>
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
-                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-2">
+                    <div className="flex items-center gap-2 w-full lg:w-auto">
                         <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                            <SelectTrigger id="staff-select-personal" width="lg">
+                            <SelectTrigger id="staff-select-personal" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
                                 <SelectValue placeholder="Empleado" />
                             </SelectTrigger>
                             <SelectContent>
@@ -91,18 +91,18 @@ export function StaffTab({
                                     id="date-personal"
                                     variant="outline"
                                     size="md"
-                                    width="lg"
-                                    justify="start"
-                                    truncate
+                                    className="flex-1 lg:w-[240px] lg:flex-none justify-start h-12"
                                     startIcon={<CalendarIcon />}
                                 >
-                                    {date?.from ? (
-                                        date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>)
-                                            : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)
-                                    }
+                                    <span className="truncate">
+                                        {date?.from ? (
+                                            date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>)
+                                                : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)
+                                        }
+                                    </span>
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent padding="none" align="start">
+                            <PopoverContent className="w-auto p-0" align="start">
                                 <Calendar
                                     initialFocus
                                     mode="range"
@@ -115,7 +115,7 @@ export function StaffTab({
                         </Popover>
                     </div>
 
-                    <Button variant="default" size="md" responsiveWidth="auto-sm" startIcon={<Download />}>
+                    <Button variant="default" size="md" className="w-full lg:w-auto h-12" startIcon={<Download />}>
                         Exportar CSV
                     </Button>
                 </div>
@@ -167,7 +167,7 @@ export function StaffTab({
                     <CardHeader title="Detalle de Fichajes">
                         <CardDescription>Lista detallada de todos los registros de entrada y salida para el periodo seleccionado.</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent padding="flush">
                         <Table showOnDesktop>
                             <TableHeader>
                                 <TableRow>
@@ -221,7 +221,7 @@ export function StaffTab({
                                 </Card>
                             ))}
                             {timeReportData.length === 0 && (
-                                <TextSM className="text-muted-foreground">No se encontraron registros.</TextSM>
+                                <TextSM className="text-muted-foreground px-5">No se encontraron registros.</TextSM>
                             )}
                         </div>
                     </CardContent>
@@ -232,55 +232,61 @@ export function StaffTab({
 
     return (
         <TabsContent value="absences" spaced>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
-                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                        <SelectTrigger id="absence-staff-select" width="md">
-                            <SelectValue placeholder="Empleado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos</SelectItem>
-                            {staffMembers.map(staff => (
-                                <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-2">
+                <div className="flex flex-col gap-3 w-full lg:w-auto">
+                    <div className="flex items-center gap-2 w-full">
+                        <Select value={selectedStaffId} onValueChange={onStaffChange}>
+                            <SelectTrigger id="absence-staff-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
+                                <SelectValue placeholder="Empleado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos</SelectItem>
+                                {staffMembers.map(staff => (
+                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
 
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button id="absence-date-range" variant="outline" size="md" width="lg" justify="start" truncate startIcon={<CalendarIcon />}>
-                                {date?.from ? (date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>) : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent padding="none" align="start">
-                            <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={date} onSelect={onDateChange} numberOfMonths={1} />
-                        </PopoverContent>
-                    </Popover>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button id="absence-date-range" variant="outline" size="md" className="flex-1 lg:w-[240px] lg:flex-none justify-start h-12" startIcon={<CalendarIcon />}>
+                                    <span className="truncate">
+                                        {date?.from ? (date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>) : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)}
+                                    </span>
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={date} onSelect={onDateChange} numberOfMonths={1} />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
 
-                    <Select value={selectedAbsenceType} onValueChange={onAbsenceTypeChange}>
-                        <SelectTrigger id="absence-type-select" width="md">
-                            <SelectValue placeholder="Tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos los Tipos</SelectItem>
-                            <SelectItem value="vacation">Vacaciones</SelectItem>
-                            <SelectItem value="sick_leave">Baja Médica</SelectItem>
-                            <SelectItem value="personal_days">Asuntos Propios</SelectItem>
-                            <SelectItem value="other">Otros</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <div className="flex items-center gap-2 w-full">
+                        <Select value={selectedAbsenceType} onValueChange={onAbsenceTypeChange}>
+                            <SelectTrigger id="absence-type-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
+                                <SelectValue placeholder="Tipo" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos los Tipos</SelectItem>
+                                <SelectItem value="vacation">Vacaciones</SelectItem>
+                                <SelectItem value="sick_leave">Baja Médica</SelectItem>
+                                <SelectItem value="personal_days">Asuntos Propios</SelectItem>
+                                <SelectItem value="other">Otros</SelectItem>
+                            </SelectContent>
+                        </Select>
 
-                    <Select value={selectedAbsenceStatus} onValueChange={onAbsenceStatusChange}>
-                        <SelectTrigger id="absence-status-select" width="md">
-                            <SelectValue placeholder="Estado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos los Estados</SelectItem>
-                            <SelectItem value="pending">Pendiente</SelectItem>
-                            <SelectItem value="approved">Aprobada</SelectItem>
-                            <SelectItem value="rejected">Rechazada</SelectItem>
-                        </SelectContent>
-                    </Select>
+                        <Select value={selectedAbsenceStatus} onValueChange={onAbsenceStatusChange}>
+                            <SelectTrigger id="absence-status-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
+                                <SelectValue placeholder="Estado" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todos los Estados</SelectItem>
+                                <SelectItem value="pending">Pendiente</SelectItem>
+                                <SelectItem value="approved">Aprobada</SelectItem>
+                                <SelectItem value="rejected">Rechazada</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </div>
             </div>
 
@@ -288,7 +294,7 @@ export function StaffTab({
                 <CardHeader title="Historial de Ausencias">
                     <CardDescription>Busca y gestiona todas las solicitudes de ausencia de tu equipo.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent padding="flush">
                     <Table showOnDesktop>
                         <TableHeader>
                             <TableRow>
@@ -362,7 +368,7 @@ export function StaffTab({
                             );
                         })}
                         {filteredAbsenceRequests.length === 0 && (
-                            <TextSM className="text-muted-foreground">No se encontraron solicitudes.</TextSM>
+                            <TextSM className="text-muted-foreground px-5">No se encontraron solicitudes.</TextSM>
                         )}
                     </div>
                 </CardContent>

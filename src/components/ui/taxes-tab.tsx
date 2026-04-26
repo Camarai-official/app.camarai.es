@@ -12,9 +12,9 @@ export function TaxesTab() {
             <Card>
                 <CardHeader>
                     <H3>Gestión de Impuestos</H3>
-                    <CardDescription>
-                        Configura los tipos impositivos que se aplicarán en tu negocio.
-                        <Link href="/settings/taxes" className={cn(buttonVariants({ variant: "link" }), "p-0 h-auto ml-2")}>
+                    <CardDescription className="flex flex-wrap items-baseline gap-x-1">
+                        <span>Configura los tipos impositivos que se aplicarán en tu negocio.</span>
+                        <Link href="/settings/taxes" className={cn(buttonVariants({ variant: "link" }), "p-0 h-auto font-medium")}>
                             Ir a la gestión avanzada de impuestos.
                         </Link>
                     </CardDescription>
