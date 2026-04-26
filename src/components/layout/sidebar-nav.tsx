@@ -64,7 +64,7 @@ const navItems = [
 // ============================================================================
 
 export function SidebarNav() {
-  const { state } = useSidebar()
+  const { state, isMobile, isTablet, setOpenMobile } = useSidebar()
   const isCollapsed = state === "collapsed"
   const pathname = usePathname()
   const router = useRouter()
@@ -74,6 +74,16 @@ export function SidebarNav() {
   const [absenceRequests, setAbsenceRequests] = React.useState<AbsenceRequest[]>(mockAbsenceRequests)
   const [establishmentToDelete, setEstablishmentToDelete] = React.useState<Establishment | null>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
+
+  const handleNavigation = (href: string) => {
+    // Dispatch instant loading event
+    window.dispatchEvent(new CustomEvent('navigation-start'));
+    
+    // Close sidebar on mobile/tablet
+    if (isMobile || isTablet) {
+      setOpenMobile(false);
+    }
+  };
 
   const pendingRequests = React.useMemo(() => absenceRequests.filter(req => req.status === 'pending'), [absenceRequests])
   const pendingReservationsCount = 0 // Placeholder
@@ -136,7 +146,7 @@ export function SidebarNav() {
       </SidebarHeader>
 
       <SidebarContent scrollbar>
-        <NavMain items={navItems} pathname={pathname} />
+        <NavMain items={navItems} pathname={pathname} onNavigate={handleNavigation} />
       </SidebarContent>
 
       <SidebarFooter padding="md">
@@ -267,7 +277,7 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onAssoc
   )
 }
 
-function NavMain({ items, pathname }: any) {
+function NavMain({ items, pathname, onNavigate }: any) {
   return (
     <SidebarGroup>
       <SidebarGroupContent>
@@ -277,7 +287,7 @@ function NavMain({ items, pathname }: any) {
             return (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton isActive={isActive} tooltip={item.label} asChild>
-                  <Link href={item.href} onClick={() => window.dispatchEvent(new Event('navigation-start'))}>
+                  <Link href={item.href} onClick={() => onNavigate(item.href)}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>

@@ -22,6 +22,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 // Función para crear cliente Convex
 function createConvexClient() {
   const url = process.env.NEXT_PUBLIC_CONVEX_URL || process.env.CONVEX_SELF_HOSTED_URL;
+  if (!url) return null;
   try {
     return new ConvexReactClient(url);
   } catch (error) {
@@ -30,36 +31,51 @@ function createConvexClient() {
   }
 }
 
+const convexClient = createConvexClient();
 
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isMobile, isTablet } = useIsMobile();
   const pathname = usePathname();
   const [isNavigating, setIsNavigating] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
 
+  // Efecto de montaje único
   React.useEffect(() => {
+    setIsMounted(true);
     const handleStart = () => setIsNavigating(true);
     window.addEventListener('navigation-start', handleStart);
+    return () => window.removeEventListener('navigation-start', handleStart);
+  }, []);
+
+  // Efecto de cambio de ruta - Solo si ya está montado
+  React.useLayoutEffect(() => {
+    if (!isMounted) return;
     
     setIsNavigating(true);
-    const timer = setTimeout(() => setIsNavigating(false), 600);
-    
-    return () => {
-      window.removeEventListener('navigation-start', handleStart);
-      clearTimeout(timer);
-    };
-  }, [pathname]);
+    const timer = setTimeout(() => setIsNavigating(false), 500);
+    return () => clearTimeout(timer);
+  }, [pathname, isMounted]);
 
-  const getPadding = () => {
-    if (isMobile || isTablet) {
-      return 'pt-20 pl-0';
-    }
-    return '';
-  };
+  // Si no está montado, renderizamos el layout base sin lógica dinámica para evitar Hydration Mismatch
+  if (!isMounted) {
+    return (
+      <SidebarInset className="!pl-0">
+        <div className="flex-1 flex flex-col">
+          {children}
+        </div>
+      </SidebarInset>
+    );
+  }
+
+  const paddingClass = (isMobile || isTablet) ? 'pt-20 pl-0' : '';
 
   return (
-    <SidebarInset className={cn("transition-[padding] !pl-0", getPadding())}>
+    <SidebarInset className={cn("transition-[padding] !pl-0", paddingClass)}>
       {isNavigating && <Loading />}
-      <div className={cn("flex-1 flex flex-col", isNavigating ? "opacity-0" : "opacity-100 transition-opacity duration-300")}>
+      <div className={cn(
+        "flex-1 flex flex-col transition-opacity duration-300", 
+        isNavigating ? "opacity-0" : "opacity-100"
+      )}>
         {children}
       </div>
     </SidebarInset>
@@ -71,16 +87,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Fix layout shift when modals/dropdowns open
   useScrollbarCompensation();
-
-  const convex = createConvexClient();
 
   return (
     <html lang="es" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`}>
-        {convex ? (
-          <ConvexProvider client={convex}>
+      <body className={`${inter.variable} font-body antialiased bg-background text-foreground min-h-screen`} suppressHydrationWarning>
+        {convexClient ? (
+          <ConvexProvider client={convexClient}>
             <EstablishmentProvider>
               <SidebarProvider>
                 <MobileHeader />
