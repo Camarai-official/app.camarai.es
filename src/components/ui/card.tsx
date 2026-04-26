@@ -42,8 +42,8 @@ const CardHeader = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex flex-col space-y-1.5 p-6",
-      compact && "p-4 space-y-1",
+      "flex flex-col space-y-1.5 p-3 sm:p-6",
+      compact && "p-3 sm:p-4 space-y-1",
       className
     )}
     {...props}
@@ -56,8 +56,8 @@ const CardHeader = React.forwardRef<
           </div>
         )}
         <div>
-          {title && <h3 className="text-lg font-bold leading-none tracking-tight">{title}</h3>}
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          {title && <h3 className="text-xs sm:text-lg font-bold leading-none tracking-tight text-muted-foreground sm:text-foreground">{title}</h3>}
+          {description && <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>}
         </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -103,9 +103,9 @@ const CardContent = React.forwardRef<
   <div 
     ref={ref} 
     className={cn(
-      "p-6", 
-      compact && "p-4",
-      padding === 'default' && "pt-0",
+      "p-3 sm:p-6", 
+      compact && "p-3 sm:p-4",
+      padding === 'default' && "pt-0 sm:pt-0",
       flex && "flex-grow",
       padding === 'none' && "p-0",
       padding === 'sm' && "p-2",
@@ -132,7 +132,7 @@ const CardFooter = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex items-center p-6 pt-0",
+      "flex items-center p-3 sm:p-6 pt-0 sm:pt-0",
       justify === 'start' && "justify-start",
       justify === 'center' && "justify-center",
       justify === 'end' && "justify-end",
