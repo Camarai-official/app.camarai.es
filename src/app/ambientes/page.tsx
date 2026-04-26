@@ -229,9 +229,9 @@ export default function AmbientesPage() {
             />
             <PageContent>
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between mb-6">
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-3 w-full md:w-auto">
                         <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-                            <SelectTrigger width="md">
+                            <SelectTrigger className="w-full sm:w-auto" width="md">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -242,7 +242,7 @@ export default function AmbientesPage() {
                         </Select>
                         
                         <Select value={sortOrder} onValueChange={(value: any) => setSortOrder(value)}>
-                            <SelectTrigger width="md">
+                            <SelectTrigger className="w-full sm:w-auto" width="md">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -252,7 +252,7 @@ export default function AmbientesPage() {
                             </SelectContent>
                         </Select>
 
-                        <div className="w-[240px]">
+                        <div className="w-full sm:w-[240px]">
                             <MultiSelect
                                 options={environmentOptions}
                                 selected={selectedManualEnvIds}

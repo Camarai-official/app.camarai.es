@@ -48,7 +48,7 @@ const CardHeader = React.forwardRef<
     )}
     {...props}
   >
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-2">
         {Icon && (
           <div className="p-2 rounded-lg bg-primary/10 text-primary">
@@ -60,7 +60,7 @@ const CardHeader = React.forwardRef<
           {description && <p className="text-xs sm:text-sm text-muted-foreground">{description}</p>}
         </div>
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {actions && <div className="flex items-center gap-2 flex-wrap">{actions}</div>}
     </div>
     {children}
   </div>
@@ -105,7 +105,7 @@ const CardContent = React.forwardRef<
     className={cn(
       "p-3 sm:p-6", 
       compact && "p-3 sm:p-4",
-      padding === 'default' && "pt-0 sm:pt-0",
+      padding === 'default' && "pt-2 sm:pt-0",
       flex && "flex-grow",
       padding === 'none' && "p-0",
       padding === 'sm' && "p-2",

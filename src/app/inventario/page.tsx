@@ -252,16 +252,16 @@ export default function InventarioPage() {
       <PageContent>
         <Card padding="none">
             <CardHeader className="space-y-0">
-                <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                    <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 w-full lg:w-auto">
                         <SearchInput 
                             placeholder="Buscar producto..." 
                             value={searchTerm} 
                             onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
-                            containerClassName="w-full lg:w-[300px]"
+                            containerClassName="w-full sm:w-[300px]"
                         />
                         <Select value={selectedCategory} onValueChange={v => { setSelectedCategory(v); setCurrentPage(1); }}>
-                            <SelectTrigger className="w-full lg:w-[200px]">
+                            <SelectTrigger className="w-full sm:w-[200px]">
                                 <SelectValue placeholder="Categoría" />
                             </SelectTrigger>
                             <SelectContent>
@@ -273,8 +273,8 @@ export default function InventarioPage() {
                         </Select>
                     </div>
 
-                    <div className="flex items-center gap-4 w-full lg:w-auto justify-end">
-                        <div className="flex items-center gap-2 pr-2 border-r border-border">
+                    <div className="flex items-center gap-3 justify-between sm:justify-end">
+                        <div className="flex items-center gap-2 pr-3 border-r border-border">
                             <Switch id="low-stock" checked={showLowStockOnly} onCheckedChange={setShowLowStockOnly} />
                             <Label htmlFor="low-stock" variant="medium" className="whitespace-nowrap">Solo Alertas</Label>
                         </div>

@@ -243,7 +243,7 @@ export default function ComandasPage() {
 
                 <Card>
                     <CardHeader className="space-y-0">
-                        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                             <SearchInput
                                 containerClassName="w-full lg:w-[400px]"
                                 placeholder="Buscar por orden, mesa, cliente..."
@@ -251,7 +251,7 @@ export default function ComandasPage() {
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
 
-                            <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+                            <div className="flex items-center gap-2 w-full lg:w-auto overflow-x-auto">
                                 <CalendarDateRangePicker date={date} setDate={setDate} />
 
                                 {selectedOrders.size > 0 && (
@@ -260,8 +260,8 @@ export default function ComandasPage() {
                                     </Button>
                                 )}
 
-                                <Button variant="outline" size="md" startIcon={<Settings/>} onClick={() => setIsConfigOpen(true)} />
-                                <Button variant='default' size='md' startIcon={<Download/>} onClick={() => setIsExportOpen(true)}>
+                                <Button variant="outline" size="md" className="shrink-0" startIcon={<Settings/>} onClick={() => setIsConfigOpen(true)} />
+                                <Button variant='default' size='md' className="shrink-0" startIcon={<Download/>} onClick={() => setIsExportOpen(true)}>
                                     Exportar
                                 </Button>
                             </div>

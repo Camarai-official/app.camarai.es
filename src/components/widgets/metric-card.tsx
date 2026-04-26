@@ -54,37 +54,36 @@ export function MetricCard({ title, value, change, changeType, badge, icon: Icon
         </div>
       </div>
 
-      {/* 🖥️ Desktop Layout (Original) */}
-      <div className="hidden sm:block">
-        <CardHeader 
-          title={title} 
-          icon={Icon}
-        />
-        <CardContent>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
-              {value && (
-                <span className="text-2xl font-bold">
-                  {value}
-                </span>
-              )}
-              {badge && (
-                <Badge variant="completed" size="xs">
-                  {badge}
-                </Badge>
-              )}
-            </div>
-            
-            {change && (
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant={isIncrease ? 'success' : 'danger'}>
-                  {isIncrease ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {change}
-                </Badge>
+      {/* 🖥️ Desktop Layout */}
+      <div className="hidden sm:flex flex-col justify-between gap-4 p-6">
+        {/* Fila 1: Icono + Título ← → Valor */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {Icon && (
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Icon className="h-5 w-5" />
               </div>
             )}
+            <h4 className="text-lg font-bold leading-none tracking-tight">{title}</h4>
           </div>
-        </CardContent>
+          <div className="flex items-center gap-2">
+            {badge && (
+              <Badge variant="completed" size="xs">{badge}</Badge>
+            )}
+
+          </div>
+        </div>
+
+        {/* Fila 2: Badge de cambio */}
+        {change && (
+          <div className="flex items-center gap-2">
+            <Badge variant={isIncrease ? 'success' : 'danger'}>
+              {isIncrease ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+              {change}
+            </Badge>
+            <span className="text-2xl font-bold">{value}</span>
+          </div>
+        )}
       </div>
 
     </Card>

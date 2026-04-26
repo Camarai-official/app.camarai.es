@@ -14,7 +14,7 @@ type PageHeaderProps = {
 export function PageHeader({ title, subtitle, className, actions }: PageHeaderProps) {
   return (
     <header className={cn("mx-4 sm:mx-6 py-4 sm:py-8", className)}>
-        <div className="flex flex-col gap-4 sm:gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 
                 <div className="space-y-1 min-w-0">
                     <H1 className="text-2xl sm:text-3xl font-bold text-foreground">{title}</H1>
@@ -24,7 +24,7 @@ export function PageHeader({ title, subtitle, className, actions }: PageHeaderPr
                 </div>
 
             {actions && (
-                <div className="flex flex-wrap items-center gap-3 shrink-0">
+                <div className="flex flex-wrap items-center gap-3 shrink-0 w-full lg:w-auto">
                     {actions}
                 </div>
             )}

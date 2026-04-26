@@ -341,46 +341,53 @@ export default function PlanificacionPage() {
         title="Planificación Mensual"
         subtitle="Gestiona los turnos y horarios reales del equipo."
         actions={
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrevMonth}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <div className="min-w-[150px] text-center font-bold">
-              {format(currentDate, "MMMM yyyy", { locale: es }).toUpperCase()}
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-2 w-full lg:w-auto">
+            {/* Navegación de mes */}
+            <div className="flex items-center justify-between gap-2 w-full md:w-auto">
+              <Button variant="outline" size="sm" onClick={handlePrevMonth}>
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <div className="flex-1 text-center font-bold md:min-w-[150px]">
+                {format(currentDate, "MMMM yyyy", { locale: es }).toUpperCase()}
+              </div>
+              <Button variant="outline" size="sm" onClick={handleNextMonth}>
+                <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={handleNextMonth}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-            <Separator orientation="vertical" className="h-8 mx-2" />
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="mr-2">
-                  <Download className="w-4 h-4 mr-2" />
-                  Descargar
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleExportExcel} className="cursor-pointer">
-                  <Download className="w-4 h-4 mr-2 text-primary" />
-                  Excel (.xlsx)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
-                  <FileDown className="w-4 h-4 mr-2 text-destructive" />
-                  PDF (.pdf)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Separator orientation="vertical" className="h-8 mx-2 hidden md:block" />
 
-            <Button
-              variant="default"
-              className="bg-primary/10 text-primary hover:bg-primary/20"
-              onClick={handleAutoFill}
-              disabled={isGenerating}
-            >
-              <Wand2 className="w-4 h-4 mr-2" />
-              Auto-rellenar Mes
-            </Button>
+            {/* Acciones */}
+            <div className="flex items-center gap-2 w-full md:w-auto">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex-1 md:flex-none h-10">
+                    <Download className="w-4 h-4 mr-2" />
+                    Descargar
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExportExcel} className="cursor-pointer">
+                    <Download className="w-4 h-4 mr-2 text-primary" />
+                    Excel (.xlsx)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                    <FileDown className="w-4 h-4 mr-2 text-destructive" />
+                    PDF (.pdf)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="default"
+                className="flex-1 md:flex-none h-10 bg-primary/10 text-primary hover:bg-primary/20"
+                onClick={handleAutoFill}
+                disabled={isGenerating}
+              >
+                <Wand2 className="w-4 h-4 mr-2" />
+                Auto-rellenar Mes
+              </Button>
+            </div>
           </div>
         }
       />
