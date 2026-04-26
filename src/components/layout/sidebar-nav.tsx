@@ -277,7 +277,7 @@ function NavMain({ items, pathname }: any) {
             return (
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton isActive={isActive} tooltip={item.label} asChild>
-                  <Link href={item.href}>
+                  <Link href={item.href} onClick={() => window.dispatchEvent(new Event('navigation-start'))}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>

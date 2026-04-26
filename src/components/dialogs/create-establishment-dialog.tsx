@@ -86,7 +86,7 @@ export function CreateEstablishmentDialog({ open, onOpenChange }: CreateEstablis
           description="Introduce los datos del nuevo local para añadirlo a tu cuenta."
         />
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
           <DialogContent className="gap-6">
             <div className="grid gap-4">
               <div className="grid gap-2">

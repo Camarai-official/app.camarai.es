@@ -17,7 +17,7 @@ import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEstablishmentContext } from '@/hooks/EstablishmentContext';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 // Internal Logic Types
 type ViewMode = 'hours' | 'days' | 'months' | 'years';
@@ -31,7 +31,8 @@ type ChartDataPoint = {
 export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   const [date, setDate] = React.useState<DateRange | undefined>(globalDate);
   const [isDetached, setIsDetached] = React.useState(false);
-  const { activeId } = useEstablishmentContext();
+  const { activeEstablishment } = useEstablishments();
+  const activeId = activeEstablishment?.id;
 
   React.useEffect(() => {
     if (!isDetached && globalDate) {

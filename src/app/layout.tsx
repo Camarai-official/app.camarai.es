@@ -9,6 +9,8 @@ import { Toaster } from '@/components/ui/toaster';
 import * as React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
+import Loading from './loading';
 import { MobileHeader } from '@/components/layout/mobile-header';
 import { useScrollbarCompensation } from '@/hooks/use-scrollbar-compensation';
 
@@ -28,8 +30,24 @@ function createConvexClient() {
   }
 }
 
+
 function MainContent({ children }: { children: React.ReactNode }) {
   const { isMobile, isTablet } = useIsMobile();
+  const pathname = usePathname();
+  const [isNavigating, setIsNavigating] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleStart = () => setIsNavigating(true);
+    window.addEventListener('navigation-start', handleStart);
+    
+    setIsNavigating(true);
+    const timer = setTimeout(() => setIsNavigating(false), 600);
+    
+    return () => {
+      window.removeEventListener('navigation-start', handleStart);
+      clearTimeout(timer);
+    };
+  }, [pathname]);
 
   const getPadding = () => {
     if (isMobile || isTablet) {
@@ -40,7 +58,10 @@ function MainContent({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarInset className={cn("transition-[padding] !pl-0", getPadding())}>
-      {children}
+      {isNavigating && <Loading />}
+      <div className={cn("flex-1 flex flex-col", isNavigating ? "opacity-0" : "opacity-100 transition-opacity duration-300")}>
+        {children}
+      </div>
     </SidebarInset>
   );
 }

@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, Download, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEstablishmentContext } from '@/hooks/EstablishmentContext';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 
 const months = [
@@ -31,7 +31,8 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
   const { isMobile } = useIsMobile();
   const currentMonthIndex = new Date().getMonth();
   const [selectedMonth, setSelectedMonth] = React.useState<string>(months[currentMonthIndex]);
-  const { activeId } = useEstablishmentContext();
+  const { activeEstablishment } = useEstablishments();
+  const activeId = activeEstablishment?.id;
 
   // Map month name to number (0-11)
   const monthToNumber = React.useMemo(() => {

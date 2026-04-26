@@ -2,9 +2,11 @@ import * as React from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { useEstablishmentContext } from './EstablishmentContext';
+import { useEstablishments } from './useEstablishments';
 
 export const useKPIs = () => {
-  const { activeId } = useEstablishmentContext();
+  const { activeEstablishment } = useEstablishments();
+  const activeId = activeEstablishment?.id;
 
   // Get global KPIs for the active establishment
   const globalKPIs = useQuery(

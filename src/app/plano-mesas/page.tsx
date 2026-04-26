@@ -150,6 +150,11 @@ function PlanoMesasContent() {
                 tables: env.tables.map(table => ({
                     id: table.id,
                     number: table.number,
+                    x: table.x,
+                    y: table.y,
+                    width: table.width,
+                    height: table.height,
+                    rotation: table.rotation,
                     capacity: table.capacity,
                     status: (CONVEX_STATUS_TO_UI[table.status] || 'Libre') as TableStatus,
                     shape: table.shape === 'circle' ? 'round' : 'rectangle',

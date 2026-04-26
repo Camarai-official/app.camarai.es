@@ -245,3 +245,14 @@
 body[style*='overflow: hidden'] {
   padding-right: var(--removed-body-scroll-bar-size, 0px) !important;
 }
+
+@keyframes loading-bar {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(0); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-loading-bar {
+  animation: loading-bar 2s infinite ease-in-out;
+}
+
