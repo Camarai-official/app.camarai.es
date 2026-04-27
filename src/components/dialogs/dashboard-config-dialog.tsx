@@ -47,7 +47,7 @@ export function DashboardConfigDialog({
                 
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <ScrollArea className="flex-1 w-full">
-                    <div className="space-y-6 p-6">
+                    <div className="space-y-6 py-4 px-2 sm:p-6">
                         {/* Sección: Análisis de Ventas */}
                         <div className="space-y-4">
                             <Label icon={TrendingUp}>Análisis de Ventas</Label>

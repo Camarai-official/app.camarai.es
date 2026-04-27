@@ -189,32 +189,45 @@
     background: transparent;
   }
 
-  /* Custom scrollbar with Background track and Foreground thumb */
-  .scrollbar-subtle {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--background));
+  /* Custom scrollbar with Background track and Foreground thumb (Desktop only) */
+  @media (min-width: 640px) {
+    .scrollbar-subtle {
+      scrollbar-width: thin;
+      scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--background));
+    }
+
+    .scrollbar-subtle::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .scrollbar-subtle::-webkit-scrollbar-track {
+      background: hsl(var(--background));
+      border-radius: 4px;
+      border: 1px solid hsl(var(--border));
+    }
+
+    .scrollbar-subtle::-webkit-scrollbar-thumb {
+      background-color: hsl(var(--foreground));
+      border-radius: 10px;
+      border: 2px solid hsl(var(--background));
+      transition: background-color 0.2s;
+    }
+
+    .scrollbar-subtle:hover::-webkit-scrollbar-thumb {
+      opacity: 0.8;
+    }
   }
 
-  .scrollbar-subtle::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  .scrollbar-subtle::-webkit-scrollbar-track {
-    background: hsl(var(--background));
-    border-radius: 4px;
-    border: 1px solid hsl(var(--border));
-  }
-
-  .scrollbar-subtle::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--foreground));
-    border-radius: 10px;
-    border: 2px solid hsl(var(--background));
-    transition: background-color 0.2s;
-  }
-
-  .scrollbar-subtle:hover::-webkit-scrollbar-thumb {
-    opacity: 0.8;
+  /* Hide scrollbar on mobile for elements using scrollbar-subtle */
+  @media (max-width: 639px) {
+    .scrollbar-subtle {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .scrollbar-subtle::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   /* Hide scrollbar for Chrome, Safari and Opera */

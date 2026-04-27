@@ -233,60 +233,56 @@ export function StaffTab({
     return (
         <TabsContent value="absences" spaced>
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-2">
-                <div className="flex flex-col gap-3 w-full lg:w-auto">
-                    <div className="flex items-center gap-2 w-full">
-                        <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                            <SelectTrigger id="absence-staff-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
-                                <SelectValue placeholder="Empleado" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                {staffMembers.map(staff => (
-                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                <div className="grid grid-cols-2 lg:flex lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-2 w-full lg:w-auto">
+                    <Select value={selectedStaffId} onValueChange={onStaffChange}>
+                        <SelectTrigger id="absence-staff-select" size="md" className="w-full lg:w-[180px] h-12">
+                            <SelectValue placeholder="Empleado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos</SelectItem>
+                            {staffMembers.map(staff => (
+                                <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button id="absence-date-range" variant="outline" size="md" className="flex-1 lg:w-[240px] lg:flex-none justify-start h-12" startIcon={<CalendarIcon />}>
-                                    <span className="truncate">
-                                        {date?.from ? (date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>) : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)}
-                                    </span>
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                                <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={date} onSelect={onDateChange} numberOfMonths={1} />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button id="absence-date-range" variant="outline" size="md" className="w-full lg:w-[240px] justify-start h-12" startIcon={<CalendarIcon />}>
+                                <span className="truncate">
+                                    {date?.from ? (date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>) : (format(date.from, "dd/MM/yyyy"))) : (<span>Selecciona una fecha</span>)}
+                                </span>
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar initialFocus mode="range" defaultMonth={date?.from} selected={date} onSelect={onDateChange} numberOfMonths={1} />
+                        </PopoverContent>
+                    </Popover>
 
-                    <div className="flex items-center gap-2 w-full">
-                        <Select value={selectedAbsenceType} onValueChange={onAbsenceTypeChange}>
-                            <SelectTrigger id="absence-type-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
-                                <SelectValue placeholder="Tipo" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos los Tipos</SelectItem>
-                                <SelectItem value="vacation">Vacaciones</SelectItem>
-                                <SelectItem value="sick_leave">Baja Médica</SelectItem>
-                                <SelectItem value="personal_days">Asuntos Propios</SelectItem>
-                                <SelectItem value="other">Otros</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <Select value={selectedAbsenceType} onValueChange={onAbsenceTypeChange}>
+                        <SelectTrigger id="absence-type-select" size="md" className="w-full lg:w-[180px] h-12">
+                            <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos los Tipos</SelectItem>
+                            <SelectItem value="vacation">Vacaciones</SelectItem>
+                            <SelectItem value="sick_leave">Baja Médica</SelectItem>
+                            <SelectItem value="personal_days">Asuntos Propios</SelectItem>
+                            <SelectItem value="other">Otros</SelectItem>
+                        </SelectContent>
+                    </Select>
 
-                        <Select value={selectedAbsenceStatus} onValueChange={onAbsenceStatusChange}>
-                            <SelectTrigger id="absence-status-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
-                                <SelectValue placeholder="Estado" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos los Estados</SelectItem>
-                                <SelectItem value="pending">Pendiente</SelectItem>
-                                <SelectItem value="approved">Aprobada</SelectItem>
-                                <SelectItem value="rejected">Rechazada</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Select value={selectedAbsenceStatus} onValueChange={onAbsenceStatusChange}>
+                        <SelectTrigger id="absence-status-select" size="md" className="w-full lg:w-[180px] h-12">
+                            <SelectValue placeholder="Estado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos los Estados</SelectItem>
+                            <SelectItem value="pending">Pendiente</SelectItem>
+                            <SelectItem value="approved">Aprobada</SelectItem>
+                            <SelectItem value="rejected">Rechazada</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 

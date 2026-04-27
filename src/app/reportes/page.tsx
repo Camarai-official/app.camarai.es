@@ -87,7 +87,7 @@ export default function ReportesPage() {
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
         to: new Date() });
-    const [activeTab, setActiveTab] = React.useState('billing');
+
     const [reportType, setReportType] = React.useState<string>('accounts');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [ordersPerPage] = React.useState(11);
@@ -186,7 +186,7 @@ export default function ReportesPage() {
         <PageContainer>
             <PageHeader title="Panel de Reportes & Cierre de Caja" />
             <PageContent>
-                <Tabs defaultValue="billing" onValueChange={setActiveTab}>
+                <Tabs defaultValue="billing">
                         <TabsList className="mb-4">
                             <TabsTrigger value="billing" icon={DollarSign}>Facturación</TabsTrigger>
                             <TabsTrigger value="performance" icon={TrendingUp}>Ventas</TabsTrigger>
@@ -197,93 +197,81 @@ export default function ReportesPage() {
                             <TabsTrigger value="cash-closing" icon={Wallet}>Cierre</TabsTrigger>
                         </TabsList>
 
-                    {activeTab === 'billing' && (
-                        <BillingTab
-                            date={date}
-                            onDateChange={setDate}
-                            selectedStaffId={selectedStaffId}
-                            onStaffChange={setSelectedStaffId}
-                            reportType={reportType}
-                            onReportTypeChange={setReportType}
-                            staffMembers={appData.staffMembers}
-                            currentOrders={currentOrders}
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            pageNumbers={pageNumbers}
-                            isAnimating={isAnimating}
-                            onPaginate={paginate}
-                            onViewDetails={handleViewDetails}
-                        />
-                    )}
+                    <BillingTab
+                        date={date}
+                        onDateChange={setDate}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        reportType={reportType}
+                        onReportTypeChange={setReportType}
+                        staffMembers={appData.staffMembers}
+                        currentOrders={currentOrders}
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        pageNumbers={pageNumbers}
+                        isAnimating={isAnimating}
+                        onPaginate={paginate}
+                        onViewDetails={handleViewDetails}
+                    />
 
-                    {activeTab === 'performance' && (
-                        <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
-                    )}
+                    <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
 
-                    {activeTab === 'hours' && (
-                        <StaffTab
-                            mode="hours"
-                            staffMembers={appData.staffMembers}
-                            selectedStaffId={selectedStaffId}
-                            onStaffChange={setSelectedStaffId}
-                            date={date}
-                            onDateChange={setDate}
-                            timeReportData={timeReportData}
-                            staffTotals={mockStaffTotals}
-                            selectedAbsenceType={selectedAbsenceType}
-                            onAbsenceTypeChange={setSelectedAbsenceType}
-                            selectedAbsenceStatus={selectedAbsenceStatus}
-                            onAbsenceStatusChange={setSelectedAbsenceStatus}
-                            filteredAbsenceRequests={filteredAbsenceRequests}
-                            onUpdateRequest={handleUpdateRequest}
-                        />
-                    )}
+                    <StaffTab
+                        mode="hours"
+                        staffMembers={appData.staffMembers}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        date={date}
+                        onDateChange={setDate}
+                        timeReportData={timeReportData}
+                        staffTotals={mockStaffTotals}
+                        selectedAbsenceType={selectedAbsenceType}
+                        onAbsenceTypeChange={setSelectedAbsenceType}
+                        selectedAbsenceStatus={selectedAbsenceStatus}
+                        onAbsenceStatusChange={setSelectedAbsenceStatus}
+                        filteredAbsenceRequests={filteredAbsenceRequests}
+                        onUpdateRequest={handleUpdateRequest}
+                    />
 
-                    {activeTab === 'absences' && (
-                        <StaffTab
-                            mode="absences"
-                            staffMembers={appData.staffMembers}
-                            selectedStaffId={selectedStaffId}
-                            onStaffChange={setSelectedStaffId}
-                            date={date}
-                            onDateChange={setDate}
-                            timeReportData={timeReportData}
-                            staffTotals={mockStaffTotals}
-                            selectedAbsenceType={selectedAbsenceType}
-                            onAbsenceTypeChange={setSelectedAbsenceType}
-                            selectedAbsenceStatus={selectedAbsenceStatus}
-                            onAbsenceStatusChange={setSelectedAbsenceStatus}
-                            filteredAbsenceRequests={filteredAbsenceRequests}
-                            onUpdateRequest={handleUpdateRequest}
-                        />
-                    )}
+                    <StaffTab
+                        mode="absences"
+                        staffMembers={appData.staffMembers}
+                        selectedStaffId={selectedStaffId}
+                        onStaffChange={setSelectedStaffId}
+                        date={date}
+                        onDateChange={setDate}
+                        timeReportData={timeReportData}
+                        staffTotals={mockStaffTotals}
+                        selectedAbsenceType={selectedAbsenceType}
+                        onAbsenceTypeChange={setSelectedAbsenceType}
+                        selectedAbsenceStatus={selectedAbsenceStatus}
+                        onAbsenceStatusChange={setSelectedAbsenceStatus}
+                        filteredAbsenceRequests={filteredAbsenceRequests}
+                        onUpdateRequest={handleUpdateRequest}
+                    />
 
-                    {activeTab === 'inventory' && (
-                        <InventoryTab
-                            products={appData.products}
-                            taxes={appData.taxes}
-                            ingredients={appData.ingredients}
-                            ingredientCategories={appData.ingredientCategories}
-                            getTaxName={getTaxName}
-                        />
-                    )}
-                    {activeTab === 'cash-closing' && (
-                        <CashClosingTab
-                            realCash={realCash}
-                            onRealCashChange={setRealCash}
-                            initialCash={initialCash}
-                            totalSales={totalSales}
-                            cashSales={cashSales}
-                            cardSales={cardSales}
-                            theoreticalCash={theoreticalCash}
-                            cashDifference={cashDifference}
-                            onOpenMovements={() => setIsMovementsOpen(true)}
-                        />
-                    )}
+                    <InventoryTab
+                        products={appData.products}
+                        taxes={appData.taxes}
+                        ingredients={appData.ingredients}
+                        ingredientCategories={appData.ingredientCategories}
+                        getTaxName={getTaxName}
+                    />
+                    <CashClosingTab
+                        realCash={realCash}
+                        onRealCashChange={setRealCash}
+                        initialCash={initialCash}
+                        totalSales={totalSales}
+                        cashSales={cashSales}
+                        cardSales={cardSales}
+                        theoreticalCash={theoreticalCash}
+                        cashDifference={cashDifference}
+                        onOpenMovements={() => setIsMovementsOpen(true)}
+                    />
 
                     {/* WhatsApp Metrics Tab */}
-                    <TabsContent value="whatsapp" className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <TabsContent value="whatsapp" className="space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <MetricCard 
                                 title="Mensajes Enviados" 
                                 value={new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}
@@ -306,7 +294,7 @@ export default function ReportesPage() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Delivery Stats */}
                             <Card>
                                 <CardHeader title="Estadísticas de Entrega">

@@ -151,8 +151,8 @@ export function CategoryDialog({
                 />
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-6 border-b bg-muted/10 shrink-0">
-                            <TabsList className="h-14 bg-transparent justify-start gap-4">
+                        <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+                            <TabsList className="w-full">
                                 <TabsTrigger value="general">General</TabsTrigger>
                                 <TabsTrigger value="apariencia">Apariencia</TabsTrigger>
                                 <TabsTrigger value="productos">Productos</TabsTrigger>
@@ -160,7 +160,7 @@ export function CategoryDialog({
                         </div>
 
                         <ScrollArea className="flex-1">
-                            <TabsContent value="general" spaced className="p-6">
+                            <TabsContent value="general" spaced className="py-4 px-2 sm:p-6">
                                 <div className="space-y-2 text-foreground">
                                     <Label htmlFor="nombre_categoria">Nombre de la Categoría *</Label>
                                     <Input
@@ -242,7 +242,7 @@ export function CategoryDialog({
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="apariencia" spaced className="p-6">
+                            <TabsContent value="apariencia" spaced className="py-4 px-2 sm:p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-[1fr,260px] gap-8">
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-2 gap-4">
@@ -288,7 +288,7 @@ export function CategoryDialog({
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="productos" spaced className="p-6">
+                            <TabsContent value="productos" spaced className="py-4 px-2 sm:p-6">
                                 <div className="space-y-6">
                                     <div className="bg-muted/30 border rounded-xl p-4 space-y-4">
                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -49,7 +49,7 @@ export function TaxDialog({ open, onOpenChange, editingTax, onSave }: TaxDialogP
           description="Define un nuevo tipo impositivo para tus productos."
         />
         <DialogContent>
-          <div className="space-y-4 p-6">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="tax-name">Nombre del Impuesto</Label>
               <Input 

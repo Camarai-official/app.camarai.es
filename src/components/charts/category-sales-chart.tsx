@@ -35,7 +35,6 @@ export function CategorySalesChart({ products, getCategoryName, date }: Category
     <Card className="h-full">
       <CardHeader 
         title="Top Productos" 
-        icon={Star}
         actions={
           <Select defaultValue="meses">
             <SelectTrigger className="w-[100px]">

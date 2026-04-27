@@ -51,31 +51,29 @@ export function BillingTab({
     return (
         <TabsContent value="billing" className="space-y-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-2">
-                <div className="flex flex-col gap-3 w-full lg:w-auto">
-                    <div className="flex items-center gap-2 w-full">
-                        <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                            <SelectTrigger id="staff-select" size="md" className="flex-1 lg:w-[180px] lg:flex-none h-12">
-                                <SelectValue placeholder="Empleado" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Todos</SelectItem>
-                                {staffMembers.map(staff => (
-                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-2 w-full lg:w-auto">
+                    <Select value={selectedStaffId} onValueChange={onStaffChange}>
+                        <SelectTrigger id="staff-select" size="md" className="w-full lg:w-[180px] h-12">
+                            <SelectValue placeholder="Empleado" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Todos</SelectItem>
+                            {staffMembers.map(staff => (
+                                <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
-                        <Select value={reportType} onValueChange={onReportTypeChange}>
-                            <SelectTrigger id="report-type" size="md" className="flex-1 lg:w-[200px] lg:flex-none h-12">
-                                <SelectValue placeholder="Tipo de Informe" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="accounts">Reporte de Cuentas</SelectItem>
-                                <SelectItem value="billing">Reporte de Facturación</SelectItem>
-                                <SelectItem value="cash-drawer">Reporte de Cajas</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Select value={reportType} onValueChange={onReportTypeChange}>
+                        <SelectTrigger id="report-type" size="md" className="w-full lg:w-[200px] h-12">
+                            <SelectValue placeholder="Tipo de Informe" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="accounts">Reporte de Cuentas</SelectItem>
+                            <SelectItem value="billing">Reporte de Facturación</SelectItem>
+                            <SelectItem value="cash-drawer">Reporte de Cajas</SelectItem>
+                        </SelectContent>
+                    </Select>
 
                     <Popover>
                         <PopoverTrigger asChild>

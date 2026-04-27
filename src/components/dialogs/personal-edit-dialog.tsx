@@ -410,8 +410,8 @@ export function EmployeeDialog({
 
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-6 border-b bg-muted/10 shrink-0">
-                            <TabsList className="h-14 bg-transparent justify-start gap-4">
+                        <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+                            <TabsList className="w-full">
                                 <TabsTrigger value="datos" icon={User}>Datos</TabsTrigger>
                                 <TabsTrigger value="laboral" icon={Briefcase}>Laboral</TabsTrigger>
                                 <TabsTrigger value="acceso" icon={Key}>Acceso</TabsTrigger>
@@ -422,7 +422,7 @@ export function EmployeeDialog({
                         </div>
 
                         <ScrollArea className="flex-1 w-full">
-                            <div className="p-6">
+                            <div className="py-4 px-2 sm:p-6">
                                 {/* TAB: DATOS PERSONALES */}
                                 <TabsContent value="datos" className="mt-0 space-y-6">
                                     <div className="flex flex-col sm:flex-row items-stretch gap-6">

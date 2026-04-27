@@ -1098,7 +1098,7 @@ export default function PersonalPage() {
                     <TabsContent value="team" className="space-y-6">
                         {/* KPIs as ActionTiles */}
                         {personalConfig.kpis && (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
                                 <ActionTile
                                     title={stats.total.toString()}
                                     description="Total Empleados"

@@ -42,14 +42,23 @@ const TabsList = React.forwardRef<
       checkScroll();
       el.addEventListener('scroll', checkScroll);
       window.addEventListener('resize', checkScroll);
+
+      // Use ResizeObserver to detect content size changes instead of depending on children
+      let observer: ResizeObserver | undefined;
+      if (typeof ResizeObserver !== 'undefined') {
+        observer = new ResizeObserver(checkScroll);
+        observer.observe(el);
+      }
+
       const timeout = setTimeout(checkScroll, 100);
       return () => {
         el.removeEventListener('scroll', checkScroll);
         window.removeEventListener('resize', checkScroll);
+        observer?.disconnect();
         clearTimeout(timeout);
       };
     }
-  }, [checkScroll, children]);
+  }, [checkScroll]);
 
   return (
     <div 

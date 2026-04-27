@@ -19,7 +19,7 @@ export function InventoryMetrics({ ingredients }: { ingredients: Ingredient[] })
   const outOfStock = ingredients.filter(ing => ing.stock_actual <= 0).length;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <MetricCard 
         title="Valor Inventario" 
         value={`€${totalValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -58,9 +58,8 @@ export function LowStockCard({ ingredients }: { ingredients: Ingredient[] }) {
             <Badge variant="destructive">{lowStockItems.length}</Badge>
           </div>
         }
-      >
-        <CardDescription>Productos que requieren reposición inmediata.</CardDescription>
-      </CardHeader>
+        description="Productos que requieren reposición inmediata."
+      />
       <CardContent padding="flush">
         <Table>
           <TableHeader>
@@ -144,9 +143,10 @@ export function InventoryValuationCard({ ingredients, ingredientCategories }: In
 
   return (
     <Card>
-      <CardHeader title="Valoración de Inventario">
-        <CardDescription>Valor total por categoría.</CardDescription>
-      </CardHeader>
+      <CardHeader 
+        title="Valoración de Inventario" 
+        description="Valor total por categoría."
+      />
       <CardContent padding="flush">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div className="h-[250px] w-full">
@@ -213,33 +213,32 @@ export function WasteReportCard() {
     <Card>
       <CardHeader 
         title="Informe de Mermas" 
-        actions={<Button variant="outline" size="md" startIcon={<Download />}>Exportar</Button>}
-      >
-        <CardDescription>Seguimiento de productos desechados en el período.</CardDescription>
-      </CardHeader>
+        description="Seguimiento de productos desechados en el período."
+        actions={<Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />}>Exportar</Button>}
+      />
       <CardContent padding="flush">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Fecha</TableHead>
+              <TableHead visibility="hidden-mobile">Fecha</TableHead>
               <TableHead>Producto</TableHead>
               <TableHead className="text-center">Cantidad</TableHead>
-              <TableHead className="text-center">Motivo</TableHead>
+              <TableHead className="text-center" visibility="hidden-mobile">Motivo</TableHead>
               <TableHead className="text-right">Coste</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {mockWasteData.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{format(new Date(item.date), 'dd/MM/yyyy')}</TableCell>
-                <TableCell>{item.item}</TableCell>
+                <TableCell visibility="hidden-mobile">{format(new Date(item.date), 'dd/MM/yyyy')}</TableCell>
+                <TableCell className="font-medium">{item.item}</TableCell>
                 <TableCell className="text-center">{item.quantity}</TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-center" visibility="hidden-mobile">
                   <Badge variant="outline">
                     {item.reason}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">€{item.cost.toFixed(2)}</TableCell>
+                <TableCell className="text-right font-bold text-foreground">€{item.cost.toFixed(2)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

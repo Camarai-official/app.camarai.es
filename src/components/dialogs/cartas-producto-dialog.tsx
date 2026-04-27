@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { PlusCircle, Minus, Trash, Package, Clock as Timer } from 'lucide-react';
+import { Plus, PlusCircle, Minus, Trash, Package, Clock as Timer } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import {
@@ -383,8 +383,8 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
 
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-6 border-b bg-muted/10 shrink-0">
-                            <TabsList className="h-14 bg-transparent justify-start gap-4">
+                        <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+                            <TabsList className="w-full">
                                 <TabsTrigger value="general">General</TabsTrigger>
                                 <TabsTrigger value="precios">Precios</TabsTrigger>
                                 <TabsTrigger value="receta">Receta</TabsTrigger>
@@ -394,7 +394,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                         </div>
 
                         <ScrollArea className="flex-1">
-                            <TabsContent value="general" spaced className="p-6">
+                            <TabsContent value="general" spaced className="py-4 px-2 sm:p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-[160px,1fr] gap-6 items-start">
                                     <div className="w-[160px]">
                                         <ImageUploader
@@ -431,7 +431,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="precios" spaced className="p-6">
+                            <TabsContent value="precios" spaced className="py-4 px-2 sm:p-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="precio_venta">Precio de Venta (€) *</Label>
@@ -482,7 +482,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="receta" spaced className="p-6">
+                            <TabsContent value="receta" spaced className="py-4 px-2 sm:p-6">
                                 <Card padding="md">
                                     <CardHeader title="Receta / Escandallo" description="Añade los ingredientes necesarios para preparar este producto." />
                                     <CardContent gap="md" padding="none">
@@ -603,7 +603,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="variantes" className="p-6 space-y-6">
+                            <TabsContent value="variantes" className="py-4 px-2 sm:p-6 space-y-6">
                                 <div className="space-y-1">
                                     <H3 className="text-lg font-bold">Variantes del Producto</H3>
                                     <TextSM className="text-muted-foreground">Añade opciones como tamaños, extras o modificadores.</TextSM>
@@ -617,42 +617,22 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                         className="flex-1"
                                     />
                                     <div className="flex gap-2 shrink-0">
-                                        <div className="flex items-center border rounded-md">
-                                            <Button
-                                                type="button"
-                                                variant={newVariantPrice < 0 ? "destructive" : "outline"}
-                                                size="sm"
-                                                onClick={() => setNewVariantPrice(-Math.abs(newVariantPrice || 1))}
-                                                className="rounded-r-none border-r-0"
-                                                title="Precio reducido"
-                                            >
-                                                <Minus className="h-4 w-4" />
-                                            </Button>
+                                        <div className="relative">
+                                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-medium">€</span>
                                             <Input
                                                 type="text"
                                                 placeholder="0.00"
-                                                value={Math.abs(newVariantPrice) === 0 ? '' : Math.abs(newVariantPrice).toString()}
+                                                value={newVariantPrice === 0 ? '' : newVariantPrice.toString()}
                                                 onChange={(e) => {
                                                     const value = parseFloat(e.target.value) || 0;
-                                                    setNewVariantPrice(newVariantPrice < 0 ? -value : value);
+                                                    setNewVariantPrice(value);
                                                 }}
-                                                className="w-20 border-0 rounded-none text-center"
+                                                className="w-24 pl-7 h-10"
                                                 step="0.01"
-                                                min="0"
                                             />
-                                            <Button
-                                                type="button"
-                                                variant={newVariantPrice > 0 ? "default" : "outline"}
-                                                size="sm"
-                                                onClick={() => setNewVariantPrice(Math.abs(newVariantPrice || 1))}
-                                                className="rounded-l-none border-l-0"
-                                                title="Precio adicional"
-                                            >
-                                                <PlusCircle className="h-4 w-4" />
-                                            </Button>
                                         </div>
                                         <Button onClick={handleAddVariant} disabled={!newVariantName.trim()} className="gap-2">
-                                            <PlusCircle className="h-4 w-4" />
+                                            <Plus className="h-4 w-4" />
                                             Añadir
                                         </Button>
                                     </div>
@@ -719,7 +699,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                 </div>
                             </TabsContent>
 
-                            <TabsContent value="disponibilidad" className="p-6 space-y-6">
+                            <TabsContent value="disponibilidad" className="py-4 px-2 sm:p-6 space-y-6">
                                 <div className="flex items-center justify-between p-4 border rounded-xl bg-card shadow-sm">
                                     <div className="space-y-1">
                                         <Label className="text-base font-bold text-foreground">Visible para la venta</Label>

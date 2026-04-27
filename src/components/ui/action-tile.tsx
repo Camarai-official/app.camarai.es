@@ -255,13 +255,13 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       case 'select': {
         const selectProps = props as BaseActionTileProps & SelectProps;
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full">
             <Select
               value={selectProps.selectValue}
               onValueChange={selectProps.onSelectChange}
               disabled={disabled}
             >
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-10 w-full">
                 <SelectValue placeholder={selectProps.selectPlaceholder} />
               </SelectTrigger>
               <SelectContent>
@@ -401,7 +401,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
         ref={ref}
         onClick={onClick}
         className={cn(
-          "flex flex-1 items-center transition-colors group gap-3",
+          "flex flex-1 items-center transition-colors group gap-3 w-full",
           variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
           variant === 'ghost' && "bg-transparent hover:bg-muted/30",
           variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
@@ -422,7 +422,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
                 {typeof title === 'string' ? <span>{title}</span> : title}
               </div>
               {description && (
-                <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+                <div className="text-[11px] text-muted-foreground line-clamp-2 leading-tight">
                   {description}
                 </div>
               )}
@@ -449,7 +449,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-row items-center justify-between transition-colors group gap-3 min-h-16",
+        "flex flex-col items-start sm:flex-row sm:items-center justify-between transition-colors group gap-3 sm:gap-4 min-h-16 w-full",
         variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
         variant === 'ghost' && "bg-transparent hover:bg-muted/30",
         variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
@@ -466,11 +466,11 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       <div className="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
         {renderIcon()}
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-bold text-foreground leading-tight truncate">
+          <div className="text-sm font-bold text-left text-foreground leading-tight">
             {typeof title === 'string' ? <span>{title}</span> : title}
           </div>
           {description && (
-            <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+            <div className="text-[11px] text-muted-foreground text-left line-clamp-2 leading-tight">
               {description}
             </div>
           )}
@@ -478,7 +478,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       </div>
 
       {/* Right Side: Dynamic Content */}
-      <div className={cn("flex items-center gap-2 justify-end shrink-0 min-w-0 h-10", rightContentClassName)}>
+      <div className={cn("flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-end shrink-0 min-w-0 [&>*]:flex-1 sm:[&>*]:flex-none", rightContentClassName)}>
         {renderRightContent()}
       </div>
     </div>

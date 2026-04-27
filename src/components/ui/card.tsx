@@ -48,24 +48,30 @@ const CardHeader = React.forwardRef<
     )}
     {...props}
   >
-    <div className="flex items-stretch gap-3 w-full">
-      {Icon && (
-        <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
-          <Icon className="h-6 w-6" />
+    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
+      <div className="flex items-start gap-3 flex-1 min-w-0">
+        {Icon && (
+          <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+            <Icon className="h-6 w-6" />
+          </div>
+        )}
+        <div className="space-y-1.5 flex-1 min-w-0">
+          {title && (
+            typeof title === 'string' ? (
+              <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">{title}</h3>
+            ) : (
+              <div className="w-full">{title}</div>
+            )
+          )}
+          {description && <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>}
+        </div>
+      </div>
+      {actions && (
+        <div className="shrink-0 w-full sm:w-auto">
+          {actions}
         </div>
       )}
-      <div className="space-y-1.5 flex-1 w-full min-w-0">
-        {title && (
-          typeof title === 'string' ? (
-            <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">{title}</h3>
-          ) : (
-            <div className="w-full">{title}</div>
-          )
-        )}
-        {description && <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>}
-      </div>
     </div>
-    {actions && <div className="mt-4 w-full">{actions}</div>}
     {children}
   </div>
 ))
