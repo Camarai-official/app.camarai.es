@@ -1,8 +1,10 @@
 import * as React from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 import { useEstablishmentContext } from './EstablishmentContext';
 import { useEstablishments } from './useEstablishments';
+import { useCurrentYearMonth } from './useCurrentYearMonth';
 
 export const useKPIs = () => {
   const { activeEstablishment } = useEstablishments();
@@ -11,22 +13,17 @@ export const useKPIs = () => {
   // Get global KPIs for the active establishment
   const globalKPIs = useQuery(
     api.analytics.getDashboardKPIs,
-    activeId ? { establishmentId: activeId as any } : 'skip'
+    activeId ? { establishmentId: activeId as Id<"establishments"> } : 'skip'
   );
 
   // Get current year-month for monthly KPIs
-  const currentYearMonth = React.useMemo(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    return `${year}-${month}`;
-  }, []);
+  const currentYearMonth = useCurrentYearMonth();
 
   // Get monthly KPIs for current month
   const monthlyKPIs = useQuery(
     api.analytics.getMonthlyKPIs,
     activeId && currentYearMonth 
-      ? { establishmentId: activeId as any, yearMonth: currentYearMonth }
+      ? { establishmentId: activeId as Id<"establishments">, yearMonth: currentYearMonth }
       : 'skip'
   );
 
