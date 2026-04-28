@@ -251,19 +251,21 @@ export default function ComandasPage() {
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
 
-                            <div className="flex items-center gap-2 w-full lg:w-auto overflow-x-auto">
-                                <CalendarDateRangePicker date={date} setDate={setDate} />
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full lg:w-auto">
+                                <CalendarDateRangePicker date={date} setDate={setDate} className="w-full sm:w-auto" />
 
-                                {selectedOrders.size > 0 && (
-                                    <Button variant="secondary" startIcon={<Printer/>} onClick={handlePrintSelected}>
-                                        Imprimir ({selectedOrders.size})
+                                <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                                    {selectedOrders.size > 0 && (
+                                        <Button variant="secondary" startIcon={<Printer/>} onClick={handlePrintSelected}>
+                                            Imprimir ({selectedOrders.size})
+                                        </Button>
+                                    )}
+
+                                    <Button variant="outline" size="md" className="shrink-0" startIcon={<Settings/>} onClick={() => setIsConfigOpen(true)} />
+                                    <Button variant='default' size='md' className="shrink-0" startIcon={<Download/>} onClick={() => setIsExportOpen(true)}>
+                                        Exportar
                                     </Button>
-                                )}
-
-                                <Button variant="outline" size="md" className="shrink-0" startIcon={<Settings/>} onClick={() => setIsConfigOpen(true)} />
-                                <Button variant='default' size='md' className="shrink-0" startIcon={<Download/>} onClick={() => setIsExportOpen(true)}>
-                                    Exportar
-                                </Button>
+                                </div>
                             </div>
                         </div>
                     </CardHeader>

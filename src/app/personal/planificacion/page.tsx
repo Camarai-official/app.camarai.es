@@ -361,8 +361,7 @@ export default function PlanificacionPage() {
             <div className="flex items-center gap-2 w-full md:w-auto">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="flex-1 md:flex-none h-10">
-                    <Download className="w-4 h-4 mr-2" />
+                  <Button variant="outline" size="sm" className="md:flex-none h-10" startIcon={<Download />}>
                     Descargar
                   </Button>
                 </DropdownMenuTrigger>
@@ -380,11 +379,11 @@ export default function PlanificacionPage() {
 
               <Button
                 variant="default"
-                className="flex-1 md:flex-none h-10 bg-primary/10 text-primary hover:bg-primary/20"
+                className="md:flex-none h-10 bg-primary/10 text-primary hover:bg-primary/20"
                 onClick={handleAutoFill}
                 disabled={isGenerating}
+                startIcon={<Wand2 />}
               >
-                <Wand2 className="w-4 h-4 mr-2" />
                 Auto-rellenar Mes
               </Button>
             </div>

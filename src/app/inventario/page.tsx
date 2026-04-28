@@ -252,16 +252,16 @@ export default function InventarioPage() {
       <PageContent>
         <Card padding="none">
             <CardHeader className="space-y-0">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 w-full lg:w-auto">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 w-full md:w-auto">
                         <SearchInput 
                             placeholder="Buscar producto..." 
                             value={searchTerm} 
                             onChange={e => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
-                            containerClassName="w-full sm:w-[300px]"
+                            containerClassName="w-full sm:w-[250px] lg:w-[300px]"
                         />
                         <Select value={selectedCategory} onValueChange={v => { setSelectedCategory(v); setCurrentPage(1); }}>
-                            <SelectTrigger className="w-full sm:w-[200px]">
+                            <SelectTrigger className="w-full sm:w-[160px] lg:w-[200px]">
                                 <SelectValue placeholder="Categoría" />
                             </SelectTrigger>
                             <SelectContent>

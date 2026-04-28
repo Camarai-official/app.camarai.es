@@ -53,7 +53,7 @@ export function BillingTab({
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 py-2">
                 <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-center gap-2 w-full lg:w-auto">
                     <Select value={selectedStaffId} onValueChange={onStaffChange}>
-                        <SelectTrigger id="staff-select" size="md" className="w-full lg:w-[180px] h-12">
+                        <SelectTrigger id="staff-select" size="md" className="w-full lg:w-[180px]">
                             <SelectValue placeholder="Empleado" />
                         </SelectTrigger>
                         <SelectContent>
@@ -65,7 +65,7 @@ export function BillingTab({
                     </Select>
 
                     <Select value={reportType} onValueChange={onReportTypeChange}>
-                        <SelectTrigger id="report-type" size="md" className="w-full lg:w-[200px] h-12">
+                        <SelectTrigger id="report-type" size="md" className="w-full lg:w-[200px]">
                             <SelectValue placeholder="Tipo de Informe" />
                         </SelectTrigger>
                         <SelectContent>
@@ -81,8 +81,9 @@ export function BillingTab({
                                 id="date"
                                 variant="outline"
                                 size="md"
-                                className={cn('justify-start text-left font-normal truncate w-full lg:w-[240px] h-12', !date && 'text-muted-foreground')}
+                                className={cn('justify-start text-left font-normal truncate w-full lg:w-[240px]', !date && 'text-muted-foreground')}
                                 startIcon={<CalendarIcon />}
+                                responsive={false}
                             >
                                 {date?.from ? (
                                     date.to ? (<>{format(date.from, "dd/MM/yyyy")} - {format(date.to, "dd/MM/yyyy")}</>)

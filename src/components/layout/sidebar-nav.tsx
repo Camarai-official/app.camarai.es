@@ -194,7 +194,7 @@ export function SidebarNav() {
 
 function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onAssociate, onDelete }: any) {
   if (!active) return (
-    <Button variant="outline" size="sm" width="full" onClick={onAssociate} startIcon={<PlusCircle />}>
+    <Button variant="outline" size="lg" width="full" onClick={onAssociate} startIcon={<PlusCircle />} responsive={true}>
       Crear Establecimiento
     </Button>
   )

@@ -146,7 +146,7 @@ export function ProvidersTab() {
     return (
         <TabsContent value="providers">
             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-row items-center justify-between w-full gap-4">
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -157,8 +157,7 @@ export function ProvidersTab() {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <Button onClick={() => handleOpenDialog()} size="md">
-                        <Plus className="mr-2 h-4 w-4" />
+                    <Button onClick={() => handleOpenDialog()} size="md" startIcon={<Plus />} className="shrink-0">
                         Añadir Proveedor
                     </Button>
                 </CardHeader>
@@ -175,10 +174,11 @@ export function ProvidersTab() {
                                 <ActionTile
                                     key={provider.id}
                                     icon={Building2}
+                                    layout="row"
                                     title={
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-semibold">{provider.name}</span>
-                                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{getCategoryLabel(provider.category)}</Badge>
+                                        <div className="flex items-center gap-2 min-w-0">
+                                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] shrink-0">{getCategoryLabel(provider.category)}</Badge>
+                                            <span className="font-semibold truncate flex-1 min-w-0">{provider.name}</span>
                                         </div>
                                     }
                                     description={`Contacto: ${provider.contactName}`}

@@ -276,7 +276,7 @@ export function EnvironmentCard({
           <Button
             variant="outline"
             fullWidth
-            className="mt-4 rounded-xl h-11 font-bold flex items-center justify-center gap-2 group-hover/card:bg-primary group-hover/card:text-primary-foreground group-hover/card:border-primary transition-all duration-200"
+            className="mt-4 rounded-xl h-11 font-bold group-hover/card:bg-primary group-hover/card:text-primary-foreground group-hover/card:border-primary transition-all duration-200"
             onClick={(e) => {
               e.stopPropagation();
               if (wasEditingRef.current) {
@@ -285,10 +285,11 @@ export function EnvironmentCard({
               }
               onViewPlan(env.id);
             }}
+            startIcon={<LayoutGrid />}
+            endIcon={<ChevronRight className="opacity-0 group-hover/card:opacity-100 transition-opacity" />}
+            responsive={false}
           >
-            <LayoutGrid className="h-4 w-4" />
             Ver Plano de Mesas
-            <ChevronRight className="h-4 w-4 ml-auto opacity-0 group-hover/card:opacity-100 transition-opacity" />
           </Button>
         </div>
       </Card>

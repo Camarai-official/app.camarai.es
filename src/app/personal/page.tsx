@@ -1051,6 +1051,7 @@ export default function PersonalPage() {
         <PageContainer>
             <PageHeader
                 title="Gestión de Personal"
+                mobileRow={true}
                 actions={
                     <div className="flex items-center gap-2">
                         <TooltipProvider delayDuration={0}>
@@ -1197,43 +1198,42 @@ export default function PersonalPage() {
                     <TabsContent value="time-tracking" className="space-y-6">
                         {personalConfig.controlHorario && (
                             <>
-                                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2">
-                                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                                        <Select value={timeLogFilterStaff} onValueChange={setTimeLogFilterStaff}>
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Empleado" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">Todos</SelectItem>
-                                                {staffMembers.map(staff => (
-                                                    <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 py-2">
+                                    <Select value={timeLogFilterStaff} onValueChange={setTimeLogFilterStaff}>
+                                        <SelectTrigger className="col-span-1 sm:w-[180px]">
+                                            <SelectValue placeholder="Empleado" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todos</SelectItem>
+                                            {staffMembers.map(staff => (
+                                                <SelectItem key={staff.id} value={staff.id}>{staff.nombre}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
 
-                                        <Select value={timeLogFilterAction} onValueChange={setTimeLogFilterAction}>
-                                            <SelectTrigger className="w-[150px]">
-                                                <SelectValue placeholder="Acción" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="all">Todas las acciones</SelectItem>
-                                                <SelectItem value="clock-in">Entrada</SelectItem>
-                                                <SelectItem value="clock-out">Salida</SelectItem>
-                                                <SelectItem value="break-start">Descanso</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                    <Select value={timeLogFilterAction} onValueChange={setTimeLogFilterAction}>
+                                        <SelectTrigger className="col-span-1 sm:w-[150px]">
+                                            <SelectValue placeholder="Acción" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">Todas las acciones</SelectItem>
+                                            <SelectItem value="clock-in">Entrada</SelectItem>
+                                            <SelectItem value="clock-out">Salida</SelectItem>
+                                            <SelectItem value="break-start">Descanso</SelectItem>
+                                        </SelectContent>
+                                    </Select>
 
-                                        <Button
-                                            variant="outline"
-                                            size="md"
-                                            onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}
-                                            startIcon={<Plus />}
-                                        >
-                                            Añadir registro manual
-                                        </Button>
-                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="md"
+                                        className="col-span-2 sm:w-auto"
+                                        onClick={() => { setEditingTimeLog(null); setIsTimeLogDialogOpen(true); }}
+                                        startIcon={<Plus />}
+                                    >
+                                        Añadir registro manual
+                                    </Button>
 
-                                    <Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />} onClick={exportTimeLogs}>
+                                    <Button variant="outline" size="md" className="col-span-2 sm:w-auto sm:ml-auto" responsive={false} startIcon={<Download />} onClick={exportTimeLogs}>
                                         Exportar
                                     </Button>
                                 </div>
@@ -1330,7 +1330,7 @@ export default function PersonalPage() {
                                         </Button>
                                     </div>
 
-                                    <Button variant="outline" size="md" className="w-full sm:w-auto" startIcon={<Download />} onClick={exportAbsenceRequests}>
+                                    <Button variant="outline" size="md" className="w-full sm:w-auto" responsive={false} startIcon={<Download />} onClick={exportAbsenceRequests}>
                                         Exportar
                                     </Button>
                                 </div>

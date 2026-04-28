@@ -115,7 +115,7 @@ export function StaffTab({
                         </Popover>
                     </div>
 
-                    <Button variant="default" size="md" className="w-full lg:w-auto h-12" startIcon={<Download />}>
+                    <Button variant="default" size="md" className="w-full lg:w-auto h-12" startIcon={<Download />} responsive={false}>
                         Exportar CSV
                     </Button>
                 </div>

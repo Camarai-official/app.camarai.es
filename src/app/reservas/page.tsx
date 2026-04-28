@@ -550,7 +550,7 @@ export default function ReservasPage() {
                 <div className="lg:w-1/3 xl:w-1/3 flex flex-col gap-4 h-full overflow-hidden">
                     <Card flex padding="none" className="h-full overflow-hidden">
                         <CardHeader
-                            className="items-stretch gap-4"
+                            className="items-stretch gap-4 pb-4 border-b"
                             title={
                                 <div className="flex items-center justify-between w-full">
                                     <h3 className="text-lg font-bold tracking-tight text-foreground">
@@ -562,60 +562,70 @@ export default function ReservasPage() {
                                 </div>
                             }
                             description={environmentFilterId === 'all' ? undefined : `Filtrando por ${environments.find(e => e.id === environmentFilterId)?.name}`}
-                            actions={
-                                <div className="flex flex-row items-center gap-2 w-full">
-                                    <Select value={environmentFilterId} onValueChange={setEnvironmentFilterId}>
-                                        <SelectTrigger
-                                            size="md"
-                                            className="flex-1"
-                                            aria-label="Filtrar por ambiente"
-                                        >
-                                            <div className="flex items-center gap-2 truncate">
-                                                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                                <SelectValue placeholder="Ambiente" />
-                                            </div>
-                                        </SelectTrigger>
-                                        <SelectContent>
+                        >
+                            <div className="flex flex-col gap-3 w-full pt-1">
+                                <Select value={environmentFilterId} onValueChange={setEnvironmentFilterId}>
+                                    <SelectTrigger
+                                        size="md"
+                                        className="w-full"
+                                        aria-label="Filtrar por ambiente"
+                                    >
+                                        <div className="flex items-center gap-2 truncate">
+                                            <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                            <SelectValue placeholder="Ambiente" />
+                                        </div>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItemWithTrailing
+                                            value="all"
+                                            label="Todos"
+                                            trailing={
+                                                <Badge variant="secondary" size="xs" className="ml-2">
+                                                    {reservationCountsForDay.total}
+                                                </Badge>
+                                            }
+                                        />
+                                        {environments.map((env) => (
                                             <SelectItemWithTrailing
-                                                value="all"
-                                                label="Todos"
+                                                key={env.id}
+                                                value={env.id}
+                                                label={env.name}
                                                 trailing={
                                                     <Badge variant="secondary" size="xs" className="ml-2">
-                                                        {reservationCountsForDay.total}
+                                                        {reservationCountsForDay.byEnvironmentId[env.id] ?? 0}
                                                     </Badge>
                                                 }
                                             />
-                                            {environments.map((env) => (
-                                                <SelectItemWithTrailing
-                                                    key={env.id}
-                                                    value={env.id}
-                                                    label={env.name}
-                                                    trailing={
-                                                        <Badge variant="secondary" size="xs" className="ml-2">
-                                                            {reservationCountsForDay.byEnvironmentId[env.id] ?? 0}
-                                                        </Badge>
-                                                    }
-                                                />
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                
+                                <div className="flex flex-row items-center gap-2 w-full">
                                     <Button 
                                         variant='default' 
                                         onClick={handleOpenNewReservation} 
                                         size="md"
+                                        className="flex-1 w-full"
+                                        startIcon={<PlusCircle />}
+                                        responsive={false}
                                     >
-                                        <PlusCircle />
-                                        <span className="hidden xl:inline">Crear</span>
+                                        Crear
                                     </Button>
                                     
-                                    <Button variant="outline" size="md" onClick={() => setIsWhatsAppConfigOpen(true)}>
-                                        <MessageSquare />
+                                    <Button 
+                                        variant="outline" 
+                                        size="md" 
+                                        onClick={() => setIsWhatsAppConfigOpen(true)}
+                                        className="flex-1 w-full"
+                                        startIcon={<MessageSquare />}
+                                        responsive={false}
+                                    >
+                                        Mensajes
                                     </Button>
                                 </div>
-                            }
-                        />
-                        <CardContent flex padding="flush" gap="sm" className="flex-1 overflow-y-auto custom-scrollbar">
+                            </div>
+                        </CardHeader>
+                        <CardContent flex padding="md" gap="sm" className="flex-1 overflow-y-auto custom-scrollbar">
                             {filteredDayReservations.length > 0 ? (
                                 <div className="space-y-3">
                                     {filteredDayReservations.map(res => {
@@ -658,12 +668,16 @@ export default function ReservasPage() {
                                         return (
                                             <ActionTile
                                                 key={res.id}
-                                                title={res.customerName}
+                                                title={
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant={statusProps.variant} size="xs">{statusProps.text}</Badge>
+                                                        <span className="truncate">{res.customerName}</span>
+                                                    </div>
+                                                }
                                                 description={description}
                                                 variant="outline"
                                                 rightContent={
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant={statusProps.variant} size="xs">{statusProps.text}</Badge>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="md" className="h-10 w-10">

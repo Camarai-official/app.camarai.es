@@ -110,7 +110,7 @@ export function EstablishmentTab({
                                     <AvatarImage src={localEstablishment.image} alt="Establishment Logo" data-ai-hint="restaurant logo" />
                                     <AvatarFallback>{localEstablishment.name?.charAt(0) || 'C'}</AvatarFallback>
                                 </Avatar>
-                                <Button type="button" size="md" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background" onClick={() => establishmentFileInputRef.current?.click()}>
+                                <Button type="button" size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background shadow-sm" onClick={() => establishmentFileInputRef.current?.click()}>
                                     <Camera className="h-4 w-4" />
                                 </Button>
                                 <Input ref={establishmentFileInputRef} type="file" accept="image/*" className="hidden" onChange={onEstablishmentImageChange} />
@@ -177,12 +177,11 @@ export function EstablishmentTab({
                                 />
                         </div>
                     </CardContent>
-                    <CardFooter className="border-t px-6 py-4 flex flex-col sm:flex-row gap-4 sm:justify-between">
+                    <CardFooter className="border-t pt-4 sm:pt-6 flex flex-col sm:flex-row gap-4 sm:justify-between">
                         <Button className="w-full sm:w-auto" onClick={onSaveEstablishmentChanges}>Guardar Cambios</Button>
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
-                                <Button variant="destructive" className="w-full sm:w-auto">
-                                    <Trash className="mr-2 h-4 w-4" />
+                                <Button variant="destructive" className="w-full sm:w-auto" startIcon={<Trash />} responsive={false}>
                                     Eliminar Establecimiento
                                 </Button>
                             </AlertDialogTrigger>

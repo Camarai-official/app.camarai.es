@@ -15,6 +15,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 // Layout Components
@@ -512,53 +513,33 @@ function PlanoMesasContent() {
                 ) : (
                 <div className="flex flex-col gap-6 h-full min-h-0">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
-                        <div className="flex items-center gap-1">
-                            <div className="relative flex items-center group/nav">
-                                {showLeftArrow && (
-                                    <Button 
-                                        variant="ghost" 
-                                        size="md" 
-                                        onClick={() => scroll('left')}
-                                        startIcon={<ChevronLeft />}
-                                    />
-                                )}
-
-                                <div 
-                                    ref={scrollContainerRef}
-                                    className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-[60vw]"
-                                >
+                        <div className="flex w-full lg:w-[60vw]">
+                            <Tabs value={activeEnvId} onValueChange={setActiveEnvId} className="w-full">
+                                <TabsList className="w-full justify-start">
                                     {environments.map(env => {
                                         const Icon = iconMap[env.icon || 'Building'] || Building;
-                                        const isActive = activeEnvId === env.id;
                                         const isHex = env.color?.startsWith('#');
+                                        
+                                        const ColoredIcon = (props: any) => (
+                                            <Icon 
+                                                {...props}
+                                                className={cn(props.className, !isHex && `text-${env.color}`)} 
+                                                style={{...props.style, ...(isHex ? { color: env.color } : {})}}
+                                            />
+                                        );
+
                                         return (
-                                            <Button 
-                                                key={env.id}
-                                                variant={isActive ? "secondary" : "ghost"}
-                                                size="md"
-                                                onClick={() => setActiveEnvId(env.id)}
-                                                startIcon={
-                                                    <Icon 
-                                                        className={cn("h-4 w-4", !isHex && `text-${env.color}`)} 
-                                                        style={isHex ? { color: env.color } : undefined}
-                                                    />
-                                                }
+                                            <TabsTrigger 
+                                                key={env.id} 
+                                                value={env.id}
+                                                icon={ColoredIcon}
                                             >
                                                 {env.name}
-                                            </Button>
+                                            </TabsTrigger>
                                         );
                                     })}
-                                </div>
-
-                                {showRightArrow && (
-                                    <Button 
-                                        variant="ghost" 
-                                        size="md" 
-                                        onClick={() => scroll('right')}
-                                        startIcon={<ChevronRight />}
-                                    />
-                                )}
-                            </div>
+                                </TabsList>
+                            </Tabs>
                         </div>
 
                         {activeEnv && (
@@ -568,7 +549,7 @@ function PlanoMesasContent() {
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="secondary" size="md" className="flex-1 justify-center" startIcon={<LayoutGrid />}>
+                                                <Badge variant="secondary" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<LayoutGrid />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject).length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -579,7 +560,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="success" size="md" className="flex-1 justify-center" startIcon={<CheckSquare />}>
+                                                <Badge variant="success" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<CheckSquare />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Libre').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -590,7 +571,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="info" size="md" className="flex-1 justify-center" startIcon={<Users />}>
+                                                <Badge variant="info" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<Users />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Ocupada').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -601,7 +582,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="purple" size="md" className="flex-1 justify-center" startIcon={<Clock />}>
+                                                <Badge variant="purple" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<Clock />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Reservada').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -612,7 +593,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="warning" size="md" className="flex-1 justify-center" startIcon={<AlertTriangle />}>
+                                                <Badge variant="warning" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<AlertTriangle />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Mantenimiento').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>

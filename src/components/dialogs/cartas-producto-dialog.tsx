@@ -717,7 +717,6 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                         <div className="space-y-2">
                                             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hora Inicio</Label>
                                             <div className="relative">
-                                                <Timer className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                                 <Input
                                                     type="time"
                                                     value={product.horario_disponible?.inicio || ''}
@@ -728,14 +727,13 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                                             fin: prev.horario_disponible?.fin || ''
                                                         }
                                                     }))}
-                                                    className="bg-background pl-10"
+                                                    className="bg-background"
                                                 />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
                                             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Hora Fin</Label>
                                             <div className="relative">
-                                                <Timer className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                                 <Input
                                                     type="time"
                                                     value={product.horario_disponible?.fin || ''}
@@ -746,7 +744,7 @@ export function ProductDialog({ open, onOpenChange, productToEdit, onSave, categ
                                                             fin: e.target.value
                                                         }
                                                     }))}
-                                                    className="bg-background pl-10"
+                                                    className="bg-background"
                                                 />
                                             </div>
                                         </div>

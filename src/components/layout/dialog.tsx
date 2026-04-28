@@ -123,7 +123,7 @@ const DialogHeader = ({
       )}
       {...props}
     >
-      <div className="flex flex-col space-y-1 text-center sm:text-left">
+      <div className="flex flex-col space-y-1 text-left">
         {hasSmartProps ? (
           <>
             <DialogTitle icon={icon}>{title}</DialogTitle>
@@ -165,6 +165,8 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   flush?: boolean;
   /** Optional extra actions to display next to the standard buttons */
   actions?: React.ReactNode;
+  /** Whether the buttons should follow the responsive collapsing behavior (gap -> hide icon -> show icon only) */
+  responsive?: boolean;
 }
 
 const DialogFooter = ({
@@ -177,6 +179,7 @@ const DialogFooter = ({
   confirmDisabled = false,
   flush = true,
   actions,
+  responsive,
   ...props
 }: DialogFooterProps) => {
   const hasSmartProps = onCancel !== undefined || onConfirm !== undefined || actions !== undefined;
@@ -193,12 +196,12 @@ const DialogFooter = ({
       {hasSmartProps ? (
         <>
           {onCancel && (
-            <Button variant="ghost" onClick={onCancel}>
+            <Button variant="ghost" onClick={onCancel} responsive={responsive}>
               {cancelText}
             </Button>
           )}
           {onConfirm && (
-            <Button variant="default" onClick={onConfirm} disabled={confirmDisabled}>
+            <Button variant="default" onClick={onConfirm} disabled={confirmDisabled} responsive={responsive}>
               {confirmText}
             </Button>
           )}

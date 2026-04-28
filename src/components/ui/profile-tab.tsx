@@ -53,7 +53,7 @@ export function ProfileTab({
                                         <AvatarImage src={localUser.avatar} alt="@user" data-ai-hint="profile user" />
                                         <AvatarFallback>{localUser.firstName?.charAt(0)}</AvatarFallback>
                                     </Avatar>
-                                    <Button size="md" className="absolute bottom-0 right-0 rounded-full" onClick={() => profileFileInputRef.current?.click()}>
+                                    <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8" onClick={() => profileFileInputRef.current?.click()}>
                                         <Camera className="h-4 w-4" />
                                         <span className="sr-only">Cambiar foto</span>
                                     </Button>
@@ -114,7 +114,7 @@ export function ProfileTab({
                         <TextSM>Cargando perfil...</TextSM>
                     )}
                 </CardContent>
-                <CardFooter className="border-t px-6 py-4">
+                <CardFooter className="border-t pt-4 sm:pt-6">
                     <Button onClick={onSaveUserChanges} disabled={!localUser}>Guardar Cambios</Button>
                 </CardFooter>
             </Card>

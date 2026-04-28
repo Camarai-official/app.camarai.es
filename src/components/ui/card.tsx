@@ -37,7 +37,7 @@ Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { title?: React.ReactNode; description?: string; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
+  Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> & { title?: React.ReactNode; description?: React.ReactNode; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
 >(({ className, title, description, icon: Icon, actions, children, compact, ...props }, ref) => (
   <div
     ref={ref}
@@ -48,30 +48,32 @@ const CardHeader = React.forwardRef<
     )}
     {...props}
   >
-    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 w-full">
-      <div className="flex items-start gap-3 flex-1 min-w-0">
-        {Icon && (
-          <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
-            <Icon className="h-6 w-6" />
+    {(title || description || Icon || actions) && (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {Icon && (
+            <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Icon className="h-6 w-6" />
+            </div>
+          )}
+          <div className="space-y-1.5 flex-1 min-w-0">
+            {title && (
+              typeof title === 'string' ? (
+                <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">{title}</h3>
+              ) : (
+                <div className="w-full">{title}</div>
+              )
+            )}
+            {description && <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>}
+          </div>
+        </div>
+        {actions && (
+          <div className="shrink-0 w-full sm:w-auto">
+            {actions}
           </div>
         )}
-        <div className="space-y-1.5 flex-1 min-w-0">
-          {title && (
-            typeof title === 'string' ? (
-              <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">{title}</h3>
-            ) : (
-              <div className="w-full">{title}</div>
-            )
-          )}
-          {description && <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>}
-        </div>
       </div>
-      {actions && (
-        <div className="shrink-0 w-full sm:w-auto">
-          {actions}
-        </div>
-      )}
-    </div>
+    )}
     {children}
   </div>
 ))
@@ -143,7 +145,7 @@ const CardFooter = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex items-center p-3 sm:p-6 pt-0 sm:pt-0",
+      "flex items-center p-4 sm:p-6 pt-0 sm:pt-0",
       justify === 'start' && "justify-start",
       justify === 'center' && "justify-center",
       justify === 'end' && "justify-end",

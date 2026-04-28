@@ -482,6 +482,7 @@ export function EmployeeDialog({
                                         <CardContent className="grid gap-3">
                                             <ActionTile
                                                 icon={Palette}
+                                                layout="centered"
                                                 title="Color de Identidad"
                                                 description="Se usará para el perfil y reportes."
                                                 rightContentType="custom"
@@ -496,6 +497,7 @@ export function EmployeeDialog({
 
                                             <ActionTile
                                                 icon={iconMap[employee.icon || 'User']}
+                                                layout="centered"
                                                 iconColor={employee.color}
                                                 title="Icono de Representación"
                                                 description="Icono personalizado del empleado."
@@ -641,6 +643,7 @@ export function EmployeeDialog({
                                                     {nivelesAcceso.map(nivel => (
                                                         <ActionTile
                                                             key={nivel.id}
+                                                            layout="row"
                                                             icon={nivel.icon}
                                                             title={nivel.label}
                                                             description={nivel.description}
@@ -931,6 +934,7 @@ export function EmployeeDialog({
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                             disabled={isSaving || isDeleting}
+                            responsive={true}
                         >
                             Cancelar
                         </Button>
@@ -938,6 +942,7 @@ export function EmployeeDialog({
                             variant="default"
                             onClick={handleSave}
                             disabled={!employee.nombre || !employee.email || !employee.rol || isSaving || isDeleting}
+                            responsive={true}
                         >
                             {isSaving ? 'Guardando...' : (employeeToEdit ? 'Guardar Cambios' : 'Añadir Empleado')}
                         </Button>

@@ -185,11 +185,12 @@ export function CreateEstablishmentDialog({ open, onOpenChange }: CreateEstablis
           <DialogFooter className="flex-row justify-between sm:justify-between items-center">
             <Button 
               type="submit" 
-              className="font-bold flex items-center gap-2 group order-first" 
+              className="font-bold group order-first" 
               disabled={isSubmitting}
+              endIcon={!isSubmitting ? <ChevronRight className="transition-transform group-hover:translate-x-0.5" /> : undefined}
+              responsive={false}
             >
               {isSubmitting ? "Creando..." : "Crear Establecimiento"}
-              {!isSubmitting && <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />}
             </Button>
             
             <Button 

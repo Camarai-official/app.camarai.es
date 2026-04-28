@@ -182,7 +182,7 @@ export function CategoryDialog({
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 text-foreground">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-foreground">
                                     <div className="space-y-2">
                                         <Label>Categoría Padre (Jerarquía)</Label>
                                         <Select
@@ -211,7 +211,7 @@ export function CategoryDialog({
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 text-foreground">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-foreground">
                                     <div className="space-y-2">
                                         <Label>Impresora de Destino (KDS)</Label>
                                         <Select
@@ -230,7 +230,7 @@ export function CategoryDialog({
                                         <TextXS className="text-muted-foreground">Impresora para productos de esta categoría.</TextXS>
                                     </div>
                                     <div className="flex items-center justify-between p-4 border rounded-lg bg-background">
-                                        <div>
+                                        <div className="flex flex-col gap-1">
                                             <Label>Visible en Carta</Label>
                                             <TextXS className="text-muted-foreground">Mostrar esta categoría en las cartas</TextXS>
                                         </div>
@@ -245,7 +245,7 @@ export function CategoryDialog({
                             <TabsContent value="apariencia" spaced className="py-4 px-2 sm:p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-[1fr,260px] gap-8">
                                     <div className="space-y-6">
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <IconPicker
                                                 value={categoryData.icono || 'Utensils'}
                                                 onChange={(icon) => setCategoryData(prev => ({ ...prev, icono: icon }))}

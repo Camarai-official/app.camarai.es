@@ -66,7 +66,7 @@ export function TimeLogDialog({
                         : "Añadir un registro de tiempo manualmente."}
                 />
                 
-                <DialogContent className="space-y-3">
+                <DialogContent>
                     {isEditing ? (
                         <ActionTile
                             icon={selectedStaff ? iconMap[selectedStaff.icon || 'User'] : User}
@@ -91,7 +91,7 @@ export function TimeLogDialog({
                         />
                     )}
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <ActionTile
                             icon={Calendar}
                             title="Fecha"
@@ -101,7 +101,7 @@ export function TimeLogDialog({
                                     type="date" 
                                     value={date} 
                                     onChange={(e) => setDate(e.target.value)}
-                                    className="w-40"
+                                    className="w-full sm:w-40"
                                 />
                             }
                         />
@@ -114,7 +114,7 @@ export function TimeLogDialog({
                                     type="time" 
                                     value={time} 
                                     onChange={(e) => setTime(e.target.value)}
-                                    className="w-24"
+                                    className="w-full sm:w-24"
                                 />
                             }
                         />

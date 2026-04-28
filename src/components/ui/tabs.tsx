@@ -60,6 +60,11 @@ const TabsList = React.forwardRef<
     }
   }, [checkScroll]);
 
+  // Split className into outer (margins) and inner (layout) classes
+  const classes = (className || "").split(" ");
+  const outerClasses = classes.filter(c => /^(m|mt|mb|ml|mr|mx|my)-/.test(c)).join(" ");
+  const innerClasses = classes.filter(c => !/^(m|mt|mb|ml|mr|mx|my)-/.test(c)).join(" ");
+
   return (
     <div 
       className={cn(
@@ -68,14 +73,14 @@ const TabsList = React.forwardRef<
         marginBottom === 'md' && "mb-4",
         marginBottom === 'lg' && "mb-6",
         marginBottom === 'xl' && "mb-8",
-        className
+        outerClasses
       )}
     >
       <div className="relative w-full group/tabslist flex items-center h-[52px] sm:h-auto overflow-hidden">
         {/* Left Indicator/Button */}
         <div 
           className={cn(
-            "absolute left-0 inset-y-0 z-20 w-12 flex items-center justify-start pl-1 transition-all duration-300 sm:hidden",
+            "absolute left-0 inset-y-0 z-20 w-12 flex items-center justify-start pl-1 transition-all duration-300",
             "bg-gradient-to-r from-background via-background/90 to-transparent",
             showLeft ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2 pointer-events-none"
           )}
@@ -92,9 +97,10 @@ const TabsList = React.forwardRef<
         <TabsPrimitive.List
           ref={listRef}
           className={cn(
-            "inline-flex h-full sm:h-auto items-center justify-start sm:justify-start text-muted-foreground overflow-x-auto no-scrollbar flex-nowrap w-full transition-all",
+            "flex h-full sm:h-auto items-center justify-start sm:justify-start text-muted-foreground overflow-x-auto no-scrollbar flex-nowrap w-full transition-all",
             "bg-muted/30 p-1.5 gap-1.5 rounded-2xl border border-border/50",
-            "sm:bg-transparent sm:p-0 sm:gap-1 sm:rounded-none sm:border-none"
+            "sm:bg-transparent sm:p-0 sm:gap-1 sm:rounded-none sm:border-none",
+            innerClasses
           )}
           {...props}
         >
@@ -104,7 +110,7 @@ const TabsList = React.forwardRef<
         {/* Right Indicator/Button */}
         <div 
           className={cn(
-            "absolute right-0 inset-y-0 z-20 w-12 flex items-center justify-end pr-1 transition-all duration-300 sm:hidden",
+            "absolute right-0 inset-y-0 z-20 w-12 flex items-center justify-end pr-1 transition-all duration-300",
             "bg-gradient-to-l from-background via-background/90 to-transparent",
             showRight ? "opacity-100 translate-x-0" : "opacity-0 translate-x-2 pointer-events-none"
           )}
@@ -133,7 +139,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "group inline-flex items-center justify-center whitespace-nowrap rounded-xl px-3 sm:px-4 py-2 h-10 min-w-10 text-[12px] sm:text-sm font-semibold transition-all duration-300 shrink-0 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground data-[state=active]:shadow-none",
+      "group inline-flex flex-auto shrink-0 items-center justify-center whitespace-nowrap rounded-xl px-3 sm:px-4 py-2 h-10 min-w-10 text-[12px] sm:text-sm font-semibold transition-all duration-300 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground data-[state=active]:shadow-none",
       className
     )}
     {...props}

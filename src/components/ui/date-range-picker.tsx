@@ -69,11 +69,12 @@ export function CalendarDateRangePicker({
                     variant={"outline"}
                     size="md"
                     className={cn(
-                        "justify-start text-left font-normal",
+                        "justify-start text-left font-normal w-full",
                         !selectedDate && "text-muted-foreground"
                     )}
+                    startIcon={<CalendarIcon />}
+                    responsive={false}
                 >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
                     {placeholder}
                 </Button>
             </div>
@@ -88,25 +89,24 @@ export function CalendarDateRangePicker({
                         variant={"outline"}
                         size="md"
                         className={cn(
-                            "justify-start text-left font-normal max-w-[200px] overflow-hidden truncate",
+                            "justify-start text-left font-normal w-full",
                             !selectedDate && "text-muted-foreground"
                         )}
+                        startIcon={<CalendarIcon />}
+                        responsive={false}
                     >
-                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-                        <span className="truncate">
-                            {selectedDate?.from ? (
-                                selectedDate.to ? (
-                                    <>
-                                        {format(selectedDate.from, "LLL dd", { locale: es })} -{" "}
-                                        {format(selectedDate.to, "LLL dd, y", { locale: es })}
-                                    </>
-                                ) : (
-                                    format(selectedDate.from, "PPP", { locale: es })
-                                )
+                        {selectedDate?.from ? (
+                            selectedDate.to ? (
+                                <>
+                                    {format(selectedDate.from, "LLL dd", { locale: es })} -{" "}
+                                    {format(selectedDate.to, "LLL dd, y", { locale: es })}
+                                </>
                             ) : (
-                                <span>{placeholder}</span>
-                            )}
-                        </span>
+                                format(selectedDate.from, "PPP", { locale: es })
+                            )
+                        ) : (
+                            <span>{placeholder}</span>
+                        )}
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align={align}>
