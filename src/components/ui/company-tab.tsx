@@ -1,7 +1,7 @@
 import { H2, H3, H4, TextSM, TextXS } from '@/components/ui/typography';
 import * as React from 'react';
 import type { RefObject } from 'react';
-import { Camera, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { Camera, Check, AlertCircle, Loader2, CreditCard } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ActionTile } from '@/components/ui/action-tile';
 
 type CompanyTabProps = {
     companyFileInputRef: RefObject<HTMLInputElement>;
@@ -195,7 +196,7 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                                 <AvatarImage src="https://asset.brandfetch.io/idV4dC9a3V/idFr4rVlHR.svg" alt="Company Logo" data-ai-hint="company logo" />
                                 <AvatarFallback>C</AvatarFallback>
                             </Avatar>
-                            <Button type="button" size="md" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background" onClick={() => companyFileInputRef.current?.click()}>
+                            <Button type="button" size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8 bg-background shadow-sm" onClick={() => companyFileInputRef.current?.click()}>
                                 <Camera className="h-4 w-4" />
                             </Button>
                             <Input ref={companyFileInputRef} type="file" accept="image/*" className="hidden" onChange={onCompanyImageChange} />
@@ -271,17 +272,22 @@ export function CompanyTab({ companyFileInputRef, onCompanyImageChange }: Compan
                                 onChange={(e) => handleInputChange('address', e.target.value)}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label>Plan Actual</Label>
-                            <H4 className="text-primary">Profesional</H4>
-                            <TextXS className="text-muted-foreground">Renueva el: 31/12/2024</TextXS>
-                        </div>
-                        <div className="space-y-2 self-end">
-                            <Button variant="outline">Cambiar de Plan</Button>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label>Plan y Suscripción</Label>
+                            <ActionTile
+                                icon={CreditCard}
+                                iconColor="#a855f7"
+                                title="Profesional"
+                                description="Renueva el: 31/12/2024"
+                                rightContentType="button"
+                                buttonText="Cambiar de Plan"
+                                buttonVariant="outline"
+                                onButtonClick={() => {}}
+                            />
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="border-t px-6 py-4">
+                <CardFooter className="border-t pt-4 sm:pt-6">
                     <Button onClick={handleSave} disabled={isSaving || !hasChanges}>
                         {isSaving ? (
                             <>

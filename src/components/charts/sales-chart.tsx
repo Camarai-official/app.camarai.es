@@ -17,7 +17,7 @@ import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEstablishmentContext } from '@/hooks/EstablishmentContext';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 // Internal Logic Types
 type ViewMode = 'hours' | 'days' | 'months' | 'years';
@@ -31,7 +31,8 @@ type ChartDataPoint = {
 export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   const [date, setDate] = React.useState<DateRange | undefined>(globalDate);
   const [isDetached, setIsDetached] = React.useState(false);
-  const { activeId } = useEstablishmentContext();
+  const { activeEstablishment } = useEstablishments();
+  const activeId = activeEstablishment?.id;
 
   React.useEffect(() => {
     if (!isDetached && globalDate) {
@@ -53,9 +54,9 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const { isMobile } = useIsMobile();
 
-  // Real data from Convex
-  const from = date?.from || new Date();
-  const to = date?.to || from;
+  // Stabilize from/to so they don't create new Date objects every render
+  const from = React.useMemo(() => date?.from || new Date(), [date?.from]);
+  const to = React.useMemo(() => date?.to || from, [date?.to, from]);
   const isRange = differenceInDays(to, from) > 0;
   const effectiveMode = isRange ? 'days' : viewMode;
 
@@ -74,7 +75,6 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
   // Format data for chart
   const chartData = React.useMemo(() => {
     if (!salesData || salesData.length === 0) {
-      // Return empty structure if no data
       return [];
     }
 
@@ -93,7 +93,6 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
     <Card>
       <CardHeader
         title="Ventas Totales"
-        icon={LineChart}
         actions={
           <div className="flex items-center gap-2">
             <CalendarDateRangePicker 

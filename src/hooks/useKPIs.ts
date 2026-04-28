@@ -3,10 +3,12 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import { useEstablishmentContext } from './EstablishmentContext';
+import { useEstablishments } from './useEstablishments';
 import { useCurrentYearMonth } from './useCurrentYearMonth';
 
 export const useKPIs = () => {
-  const { activeId } = useEstablishmentContext();
+  const { activeEstablishment } = useEstablishments();
+  const activeId = activeEstablishment?.id;
 
   // Get global KPIs for the active establishment
   const globalKPIs = useQuery(

@@ -100,10 +100,10 @@ export default function PosKdsPage() {
               description="Accede al sistema de punto de venta para gestionar ventas, cobros y comandas en tiempo real desde este terminal."
               action={
                 <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
-                  <Button variant="default" fullWidth startIcon={<ExternalLink />} onClick={handleLaunchPOS}>
+                  <Button variant="default" fullWidth responsive={false} startIcon={<ExternalLink />} onClick={handleLaunchPOS}>
                     Iniciar sesión en POS
                   </Button>
-                  <Button fullWidth variant="outline" startIcon={<Settings />} onClick={() => setIsPOSConfigOpen(true)}>
+                  <Button fullWidth variant="outline" responsive={false} startIcon={<Settings />} onClick={() => setIsPOSConfigOpen(true)}>
                     Configurar POS
                   </Button>
                 </div>
@@ -118,10 +118,10 @@ export default function PosKdsPage() {
               description="Sistema de visualización de comandas para la cocina. Gestiona de forma eficiente los tiempos de preparación."
               action={
                 <div className="flex flex-col gap-4 w-full max-w-sm mx-auto">
-                  <Button variant="default" fullWidth startIcon={<ExternalLink />} onClick={handleLaunchKDS}>
+                  <Button variant="default" fullWidth responsive={false} startIcon={<ExternalLink />} onClick={handleLaunchKDS}>
                     Iniciar KDS
                   </Button>
-                  <Button fullWidth variant="outline" startIcon={<Settings />} onClick={() => setIsKDSConfigOpen(true)}>
+                  <Button fullWidth variant="outline" responsive={false} startIcon={<Settings />} onClick={() => setIsKDSConfigOpen(true)}>
                     Configurar Pantallas
                   </Button>
                 </div>

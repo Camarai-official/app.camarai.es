@@ -37,31 +37,43 @@ Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { title?: string; description?: string; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
+  Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> & { title?: React.ReactNode; description?: React.ReactNode; icon?: React.ElementType; actions?: React.ReactNode; compact?: boolean }
 >(({ className, title, description, icon: Icon, actions, children, compact, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "flex flex-col space-y-1.5 p-6",
-      compact && "p-4 space-y-1",
+      "flex flex-col p-5 sm:p-8 w-full",
+      compact && "p-3 sm:p-4",
       className
     )}
     {...props}
   >
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        {Icon && (
-          <div className="p-2 rounded-lg bg-primary/10 text-primary">
-            <Icon className="h-5 w-5" />
+    {(title || description || Icon || actions) && (
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          {Icon && (
+            <div className="p-2.5 rounded-xl bg-primary/10 text-primary shrink-0">
+              <Icon className="h-6 w-6" />
+            </div>
+          )}
+          <div className="space-y-1.5 flex-1 min-w-0">
+            {title && (
+              typeof title === 'string' ? (
+                <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground">{title}</h3>
+              ) : (
+                <div className="w-full">{title}</div>
+              )
+            )}
+            {description && <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{description}</p>}
+          </div>
+        </div>
+        {actions && (
+          <div className="shrink-0 w-full sm:w-auto">
+            {actions}
           </div>
         )}
-        <div>
-          {title && <h3 className="text-lg font-bold leading-none tracking-tight">{title}</h3>}
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
-        </div>
       </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
-    </div>
+    )}
     {children}
   </div>
 ))
@@ -95,7 +107,7 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { 
     flex?: boolean; 
-    padding?: 'none' | 'sm' | 'md' | 'lg' | 'default';
+    padding?: 'none' | 'sm' | 'md' | 'lg' | 'default' | 'flush';
     gap?: 'none' | 'sm' | 'md' | 'lg';
     compact?: boolean;
   }
@@ -103,9 +115,10 @@ const CardContent = React.forwardRef<
   <div 
     ref={ref} 
     className={cn(
-      "p-6", 
-      compact && "p-4",
-      padding === 'default' && "pt-0",
+      "p-3 sm:p-6", 
+      compact && "p-3 sm:p-4",
+      padding === 'default' && "pt-2 sm:pt-0",
+      padding === 'flush' && "px-0 sm:px-6 pt-2 sm:pt-0",
       flex && "flex-grow",
       padding === 'none' && "p-0",
       padding === 'sm' && "p-2",
@@ -132,7 +145,7 @@ const CardFooter = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex items-center p-6 pt-0",
+      "flex items-center p-4 sm:p-6 pt-0 sm:pt-0",
       justify === 'start' && "justify-start",
       justify === 'center' && "justify-center",
       justify === 'end' && "justify-end",

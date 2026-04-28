@@ -15,6 +15,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
 // Layout Components
@@ -154,6 +155,7 @@ function PlanoMesasContent() {
                     y: table.y,
                     width: table.width,
                     height: table.height,
+                    rotation: table.rotation,
                     capacity: table.capacity,
                     status: (CONVEX_STATUS_TO_UI[table.status] || 'Libre') as TableStatus,
                     shape: table.shape === 'circle' ? 'round' : 'rectangle',
@@ -431,34 +433,70 @@ function PlanoMesasContent() {
                 title="Plano de Mesas" 
                 subtitle="Diseña y organiza la disposición de tu salón"
                 actions={
-                    <div className="flex gap-2">
+                    <div className="flex items-center w-full gap-2 overflow-x-auto pb-1 -mb-1 scrollbar-none">
+                        <Button 
+                            variant="outline" 
+                            className="h-10 w-10 shrink-0 p-0 sm:w-auto sm:px-4" 
+                            onClick={() => router.push('/ambientes')}
+                        >
+                            <ChevronLeft className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">Volver a Ambientes</span>
+                        </Button>
+
                         <Button 
                             variant={isLocked ? "secondary" : "outline"} 
-                            size="md" 
+                            className="h-10 w-10 shrink-0 p-0" 
                             onClick={() => setIsLocked(!isLocked)} 
                             title={isLocked ? 'Desbloquear edición' : 'Bloquear edición'}
                         >
                             {isLocked ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                         </Button>
 
-                        <Button variant="outline" size="md" onClick={() => router.push('/ambientes')} startIcon={<ChevronLeft />}>
-                            Volver a Ambientes
-                        </Button>
                         <Button 
                             variant="outline" 
-                            size="md" 
+                            className="h-10 w-10 shrink-0 p-0 sm:w-auto sm:px-4" 
                             onClick={() => setIsTemplatesOpen(true)} 
-                            startIcon={<FolderOpen />}
                             disabled={isLocked}
                         >
-                            Plantillas
+                            <FolderOpen className="h-4 w-4 sm:mr-2" />
+                            <span className="hidden sm:inline">Plantillas</span>
                         </Button>
+
+                        {activeEnv && (
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button 
+                                            variant={activeEnv.status === 'Abierto' ? "ghost-success" : "ghost-destructive"}
+                                            className="h-10 w-10 shrink-0 p-0"
+                                            onClick={async () => {
+                                                const newStatus = activeEnv.status === 'Abierto' ? 'Cerrado' : 'Abierto';
+                                                setEnvironments(prev => prev.map(e => e.id === activeEnvId ? { ...e, status: newStatus as 'Abierto' | 'Cerrado' } : e));
+                                                await updateEnvironmentMutation({
+                                                    environmentId: activeEnvId as Id<'environments'>,
+                                                    status: newStatus === 'Abierto' ? 'active' : 'inactive',
+                                                }).catch(console.error);
+                                            }}
+                                        >
+                                            <Power className="h-4 w-4" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm font-semibold">Ambiente {activeEnv.status}</span>
+                                            <span className="text-xs text-muted-foreground">Haz clic para {activeEnv.status === 'Abierto' ? 'cerrar' : 'abrir'}</span>
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        )}
 
                         <Button
                             size="md"
                             startIcon={<PlusCircle />}
                             disabled={isLocked || !activeEnv}
                             onClick={() => addTable()}
+                            className="flex-1 shrink-0 whitespace-nowrap"
                         >
                             Añadir Mesa
                         </Button>
@@ -475,87 +513,43 @@ function PlanoMesasContent() {
                 ) : (
                 <div className="flex flex-col gap-6 h-full min-h-0">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-2">
-                        <div className="flex items-center gap-1">
-                            <div className="relative flex items-center group/nav">
-                                {showLeftArrow && (
-                                    <Button 
-                                        variant="ghost" 
-                                        size="md" 
-                                        onClick={() => scroll('left')}
-                                        startIcon={<ChevronLeft />}
-                                    />
-                                )}
-
-                                <div 
-                                    ref={scrollContainerRef}
-                                    className="flex items-center gap-2 overflow-x-auto scrollbar-none max-w-[60vw]"
-                                >
+                        <div className="flex w-full lg:w-[60vw]">
+                            <Tabs value={activeEnvId} onValueChange={setActiveEnvId} className="w-full">
+                                <TabsList className="w-full justify-start">
                                     {environments.map(env => {
                                         const Icon = iconMap[env.icon || 'Building'] || Building;
-                                        const isActive = activeEnvId === env.id;
                                         const isHex = env.color?.startsWith('#');
+                                        
+                                        const ColoredIcon = (props: any) => (
+                                            <Icon 
+                                                {...props}
+                                                className={cn(props.className, !isHex && `text-${env.color}`)} 
+                                                style={{...props.style, ...(isHex ? { color: env.color } : {})}}
+                                            />
+                                        );
+
                                         return (
-                                            <Button 
-                                                key={env.id}
-                                                variant={isActive ? "secondary" : "ghost"}
-                                                size="md"
-                                                onClick={() => setActiveEnvId(env.id)}
-                                                startIcon={
-                                                    <Icon 
-                                                        className={cn("h-4 w-4", !isHex && `text-${env.color}`)} 
-                                                        style={isHex ? { color: env.color } : undefined}
-                                                    />
-                                                }
+                                            <TabsTrigger 
+                                                key={env.id} 
+                                                value={env.id}
+                                                icon={ColoredIcon}
                                             >
                                                 {env.name}
-                                            </Button>
+                                            </TabsTrigger>
                                         );
                                     })}
-                                </div>
-
-                                {showRightArrow && (
-                                    <Button 
-                                        variant="ghost" 
-                                        size="md" 
-                                        onClick={() => scroll('right')}
-                                        startIcon={<ChevronRight />}
-                                    />
-                                )}
-                            </div>
+                                </TabsList>
+                            </Tabs>
                         </div>
 
                         {activeEnv && (
                             <div className="flex items-center gap-6">
-                                <div className="flex items-center gap-3 pr-6 border-r">
+
+                                <div className="flex items-center w-full gap-2">
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Button 
-                                                    variant={activeEnv.status === 'Abierto' ? "ghost-success" : "ghost-destructive"}
-                                                    size="md"
-                                                    onClick={async () => {
-                                                        const newStatus = activeEnv.status === 'Abierto' ? 'Cerrado' : 'Abierto';
-                                                        setEnvironments(prev => prev.map(e => e.id === activeEnvId ? { ...e, status: newStatus as 'Abierto' | 'Cerrado' } : e));
-                                                        await updateEnvironmentMutation({
-                                                            environmentId: activeEnvId as Id<'environments'>,
-                                                            status: newStatus === 'Abierto' ? 'active' : 'inactive',
-                                                        }).catch(console.error);
-                                                    }}
-                                                    startIcon={<Power/>}
-                                                />
-                                            </TooltipTrigger>
-                                            <TooltipContent side="bottom">
-                                                <TextSM>Ambiente {activeEnv.status}</TextSM>
-                                                <TextXS className="text-muted-foreground">Haz clic para {activeEnv.status === 'Abierto' ? 'cerrar' : 'abrir'}</TextXS>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger asChild>
-                                                <Badge variant="secondary" size="md" startIcon={<LayoutGrid />}>
+                                                <Badge variant="secondary" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<LayoutGrid />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject).length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -566,7 +560,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="success" size="md" startIcon={<CheckSquare />}>
+                                                <Badge variant="success" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<CheckSquare />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Libre').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -577,7 +571,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="info" size="md" startIcon={<Users />}>
+                                                <Badge variant="info" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<Users />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Ocupada').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -588,7 +582,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="purple" size="md" startIcon={<Clock />}>
+                                                <Badge variant="purple" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<Clock />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Reservada').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -599,7 +593,7 @@ function PlanoMesasContent() {
 
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <Badge variant="warning" size="md" startIcon={<AlertTriangle />}>
+                                                <Badge variant="warning" size="md" className="flex-1 justify-center px-1 sm:px-4" startIcon={<AlertTriangle />}>
                                                     <span>{activeEnv.tables.filter(t => !t.isObject && t.status === 'Mantenimiento').length}</span>
                                                 </Badge>
                                             </TooltipTrigger>
@@ -614,7 +608,7 @@ function PlanoMesasContent() {
                     </div>
 
                     {activeEnv && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                             {activeEnv.tables
                                 .filter(t => !t.isObject)
                                 .sort((a, b) => a.number - b.number)

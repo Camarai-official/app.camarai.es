@@ -57,6 +57,8 @@ interface BaseActionTileProps {
   rightContent?: React.ReactNode;
   /** Custom className for the right content container */
   rightContentClassName?: string;
+  /** Forced layout on mobile: 'row' (horizontal), 'stack' (vertical), 'centered' (stacked and centered), or 'auto' (default) */
+  layout?: 'row' | 'stack' | 'centered' | 'auto';
 }
 
 // Switch variant props
@@ -190,6 +192,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
     iconClassName,
     rightContent,
     rightContentClassName,
+    layout = 'auto',
   } = props;
 
   // ============================================================================
@@ -218,7 +221,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       case 'switch': {
         const switchProps = props as BaseActionTileProps & SwitchProps;
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
             <Switch
               id={switchProps.switchId}
               checked={switchProps.switchChecked}
@@ -232,7 +235,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       case 'checkbox': {
         const checkboxProps = props as BaseActionTileProps & CheckboxProps;
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
             <Checkbox
               id={checkboxProps.checkboxId}
               checked={checkboxProps.checkboxChecked}
@@ -255,13 +258,13 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       case 'select': {
         const selectProps = props as BaseActionTileProps & SelectProps;
         return (
-          <div onClick={(e) => e.stopPropagation()}>
+          <div onClick={(e) => e.stopPropagation()} className="w-full">
             <Select
               value={selectProps.selectValue}
               onValueChange={selectProps.onSelectChange}
               disabled={disabled}
             >
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-10 w-full">
                 <SelectValue placeholder={selectProps.selectPlaceholder} />
               </SelectTrigger>
               <SelectContent>
@@ -401,7 +404,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
         ref={ref}
         onClick={onClick}
         className={cn(
-          "flex flex-1 items-center transition-colors group gap-3",
+          "flex flex-1 items-center transition-colors group gap-3 w-full",
           variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
           variant === 'ghost' && "bg-transparent hover:bg-muted/30",
           variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
@@ -422,7 +425,7 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
                 {typeof title === 'string' ? <span>{title}</span> : title}
               </div>
               {description && (
-                <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+                <div className="text-[11px] text-muted-foreground line-clamp-2 leading-tight">
                   {description}
                 </div>
               )}
@@ -449,28 +452,43 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-row items-center justify-between transition-colors group gap-3 min-h-16",
+        "flex transition-colors group gap-3 sm:gap-4 min-h-16 w-full",
+        (layout === 'row' || (layout === 'auto' && (rightContentType === 'switch' || rightContentType === 'checkbox' || rightContentType === 'empty' || rightContentType === 'badge')))
+          ? "flex-row items-center justify-between" 
+          : cn(
+              "flex-col sm:flex-row sm:items-center justify-between",
+              layout === 'centered' ? "items-center text-center py-6" : "items-start"
+            ),
         variant === 'outline' && "rounded-xl border bg-card hover:bg-muted/50",
         variant === 'ghost' && "bg-transparent hover:bg-muted/30",
         variant === 'accent' && "bg-accent/50 hover:bg-accent rounded-md",
         variant === 'none' && "bg-transparent border-none p-0 shadow-none hover:bg-transparent",
         padding === 'none' && "p-0",
         padding === 'sm' && "p-2",
-        padding === 'md' && "py-1.5 px-3",
+        padding === 'md' && "p-3",
         disabled && "opacity-50 cursor-not-allowed",
         onClick && "cursor-pointer",
         className
       )}
     >
       {/* Left Side: Icon + Title + Description */}
-      <div className="flex items-center gap-3 overflow-hidden min-w-0 flex-1">
+      <div className={cn(
+        "flex items-center gap-3 overflow-hidden min-w-0 flex-1",
+        layout === 'centered' && "flex-col sm:flex-row sm:text-left text-center w-full"
+      )}>
         {renderIcon()}
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-bold text-foreground leading-tight truncate">
+        <div className={cn("min-w-0 flex-1", layout === 'centered' && "w-full")}>
+          <div className={cn(
+            "text-sm font-bold text-foreground leading-tight",
+            layout === 'centered' ? "text-center sm:text-left" : "text-left"
+          )}>
             {typeof title === 'string' ? <span>{title}</span> : title}
           </div>
           {description && (
-            <div className="text-[11px] text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis leading-relaxed">
+            <div className={cn(
+              "text-[11px] text-muted-foreground line-clamp-2 leading-tight mt-1",
+              layout === 'centered' ? "text-center sm:text-left" : "text-left"
+            )}>
               {description}
             </div>
           )}
@@ -478,7 +496,16 @@ export const ActionTile = React.forwardRef<HTMLDivElement, ActionTileProps>((pro
       </div>
 
       {/* Right Side: Dynamic Content */}
-      <div className={cn("flex items-center gap-2 justify-end shrink-0 min-w-0 h-10", rightContentClassName)}>
+      <div className={cn(
+        "flex items-center gap-2 shrink-0 min-w-0", 
+        (layout === 'row' || (layout === 'auto' && (rightContentType === 'switch' || rightContentType === 'checkbox' || rightContentType === 'empty' || rightContentType === 'badge')))
+          ? "w-auto justify-end" 
+          : cn(
+              "w-full sm:w-auto justify-center sm:justify-end sm:[&>*]:flex-none",
+              layout === 'centered' ? "[&>*]:flex-none" : "[&>*]:flex-1"
+            ),
+        rightContentClassName
+      )}>
         {renderRightContent()}
       </div>
     </div>

@@ -62,14 +62,14 @@ export function WhatsAppNotificationsDialog({ open, onOpenChange }: WhatsAppNoti
                 
                 <DialogContent>
                     <Tabs defaultValue="config" className="flex-1 flex flex-col overflow-hidden">
-                        <TabsList className="px-6" marginBottom="md">
+                        <TabsList className="w-full">
                             <TabsTrigger value="config" icon={Bell}>Configuración</TabsTrigger>
                             <TabsTrigger value="templates" icon={MessageSquare}>Templates</TabsTrigger>
                         </TabsList>
 
                         <ScrollArea>
-                            <div className="p-6">
-                                <TabsContent value="config" spaced>
+                            <div className="pt-4 pb-2">
+                                <TabsContent value="config" className="space-y-3">
                                     <ActionTile
                                         icon={Bell}
                                         iconColor="#22c55e"
@@ -127,7 +127,7 @@ export function WhatsAppNotificationsDialog({ open, onOpenChange }: WhatsAppNoti
                                     />
                                 </TabsContent>
                         
-                                <TabsContent value="templates" spaced>
+                                <TabsContent value="templates" className="space-y-3">
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                         <div className="space-y-6">
                                             <div className="space-y-3">
