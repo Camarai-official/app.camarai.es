@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DashboardList, DashboardListItem } from '@/components/ui/dashboard-list';
 import type { Product } from '@/data/mock-data';
 import { DateRange } from "react-day-picker";
-import { Star } from 'lucide-react';
+import { Package } from 'lucide-react';
 
 type CategorySalesChartProps = {
   products: Product[];
@@ -34,19 +34,23 @@ export function CategorySalesChart({ products, getCategoryName, date }: Category
   return (
     <Card className="h-full">
       <CardHeader 
-        title="Top Productos" 
-        icon={Star}
-        actions={
-          <Select defaultValue="meses">
-            <SelectTrigger className="w-[100px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="horas">Horas</SelectItem>
-              <SelectItem value="dias">Días</SelectItem>
-              <SelectItem value="meses">Meses</SelectItem>
-            </SelectContent>
-          </Select>
+        icon={Package}
+        title={
+          <div className="flex flex-row items-center justify-between gap-2 w-full">
+            <h3 className="text-base sm:text-xl font-bold leading-tight tracking-tight text-foreground truncate">
+              Top Productos
+            </h3>
+            <Select defaultValue="meses">
+              <SelectTrigger className="w-[100px] shrink-0 h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="horas">Horas</SelectItem>
+                <SelectItem value="dias">Días</SelectItem>
+                <SelectItem value="meses">Meses</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         }
       />
       <CardContent className="pt-0">

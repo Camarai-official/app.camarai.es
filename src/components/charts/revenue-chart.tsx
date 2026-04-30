@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChevronDown, Download, CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEstablishmentContext } from '@/hooks/EstablishmentContext';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 
 const months = [
@@ -31,7 +31,8 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
   const { isMobile } = useIsMobile();
   const currentMonthIndex = new Date().getMonth();
   const [selectedMonth, setSelectedMonth] = React.useState<string>(months[currentMonthIndex]);
-  const { activeId } = useEstablishmentContext();
+  const { activeEstablishment } = useEstablishments();
+  const activeId = activeEstablishment?.id;
 
   // Map month name to number (0-11)
   const monthToNumber = React.useMemo(() => {
@@ -94,9 +95,8 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="md" className="w-[130px] justify-between">
-                  <TextMD>{selectedMonth}</TextMD>
-                  <ChevronDown />
+                <Button variant="outline" size="md" className="w-[130px]" justify="between" endIcon={<ChevronDown />} responsive={false}>
+                  {selectedMonth}
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-auto p-2">
@@ -124,9 +124,7 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
                 <SelectItem value={(currentYear - 1).toString()}>{currentYear - 1}</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" size="md">
-              <Download />
-            </Button>
+            <Button variant="outline" size="md" startIcon={<Download />} responsive={false} className="px-3" />
           </div>
         }
       />

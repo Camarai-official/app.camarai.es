@@ -15,7 +15,7 @@ export default function SettingsPage() {
         title="Configuración" 
         subtitle="Personaliza el funcionamiento de tu restaurante y gestiona tus preferencias."
       />
-      <PageContent className="flex flex-col gap-4">
+      <PageContent className="flex flex-col gap-6">
               <Link href="/settings/profile">
                 <ActionTile
                   icon={User}

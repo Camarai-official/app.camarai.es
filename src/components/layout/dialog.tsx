@@ -49,7 +49,10 @@ const DialogWindow = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 flex flex-col w-[95vw] h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-0 border-none bg-background p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-xl overflow-hidden",
+          // Mobile: fullscreen
+          "fixed inset-0 z-50 flex flex-col w-full h-[100dvh] gap-0 border-none bg-background p-0 shadow-2xl duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 overflow-hidden",
+          // Desktop (sm+): centered card
+          "sm:inset-auto sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:w-[95vw] sm:h-[90vh] sm:rounded-xl data-[state=closed]:sm:zoom-out-95 data-[state=open]:sm:zoom-in-95 data-[state=closed]:sm:slide-out-to-left-1/2 data-[state=closed]:sm:slide-out-to-top-[48%] data-[state=open]:sm:slide-in-from-left-1/2 data-[state=open]:sm:slide-in-from-top-[48%]",
           sizeClasses[size],
           className
         )}
@@ -73,7 +76,7 @@ const DialogContent = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex-1 overflow-y-auto p-6 scrollbar-subtle", 
+      "flex-1 overflow-y-auto py-4 px-2 sm:p-6 scrollbar-subtle", 
       "flex flex-col",
       spaced ? "gap-6" : "gap-4",
       className
@@ -114,13 +117,13 @@ const DialogHeader = ({
   return (
     <div
       className={cn(
-        "flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 p-6 bg-muted/40 shrink-0",
-        flush ? "mb-0" : "-mx-6 -mt-6 mb-6",
+        "flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50 py-4 px-2 sm:p-6 bg-muted/40 shrink-0",
+        flush ? "mb-0" : "-mx-2 -mt-4 mb-4 sm:-mx-6 sm:-mt-6 sm:mb-6",
         className
       )}
       {...props}
     >
-      <div className="flex flex-col space-y-1 text-center sm:text-left">
+      <div className="flex flex-col space-y-1 text-left">
         {hasSmartProps ? (
           <>
             <DialogTitle icon={icon}>{title}</DialogTitle>
@@ -162,6 +165,8 @@ interface DialogFooterProps extends React.HTMLAttributes<HTMLDivElement> {
   flush?: boolean;
   /** Optional extra actions to display next to the standard buttons */
   actions?: React.ReactNode;
+  /** Whether the buttons should follow the responsive collapsing behavior (gap -> hide icon -> show icon only) */
+  responsive?: boolean;
 }
 
 const DialogFooter = ({
@@ -174,6 +179,7 @@ const DialogFooter = ({
   confirmDisabled = false,
   flush = true,
   actions,
+  responsive,
   ...props
 }: DialogFooterProps) => {
   const hasSmartProps = onCancel !== undefined || onConfirm !== undefined || actions !== undefined;
@@ -181,8 +187,8 @@ const DialogFooter = ({
   return (
     <div
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-3 bg-muted/40 border-t border-border/50 p-6 shrink-0",
-        flush ? "mt-0" : "-mx-6 -mb-6 mt-6",
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-3 bg-muted/40 border-t border-border/50 py-4 px-2 sm:p-6 shrink-0",
+        flush ? "mt-0" : "-mx-2 -mb-4 mt-4 sm:-mx-6 sm:-mb-6 sm:mt-6",
         className
       )}
       {...props}
@@ -190,12 +196,12 @@ const DialogFooter = ({
       {hasSmartProps ? (
         <>
           {onCancel && (
-            <Button variant="ghost" onClick={onCancel}>
+            <Button variant="ghost" onClick={onCancel} responsive={responsive}>
               {cancelText}
             </Button>
           )}
           {onConfirm && (
-            <Button variant="default" onClick={onConfirm} disabled={confirmDisabled}>
+            <Button variant="default" onClick={onConfirm} disabled={confirmDisabled} responsive={responsive}>
               {confirmText}
             </Button>
           )}

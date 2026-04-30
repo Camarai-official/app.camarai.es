@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center transition-all relative shrink-0",
+  "inline-flex items-center transition-all relative max-w-full whitespace-nowrap [&_svg]:inline-block [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -64,7 +64,7 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
     return (
       <div ref={ref} className={cn(badgeVariants({ variant, size }), className)} {...props}>
         {startIcon && <span className={cn("inline-flex shrink-0", !variant && "text-muted-foreground")}>{startIcon}</span>}
-        {children}
+        <span className="truncate">{children}</span>
         {endIcon && <span className={cn("inline-flex shrink-0", !variant && "text-muted-foreground")}>{endIcon}</span>}
       </div>
     )

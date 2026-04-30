@@ -410,8 +410,8 @@ export function EmployeeDialog({
 
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-6 border-b bg-muted/10 shrink-0">
-                            <TabsList className="h-14 bg-transparent justify-start gap-4">
+                        <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+                            <TabsList className="w-full">
                                 <TabsTrigger value="datos" icon={User}>Datos</TabsTrigger>
                                 <TabsTrigger value="laboral" icon={Briefcase}>Laboral</TabsTrigger>
                                 <TabsTrigger value="acceso" icon={Key}>Acceso</TabsTrigger>
@@ -422,7 +422,7 @@ export function EmployeeDialog({
                         </div>
 
                         <ScrollArea className="flex-1 w-full">
-                            <div className="p-6">
+                            <div className="py-4 px-2 sm:p-6">
                                 {/* TAB: DATOS PERSONALES */}
                                 <TabsContent value="datos" className="mt-0 space-y-6">
                                     <div className="flex flex-col sm:flex-row items-stretch gap-6">
@@ -482,6 +482,7 @@ export function EmployeeDialog({
                                         <CardContent className="grid gap-3">
                                             <ActionTile
                                                 icon={Palette}
+                                                layout="centered"
                                                 title="Color de Identidad"
                                                 description="Se usará para el perfil y reportes."
                                                 rightContentType="custom"
@@ -496,6 +497,7 @@ export function EmployeeDialog({
 
                                             <ActionTile
                                                 icon={iconMap[employee.icon || 'User']}
+                                                layout="centered"
                                                 iconColor={employee.color}
                                                 title="Icono de Representación"
                                                 description="Icono personalizado del empleado."
@@ -641,6 +643,7 @@ export function EmployeeDialog({
                                                     {nivelesAcceso.map(nivel => (
                                                         <ActionTile
                                                             key={nivel.id}
+                                                            layout="row"
                                                             icon={nivel.icon}
                                                             title={nivel.label}
                                                             description={nivel.description}
@@ -931,6 +934,7 @@ export function EmployeeDialog({
                             variant="ghost"
                             onClick={() => onOpenChange(false)}
                             disabled={isSaving || isDeleting}
+                            responsive={true}
                         >
                             Cancelar
                         </Button>
@@ -938,6 +942,7 @@ export function EmployeeDialog({
                             variant="default"
                             onClick={handleSave}
                             disabled={!employee.nombre || !employee.email || !employee.rol || isSaving || isDeleting}
+                            responsive={true}
                         >
                             {isSaving ? 'Guardando...' : (employeeToEdit ? 'Guardar Cambios' : 'Añadir Empleado')}
                         </Button>

@@ -156,25 +156,27 @@ export function IntegrationsTab() {
                                 key={integration.id}
                                 icon={integration.icon}
                                 iconColor={integration.id === 'whatsapp' ? '#25D366' : undefined}
+                                layout="row"
                                 title={
-                                    <div className="flex items-center gap-2">
-                                        <span>{integration.name}</span>
-                                        {integration.connected ? (
-                                            <Badge variant="secondary" className="text-green-600 h-5 px-1.5 text-[10px]">
-                                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                Conectado
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="outline" className="text-muted-foreground h-5 px-1.5 text-[10px]">
-                                                <XCircle className="h-3 w-3 mr-1" />
-                                                No conectado
-                                            </Badge>
-                                        )}
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2 min-w-0">
+                                        <span className="font-semibold truncate">{integration.name}</span>
+                                        <div className="flex">
+                                            {integration.connected ? (
+                                                <Badge variant="secondary" className="text-green-600 h-5 px-1.5 text-[10px] shrink-0" startIcon={<CheckCircle2 />}>
+                                                    Conectado
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline" className="text-muted-foreground h-5 px-1.5 text-[10px] shrink-0" startIcon={<XCircle />}>
+                                                    No conectado
+                                                </Badge>
+                                            )}
+                                        </div>
                                     </div>
                                 }
                                 description={
-                                    <div>
-                                        <TextSM>{integration.description}{integration.lastSync && <TextXS className="text-muted-foreground"> · Última sincronización: {integration.lastSync}</TextXS>}</TextSM>
+                                    <div className="flex flex-col mt-1 gap-0.5 min-w-0">
+                                        <span className="text-[11px] sm:text-xs text-muted-foreground truncate">{integration.description}</span>
+                                        {integration.lastSync && <span className="text-[10px] text-muted-foreground/80 truncate">Sincronizado: {integration.lastSync}</span>}
                                     </div>
                                 }
                                 variant="outline"
@@ -216,9 +218,8 @@ export function IntegrationsTab() {
                         ))}
                     </div>
                 </CardContent>
-                <CardFooter className="border-t px-6 py-4">
-                    <Button variant="outline">
-                        <ExternalLink className="mr-2 h-4 w-4" />
+                <CardFooter className="border-t pt-4 sm:pt-6">
+                    <Button variant="outline" startIcon={<ExternalLink />}>
                         Ver más integraciones
                     </Button>
                 </CardFooter>
@@ -282,7 +283,7 @@ export function IntegrationsTab() {
                                                 checkboxChecked={configForm.notifyReservations}
                                                 onCheckboxChange={(c) => setConfigForm(prev => ({ ...prev, notifyReservations: c }))}
                                                 variant="outline"
-                                                padding="sm"
+                                                padding="md"
                                             />
                                             <ActionTile
                                                 title="Notificar pedidos"
@@ -292,7 +293,7 @@ export function IntegrationsTab() {
                                                 checkboxChecked={configForm.notifyOrders}
                                                 onCheckboxChange={(c) => setConfigForm(prev => ({ ...prev, notifyOrders: c }))}
                                                 variant="outline"
-                                                padding="sm"
+                                                padding="md"
                                             />
                                         </div>
                                     </div>
@@ -318,10 +319,9 @@ export function IntegrationsTab() {
                                         checkboxChecked={configForm.autoSync}
                                         onCheckboxChange={(c) => setConfigForm(prev => ({ ...prev, autoSync: c }))}
                                         variant="outline"
-                                        padding="sm"
+                                        padding="md"
                                     />
-                                    <Button variant="outline" className="w-full">
-                                        <ExternalLink className="mr-2 h-4 w-4" />
+                                    <Button variant="outline" className="w-full" startIcon={<ExternalLink />}>
                                         Conectar con Google
                                     </Button>
                                 </div>

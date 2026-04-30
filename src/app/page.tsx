@@ -248,7 +248,7 @@ export default function Home() {
 
                 {/* Sección de Métricas Principales */}
                 {dashboardConfig.metrics && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                             <MetricCard
                                 title="Ingresos totales"
                                 value={metricsData.totalRevenue}

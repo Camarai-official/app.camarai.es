@@ -107,7 +107,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                     <DialogClose asChild>
                         <Button variant="ghost">Cerrar</Button>
                     </DialogClose>
-                    <Button variant="default" startIcon={<Download />}>
+                    <Button variant="default" startIcon={<Download />} responsive={false}>
                         Descargar PDF
                     </Button>
                 </DialogFooter>

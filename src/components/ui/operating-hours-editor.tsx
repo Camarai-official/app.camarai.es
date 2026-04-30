@@ -117,11 +117,11 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
   return (
     <div className="space-y-4">
       {ranges.map((range) => (
-        <div key={range.id} className="flex flex-wrap items-center gap-3 p-4 border rounded-xl bg-muted/30 group animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="flex items-center gap-2 flex-grow min-w-[280px]">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
+        <div key={range.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-5 p-5 sm:p-4 border rounded-xl bg-muted/30 group animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-3 w-full sm:w-auto flex-grow">
+            <Calendar className="w-4 h-4 text-muted-foreground shrink-0 hidden sm:block" />
             <Select value={range.startDay} onValueChange={(v) => updateRange(range.id, { startDay: v })}>
-              <SelectTrigger className="w-[120px] bg-background border-none shadow-sm">
+              <SelectTrigger className="flex-1 sm:w-[120px] bg-background border-none shadow-sm h-10">
                 <SelectValue placeholder="Desde" />
               </SelectTrigger>
               <SelectContent>
@@ -130,9 +130,9 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
                 ))}
               </SelectContent>
             </Select>
-            <span className="text-muted-foreground">a</span>
+            <span className="text-muted-foreground shrink-0">a</span>
             <Select value={range.endDay} onValueChange={(v) => updateRange(range.id, { endDay: v })}>
-              <SelectTrigger className="w-[120px] bg-background border-none shadow-sm">
+              <SelectTrigger className="flex-1 sm:w-[120px] bg-background border-none shadow-sm h-10">
                 <SelectValue placeholder="Hasta" />
               </SelectTrigger>
               <SelectContent>
@@ -143,31 +143,33 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
             </Select>
           </div>
 
-          <div className="flex items-center gap-2 flex-grow min-w-[220px]">
-            <Clock className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-3 w-full sm:w-auto flex-grow">
+            <Clock className="w-4 h-4 text-muted-foreground shrink-0 hidden sm:block" />
             <Input 
               type="time" 
               value={range.openTime} 
               onChange={(e) => updateRange(range.id, { openTime: e.target.value })}
-              className="w-[100px] h-9 bg-background border-none shadow-sm"
+              className="flex-1 sm:w-[100px] h-10 bg-background border-none shadow-sm"
             />
-            <span className="text-muted-foreground">-</span>
+            <span className="text-muted-foreground shrink-0">-</span>
             <Input 
               type="time" 
               value={range.closeTime} 
               onChange={(e) => updateRange(range.id, { closeTime: e.target.value })}
-              className="w-[100px] h-9 bg-background border-none shadow-sm"
+              className="flex-1 sm:w-[100px] h-10 bg-background border-none shadow-sm"
             />
           </div>
 
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => removeRange(range.id)}
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          <div className="w-full sm:w-auto flex pt-2 sm:pt-0 border-t sm:border-none border-border/50">
+            <Button 
+              variant="ghost-destructive" 
+              onClick={() => removeRange(range.id)}
+              className="w-full sm:w-10 h-10 sm:px-0 flex items-center justify-center"
+            >
+              <Trash2 className="h-4 w-4 hidden sm:block" />
+              <span className="sm:hidden">Eliminar Rango</span>
+            </Button>
+          </div>
         </div>
       ))}
       
@@ -175,8 +177,8 @@ export function OperatingHoursEditor({ value, onChange }: OperatingHoursEditorPr
         variant="outline" 
         className="w-full border-dashed py-6 hover:bg-primary/5 hover:border-primary/50 transition-all border-2" 
         onClick={addRange}
+        startIcon={<Plus />}
       >
-        <Plus className="w-4 h-4 mr-2" />
         Añadir nuevo rango horario
       </Button>
     </div>

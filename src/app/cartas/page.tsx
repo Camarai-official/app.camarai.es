@@ -46,8 +46,6 @@ export default function CartasCombinadasPage() {
                                 size="md" 
                                 className="shrink-0"
                                 onClick={() => {
-                                    // Disparar evento personalizado o usar refs (implementaremos via dispatchEvent por simplicidad o permitiendo que las tabs escuchen)
-                                    // Para este caso, vamos a usar un evento global simple que las tabs escucharán
                                     window.dispatchEvent(new CustomEvent(`open-add-${activeTab}`));
                                 }}
                             >

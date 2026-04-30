@@ -161,7 +161,10 @@ export default function NotificationsPage() {
                                 <TableRow>
                                     <TableHead width="80px" align="center">Hora</TableHead>
                                     <TableHead>Evento</TableHead>
-                                    <TableHead>Actor / Origen</TableHead>
+                                    <TableHead>
+                                        <span className="sm:hidden">Origen</span>
+                                        <span className="hidden sm:inline">Actor / Origen</span>
+                                    </TableHead>
                                     <TableHead>Detalles</TableHead>
                                     <TableHead align="center">Categoría</TableHead>
                                 </TableRow>

@@ -83,6 +83,7 @@ export function DevicesTab({
                                                 key={device.id}
                                                 variant="none"
                                                 padding="md"
+                                                layout="row"
                                                 icon={<ConnectionIcon method={device.connectionMethod} />}
                                                 title={device.name}
                                                 description={device.model}
@@ -92,13 +93,13 @@ export function DevicesTab({
                                                         <Switch checked={device.active} onCheckedChange={(checked) => updateDevice(device.id, { active: checked })} />
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" size="md">
-                                                                    <MoreVertical />
+                                                                <Button variant="ghost" size="icon" className="h-10 w-10">
+                                                                    <MoreVertical className="h-5 w-5" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent align="end">
                                                                 <DropdownMenuItem onClick={() => handleOpenDeviceDialog(type, device)}><Pencil />Editar</DropdownMenuItem>
-                                                                <DropdownMenuItem textVariant="destructive" onClick={() => removeDevice(device.id)}><Trash />Eliminar</DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => removeDevice(device.id)}><Trash />Eliminar</DropdownMenuItem>
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </div>
@@ -161,7 +162,7 @@ export function DevicesTab({
 
                         {/* Section: Conectividad y Búsqueda */}
                         {(editingDevice?.connectionMethod === 'wifi' || editingDevice?.connectionMethod === 'bluetooth') && (
-                            <div className="flex flex-col gap-4 p-4 border rounded-xl">
+                            <div className="flex flex-col gap-4 p-4 border rounded-xl bg-muted/30">
                                 <Label variant="medium">Conectividad</Label>
                                 <Button 
                                     size="md" variant="outline" 
@@ -169,6 +170,7 @@ export function DevicesTab({
                                     onClick={() => handleSearchDevices(editingDevice?.connectionMethod as 'wifi' | 'bluetooth')} 
                                     disabled={isSearching}
                                     startIcon={isSearching ? <Loader2 className="animate-spin" /> : (editingDevice?.connectionMethod === 'wifi' ? <Wifi /> : <Bluetooth />)}
+                                    responsive={false}
                                 >
                                     {isSearching ? 'Buscando...' : `Buscar Dispositivos ${editingDevice?.connectionMethod === 'wifi' ? 'Wi-Fi' : 'Bluetooth'}`}
                                 </Button>
@@ -207,7 +209,7 @@ export function DevicesTab({
                         {/* Section: Roles para Impresoras */}
                         {editingDevice?.type === 'printer' && (
                             <>
-                                <div className="flex flex-col gap-4 p-4 border rounded-xl">
+                                <div className="flex flex-col gap-4 p-4 border rounded-xl bg-muted/30">
                                     <Label variant="medium">Roles y Funciones</Label>
                                     <div className="flex flex-col gap-2">
                                         <Label htmlFor="device-role">Rol Principal</Label>
@@ -245,7 +247,7 @@ export function DevicesTab({
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col gap-4 p-4 border rounded-xl">
+                                <div className="flex flex-col gap-4 p-4 border rounded-xl bg-muted/30">
                                     <Label variant="medium">Configuración de Tickets</Label>
                                     <div className="flex flex-col gap-3">
                                         <ActionTile
