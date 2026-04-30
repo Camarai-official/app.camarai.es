@@ -71,6 +71,7 @@ export const seedData = mutation({
       name: "Miguel",
       last_name: "Riu",
       role: "admin",
+      phone: "+34 630 387 653",
       status: "active",
       contract_type: "indefinite",
       contract_start: Date.now() - 31536000000,

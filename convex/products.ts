@@ -360,3 +360,160 @@ export const getTaxes = query({
     return taxes.sort((a, b) => a.name.localeCompare(b.name));
   },
 });
+
+
+// =============================================================================
+// Recipe (product_ingredients) queries & mutations for the AI agent
+// =============================================================================
+
+/**
+ * Get recipe (ingredients) for a product by its ID or name.
+ * Used by the manager agent to inspect what ingredients compose a dish.
+ */
+export const getProductRecipe = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    productId: v.optional(v.id("products")),
+    productName: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    let productId = args.productId;
+
+    // Resolve by name if productId not provided
+    if (!productId && args.productName) {
+      const products = await ctx.db
+        .query("products")
+        .withIndex("by_establishment", q => q.eq("establishment_id", args.establishmentId))
+        .collect();
+
+      const nameLower = args.productName.toLowerCase();
+      const match = products.find(p => p.name.toLowerCase().includes(nameLower));
+      if (!match) return { error: `Producto '${args.productName}' no encontrado.`, recipe: [] };
+      productId = match._id;
+    }
+
+    if (!productId) return { error: "Se requiere productId o productName.", recipe: [] };
+
+    const product = await ctx.db.get(productId);
+    if (!product) return { error: "Producto no encontrado.", recipe: [] };
+
+    const recipeItems = await ctx.db
+      .query("product_ingredients")
+      .withIndex("by_product", q => q.eq("product_id", productId!))
+      .collect();
+
+    if (recipeItems.length === 0) {
+      return {
+        product_name: product.name,
+        product_id: productId,
+        recipe: [],
+        message: "Este producto no tiene receta definida.",
+      };
+    }
+
+    const recipe = await Promise.all(
+      recipeItems.map(async (item) => {
+        const ingredient = await ctx.db.get(item.ingredient_id);
+        return {
+          ingredient_id: item.ingredient_id,
+          ingredient_name: ingredient?.name || "?",
+          quantity_required: item.quantity_required,
+          unit: item.unit,
+          current_stock: ingredient?.stock || 0,
+          alert_min: ingredient?.alert_min || 0,
+        };
+      })
+    );
+
+    return {
+      product_name: product.name,
+      product_id: productId,
+      recipe,
+    };
+  },
+});
+
+/**
+ * Set recipe for a product (replace all ingredients).
+ * The manager agent can use this to define/update a dish's recipe via chat.
+ */
+export const setProductRecipe = mutation({
+  args: {
+    productId: v.id("products"),
+    ingredients: v.array(v.object({
+      ingredientId: v.id("ingredients"),
+      quantity: v.number(),
+      unit: v.string(),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const product = await ctx.db.get(args.productId);
+    if (!product) throw new Error("Producto no encontrado");
+
+    // Delete existing recipe
+    const existing = await ctx.db
+      .query("product_ingredients")
+      .withIndex("by_product", q => q.eq("product_id", args.productId))
+      .collect();
+
+    for (const item of existing) {
+      await ctx.db.delete(item._id);
+    }
+
+    // Insert new recipe items
+    for (const ing of args.ingredients) {
+      await ctx.db.insert("product_ingredients", {
+        product_id: args.productId,
+        ingredient_id: ing.ingredientId,
+        quantity_required: ing.quantity,
+        unit: ing.unit,
+      });
+    }
+
+    return { success: true, product_name: product.name, ingredients_count: args.ingredients.length };
+  },
+});
+
+/**
+ * Add a single ingredient to a product's recipe (without replacing existing ones).
+ * Useful for incremental recipe building via chat.
+ */
+export const addRecipeIngredient = mutation({
+  args: {
+    productId: v.id("products"),
+    ingredientId: v.id("ingredients"),
+    quantity: v.number(),
+    unit: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const product = await ctx.db.get(args.productId);
+    if (!product) throw new Error("Producto no encontrado");
+
+    const ingredient = await ctx.db.get(args.ingredientId);
+    if (!ingredient) throw new Error("Ingrediente no encontrado");
+
+    // Check if already exists — update quantity instead of duplicating
+    const existing = await ctx.db
+      .query("product_ingredients")
+      .withIndex("by_product", q => q.eq("product_id", args.productId))
+      .collect();
+
+    const existingItem = existing.find(e => e.ingredient_id === args.ingredientId);
+    if (existingItem) {
+      await ctx.db.patch(existingItem._id, {
+        quantity_required: args.quantity,
+        unit: args.unit,
+      });
+      return { action: "updated", product_name: product.name, ingredient_name: ingredient.name, quantity: args.quantity, unit: args.unit };
+    }
+
+    await ctx.db.insert("product_ingredients", {
+      product_id: args.productId,
+      ingredient_id: args.ingredientId,
+      quantity_required: args.quantity,
+      unit: args.unit,
+    });
+
+    return { action: "added", product_name: product.name, ingredient_name: ingredient.name, quantity: args.quantity, unit: args.unit };
+  },
+});

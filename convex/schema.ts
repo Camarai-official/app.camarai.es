@@ -1013,4 +1013,16 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_date", ["start_time"]),
 
+  // --- DOMAIN 10: AI AGENT CHAT HISTORY ---
+
+  agent_chat_messages: defineTable({
+    establishment_id: v.id("establishments"),
+    session_id: v.string(),  // WhatsApp JID or test session ID
+    role: v.union(v.literal("human"), v.literal("ai")),
+    content: v.string(),
+    agent_type: v.union(v.literal("customer"), v.literal("manager")),
+    created_at: v.number(),
+  }).index("by_session", ["session_id", "created_at"])
+    .index("by_establishment", ["establishment_id", "created_at"]),
+
 });
