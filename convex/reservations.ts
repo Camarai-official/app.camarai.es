@@ -386,3 +386,48 @@ function parseTime(timeStr: string): number {
   const [hours, minutes] = timeStr.split(":").map(Number);
   return hours * 60 + minutes;
 }
+
+
+// =============================================================================
+// Reminder system: query upcoming reservations that need a reminder
+// =============================================================================
+
+export const getReservationsForReminder = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    currentDate: v.string(),     // "YYYY-MM-DD" (today)
+    currentTimeMin: v.number(),  // Current time in minutes from midnight
+  },
+  handler: async (ctx, args) => {
+    const reservations = await ctx.db
+      .query("reservations")
+      .withIndex("by_establishment", (q) =>
+        q.eq("establishment_id", args.establishmentId)
+      )
+      .collect();
+
+    // Filter: today's date, confirmed/pending, not yet reminded,
+    // and start_time is between 55-65 minutes from now
+    return reservations.filter((r) => {
+      if (r.date !== args.currentDate) return false;
+      if (r.reminder_sent) return false;
+      if (r.status !== "confirmed" && r.status !== "pending") return false;
+      if (!r.customer_phone) return false; // Can't send without phone
+
+      const reservationMinutes = parseTime(r.start_time);
+      const minutesUntil = reservationMinutes - args.currentTimeMin;
+
+      // Send reminder when reservation is 55-65 minutes away
+      return minutesUntil >= 55 && minutesUntil <= 65;
+    });
+  },
+});
+
+export const markReminderSent = mutation({
+  args: {
+    reservationId: v.id("reservations"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.reservationId, { reminder_sent: true });
+  },
+});
