@@ -47,17 +47,17 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
               <TextXS className="text-gray-500">Tel: +34 912 345 678</TextXS>
 
               <div className="mt-4 border-b-2 border-dashed border-gray-300 pb-4">
-                <h3 className="text-xl font-bold">Ticket #{order.order}</h3>
+                <h3 className="text-xl font-bold">Ticket #{order.orderNumber}</h3>
                 <TextXS className="text-gray-400">
-                  {order.date ? order.date : new Date().toLocaleDateString()} - {order.time}
+                  {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : new Date().toLocaleDateString()} - {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
                 </TextXS>
               </div>
             </div>
 
             {/* Customer Info */}
             <div className="flex justify-between mb-4 text-xs font-bold ">
-              <TextMD>MESA: {order.table}</TextMD>
-              <TextMD>CLIENTE: {order.name.split(' ')[0]}</TextMD>
+              <TextMD>MESA: {order.tableLabel || '-'}</TextMD>
+              <TextMD>CLIENTE: {(order.customerName || order.staffName || 'Invitado').split(' ')[0]}</TextMD>
             </div>
 
             {/* Items */}
@@ -70,8 +70,8 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-start">
                   <H4>{item.quantity}</H4>
-                  <TextMD>{item.name}</TextMD>
-                  <TextMD>€{(item.price * item.quantity).toFixed(2)}</TextMD>
+                  <TextMD>{item.productName}</TextMD>
+                  <TextMD>€{((item.unitPrice * item.quantity) / 100).toFixed(2)}</TextMD>
                 </div>
               ))}
             </div>
@@ -80,15 +80,15 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
             <div className="border-t-2 border-dashed border-gray-300 pt-4 space-y-1">
               <div className="flex justify-between text-gray-600">
                 <TextMD>Subtotal</TextMD>
-                <TextMD>€{order.subtotal.toFixed(2)}</TextMD>
+                <TextMD>€{(order.subtotal / 100).toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-gray-600">
-                <TextMD>Impuestos (21%)</TextMD>
-                <TextMD>€{order.tax.toFixed(2)}</TextMD>
+                <TextMD>Impuestos</TextMD>
+                <TextMD>€{(order.taxAmount / 100).toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-xl font-bold mt-2 pt-2 border-t border-black">
                 <TextMD>TOTAL</TextMD>
-                <TextMD>{order.total}</TextMD>
+                <TextMD>€{(order.totalAmount / 100).toFixed(2)}</TextMD>
               </div>
             </div>
 

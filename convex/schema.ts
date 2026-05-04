@@ -314,15 +314,21 @@ export default defineSchema({
     color: v.optional(v.string()),
     orders: v.optional(v.array(v.id("orders"))),
     created_at: v.number(),
-  }).index("by_establishment", ["establishment_id"]),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_establishment_and_status", ["establishment_id", "status"]),
 
   tables: defineTable({
     environment_id: v.id("environments"),
     number: v.number(),
     label: v.optional(v.string()),
     capacity: v.number(),
-    status: v.union(v.literal("free"), v.literal("occupied"), v.literal("reserved"), v.literal("dirty")),
+    status: v.union(v.literal("free"), v.literal("occupied"), v.literal("reserved"), v.literal("maintenance"), v.literal("waiting_payment"), v.literal("paid"), v.literal("linked")),
     current_order_id: v.optional(v.id("orders")),
+    guests_count: v.optional(v.number()),
+    current_total: v.optional(v.number()),
+    opened_at: v.optional(v.number()),
+    first_sent_at: v.optional(v.number()),
+    merged_into_table_id: v.optional(v.id("tables")),
     x: v.number(),
     y: v.number(),
     width: v.number(),
@@ -332,28 +338,34 @@ export default defineSchema({
     chairs: v.optional(v.any()), // Visual chair configuration
     is_object: v.optional(v.boolean()), // Decoration objects/walls
     object_type: v.optional(v.string()),
-  }).index("by_environment", ["environment_id"]),
+  }).index("by_environment", ["environment_id"])
+    .index("by_environment_number", ["environment_id", "number"]),
 
   orders: defineTable({
     establishment_id: v.id("establishments"),
     table_id: v.optional(v.id("tables")),
+    environment_id: v.optional(v.id("environments")),
     staff_id: v.id("staff"),
     customer_id: v.optional(v.id("customers")),
     order_number: v.string(),
     status: v.union(v.literal("open"), v.literal("paid"), v.literal("cancelled"), v.literal("refunded")),
-    total_amount: v.number(), // In cents
-    subtotal: v.number(), // In cents
-    tax_amount: v.number(), // In cents
-    discount_amount: v.number(), // In cents
+    total_amount: v.number(),
+    subtotal: v.number(),
+    tax_amount: v.number(),
+    discount_amount: v.number(),
     discount_reason: v.optional(v.string()),
     notes: v.optional(v.string()),
     payment_type: v.union(v.literal("individual"), v.literal("shared"), v.literal("split")),
+    payment_status: v.optional(v.union(v.literal("pending"), v.literal("partial"), v.literal("paid"))),
+    order_type: v.optional(v.union(v.literal("dine_in"), v.literal("takeaway"), v.literal("delivery"), v.literal("counter"))),
     source: v.union(v.literal("pos"), v.literal("pda"), v.literal("carta"), v.literal("voice"), v.literal("agent")),
+    is_refund: v.optional(v.boolean()),
     guests: v.number(),
     is_commission_order: v.boolean(),
     created_at: v.number(),
     updated_at: v.number(),
     closed_at: v.optional(v.number()),
+    reservation_id: v.optional(v.id("reservations")),
     // Delivery & WhatsApp fields from struct_dump.sql
     delivery_address: v.optional(v.string()),
     delivery_postal_code: v.optional(v.string()),
@@ -364,7 +376,8 @@ export default defineSchema({
     metodo_pago: v.optional(v.string()), // effective, card, etc.
   }).index("by_establishment", ["establishment_id"])
     .index("by_establishment_status", ["establishment_id", "status"])
-    .index("by_establishment_created", ["establishment_id", "created_at"]),
+    .index("by_establishment_created", ["establishment_id", "created_at"])
+    .index("by_reservation", ["reservation_id"]),
 
   order_items: defineTable({
     order_id: v.id("orders"),
@@ -376,7 +389,7 @@ export default defineSchema({
     variant: v.optional(v.string()),
     notes: v.optional(v.string()),
     course: v.union(v.literal("first"), v.literal("second"), v.literal("dessert"), v.literal("drink")),
-    item_status: v.union(v.literal("pending"), v.literal("preparing"), v.literal("ready"), v.literal("served"), v.literal("cancelled")),
+    item_status: v.union(v.literal("pending"), v.literal("preparing"), v.literal("ready"), v.literal("served"), v.literal("cancelled"), v.literal("paid")),
     sent_to_kitchen_at: v.optional(v.number()),
     ready_at: v.optional(v.number()),
     // Individual item payment from struct_dump.sql
@@ -389,10 +402,11 @@ export default defineSchema({
   payments: defineTable({
     establishment_id: v.id("establishments"),
     order_id: v.id("orders"),
-    method: v.union(v.literal("cash"), v.literal("card"), v.literal("bizum"), v.literal("transfer")),
+    method: v.union(v.literal("cash"), v.literal("card"), v.literal("bizum"), v.literal("transfer"), v.literal("apple_pay"), v.literal("google_pay")),
     amount: v.number(),
     tip: v.number(),
     reference: v.optional(v.string()),
+    order_item_ids: v.optional(v.array(v.id("order_items"))),
     staff_id: v.id("staff"),
     timestamp: v.number(),
   }).index("by_order", ["order_id"])
@@ -439,7 +453,7 @@ export default defineSchema({
     guests: v.number(),
     status: v.union(v.literal("pending"), v.literal("confirmed"), v.literal("cancelled"), v.literal("completed"), v.literal("no_show")),
     notified: v.boolean(),
-    source: v.union(v.literal("dashboard"), v.literal("whatsapp"), v.literal("web")),
+    source: v.union(v.literal("dashboard"), v.literal("whatsapp"), v.literal("web"), v.literal("pos")),
     notes: v.optional(v.string()),
     reminder_sent: v.boolean(),
     created_at: v.number(),
@@ -1012,5 +1026,83 @@ export default defineSchema({
     .index("by_code", ["session_code"])
     .index("by_status", ["status"])
     .index("by_date", ["start_time"]),
+
+  // --- DOMAIN 10: KITCHEN DISPLAY SYSTEM (KDS) ---
+
+  kitchen_stations: defineTable({
+    establishment_id: v.id("establishments"),
+    name: v.string(), // Ej: "Parrilla", "Freidora", "Horno", "Barra Fría"
+    description: v.optional(v.string()),
+    color: v.optional(v.string()), // Color identificativo para UI
+    icon: v.optional(v.string()),
+    display_order: v.number(), // Orden en el KDS
+    preparation_types: v.array(v.string()), // Tipos de preparación: ["grilled", "fried", "baked"]
+    average_preparation_time: v.optional(v.number()), // Tiempo medio en minutos
+    active: v.boolean(),
+    created_at: v.number(),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_establishment_active", ["establishment_id", "active"]),
+
+  kds_displays: defineTable({
+    establishment_id: v.id("establishments"),
+    name: v.string(), // Nombre de la pantalla (ej: "KDS Cocina Principal")
+    device_id: v.optional(v.id("devices")), // Relación con tabla devices si existe
+    station_ids: v.array(v.id("kitchen_stations")), // Estaciones que muestra esta pantalla
+    view_mode: v.union(v.literal("orders"), v.literal("items"), v.literal("combined")), // Vista: por orden, por item, o combinada
+    auto_refresh_seconds: v.optional(v.number()), // Intervalo de refresco
+    sound_enabled: v.boolean(),
+    sound_alert_file: v.optional(v.string()), // Archivo de sonido personalizado
+    show_completed_time: v.boolean(), // Mostrar tiempo de completado
+    highlight_late_orders: v.boolean(), // Resaltar pedidos atrasados
+    late_threshold_minutes: v.optional(v.number()), // Umbral para considerar atrasado
+    theme: v.optional(v.string()), // Tema visual: "dark", "light"
+    active: v.boolean(),
+    last_seen: v.optional(v.number()),
+    created_at: v.number(),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_establishment_active", ["establishment_id", "active"])
+    .index("by_device", ["device_id"]),
+
+  kds_routing_rules: defineTable({
+    establishment_id: v.id("establishments"),
+    station_id: v.id("kitchen_stations"),
+    rule_type: v.union(v.literal("category"), v.literal("product"), v.literal("keyword")),
+    category_id: v.optional(v.id("categories")), // Si es por categoría
+    product_id: v.optional(v.id("products")), // Si es por producto específico
+    keywords: v.optional(v.array(v.string())), // Si es por palabras clave en nombre
+    priority: v.number(), // Prioridad de la regla (mayor = más prioritario)
+    active: v.boolean(),
+    created_at: v.number(),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_station", ["station_id"])
+    .index("by_category", ["category_id"])
+    .index("by_product", ["product_id"]),
+
+  kds_order_queue: defineTable({
+    establishment_id: v.id("establishments"),
+    order_item_id: v.id("order_items"),
+    station_id: v.id("kitchen_stations"),
+    display_id: v.optional(v.id("kds_displays")),
+    ticket_number: v.string(), // Número de ticket visible en KDS
+    priority: v.optional(v.number()), // Prioridad del item (urgente, normal)
+    queue_position: v.number(), // Posición en la cola
+    estimated_start_time: v.optional(v.number()), // Cuándo se estima empezar
+    estimated_ready_time: v.optional(v.number()), // Cuándo se estima terminar
+    bumped_count: v.optional(v.number()), // Veces que se ha "bumped" (pospuesto)
+    // Campos de tracking de tiempos
+    received_at: v.number(), // Cuándo llegó al KDS
+    viewed_at: v.optional(v.number()), // Cuándo se visualizó en pantalla
+    started_at: v.optional(v.number()), // Cuándo se empezó a preparar
+    ready_at: v.optional(v.number()), // Cuándo se marcó como listo
+    served_at: v.optional(v.number()), // Cuándo se sirvió
+    // Metadata
+    notes: v.optional(v.string()),
+    created_at: v.number(),
+    updated_at: v.number(),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_station", ["station_id"])
+    .index("by_order_item", ["order_item_id"])
+    .index("by_display", ["display_id"])
+    .index("by_queue_position", ["station_id", "queue_position"]),
 
 });
