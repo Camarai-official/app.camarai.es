@@ -1104,5 +1104,4 @@ export default defineSchema({
     .index("by_order_item", ["order_item_id"])
     .index("by_display", ["display_id"])
     .index("by_queue_position", ["station_id", "queue_position"]),
-
 });
