@@ -33,7 +33,7 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogWindow size="md">
                 <DialogHeader icon={Settings} title={`Editar Mesa ${editingTable.number}`} description="Ajusta los parámetros físicos y operativos." />
-                <DialogContent>
+                <DialogContent spaced>
                     <ActionTile
                         icon={Hash}
                         iconColor="muted-foreground"
@@ -41,6 +41,7 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         description="Identificador visual para clientes y tickets."
                         rightContentType="custom"
                         rightContentClassName="w-20"
+                        layout="row"
                         customContent={
                             <Input 
                                 type="number" 
@@ -64,6 +65,7 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         description="Basado en las sillas configuradas."
                         rightContentType="custom"
                         rightContentClassName="w-20"
+                        layout="row"
                         customContent={
                             <div className="flex items-center justify-center w-full h-10 border rounded-xl bg-background text-sm">
                                 {((editingTable.chairs?.top?.length || 0) + 
@@ -82,6 +84,7 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         description="Determina si la mesa está disponible."
                         rightContentType="select"
                         rightContentClassName="min-w-36"
+                        layout="row"
                         selectValue={editingTable.status}
                         onSelectChange={(v) => setEditingTable({ ...editingTable, status: v as TableStatus })}
                         selectOptions={Object.keys(statusConfig).map(s => ({ value: s, label: s }))}
@@ -93,14 +96,16 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                         title="Código QR"
                         description="Enlace directo a la carta autogestionada."
                         rightContentType="custom"
+                        layout="row"
                         customContent={
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     size="md"
                                     startIcon={<Copy />}
                                     onClick={() => onOpenQR(editingTable)}
+                                    responsive={false}
                                 >
                                     Enlace
                                 </Button>
@@ -110,6 +115,7 @@ export function EditTableDialog({ open, onOpenChange, editingTable, setEditingTa
                                     size="md"
                                     startIcon={<Download />}
                                     onClick={() => onOpenQR(editingTable)}
+                                    responsive={false}
                                 >
                                     Imagen
                                 </Button>

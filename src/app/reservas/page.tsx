@@ -550,75 +550,82 @@ export default function ReservasPage() {
                 <div className="lg:w-1/3 xl:w-1/3 flex flex-col gap-4 h-full overflow-hidden">
                     <Card flex padding="none" className="h-full overflow-hidden">
                         <CardHeader
-                            title={format(selectedDate, "PPP", { locale: es })}
-                            description={listDescription}
-                            actions={
-                                <div className="flex flex-wrap items-center justify-end gap-2">
-                                    <Select value={environmentFilterId} onValueChange={setEnvironmentFilterId}>
-                                        <SelectTrigger
-                                            width="xl"
-                                            className="min-w-[260px] max-w-[min(100%,320px)] !w-[min(100%,320px)] antialiased [&>span]:line-clamp-none [&>span]:flex [&>span]:min-w-0 [&>span]:flex-1 [&>span]:flex-nowrap [&>span]:items-center"
-                                            aria-label="Filtrar por ambiente"
-                                        >
-                                            <span className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden">
-                                                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                                <span className="min-w-0 flex-1 basis-0 overflow-hidden text-left">
-                                                    <SelectValue
-                                                        placeholder="Ambiente"
-                                                        className="block truncate whitespace-nowrap text-left text-sm leading-none"
-                                                    />
-                                                </span>
-                                                <Badge
-                                                    variant="secondary"
-                                                    size="xs"
-                                                    className="ml-0.5 shrink-0 tabular-nums px-2 py-0 leading-none"
-                                                    title="Reservas este día (este filtro)"
-                                                >
-                                                    {triggerFilterCount}
+                            className="items-stretch gap-4 pb-4 border-b"
+                            title={
+                                <div className="flex items-center justify-between w-full">
+                                    <h3 className="text-lg font-bold tracking-tight text-foreground">
+                                        {format(selectedDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
+                                    </h3>
+                                    <Badge variant="secondary" className="px-2 py-0.5 text-xs font-bold tabular-nums">
+                                        {dayReservations.length}
+                                    </Badge>
+                                </div>
+                            }
+                            description={environmentFilterId === 'all' ? undefined : `Filtrando por ${environments.find(e => e.id === environmentFilterId)?.name}`}
+                        >
+                            <div className="flex flex-col gap-3 w-full pt-1">
+                                <Select value={environmentFilterId} onValueChange={setEnvironmentFilterId}>
+                                    <SelectTrigger
+                                        size="md"
+                                        className="w-full"
+                                        aria-label="Filtrar por ambiente"
+                                    >
+                                        <div className="flex items-center gap-2 truncate">
+                                            <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                            <SelectValue placeholder="Ambiente" />
+                                        </div>
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItemWithTrailing
+                                            value="all"
+                                            label="Todos"
+                                            trailing={
+                                                <Badge variant="secondary" size="xs" className="ml-2">
+                                                    {reservationCountsForDay.total}
                                                 </Badge>
-                                            </span>
-                                        </SelectTrigger>
-                                        <SelectContent className="min-w-[var(--radix-select-trigger-width)]">
+                                            }
+                                        />
+                                        {environments.map((env) => (
                                             <SelectItemWithTrailing
-                                                value="all"
-                                                label="Todos los ambientes"
+                                                key={env.id}
+                                                value={env.id}
+                                                label={env.name}
                                                 trailing={
-                                                    <Badge
-                                                        variant="secondary"
-                                                        size="xs"
-                                                        className="shrink-0 tabular-nums min-w-[1.25rem] justify-center px-1.5"
-                                                    >
-                                                        {reservationCountsForDay.total}
+                                                    <Badge variant="secondary" size="xs" className="ml-2">
+                                                        {reservationCountsForDay.byEnvironmentId[env.id] ?? 0}
                                                     </Badge>
                                                 }
                                             />
-                                            {environments.map((env) => (
-                                                <SelectItemWithTrailing
-                                                    key={env.id}
-                                                    value={env.id}
-                                                    label={env.name}
-                                                    trailing={
-                                                        <Badge
-                                                            variant="secondary"
-                                                            size="xs"
-                                                            className="shrink-0 tabular-nums min-w-[1.25rem] justify-center px-1.5"
-                                                        >
-                                                            {reservationCountsForDay.byEnvironmentId[env.id] ?? 0}
-                                                        </Badge>
-                                                    }
-                                                />
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <Button variant='default' onClick={handleOpenNewReservation} size="md" startIcon={<PlusCircle />}>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                
+                                <div className="flex flex-row items-center gap-2 w-full">
+                                    <Button 
+                                        variant='default' 
+                                        onClick={handleOpenNewReservation} 
+                                        size="md"
+                                        className="flex-1 w-full"
+                                        startIcon={<PlusCircle />}
+                                        responsive={false}
+                                    >
+                                        Crear
                                     </Button>
-                                    <Button variant="outline" size="md" onClick={() => setIsWhatsAppConfigOpen(true)}>
-                                        <MessageSquare />
+                                    
+                                    <Button 
+                                        variant="outline" 
+                                        size="md" 
+                                        onClick={() => setIsWhatsAppConfigOpen(true)}
+                                        className="flex-1 w-full"
+                                        startIcon={<MessageSquare />}
+                                        responsive={false}
+                                    >
+                                        Mensajes
                                     </Button>
                                 </div>
-                            }
-                        />
-                        <CardContent flex padding="sm" gap="sm" className="flex-1 overflow-y-auto custom-scrollbar">
+                            </div>
+                        </CardHeader>
+                        <CardContent flex padding="md" gap="sm" className="flex-1 overflow-y-auto custom-scrollbar">
                             {filteredDayReservations.length > 0 ? (
                                 <div className="space-y-3">
                                     {filteredDayReservations.map(res => {
@@ -661,12 +668,16 @@ export default function ReservasPage() {
                                         return (
                                             <ActionTile
                                                 key={res.id}
-                                                title={res.customerName}
+                                                title={
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant={statusProps.variant} size="xs">{statusProps.text}</Badge>
+                                                        <span className="truncate">{res.customerName}</span>
+                                                    </div>
+                                                }
                                                 description={description}
                                                 variant="outline"
                                                 rightContent={
                                                     <div className="flex items-center gap-2">
-                                                        <Badge variant={statusProps.variant} size="xs">{statusProps.text}</Badge>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" size="md" className="h-10 w-10">

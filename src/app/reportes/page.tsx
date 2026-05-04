@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { addDays } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone, Clock, Calendar } from 'lucide-react';
+import { DollarSign, TrendingUp, Archive, Users2, MessageSquare, Send, Eye, MousePointer, Phone, Clock, Calendar, Wallet } from 'lucide-react';
 import {
     mockStaffMembers,
     mockProducts,
@@ -87,6 +87,7 @@ export default function ReportesPage() {
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -30),
         to: new Date() });
+
     const [reportType, setReportType] = React.useState<string>('accounts');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [ordersPerPage] = React.useState(11);
@@ -193,7 +194,7 @@ export default function ReportesPage() {
                             <TabsTrigger value="absences" icon={Calendar}>Ausencias</TabsTrigger>
                             <TabsTrigger value="inventory" icon={Archive}>Inventario</TabsTrigger>
                             <TabsTrigger value="whatsapp" icon={MessageSquare}>WhatsApp</TabsTrigger>
-                            <TabsTrigger value="cash-closing">Cierre</TabsTrigger>
+                            <TabsTrigger value="cash-closing" icon={Wallet}>Cierre</TabsTrigger>
                         </TabsList>
 
                     <BillingTab
@@ -212,7 +213,9 @@ export default function ReportesPage() {
                         onPaginate={paginate}
                         onViewDetails={handleViewDetails}
                     />
+
                     <PerformanceTab products={appData.products} orders={allOrders} getCategoryName={getCategoryName} />
+
                     <StaffTab
                         mode="hours"
                         staffMembers={appData.staffMembers}
@@ -229,6 +232,7 @@ export default function ReportesPage() {
                         filteredAbsenceRequests={filteredAbsenceRequests}
                         onUpdateRequest={handleUpdateRequest}
                     />
+
                     <StaffTab
                         mode="absences"
                         staffMembers={appData.staffMembers}
@@ -245,6 +249,7 @@ export default function ReportesPage() {
                         filteredAbsenceRequests={filteredAbsenceRequests}
                         onUpdateRequest={handleUpdateRequest}
                     />
+
                     <InventoryTab
                         products={appData.products}
                         taxes={appData.taxes}
@@ -265,8 +270,8 @@ export default function ReportesPage() {
                     />
 
                     {/* WhatsApp Metrics Tab */}
-                    <TabsContent value="whatsapp" className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <TabsContent value="whatsapp" className="space-y-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <MetricCard 
                                 title="Mensajes Enviados" 
                                 value={new Intl.NumberFormat('es-ES').format(mockWhatsAppMetrics.mensajesEnviados)}
@@ -289,7 +294,7 @@ export default function ReportesPage() {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Delivery Stats */}
                             <Card>
                                 <CardHeader title="Estadísticas de Entrega">
@@ -358,7 +363,7 @@ export default function ReportesPage() {
                             <CardHeader title="Conversaciones Recientes">
                                 <CardDescription>Últimas interacciones de clientes vía WhatsApp</CardDescription>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent padding="flush">
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>

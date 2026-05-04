@@ -157,7 +157,7 @@ export function ExportModal({
 
         <DialogContent>
           <ScrollArea className="h-full">
-          <div className="p-6 space-y-8">
+          <div className="py-4 px-2 sm:p-6 space-y-8">
             {/* Format Selection */}
             <div className="space-y-4">
               <Label icon={LayoutGrid}>Formato de salida</Label>

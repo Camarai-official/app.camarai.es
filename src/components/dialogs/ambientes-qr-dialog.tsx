@@ -247,7 +247,7 @@ export function QRManagementDialog({
                 <DialogContent>
                     <div className="space-y-6">
                         {/* 1. Configuracion global */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <ActionTile
                                 icon={Maximize}
                                 title="Resolución"
@@ -282,7 +282,7 @@ export function QRManagementDialog({
                             onClick={handleSelectAll}
                             rightContentType="custom"
                             customContent={
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 w-full [&>*]:flex-1">
                                     <Button
                                         variant="secondary"
                                         size="md"

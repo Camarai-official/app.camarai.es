@@ -220,50 +220,58 @@ export function IngredientDialog({ open, onOpenChange, ingredientToEdit, onSave,
                     <Card>
                         <CardHeader title="Unidades de Medida" description="Configura conversiones personalizadas." />
                         <CardContent gap="md">
-                            <div className="flex gap-2 items-end">
-                                <div className="flex-1 space-y-2">
-                                    <Label variant="medium">De</Label>
-                                    <Select value={newConversion.unidad_origen} onValueChange={v => setNewConversion(p => ({ ...p, unidad_origen: v }))}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar unidad" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="kg">Kilos (kg)</SelectItem>
-                                            <SelectItem value="grams">Gramos (g)</SelectItem>
-                                            <SelectItem value="liters">Litros (l)</SelectItem>
-                                            <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
-                                            <SelectItem value="units">Unidades</SelectItem>
-                                            <SelectItem value="bolsa">Bolsa</SelectItem>
-                                            <SelectItem value="caja">Caja</SelectItem>
-                                            <SelectItem value="paquete">Paquete</SelectItem>
-                                            <SelectItem value="botella">Botella</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                            <div className="space-y-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-[1fr,80px,1fr] gap-3 items-end">
+                                    <div className="space-y-2">
+                                        <Label variant="medium">De</Label>
+                                        <Select value={newConversion.unidad_origen} onValueChange={v => setNewConversion(p => ({ ...p, unidad_origen: v }))}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Seleccionar unidad" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="kg">Kilos (kg)</SelectItem>
+                                                <SelectItem value="grams">Gramos (g)</SelectItem>
+                                                <SelectItem value="liters">Litros (l)</SelectItem>
+                                                <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
+                                                <SelectItem value="units">Unidades</SelectItem>
+                                                <SelectItem value="bolsa">Bolsa</SelectItem>
+                                                <SelectItem value="caja">Caja</SelectItem>
+                                                <SelectItem value="paquete">Paquete</SelectItem>
+                                                <SelectItem value="botella">Botella</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label variant="medium">Factor</Label>
+                                        <Input type="number" value={newConversion.factor} onChange={e => setNewConversion(p => ({ ...p, factor: parseFloat(e.target.value) || 1 }))} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label variant="medium">A</Label>
+                                        <Select value={newConversion.unidad_destino} onValueChange={v => setNewConversion(p => ({ ...p, unidad_destino: v }))}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Seleccionar unidad" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="kg">Kilos (kg)</SelectItem>
+                                                <SelectItem value="grams">Gramos (g)</SelectItem>
+                                                <SelectItem value="liters">Litros (l)</SelectItem>
+                                                <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
+                                                <SelectItem value="units">Unidades</SelectItem>
+                                                <SelectItem value="bolsa">Bolsa</SelectItem>
+                                                <SelectItem value="caja">Caja</SelectItem>
+                                                <SelectItem value="paquete">Paquete</SelectItem>
+                                                <SelectItem value="botella">Botella</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                 </div>
-                                <div className="w-20 space-y-2">
-                                    <Label variant="medium">Factor</Label>
-                                    <Input type="number" value={newConversion.factor} onChange={e => setNewConversion(p => ({ ...p, factor: parseFloat(e.target.value) || 1 }))} />
-                                </div>
-                                <div className="flex-1 space-y-2">
-                                    <Label variant="medium">A</Label>
-                                    <Select value={newConversion.unidad_destino} onValueChange={v => setNewConversion(p => ({ ...p, unidad_destino: v }))}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Seleccionar unidad" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="kg">Kilos (kg)</SelectItem>
-                                            <SelectItem value="grams">Gramos (g)</SelectItem>
-                                            <SelectItem value="liters">Litros (l)</SelectItem>
-                                            <SelectItem value="mililiter">Mililitros (ml)</SelectItem>
-                                            <SelectItem value="units">Unidades</SelectItem>
-                                            <SelectItem value="bolsa">Bolsa</SelectItem>
-                                            <SelectItem value="caja">Caja</SelectItem>
-                                            <SelectItem value="paquete">Paquete</SelectItem>
-                                            <SelectItem value="botella">Botella</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <Button variant="secondary" size="md" onClick={() => setIngredient(p => ({ ...p, conversiones: [...p.conversiones, { id: `c-${Date.now()}`, ...newConversion }] }))}>Añadir</Button>
+                                <Button 
+                                    variant="secondary" 
+                                    className="w-full sm:w-auto"
+                                    onClick={() => setIngredient(p => ({ ...p, conversiones: [...p.conversiones, { id: `c-${Date.now()}`, ...newConversion }] }))}
+                                >
+                                    Añadir
+                                </Button>
                             </div>
                             <div className="space-y-2 mt-2">
                                 {ingredient.conversiones.map(c => (

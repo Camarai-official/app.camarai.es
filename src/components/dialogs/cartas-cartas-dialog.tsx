@@ -118,8 +118,8 @@ export function CartasDialog({
                 />
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <Tabs value={dialogTab} onValueChange={setDialogTab} className="flex-1 flex flex-col overflow-hidden">
-                        <div className="px-6 border-b bg-muted/10 shrink-0">
-                            <TabsList className="h-14 bg-transparent justify-start gap-4">
+                        <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+                            <TabsList className="w-full">
                                 <TabsTrigger value="general">General</TabsTrigger>
                                 <TabsTrigger value="categories">Categorías</TabsTrigger>
                                 <TabsTrigger value="whatsapp">WhatsApp</TabsTrigger>
@@ -127,7 +127,7 @@ export function CartasDialog({
                         </div>
                         
                         <ScrollArea className="flex-1">
-                            <div className="p-6">
+                            <div className="py-4 px-2 sm:p-6">
                                 <TabsContent value="general" className="space-y-5 mt-0">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Nombre de la Carta</Label>

@@ -94,8 +94,7 @@ export default function TaxesPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <H3>Todos los Impuestos</H3>
-            <Button onClick={() => handleOpenDialog()}>
-              <PlusCircle className="mr-2 h-4 w-4" />
+            <Button onClick={() => handleOpenDialog()} startIcon={<PlusCircle />} responsive={false} className="shrink-0">
               Añadir Impuesto
             </Button>
           </CardHeader>

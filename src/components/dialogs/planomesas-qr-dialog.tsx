@@ -144,10 +144,10 @@ export function QRConfigDialog({
                     </div>
                 </DialogContent>
                 <DialogFooter>
-                    <div className="flex gap-2 w-full justify-end">
-                        <Button variant="ghost" onClick={handleCopy} startIcon={<Copy />}>Copiar Enlace</Button>
+                    <div className="flex flex-wrap gap-2 w-full justify-center sm:justify-end">
+                        <Button variant="ghost" onClick={handleCopy} startIcon={<Copy />}>Copiar</Button>
                         <Button variant="outline" onClick={handleDownload} startIcon={<Download />}>Descargar</Button>
-                        <Button variant="brand" onClick={() => { handleDownload(); onOpenChange(false); }} startIcon={<PrinterIcon />}>Imprimir Código</Button>
+                        <Button variant="brand" onClick={() => { handleDownload(); onOpenChange(false); }} startIcon={<PrinterIcon />}>Imprimir</Button>
                     </div>
                 </DialogFooter>
             </DialogWindow>

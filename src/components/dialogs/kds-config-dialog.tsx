@@ -58,7 +58,7 @@ export function KDSConfigDialog({
                 />
                 <DialogContent className="p-0 overflow-hidden flex flex-col">
                     <ScrollArea className="flex-1 w-full">
-                        <div className="space-y-6 p-1">
+                        <div className="space-y-6 py-4 px-2 sm:p-6">
                             {/* Visualización y Ambiente */}
                             <div className="space-y-3">
                                 <ActionTile

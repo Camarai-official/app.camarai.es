@@ -1,14 +1,13 @@
-
 import type { Order, OrderDetailItem } from '@/types/orders';
 
 export type { Order, OrderDetailItem } from '@/types/orders';
 
 export const mockOrders: Order[] = [
-  { order: '42', time: '14:30', date: '2026-02-02', table: 'T1', name: 'Alice Smith', total: '\u20AC70.50', status: 'En Progreso' },
-  { order: '18', time: '09:45', date: '2026-02-01', table: 'T2', name: 'Michael Johnson', total: '\u20AC18.00', status: 'Cancelado' },
-  { order: '33', time: '11:15', date: '2026-01-31', table: 'T3', name: 'Emily Davis', total: '\u20AC43.00', status: 'Completado' },
-  { order: '29', time: '16:00', date: '2026-01-30', table: 'T4', name: 'Chris Brown', total: '\u20AC14.50', status: 'Completado' },
-  { order: '37', time: '13:00', date: '2026-01-28', table: 'T5', name: 'Sarah Wilson', total: '\u20AC40.00', status: 'Completado' },
+  { order: '42', time: '14:30', date: '2026-05-27', table: 'T1', name: 'Alice Smith', total: '\u20ac70.50', status: 'En Progreso' },
+  { order: '18', time: '09:45', date: '2026-05-26', table: 'T2', name: 'Michael Johnson', total: '\u20ac18.00', status: 'Cancelado' },
+  { order: '33', time: '11:15', date: '2026-05-25', table: 'T3', name: 'Emily Davis', total: '\u20ac43.00', status: 'Completado' },
+  { order: '29', time: '16:00', date: '2026-05-24', table: 'T4', name: 'Chris Brown', total: '\u20ac14.50', status: 'Completado' },
+  { order: '37', time: '13:00', date: '2026-05-22', table: 'T5', name: 'Sarah Wilson', total: '\u20ac40.00', status: 'Completado' },
 ];
 
 export type OrderProduct = {

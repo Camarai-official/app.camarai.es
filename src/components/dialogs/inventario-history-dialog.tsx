@@ -111,8 +111,8 @@ export function HistoryDialog({ item, open, onOpenChange }: HistoryDialogProps) 
         
         <DialogContent className="p-0 overflow-hidden flex flex-col">
           <Tabs defaultValue="all" className="flex-1 flex flex-col overflow-hidden">
-            <div className="px-6 border-b bg-muted/10 shrink-0">
-              <TabsList className="h-14 bg-transparent justify-start gap-4">
+            <div className="px-4 sm:px-6 pt-4 pb-2 shrink-0">
+              <TabsList className="w-full">
                 <TabsTrigger value="all" icon={Repeat}>Todo</TabsTrigger>
                 <TabsTrigger value="waste" icon={X}>Mermas</TabsTrigger>
                 <TabsTrigger value="purchases" icon={ShoppingCart}>Compras</TabsTrigger>
@@ -120,7 +120,7 @@ export function HistoryDialog({ item, open, onOpenChange }: HistoryDialogProps) 
             </div>
             
             <ScrollArea className="flex-1">
-              <TabsContent value="all" className="p-6">
+              <TabsContent value="all" className="py-4 px-2 sm:p-6">
                 <div className="space-y-1">
                   {item ? (
                     allMovements?.map(renderMovement) || (
@@ -132,7 +132,7 @@ export function HistoryDialog({ item, open, onOpenChange }: HistoryDialogProps) 
                 </div>
               </TabsContent>
               
-              <TabsContent value="waste" className="p-6">
+              <TabsContent value="waste" className="py-4 px-2 sm:p-6">
                 <div className="space-y-1">
                   {item ? (
                     wasteMovements?.map(renderMovement) || (
@@ -144,7 +144,7 @@ export function HistoryDialog({ item, open, onOpenChange }: HistoryDialogProps) 
                 </div>
               </TabsContent>
               
-              <TabsContent value="purchases" className="p-6">
+              <TabsContent value="purchases" className="py-4 px-2 sm:p-6">
                 <div className="space-y-1">
                   {item ? (
                     purchaseMovements?.map(renderMovement) || (

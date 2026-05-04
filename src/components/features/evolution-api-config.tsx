@@ -136,29 +136,25 @@ export function EvolutionAPIConfigForm({
     switch (connectionStatus) {
       case 'connected':
         return (
-          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-            <Wifi className="h-3 w-3 mr-1" />
+          <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100" startIcon={<Wifi />}>
             Conectado
           </Badge>
         );
       case 'connecting':
         return (
-          <Badge variant="secondary">
-            <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+          <Badge variant="secondary" startIcon={<Loader2 className="animate-spin" />}>
             Conectando...
           </Badge>
         );
       case 'error':
         return (
-          <Badge variant="destructive">
-            <AlertCircle className="h-3 w-3 mr-1" />
+          <Badge variant="destructive" startIcon={<AlertCircle />}>
             Error
           </Badge>
         );
       default:
         return (
-          <Badge variant="outline">
-            <WifiOff className="h-3 w-3 mr-1" />
+          <Badge variant="outline" startIcon={<WifiOff />}>
             Desconectado
           </Badge>
         );
@@ -254,13 +250,9 @@ export function EvolutionAPIConfigForm({
             variant="outline" 
             onClick={handleTestConnection}
             disabled={isTesting || readOnly}
+            startIcon={isTesting ? <Loader2 className="animate-spin" /> : <RefreshCw />}
           >
-            {isTesting ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="mr-2 h-4 w-4" />
-            )}
-            Probar Conexión
+            {isTesting ? 'Probando...' : 'Probar Conexión'}
           </Button>
           {connectionStatus === 'connected' && (
             <Check className="h-5 w-5 text-green-500" />
@@ -281,13 +273,9 @@ export function EvolutionAPIConfigForm({
               <Button 
                 onClick={handleSendTestMessage}
                 disabled={isSendingTest || !testNumber || readOnly}
+                startIcon={isSendingTest ? <Loader2 className="animate-spin" /> : <Send />}
               >
-                {isSendingTest ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="mr-2 h-4 w-4" />
-                )}
-                Enviar
+                {isSendingTest ? 'Enviando...' : 'Enviar'}
               </Button>
             </div>
           </div>
