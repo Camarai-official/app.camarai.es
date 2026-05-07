@@ -11,6 +11,7 @@
 import type * as agentChat from "../agentChat.js";
 import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
+import type * as caja from "../caja.js";
 import type * as categories from "../categories.js";
 import type * as companies from "../companies.js";
 import type * as crons from "../crons.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   agentChat: typeof agentChat;
   analytics: typeof analytics;
   auth: typeof auth;
+  caja: typeof caja;
   categories: typeof categories;
   companies: typeof companies;
   crons: typeof crons;

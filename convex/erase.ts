@@ -15,6 +15,12 @@ export const eraseAllData = internalMutation({
     
     // Lista de todas las tablas en orden de dependencia
     const tables = [
+      // KDS tables (highest dependency) - NUEVAS TABLAS
+      "kds_order_queue",
+      "kds_routing_rules", 
+      "kds_displays",
+      "kitchen_stations",
+      
       // Tablas de auditoría y logs (sin dependencias fuertes)
       "event_log",
       "audit_log",

@@ -74,7 +74,6 @@ export const createReservation = mutation({
       customer_email: args.customer_email,
       date: args.date,
       start_time: args.start_time,
-      end_time: args.end_time,
       guests: args.guests,
       table_id: args.table_id,
       notes: args.notes,

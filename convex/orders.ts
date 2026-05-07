@@ -430,7 +430,7 @@ export const finalizeAndPayOrder = mutation({
     // 5. Liberamos la mesa a estado 'dirty' y removemos del ambiente
     if (order.table_id) {
       await ctx.db.patch(order.table_id, {
-        status: "dirty",
+        status: "maintenance",
         current_order_id: undefined,
       });
 

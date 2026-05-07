@@ -43,9 +43,9 @@ export default defineSchema({
   establishments: defineTable({
     company_id: v.id("companies"),
     name: v.string(),
-    legal_name: v.optional(v.string()), // Razón Social / Legal Name
+    legal_name: v.optional(v.string()),
     cif: v.string(),
-    owner_id: v.string(), // Clerk/External Auth ID
+    owner_id: v.string(),
     plan: v.union(v.literal("free"), v.literal("starter"), v.literal("pro"), v.literal("enterprise")),
     currency: v.string(),
     timezone: v.string(),
@@ -61,7 +61,7 @@ export default defineSchema({
     website: v.optional(v.string()),
     whatsapp_number: v.optional(v.string()),
     receipt_footer: v.optional(v.string()),
-    operating_hours: v.optional(v.any()), // Structured schedule
+    operating_hours: v.optional(v.any()),
     api_keys: v.optional(v.object({
       square_id: v.optional(v.string()),
       stripe_public: v.optional(v.string()),
@@ -84,8 +84,8 @@ export default defineSchema({
       v.literal("bartender"),
       v.literal("host")
     ),
-    pin: v.optional(v.string()), // Hashed PIN for POS
-    auth_id: v.optional(v.string()), // External Auth ID
+    pin: v.optional(v.string()),
+    auth_id: v.optional(v.string()),
     phone: v.optional(v.string()),
     email: v.optional(v.string()),
     photo_url: v.optional(v.string()),
@@ -185,7 +185,7 @@ export default defineSchema({
   categories: defineTable({
     establishment_id: v.id("establishments"),
     name: v.string(),
-    translations: v.optional(v.record(v.string(), v.string())), // { "en": "Starters", "es": "Entrantes" }
+    translations: v.optional(v.record(v.string(), v.string())),
     description: v.optional(v.string()),
     order: v.number(),
     icon: v.optional(v.string()),
@@ -215,7 +215,7 @@ export default defineSchema({
     tax_id: v.id("taxes"),
     allergens: v.array(v.string()),
     variants: v.optional(v.any()),
-    preparation_time: v.number(), // In minutes
+    preparation_time: v.number(),
     available_pos: v.boolean(),
     available_delivery: v.boolean(),
     availability_hours: v.optional(v.union(
@@ -444,12 +444,11 @@ export default defineSchema({
     establishment_id: v.id("establishments"),
     customer_id: v.optional(v.id("customers")),
     table_id: v.optional(v.id("tables")),
-    customer_name: v.optional(v.string()), // For guest reservations
+    customer_name: v.optional(v.string()),
     customer_phone: v.optional(v.string()),
     customer_email: v.optional(v.string()),
-    date: v.string(), // ISO "YYYY-MM-DD"
-    start_time: v.string(), // "HH:mm"
-    end_time: v.string(), // "HH:mm" - Hora de fin de la reserva
+    date: v.string(),
+    start_time: v.string(),
     guests: v.number(),
     status: v.union(v.literal("pending"), v.literal("confirmed"), v.literal("cancelled"), v.literal("completed"), v.literal("no_show")),
     notified: v.boolean(),
@@ -1092,27 +1091,30 @@ export default defineSchema({
 
   kds_order_queue: defineTable({
     establishment_id: v.id("establishments"),
+    order_id: v.id("orders"),
     order_item_id: v.id("order_items"),
     station_id: v.id("kitchen_stations"),
     display_id: v.optional(v.id("kds_displays")),
-    ticket_number: v.string(), // Número de ticket visible en KDS
-    priority: v.optional(v.number()), // Prioridad del item (urgente, normal)
-    queue_position: v.number(), // Posición en la cola
-    estimated_start_time: v.optional(v.number()), // Cuándo se estima empezar
-    estimated_ready_time: v.optional(v.number()), // Cuándo se estima terminar
-    bumped_count: v.optional(v.number()), // Veces que se ha "bumped" (pospuesto)
-    // Campos de tracking de tiempos
-    received_at: v.number(), // Cuándo llegó al KDS
-    viewed_at: v.optional(v.number()), // Cuándo se visualizó en pantalla
-    started_at: v.optional(v.number()), // Cuándo se empezó a preparar
-    ready_at: v.optional(v.number()), // Cuándo se marcó como listo
-    served_at: v.optional(v.number()), // Cuándo se sirvió
-    // Metadata
+    ticket_number: v.string(),
+    status: v.union(v.literal("pending"), v.literal("cooking"), v.literal("ready"), v.literal("served"), v.literal("cancelled")),
+    priority: v.optional(v.number()),
+    queue_position: v.number(),
+    estimated_start_time: v.optional(v.number()),
+    estimated_ready_time: v.optional(v.number()),
+    bumped_count: v.optional(v.number()),
+    received_at: v.number(),
+    viewed_at: v.optional(v.number()),
+    started_at: v.optional(v.number()),
+    ready_at: v.optional(v.number()),
+    served_at: v.optional(v.number()),
     notes: v.optional(v.string()),
     created_at: v.number(),
     updated_at: v.number(),
   }).index("by_establishment", ["establishment_id"])
     .index("by_station", ["station_id"])
+    .index("by_station_status", ["station_id", "status"])
+    .index("by_station_received", ["station_id", "received_at"])
+    .index("by_order", ["order_id"])
     .index("by_order_item", ["order_item_id"])
     .index("by_display", ["display_id"])
     .index("by_queue_position", ["station_id", "queue_position"]),

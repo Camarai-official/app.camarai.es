@@ -32,7 +32,10 @@ export const getEnvironmentsByEstablishment = query({
           free: "Libre",
           occupied: "Ocupada",
           reserved: "Reservada",
-          dirty: "Mantenimiento",
+          maintenance: "Mantenimiento",
+          waiting_payment: "Esperando Pago",
+          paid: "Pagado",
+          linked: "Vinculado",
         } as const;
 
         return {
@@ -82,7 +85,10 @@ export const getTablesByEnvironment = query({
       free: "Libre",
       occupied: "Ocupada",
       reserved: "Reservada",
-      dirty: "Mantenimiento",
+      maintenance: "Mantenimiento",
+      waiting_payment: "Esperando Pago",
+      paid: "Pagado",
+      linked: "Vinculado",
     } as const;
 
     return tables.map((table) => ({
@@ -238,7 +244,7 @@ export const createTable = mutation({
     number: v.number(),
     label: v.optional(v.string()),
     capacity: v.number(),
-    status: v.optional(v.union(v.literal("free"), v.literal("occupied"), v.literal("reserved"), v.literal("dirty"))),
+    status: v.optional(v.union(v.literal("free"), v.literal("occupied"), v.literal("reserved"), v.literal("maintenance"))),
     x: v.number(),
     y: v.number(),
     width: v.number(),

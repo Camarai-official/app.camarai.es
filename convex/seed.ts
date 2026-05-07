@@ -401,7 +401,6 @@ export const seedData = mutation({
       customer_phone: "+34 600 000 000",
       date: "2026-04-18",
       start_time: "20:00",
-      end_time: "22:00",
       guests: 4,
       status: "confirmed",
       notified: true,
@@ -796,6 +795,316 @@ export const seedData = mutation({
       success: true,
       establishmentId,
       productId,
+    };
+  },
+});
+
+/**
+ * Seed mínimo para el POS - Solo tablas del schema.ts actual
+ */
+export const seedPosData = mutation({
+  args: {},
+  handler: async (ctx) => {
+    // 0. CREAR SUBSCRIPTION PLAN
+    const planId = await ctx.db.insert("subscription_plans", {
+      name: "Pro Plan",
+      description: "Plan profesional para restaurantes",
+      price: 9900, // 99.00€ en cents
+      billing_cycle: "monthly",
+      max_users: 10,
+      max_establishments: 3,
+      active: true,
+      created_at: Date.now(),
+    });
+
+    // 1. CREAR COMPAÑÍA (requerida por el schema multi-tenant)
+    const companyId = await ctx.db.insert("companies", {
+      name: "Camarai Group S.L.",
+      legal_name: "Camarai Group S.L.",
+      nif: "B12345678",
+      email: "admin@camarai.es",
+      country: "España",
+      plan_id: planId,
+      plan_start_date: Date.now(),
+      status: "active",
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
+    // 1. ESTABLECIMIENTO
+    const establishmentId = await ctx.db.insert("establishments", {
+      company_id: companyId,
+      name: "Camarai Gastrobar",
+      legal_name: "Camarai Restauración S.L.",
+      cif: "B12345678",
+      owner_id: "user_owner_01",
+      plan: "pro",
+      currency: "EUR",
+      timezone: "Europe/Madrid",
+      status: "active",
+      phone: "+34 900 000 000",
+      email: "gerencia@camarai.es",
+      address: "Calle Gran Vía 1",
+      city: "Madrid",
+      province: "Madrid",
+      postal_code: "28001",
+      country: "España",
+      created_at: Date.now(),
+    });
+
+    // 2. IMPUESTOS
+    const taxId = await ctx.db.insert("taxes", {
+      establishment_id: establishmentId,
+      name: "IVA 10%",
+      percentage: 10,
+      is_default: true,
+      created_at: Date.now(),
+    });
+
+    // 3. STAFF
+    void await ctx.db.insert("staff", {
+      establishment_id: establishmentId,
+      name: "Miguel",
+      last_name: "Riu",
+      role: "admin",
+      status: "active",
+      contract_type: "indefinite",
+      contract_start: Date.now(),
+      salary: 4500000, // Céntimos
+      irpf: 15,
+      dashboard_sections: ["sales", "inventory", "marketing"],
+      clock_methods: ["qr", "app"],
+      created_at: Date.now(),
+    });
+
+    // 4. CATEGORÍAS
+    const categories = [
+      { name: "Entrantes", order: 1, color: "#1f8c9b" },
+      { name: "Principal", order: 2, color: "#3b82f6" },
+      { name: "Postres", order: 3, color: "#ec4899" },
+      { name: "Bebidas", order: 4, color: "#e11d48" },
+    ];
+
+    const categoryIds = await Promise.all(
+      categories.map((cat) =>
+        ctx.db.insert("categories", {
+          establishment_id: establishmentId,
+          name: cat.name,
+          order: cat.order,
+          color: cat.color,
+          active: true,
+          visibleInMenu: true,
+          created_at: Date.now(),
+        })
+      )
+    );
+
+    // 5. PRODUCTOS
+    const products = [
+      // --- ENTRANTES (categoryIndex: 0) ---
+      { name: "Alitas de Búfalo", price: 12.99, categoryIndex: 0, image: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=800&q=80" },
+      { name: "Papas Fritas XL", price: 5.99, categoryIndex: 0, image: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800&q=80" },
+      { name: "Nachos con Queso", price: 9.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=800&q=80" },
+      { name: "Guacamole Casero", price: 7.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=800&q=80" },
+      { name: "Croquetas de Jamón", price: 8.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=800&q=80" },
+      { name: "Tequeños de Queso", price: 7.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1541529086526-db283c563270?w=800&q=80" },
+      { name: "Empanadas Argentinas", price: 6.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?w=800&q=80" },
+      { name: "Aros de Cebolla", price: 5.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1639024471283-03518883512d?w=800&q=80" },
+      { name: "Bruschetta de Tomate", price: 6.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1572656631137-7935297eff55?w=800&q=80" },
+      { name: "Palitos de Mozzarella", price: 8.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1531749968967-ca0a243a728b?w=800&q=80" },
+      { name: "Hummus con Pita", price: 6.90, categoryIndex: 0, image: "https://images.unsplash.com/photo-1577906030558-841f87fc127c?w=800&q=80" },
+      { name: "Calamares a la Romana", price: 11.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=800&q=80" },
+      { name: "Carpaccio de Ternera", price: 13.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80" },
+      { name: "Gazpacho", price: 5.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1594756297462-d596a3930730?w=800&q=80" },
+      { name: "Gambas al Ajillo", price: 14.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1535400255456-984241443b29?w=800&q=80" },
+      { name: "Pan de Ajo con Queso", price: 4.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1573140247632-f8fd74997d5c?w=800&q=80" },
+      { name: "Patatas Bravas", price: 6.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=800&q=80" },
+      { name: "Provolone Fundido", price: 9.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1559561853-08451507cbe7?w=800&q=80" },
+      { name: "Spring Rolls", price: 7.20, categoryIndex: 0, image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80" },
+      { name: "Ensalada Rusa", price: 7.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1541529086526-db283c563270?w=800&q=80" },
+      { name: "Sopa de Cebolla", price: 6.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80" },
+      { name: "Gyozas de Pollo", price: 8.90, categoryIndex: 0, image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=800&q=80" },
+      { name: "Tacos de Cochinita", price: 9.50, categoryIndex: 0, image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80" },
+      { name: "Edamame con Sal", price: 5.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1528751011213-906f3630f576?w=800&q=80" },
+      { name: "Falafel (4 uds)", price: 6.00, categoryIndex: 0, image: "https://images.unsplash.com/photo-1547050359-c900c14896b2?w=800&q=80" },
+
+      // --- PRINCIPAL (categoryIndex: 1) ---
+      { name: "Burger Camarai", price: 14.50, categoryIndex: 1, variants: { "medio": 14.50, "grande": 17.50 }, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&q=80" },
+      { name: "Costillar BBQ", price: 18.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&q=80" },
+      { name: "Solomillo al Whisky", price: 22.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1546241072-48010ad28c2c?w=800&q=80" },
+      { name: "Lasaña de Carne", price: 13.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80" },
+      { name: "Salmón Grillado", price: 17.90, categoryIndex: 1, image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&q=80" },
+      { name: "Pasta Carbonara", price: 12.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1612874742237-6526221588e3?w=800&q=80" },
+      { name: "Entrecot de Ternera", price: 21.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1546964124-0cce460f38ef?w=800&q=80" },
+      { name: "Pollo al Curry", price: 14.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=800&q=80" },
+      { name: "Risotto de Setas", price: 15.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=800&q=80" },
+      { name: "Lubina a la Espalda", price: 19.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1534604973900-c43ab4c2e0ab?w=800&q=80" },
+      { name: "Pizza Margarita", price: 11.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1574071318508-1cdbad80ad38?w=800&q=80" },
+      { name: "Pizza Pepperoni", price: 12.90, categoryIndex: 1, image: "https://images.unsplash.com/photo-1628840042765-356cda07504e?w=800&q=80" },
+      { name: "Paella de Marisco", price: 18.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1512058560366-cd2427ff56f3?w=800&q=80" },
+      { name: "Burger Vegana", price: 13.90, categoryIndex: 1, image: "https://images.unsplash.com/photo-1584947847799-ed30263f338c?w=800&q=80" },
+      { name: "Codillo Asado", price: 16.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1594973474495-263a233400a4?w=800&q=80" },
+      { name: "Espaguetis Bolonesa", price: 11.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1572441713132-c542fc4fe282?w=800&q=80" },
+      { name: "Filete de Merluza", price: 15.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80" },
+      { name: "Entraña a la Parrilla", price: 19.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1558030006-450675393462?w=800&q=80" },
+      { name: "Raviolis de Espinaca", price: 12.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=800&q=80" },
+      { name: "Pollo Asado", price: 13.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=800&q=80" },
+      { name: "Pechuga Empanada", price: 12.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1569058242253-92a9c71f9867?w=800&q=80" },
+      { name: "Cordero Lechal", price: 25.00, categoryIndex: 1, image: "https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=800&q=80" },
+      { name: "Tataki de Atún", price: 18.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1501595091296-3ca970fd0597?w=800&q=80" },
+      { name: "Bowl de Poke Salmón", price: 14.90, categoryIndex: 1, image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80" },
+      { name: "Pad Thai Pollo", price: 13.50, categoryIndex: 1, image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80" },
+
+      // --- POSTRES (categoryIndex: 2) ---
+      { name: "Tarta de Queso", price: 6.90, categoryIndex: 2, image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80" },
+      { name: "Brownie con Helado", price: 7.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=800&q=80" },
+      { name: "Tiramisú", price: 6.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=800&q=80" },
+      { name: "Coulant de Chocolate", price: 7.00, categoryIndex: 2, image: "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=800&q=80" },
+      { name: "Arroz con Leche", price: 5.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1543508282-5c1f427f023f?w=800&q=80" },
+      { name: "Flan de Huevo", price: 4.90, categoryIndex: 2, image: "https://images.unsplash.com/photo-1528452219415-b20c784969e7?w=800&q=80" },
+      { name: "Natillas", price: 4.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1511914265872-c40672604a80?w=800&q=80" },
+      { name: "Tarta de Manzana", price: 6.00, categoryIndex: 2, image: "https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?w=800&q=80" },
+      { name: "Sorbetes Variados", price: 5.00, categoryIndex: 2, image: "https://images.unsplash.com/photo-1505394033343-431d1b6623bc?w=800&q=80" },
+      { name: "Fruta de Temporada", price: 4.00, categoryIndex: 2, image: "https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=800&q=80" },
+      { name: "Mousse de Chocolate", price: 5.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?w=800&q=80" },
+      { name: "Panacota con Moras", price: 6.20, categoryIndex: 2, image: "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=800&q=80" },
+      { name: "Cheesecake de Oreo", price: 7.20, categoryIndex: 2, image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=800&q=80" },
+      { name: "Crepe con Nutella", price: 6.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=800&q=80" },
+      { name: "Waffle con Caramelo", price: 6.80, categoryIndex: 2, image: "https://images.unsplash.com/photo-1541830826427-e160124bc7ad?w=800&q=80" },
+      { name: "Tarta Red Velvet", price: 7.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1616541823729-00fe0aacd32c?w=800&q=80" },
+      { name: "Helado 3 Bolas", price: 5.80, categoryIndex: 2, image: "https://images.unsplash.com/photo-1560008511-11c63416e52d?w=800&q=80" },
+      { name: "Milhojas", price: 6.00, categoryIndex: 2, image: "https://images.unsplash.com/photo-1582234372722-50d7ccc30ebd?w=800&q=80" },
+      { name: "Tarta de Limón", price: 6.40, categoryIndex: 2, image: "https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80" },
+      { name: "Profiteroles", price: 6.20, categoryIndex: 2, image: "https://images.unsplash.com/photo-1558961312-50345c075bc5?w=800&q=80" },
+      { name: "Donas Gourmet", price: 4.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=800&q=80" },
+      { name: "Pastel de Zanahoria", price: 6.90, categoryIndex: 2, image: "https://images.unsplash.com/photo-1535141123063-3bb6cdc5f57b?w=800&q=80" },
+      { name: "Torrijas", price: 5.50, categoryIndex: 2, image: "https://images.unsplash.com/photo-1511914265872-c40672604a80?w=800&q=80" },
+      { name: "Plátano Flameado", price: 7.00, categoryIndex: 2, image: "https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=800&q=80" },
+      { name: "Sándwich Helado", price: 5.20, categoryIndex: 2, image: "https://images.unsplash.com/photo-1558448834-080c95029304?w=800&q=80" },
+
+      // --- BEBIDAS (categoryIndex: 3) ---
+      { name: "Cerveza Artesanal", price: 4.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1566633806327-68e152aaf26d?w=800&q=80" },
+      { name: "Coca Cola 350ml", price: 2.80, categoryIndex: 3, image: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=800&q=80" },
+      { name: "Agua Mineral", price: 2.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=800&q=80" },
+      { name: "Limonada Natural", price: 3.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1523677012304-5c7da45ad675?w=800&q=80" },
+      { name: "Vino Tinto Copa", price: 4.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" },
+      { name: "Zumo Naranja", price: 3.20, categoryIndex: 3, image: "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=800&q=80" },
+      { name: "Té Helado", price: 3.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1499638673689-79a0b5115d87?w=800&q=80" },
+      { name: "Café Expreso", price: 1.80, categoryIndex: 3, image: "https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=800&q=80" },
+      { name: "Capuchino", price: 2.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=800&q=80" },
+      { name: "Batido de Fresa", price: 4.90, categoryIndex: 3, image: "https://images.unsplash.com/photo-1543648964-122c67ed7bc9?w=800&q=80" },
+      { name: "Mojito Clásico", price: 7.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=800&q=80" },
+      { name: "Agua con Gas", price: 2.20, categoryIndex: 3, image: "https://images.unsplash.com/photo-1559839914-17aae19cea9e?w=800&q=80" },
+      { name: "Copa Gin Tonic", price: 8.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?w=800&q=80" },
+      { name: "Tinto de Verano", price: 4.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1555658636-6e4a36218be7?w=800&q=80" },
+      { name: "Smoothie Mango", price: 5.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1546173159-315724a31696?w=800&q=80" },
+      { name: "Cerveza 0,0%", price: 3.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1584225064785-c62a8b43d148?w=800&q=80" },
+      { name: "Margarita", price: 7.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1536935338218-d2139b9c3db2?w=800&q=80" },
+      { name: "Sangría Jarra", price: 15.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" },
+      { name: "Vino Blanco Copa", price: 4.20, categoryIndex: 3, image: "https://images.unsplash.com/photo-1474721336077-3bc01607d77b?w=800&q=80" },
+      { name: "Negroni", price: 8.00, categoryIndex: 3, image: "https://images.unsplash.com/photo-1551028150-64b9f398f678?w=800&q=80" },
+      { name: "Caipirinha", price: 7.80, categoryIndex: 3, image: "https://images.unsplash.com/photo-1510156906263-44f2d72120bc?w=800&q=80" },
+      { name: "Piña Colada", price: 7.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1545247181-516773cae754?w=800&q=80" },
+      { name: "Frappé de Café", price: 4.80, categoryIndex: 3, image: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=800&q=80" },
+      { name: "Kombucha Fresa", price: 4.20, categoryIndex: 3, image: "https://images.unsplash.com/photo-1558532474-06109968430e?w=800&q=80" },
+      { name: "Chocolate Caliente", price: 3.50, categoryIndex: 3, image: "https://images.unsplash.com/photo-1544787210-2211d44b5057?w=800&q=80" },
+    ];
+
+    const productIds = await Promise.all(
+      products.map((prod: { name: string; price: number; categoryIndex: number; image?: string; variants?: Record<string, number> }, idx) =>
+        ctx.db.insert("products", {
+          establishment_id: establishmentId,
+          category_id: categoryIds[prod.categoryIndex],
+          name: prod.name,
+          price: prod.price,
+          cost: Math.floor(prod.price * 0.3),
+          tax_id: taxId,
+          active: true,
+          is_elaborated: true,
+          allergens: [],
+          preparation_time: 15,
+          available_pos: true,
+          available_delivery: false,
+          stock_minimo: 10,
+          impresora_destino: "cocina",
+          order: idx,
+          variants: prod.variants || undefined,
+          image: prod.image || undefined,
+          created_at: Date.now(),
+        })
+      )
+    );
+
+    // 6. AMBIENTES Y MESAS
+    const envSalon = await ctx.db.insert("environments", {
+      establishment_id: establishmentId,
+      name: "Salón",
+      capacity: 40,
+      status: "active",
+      order: 1,
+      created_at: Date.now(),
+    });
+
+    const envBarra = await ctx.db.insert("environments", {
+      establishment_id: establishmentId,
+      name: "Barra",
+      capacity: 10,
+      status: "active",
+      order: 2,
+      created_at: Date.now(),
+    });
+
+    // Mesas Salón
+    for (let i = 1; i <= 10; i++) {
+      await ctx.db.insert("tables", {
+        environment_id: envSalon,
+        number: i,
+        capacity: i % 3 === 0 ? 6 : 4,
+        status: "free",
+        x: 50 + (i % 5) * 120,
+        y: 50 + Math.floor(i / 5) * 120,
+        width: 80,
+        height: 80,
+        rotation: 0,
+        shape: i % 2 === 0 ? "square" : "rectangle",
+      });
+    }
+
+    // Mesas Barra
+    for (let i = 1; i <= 6; i++) {
+      await ctx.db.insert("tables", {
+        environment_id: envBarra,
+        number: i,
+        capacity: 2,
+        status: "free",
+        x: 50 + i * 60,
+        y: 50,
+        width: 50,
+        height: 50,
+        rotation: 0,
+        shape: "circle",
+      });
+    }
+
+    // 7. CLIENTE
+    void await ctx.db.insert("customers", {
+      establishments_id: [establishmentId],
+      name: "Cliente Demo",
+      phone: "+34 600 000 000",
+      created_at: Date.now(),
+      points: 0,
+      total_visits: 0,
+      total_spent: 0,
+      average_ticket: 0,
+      source: "manual",
+      allergens: [],
+    });
+
+    return {
+      success: true,
+      establishmentId,
+      categories: categoryIds,
+      products: productIds,
     };
   },
 });
