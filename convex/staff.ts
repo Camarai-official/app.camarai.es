@@ -190,7 +190,8 @@ export const createStaffMember = mutation({
       v.literal("waiter"),
       v.literal("cook"),
       v.literal("bartender"),
-      v.literal("host")
+      v.literal("host"),
+      v.literal("system")
     ),
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
@@ -271,7 +272,8 @@ export const updateStaffMember = mutation({
       v.literal("waiter"),
       v.literal("cook"),
       v.literal("bartender"),
-      v.literal("host")
+      v.literal("host"),
+      v.literal("system")
     ),
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
