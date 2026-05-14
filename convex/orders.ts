@@ -6,6 +6,74 @@ import type { Id } from "./_generated/dataModel";
 
 // Queries para Orders
 
+export const getOrdersForSession = query({
+  args: {
+    sessionId: v.id("table_sessions"),
+  },
+  handler: async (ctx, args) => {
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) return { orders: [], tableNumber: null };
+
+    const table = await ctx.db.get(session.table_id);
+    if (!table) return { orders: [], tableNumber: null };
+
+    const environment = await ctx.db.get(table.environment_id);
+    if (!environment) return { orders: [], tableNumber: null };
+
+    // Get all orders for this table created during this session
+    const allOrders = await ctx.db
+      .query("orders")
+      .withIndex("by_establishment_created", (q) =>
+        q.eq("establishment_id", environment.establishment_id)
+      )
+      .order("desc")
+      .collect();
+
+    const sessionOrders = allOrders.filter(
+      (o) =>
+        o.table_id === session.table_id &&
+        o.created_at >= session.start_time &&
+        o.source === "carta"
+    );
+
+    // Get items for each order
+    const ordersWithItems = await Promise.all(
+      sessionOrders.map(async (order) => {
+        const items = await ctx.db
+          .query("order_items")
+          .withIndex("by_order", (q) => q.eq("order_id", order._id))
+          .collect();
+
+        return {
+          id: order._id,
+          orderNumber: order.order_number,
+          status: order.status,
+          subtotal: order.subtotal,
+          taxAmount: order.tax_amount,
+          totalAmount: order.total_amount,
+          createdAt: order.created_at,
+          items: items.map((item) => ({
+            id: item._id,
+            productName: item.product_name,
+            quantity: item.quantity,
+            unitPrice: item.unit_price,
+            totalPrice: item.total_price,
+            variant: item.variant ?? null,
+            notes: item.notes ?? null,
+            course: item.course,
+            status: item.item_status,
+          })),
+        };
+      })
+    );
+
+    return {
+      orders: ordersWithItems,
+      tableNumber: table.number,
+    };
+  },
+});
+
 export const getRecentOrders = query({
   args: {
     establishmentId: v.id("establishments"),
