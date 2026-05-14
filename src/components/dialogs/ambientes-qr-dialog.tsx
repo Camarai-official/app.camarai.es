@@ -98,7 +98,8 @@ export function QRManagementDialog({
     };
 
     const getMenuUrl = (tableId: string) => {
-        return `https://camarai.app/mesa/${tableId}`;
+        const base = process.env.NEXT_PUBLIC_QR_BASE_URL || 'https://camarai.app';
+        return `${base}/mesa/${tableId}`;
     };
 
     // --- Regenerar: solo cliente, incrementa version en el preview ---

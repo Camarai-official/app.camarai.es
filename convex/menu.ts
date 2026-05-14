@@ -448,3 +448,205 @@ export const toggleCartaStatus = mutation({
     return args.cartaId;
   },
 });
+
+// =============================================================================
+// PUBLIC QUERY: Full menu for a table session (used by camarai_menu-privado)
+// =============================================================================
+
+/**
+ * Get the full menu for a table session.
+ *
+ * Chain: table_sessions → tables → environments → establishments
+ *        → active carta → menu_sections (categories) → products
+ *
+ * Returns the menu grouped by category in the format the web app expects:
+ * {
+ *   session: { id, guests, table_number, ... },
+ *   establishment: { name, currency },
+ *   menu: { "Category Name": [ { nombre_producto, variaciones, url, ... } ] }
+ * }
+ */
+export const getMenuForSession = query({
+  args: {
+    sessionId: v.id("table_sessions"),
+  },
+  handler: async (ctx, args) => {
+    // 1. Get session
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.status !== "active") {
+      return { error: "Sesión no encontrada o cerrada" };
+    }
+
+    // 2. Get table
+    const table = await ctx.db.get(session.table_id);
+    if (!table) {
+      return { error: "Mesa no encontrada" };
+    }
+
+    // 3. Get environment → establishment_id
+    const environment = await ctx.db.get(table.environment_id);
+    if (!environment) {
+      return { error: "Entorno no encontrado" };
+    }
+
+    // 4. Get establishment
+    const establishment = await ctx.db.get(environment.establishment_id);
+    if (!establishment) {
+      return { error: "Establecimiento no encontrado" };
+    }
+
+    const currency = establishment.currency || "EUR";
+
+    // 5. Get the active carta for this establishment
+    const cartas = await ctx.db
+      .query("menu")
+      .withIndex("by_establishment_type", (q) =>
+        q.eq("establishment_id", environment.establishment_id).eq("type", "carta")
+      )
+      .collect();
+
+    const activeCarta = cartas.find((c) => c.active);
+    if (!activeCarta) {
+      return {
+        error: "No hay carta activa",
+        session: {
+          id: args.sessionId,
+          guests: session.guests || 1,
+          table_number: table.number,
+        },
+        establishment: { name: establishment.name, currency },
+      };
+    }
+
+    // 6. Get menu_sections for the carta
+    const sections = await ctx.db
+      .query("menu_sections")
+      .withIndex("by_menu", (q) => q.eq("menu_id", activeCarta._id))
+      .collect();
+
+    // Sort by display_order
+    sections.sort((a, b) => a.display_order - b.display_order);
+
+    // 7. Build menu grouped by category
+    const menu: Record<string, any[]> = {};
+
+    for (const section of sections) {
+      if (section.element_type === "category") {
+        // Get category
+        const category = await ctx.db.get(section.element_id as Id<"categories">);
+        if (!category || !category.active) continue;
+
+        // Get active products in this category
+        const products = await ctx.db
+          .query("products")
+          .withIndex("by_category", (q) =>
+            q.eq("category_id", section.element_id as Id<"categories">)
+          )
+          .collect();
+
+        const activeProducts = products.filter((p) => p.active);
+        if (activeProducts.length === 0) continue;
+
+        const categoryName = category.name;
+        if (!menu[categoryName]) {
+          menu[categoryName] = [];
+        }
+
+        for (const product of activeProducts) {
+          if (!product.variants || product.variants.length === 0) {
+            // Product without variants — single entry
+            menu[categoryName].push({
+              nombre_producto: product.name,
+              id_categoria_detectada: categoryName,
+              url: product.image || null,
+              descripcion: product.description || null,
+              allergens: product.allergens || [],
+              variaciones: {
+                name: product.name,
+                price: product.price, // cents
+                currency,
+                item_id: product._id,
+              },
+            });
+          } else {
+            // Product with variants — one entry per variant
+            for (const variant of product.variants) {
+              if (!variant.disponible) continue;
+              menu[categoryName].push({
+                nombre_producto: product.name,
+                id_categoria_detectada: categoryName,
+                url: product.image || null,
+                descripcion: product.description || null,
+                allergens: product.allergens || [],
+                variaciones: {
+                  name: variant.nombre,
+                  price: product.price + variant.precio_extra, // cents
+                  currency,
+                  item_id: `${product._id}:${variant.id}`,
+                },
+              });
+            }
+          }
+        }
+      } else if (section.element_type === "product") {
+        // Individual product added to the carta (not via category)
+        const product = await ctx.db.get(section.element_id as Id<"products">);
+        if (!product || !product.active) continue;
+
+        const category = await ctx.db.get(product.category_id);
+        const categoryName = category?.name || "Otros";
+
+        if (!menu[categoryName]) {
+          menu[categoryName] = [];
+        }
+
+        if (!product.variants || product.variants.length === 0) {
+          menu[categoryName].push({
+            nombre_producto: product.name,
+            id_categoria_detectada: categoryName,
+            url: product.image || null,
+            descripcion: product.description || null,
+            allergens: product.allergens || [],
+            variaciones: {
+              name: product.name,
+              price: product.price,
+              currency,
+              item_id: product._id,
+            },
+          });
+        } else {
+          for (const variant of product.variants) {
+            if (!variant.disponible) continue;
+            menu[categoryName].push({
+              nombre_producto: product.name,
+              id_categoria_detectada: categoryName,
+              url: product.image || null,
+              descripcion: product.description || null,
+              allergens: product.allergens || [],
+              variaciones: {
+                name: variant.nombre,
+                price: product.price + variant.precio_extra,
+                currency,
+                item_id: `${product._id}:${variant.id}`,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    return {
+      session: {
+        id: args.sessionId,
+        guests: session.guests || 1,
+        table_number: table.number,
+        client_allergens: session.client_allergens || {},
+      },
+      establishment: {
+        name: establishment.name,
+        currency,
+      },
+      menu,
+    };
+  },
+});

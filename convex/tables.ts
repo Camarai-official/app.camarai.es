@@ -605,3 +605,42 @@ export const getTableAllergens = query({
     return (session.client_allergens as Record<string, string[]>) ?? {};
   },
 });
+
+// =============================================================================
+// Testing helper — reset table to free (dev only)
+// =============================================================================
+
+export const resetTableForTesting = mutation({
+  args: {
+    tableId: v.id("tables"),
+    establishmentId: v.id("establishments"),
+  },
+  handler: async (ctx, args) => {
+    const table = await ctx.db.get(args.tableId);
+    if (!table) throw new Error("Mesa no encontrada");
+
+    // Set table to free
+    await ctx.db.patch(args.tableId, {
+      status: "free",
+      current_order_id: undefined,
+    });
+
+    // Close any active sessions
+    const activeSessions = await ctx.db
+      .query("table_sessions")
+      .withIndex("by_table_status", (q) =>
+        q.eq("table_id", args.tableId).eq("status", "active")
+      )
+      .collect();
+
+    for (const session of activeSessions) {
+      await ctx.db.patch(session._id, {
+        status: "closed",
+        end_time: Date.now(),
+        updated_at: Date.now(),
+      });
+    }
+
+    return { reset: true, closedSessions: activeSessions.length };
+  },
+});

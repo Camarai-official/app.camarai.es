@@ -37,7 +37,7 @@ export function QRConfigDialog({
     const { toast } = useToast();
     const [qrKey, setQrKey] = React.useState(0);
     const [qrConfig, setQrConfig] = React.useState({
-        baseUrl: 'https://camarai.app',
+        baseUrl: process.env.NEXT_PUBLIC_QR_BASE_URL || 'https://camarai.app',
         includeEnv: true,
         customMessage: '¡Bienvenido! Escanea para ver nuestro menú.',
     });
