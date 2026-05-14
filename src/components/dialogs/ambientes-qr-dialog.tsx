@@ -98,8 +98,10 @@ export function QRManagementDialog({
     };
 
     const getMenuUrl = (tableId: string) => {
-        const base = process.env.NEXT_PUBLIC_QR_BASE_URL || 'https://camarai.app';
-        return `${base}/mesa/${tableId}`;
+        const phone = process.env.NEXT_PUBLIC_WA_BOT_PHONE || '';
+        const table = selectedEnv?.tables.find(t => String(t.id) === tableId);
+        const num = table?.number ?? 0;
+        return `https://wa.me/${phone}?text=${encodeURIComponent(`Hola! Estoy en la mesa ${num} 🍽️`)}`;
     };
 
     // --- Regenerar: solo cliente, incrementa version en el preview ---
