@@ -71,7 +71,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
                 <div key={idx} className="flex justify-between items-start">
                   <H4>{item.quantity}</H4>
                   <TextMD>{item.productName}</TextMD>
-                  <TextMD>€{((item.unitPrice * item.quantity) / 100).toFixed(2)}</TextMD>
+                  <TextMD>€{(item.unitPrice * item.quantity).toFixed(2)}</TextMD>
                 </div>
               ))}
             </div>
@@ -80,15 +80,15 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
             <div className="border-t-2 border-dashed border-gray-300 pt-4 space-y-1">
               <div className="flex justify-between text-gray-600">
                 <TextMD>Subtotal</TextMD>
-                <TextMD>€{(order.subtotal / 100).toFixed(2)}</TextMD>
+                <TextMD>€{order.subtotal.toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-gray-600">
                 <TextMD>Impuestos</TextMD>
-                <TextMD>€{(order.taxAmount / 100).toFixed(2)}</TextMD>
+                <TextMD>€{order.taxAmount.toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-xl font-bold mt-2 pt-2 border-t border-black">
                 <TextMD>TOTAL</TextMD>
-                <TextMD>€{(order.totalAmount / 100).toFixed(2)}</TextMD>
+                <TextMD>€{order.totalAmount.toFixed(2)}</TextMD>
               </div>
             </div>
 

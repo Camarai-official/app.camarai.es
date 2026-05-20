@@ -352,6 +352,7 @@ export const createOrder = mutation({
       order_type: args.orderType,
       source: args.source,
       is_refund: false,
+      is_commission_order: false,
       guests: args.guests,
       created_at: now,
       updated_at: now,
@@ -965,6 +966,7 @@ export const createRefund = mutation({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       source: "pos" as any,
       is_refund: true,
+      is_commission_order: false,
       guests: order.guests,
       created_at: Date.now(),
       updated_at: Date.now(),
@@ -1369,6 +1371,8 @@ export const createReservation = mutation({
       notes: args.notes,
       status: "confirmed",
       source: args.source,
+      notified: false,
+      reminder_sent: false,
       created_at: Date.now(),
     });
 
@@ -1393,6 +1397,7 @@ export const createReservation = mutation({
       order_type: "dine_in",
       source: orderSource,
       is_refund: false,
+      is_commission_order: false,
       guests: args.guests,
       created_at: now,
       updated_at: now,

@@ -121,12 +121,12 @@ export function CancelPartialDialog({
                         <div className="flex-1">
                           <TextSM className="font-medium">{item.productName}</TextSM>
                           <TextSM className="text-muted-foreground">
-                            {item.quantity} x €{(item.unitPrice / 100).toFixed(2)}
+                            {item.quantity} x €{item.unitPrice.toFixed(2)}
                           </TextSM>
                         </div>
                         <div className="text-right">
                           <TextSM className="font-medium text-rose-600">
-                            €{((item.unitPrice * item.quantity) / 100).toFixed(2)}
+                            €{(item.unitPrice * item.quantity).toFixed(2)}
                           </TextSM>
                         </div>
                       </div>
@@ -149,7 +149,7 @@ export function CancelPartialDialog({
                     {itemsToCancel.length} items
                   </H4>
                   <TextSM className="text-muted-foreground">
-                    €{(calculateTotal(itemsToCancel) / 100).toFixed(2)}
+                    €{calculateTotal(itemsToCancel).toFixed(2)}
                   </TextSM>
                 </div>
 
@@ -159,7 +159,7 @@ export function CancelPartialDialog({
                     {itemsToKeep.length} items
                   </H4>
                   <TextSM className="text-muted-foreground">
-                    €{(calculateTotal(itemsToKeep) / 100).toFixed(2)}
+                    €{calculateTotal(itemsToKeep).toFixed(2)}
                   </TextSM>
                 </div>
               </div>

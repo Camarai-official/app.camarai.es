@@ -183,7 +183,7 @@ export const seedData = mutation({
       workday_start: "09:00",
       workday_end: "18:00",
       overtime_alert: true,
-      
+
       // Canales de fichaje
       clock_in_channels: {
         mobile_app: true,
@@ -191,7 +191,7 @@ export const seedData = mutation({
         qr_code: true,
         web_panel: true
       },
-      
+
       // Integración WhatsApp
       whatsapp_integration: {
         enabled: false,
@@ -203,7 +203,7 @@ export const seedData = mutation({
         confirmation_required: true,
         last_sync: undefined
       },
-      
+
       // Estadísticas de uso
       channel_usage_stats: {
         whatsapp: 0,
@@ -212,7 +212,7 @@ export const seedData = mutation({
         web_panel: 0,
         total_clock_ins: 0
       },
-      
+
       created_at: Date.now(),
       updated_at: Date.now(),
     });
@@ -254,16 +254,6 @@ export const seedData = mutation({
       description: "Permite gestionar el staff y fichajes",
       module: "staff",
       created_at: Date.now(),
-    });
-
-    await ctx.db.insert("user_roles", {
-      user_id: "user_owner_01",
-      company_id: companyId,
-      establishment_id: establishmentId,
-      role_id: adminRoleId,
-      status: "active",
-      assigned_by: "system",
-      assigned_at: Date.now(),
     });
 
     // 12. SUBSCRIPTIONS

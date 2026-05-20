@@ -1,7 +1,6 @@
-import { TextXS, H4 } from "@/components/ui/typography";
-
 'use client';
 
+import { TextXS, H4 } from "@/components/ui/typography";
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { format, addHours, startOfDay, subDays, differenceInDays } from 'date-fns';

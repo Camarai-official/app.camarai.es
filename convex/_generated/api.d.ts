@@ -35,6 +35,7 @@ import type * as reservations from "../reservations.js";
 import type * as seed from "../seed.js";
 import type * as sessions from "../sessions.js";
 import type * as staff from "../staff.js";
+import type * as staffAuth from "../staffAuth.js";
 
 import type {
   ApiFromModules,
@@ -70,6 +71,7 @@ declare const fullApi: ApiFromModules<{
   seed: typeof seed;
   sessions: typeof sessions;
   staff: typeof staff;
+  staffAuth: typeof staffAuth;
 }>;
 
 /**

@@ -96,7 +96,7 @@ export function EditOrderDialog({
                       icon={UtensilsCrossed}
                       iconColor="#ea580c"
                       title={item.productName}
-                      description={`${item.quantity} x €${(item.unitPrice / 100).toFixed(2)} = €${((item.unitPrice * item.quantity) / 100).toFixed(2)}`}
+                      description={`${item.quantity} x €${item.unitPrice.toFixed(2)} = €${(item.unitPrice * item.quantity).toFixed(2)}`}
                     />
                   ))
                 )}
@@ -143,7 +143,7 @@ export function EditOrderDialog({
                 <div className="space-y-3 px-1">
                   <div className="flex justify-between items-center text-sm">
                     <TextMD className="text-muted-foreground">Subtotal</TextMD>
-                    <TextMD className="text-muted-foreground">€{(calculateSubtotal() / 100).toFixed(2)}</TextMD>
+                    <TextMD className="text-muted-foreground">€{calculateSubtotal().toFixed(2)}</TextMD>
                   </div>
 
                   <div className="flex justify-between items-center text-sm pt-1">
@@ -159,18 +159,18 @@ export function EditOrderDialog({
                         <H4 className="text-muted-foreground">%</H4>
                       </div>
                     </div>
-                    <H4 className="text-rose-500">-€{(calculateDiscountValue() / 100).toFixed(2)}</H4>
+                    <H4 className="text-rose-500">-€{calculateDiscountValue().toFixed(2)}</H4>
                   </div>
 
                   <div className="flex justify-between items-center text-sm">
                     <TextMD className="text-muted-foreground">IVA (10%)</TextMD>
-                    <TextMD className="text-muted-foreground">€{(calculateTax() / 100).toFixed(2)}</TextMD>
+                    <TextMD className="text-muted-foreground">€{calculateTax().toFixed(2)}</TextMD>
                   </div>
 
                   <div className="pt-5 mt-2 border-t flex justify-between items-center">
                     <H4 className="text-foreground">Total</H4>
                     <H4 className="text-foreground">
-                      €{(calculateTotal() / 100).toFixed(2)}
+                      €{calculateTotal().toFixed(2)}
                     </H4>
                   </div>
                 </div>

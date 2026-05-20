@@ -115,7 +115,9 @@ export default defineSchema({
     color: v.optional(v.string()), // Color de identidad visual
     icon: v.optional(v.string()), // Icono de representación
     created_at: v.number(),
-  }).index("by_establishment", ["establishment_id"]),
+  }).index("by_establishment", ["establishment_id"])
+    .index("by_phone", ["phone"])
+    .index("by_auth_id", ["auth_id"]),
 
   // --- DOMAIN 1.5: ROLES AND PERMISSIONS SYSTEM ---
 
@@ -139,14 +141,14 @@ export default defineSchema({
   }).index("by_module", ["module"]),
 
   user_roles: defineTable({
-    user_id: v.string(), // External auth ID
+    staff_id: v.id("staff"), // Reference to staff table
     company_id: v.id("companies"),
     establishment_id: v.optional(v.id("establishments")), // For establishment-specific roles
     role_id: v.id("roles"),
     status: v.union(v.literal("active"), v.literal("inactive"), v.literal("suspended")),
     assigned_by: v.string(), // Who assigned this role
     assigned_at: v.number(),
-  }).index("by_user", ["user_id"])
+  }).index("by_staff", ["staff_id"])
     .index("by_company", ["company_id"])
     .index("by_establishment", ["establishment_id"]),
 

@@ -35,8 +35,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 
 import { useToast } from "@/hooks/use-toast"
 import { useEstablishments } from "@/hooks/useEstablishments"
+import { useAuth } from "@/hooks/useAuth"
 import { CreateEstablishmentDialog } from "@/components/dialogs/create-establishment-dialog"
-import { mockUser, mockAbsenceRequests, mockStaffMembers, AbsenceRequest } from "@/data/mock-data"
 import type { Establishment } from "@/data/establishments"
 
 // ============================================================================
@@ -69,23 +69,23 @@ export function SidebarNav() {
   const pathname = usePathname()
   const router = useRouter()
   const { toast } = useToast()
+  const { staff } = useAuth()
   const [isDarkMode, setIsDarkMode] = React.useState(true)
   const { establishments, activeEstablishment, setActiveEstablishmentId, addEstablishment, removeEstablishment } = useEstablishments()
-  const [absenceRequests, setAbsenceRequests] = React.useState<AbsenceRequest[]>(mockAbsenceRequests)
   const [establishmentToDelete, setEstablishmentToDelete] = React.useState<Establishment | null>(null)
   const [isCreateDialogOpen, setIsCreateDialogOpen] = React.useState(false)
 
   const handleNavigation = (href: string) => {
     // Dispatch instant loading event
     window.dispatchEvent(new CustomEvent('navigation-start'));
-    
+
     // Close sidebar on mobile/tablet
     if (isMobile || isTablet) {
       setOpenMobile(false);
     }
   };
 
-  const pendingRequests = React.useMemo(() => absenceRequests.filter(req => req.status === 'pending'), [absenceRequests])
+  const pendingRequests: any[] = [] // TODO: Get from Convex
   const pendingReservationsCount = 0 // Placeholder
   const totalNotifications = pendingRequests.length + pendingReservationsCount
 
@@ -120,14 +120,11 @@ export function SidebarNav() {
   }
 
   const handleUpdateRequest = (requestId: string, status: 'approved' | 'rejected') => {
-    setAbsenceRequests(prev => prev.map(req => req.id === requestId ? { ...req, status } : req))
-    const request = absenceRequests.find(r => r.id === requestId)
-    const employee = mockStaffMembers.find(s => s.id === request?.staffId)
     const statusEs = status === 'approved' ? 'Aprobada' : 'Rechazada'
 
     toast({
       title: `Solicitud ${statusEs}`,
-      description: `La solicitud de ${employee?.nombre || 'empleado'} ha sido ${statusEs.toLowerCase()}.`
+      description: `La solicitud de ${staff?.name} ha sido ${statusEs.toLowerCase()}.`
     })
   }
 
@@ -151,7 +148,11 @@ export function SidebarNav() {
 
       <SidebarFooter padding="md">
         <NavUser
-          user={mockUser}
+          user={{
+            firstName: staff?.name,
+            email: staff?.email || staff?.phone,
+            avatar: staff?.photo_url || ''
+          }}
           isCollapsed={isCollapsed}
           isDarkMode={isDarkMode}
           onDarkModeChange={setIsDarkMode}
@@ -241,7 +242,9 @@ function NavEstablishments({ active, list, isCollapsed, onSelect, onAdd, onAssoc
             <Check className="h-4 w-4 ml-auto text-primary" />
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator />
+          {list.filter((est: any) => est.id !== active.id).length > 0 && (
+            <DropdownMenuSeparator />
+          )}
 
           {/* Other establishments */}
           {list
@@ -303,6 +306,7 @@ function NavMain({ items, pathname, onNavigate }: any) {
 
 function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notifications }: any) {
   const { toast } = useToast()
+  const { logout } = useAuth()
 
   return (
     <DropdownMenu>
@@ -310,7 +314,7 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
         <SidebarMenuButton size="lg" variant="outline" className="h-14">
           <Avatar className="h-10 w-10 shrink-0 rounded-lg">
             <AvatarImage src={user.avatar} alt={user.firstName} className="object-cover" />
-            <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">{user.firstName[0]}</AvatarFallback>
+            <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-bold">{user.firstName?.charAt(0)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-1 flex-col items-start overflow-hidden text-left leading-tight">
             <span className="truncate font-bold text-sm text-foreground">{user.firstName}</span>
@@ -344,14 +348,13 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
             <DropdownMenuGroup>
               {notifications.pendingRequests.length > 0 ? (
                 notifications.pendingRequests.map((req: any) => {
-                  const employee = mockStaffMembers.find(s => s.id === req.staffId)
                   return (
                     <DropdownMenuItem key={req.id}>
                        <Avatar>
-                        <AvatarFallback>{employee?.nombre[0]}</AvatarFallback>
+                        <AvatarFallback>E</AvatarFallback>
                       </Avatar>
                       <div className="flex-1 flex flex-col min-w-0">
-                        <span >{employee?.nombre || 'Empleado'}</span>
+                        <span >Empleado</span>
                         <span >{req.type} - {format(parseISO(req.startDate), 'dd/MM/yy')}</span>
                       </div>
                       <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
@@ -381,7 +384,10 @@ function NavUser({ user, isCollapsed, isDarkMode, onDarkModeChange, notification
           <Switch checked={isDarkMode} onCheckedChange={onDarkModeChange} />
         </DropdownMenuItem>
 
-        <DropdownMenuItem onSelect={() => toast({ title: 'Saliendo...', description: 'Hasta pronto.' })}>
+        <DropdownMenuItem onSelect={() => {
+          toast({ title: 'Saliendo...', description: 'Hasta pronto.' });
+          logout();
+        }}>
           <LogOut />
           Cerrar sesión
         </DropdownMenuItem>

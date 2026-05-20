@@ -57,8 +57,8 @@ import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 
 // Helper para formatear precios en euros
-const formatEuro = (cents: number) => {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+const formatEuro = (amount: number) => {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
 };
 
 // Helper para formatear timestamps
@@ -407,8 +407,8 @@ export default function ComandasPage() {
                                             {viewConfig.showName && <TableCell>{order.customerName || order.staffName}</TableCell>}
                                             {viewConfig.showTotal && <TableCell>{formatEuro(order.totalAmount)}</TableCell>}
                                             {viewConfig.showStatus && <TableCell className="text-center">
-                                                <Badge variant={statusVariants[order.status] || 'default'}>
-                                                    {statusLabels[order.status] || order.status}
+                                                <Badge variant={order.totalAmount < 0 ? 'cancelled' : (statusVariants[order.status] || 'default')}>
+                                                    {order.totalAmount < 0 ? 'Devuelto' : (statusLabels[order.status] || order.status)}
                                                 </Badge>
                                             </TableCell>}
                                             <TableCell>

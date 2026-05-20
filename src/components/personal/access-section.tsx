@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Shield, User, Settings, Lock, Check, X } from 'lucide-react';
+import { Shield, User, Settings, Lock, Check, X, ChefHat } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,12 +14,12 @@ import { cn } from '@/lib/utils';
 interface AccessSectionProps {
     employeeData?: {
         pin?: string;
-        accessLevel?: 'camarero' | 'encargado' | 'jefe' | 'personalizado';
+        accessLevel?: 'camarero' | 'cocinero' | 'encargado' | 'jefe' | 'personalizado';
         permissions?: string[];
     };
     onChange?: (data: {
         pin?: string;
-        accessLevel?: 'camarero' | 'encargado' | 'jefe' | 'personalizado';
+        accessLevel?: 'camarero' | 'cocinero' | 'encargado' | 'jefe' | 'personalizado';
         permissions?: string[];
     }) => void;
 }
@@ -31,6 +31,13 @@ const accessLevels = [
         description: 'Acceso básico (POS, KDS, comandas propias)',
         icon: User,
         permissions: ['pos', 'kds']
+    },
+    {
+        id: 'cocinero',
+        title: 'Cocinero',
+        description: 'Acceso exclusivo a KDS de cocina',
+        icon: ChefHat,
+        permissions: ['kds']
     },
     {
         id: 'encargado',
@@ -73,7 +80,7 @@ const systemPermissions = [
 
 export function AccessSection({ employeeData, onChange }: AccessSectionProps) {
     const [pin, setPin] = React.useState(employeeData?.pin || '');
-    const [accessLevel, setAccessLevel] = React.useState<'camarero' | 'encargado' | 'jefe' | 'personalizado'>(
+    const [accessLevel, setAccessLevel] = React.useState<'camarero' | 'cocinero' | 'encargado' | 'jefe' | 'personalizado'>(
         employeeData?.accessLevel || 'camarero'
     );
     const [permissions, setPermissions] = React.useState<string[]>(employeeData?.permissions || []);

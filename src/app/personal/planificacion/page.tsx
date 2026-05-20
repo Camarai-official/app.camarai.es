@@ -114,8 +114,8 @@ export default function PlanificacionPage() {
         member.nombre,
         ...days.map(day => {
           const entries = getEntries(member.id, day);
-          return entries.length > 0 
-            ? entries.map(e => `${e.start_time} - ${e.end_time}`).join(" | ") 
+          return entries.length > 0
+            ? entries.map(e => `${e.start_time} - ${e.end_time}`).join(" | ")
             : "";
         })
       ];
@@ -145,14 +145,14 @@ export default function PlanificacionPage() {
     // Usar ExcelJS con buffer para navegador
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Planificación");
-    
+
     allData.forEach((row, rowIndex) => {
       worksheet.addRow(row);
     });
-    
+
     const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -235,7 +235,7 @@ export default function PlanificacionPage() {
 
       const finalY = (doc as any).lastAutoTable.finalY || 100;
       const motivosRows: string[][] = [];
-      
+
       staff.forEach(member => {
         days.forEach(day => {
           const entries = getEntries(member.id, day);
@@ -250,7 +250,7 @@ export default function PlanificacionPage() {
       if (motivosRows.length > 0) {
         doc.setFontSize(12);
         doc.text("Registro de Motivos", 40, finalY + 30);
-        
+
         autoTable(doc, {
           head: [["Empleado", "Día", "Motivo"]],
           body: motivosRows,
