@@ -337,9 +337,18 @@ export const createOrder = mutation({
   handler: async (ctx, args) => {
     const orderNumber = `ORD-${Date.now().toString().slice(-6)}`;
     
+    let environmentId;
+    if (args.tableId) {
+      const table = await ctx.db.get(args.tableId);
+      if (table) {
+        environmentId = table.environment_id;
+      }
+    }
+
     const orderId = await ctx.db.insert("orders", {
       establishment_id: args.establishmentId,
       table_id: args.tableId,
+      environment_id: environmentId,
       staff_id: args.staffId,
       order_number: orderNumber,
       status: "open",

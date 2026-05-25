@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v, type GenericId } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
 import type { Doc, Id } from "./_generated/dataModel";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -140,7 +141,7 @@ export const listTables = query({
   args: { establishmentId: v.id("establishments"), environmentId: v.optional(v.id("environments")) },
   handler: async (ctx, args) => {
     let tablesWithEnv;
-    
+
     if (args.environmentId) {
       const environment = await ctx.db.get(args.environmentId!);
       const tables = await ctx.db
@@ -154,7 +155,7 @@ export const listTables = query({
         .query("environments")
         .withIndex("by_establishment", (q) => q.eq("establishment_id", args.establishmentId))
         .collect();
-      
+
       // Get tables for all environments with environment name
       tablesWithEnv = [];
       for (const env of environments) {
@@ -165,7 +166,7 @@ export const listTables = query({
         tablesWithEnv.push(...envTables.map((table) => ({ ...table, environmentName: env.name })));
       }
     }
-    
+
     return tablesWithEnv;
   },
 });
@@ -180,19 +181,19 @@ export const listCategories = query({
       .withIndex("by_establishment", (q) => q.eq("establishment_id", args.establishmentId))
       .filter((q) => q.eq(q.field("active"), true))
       .collect();
-    
+
     return categories.sort((a, b) => a.order - b.order);
   },
 });
 
 export const listProducts = query({
-  args: { 
+  args: {
     establishmentId: v.id("establishments"),
     categoryId: v.optional(v.id("categories"))
   },
   handler: async (ctx, args) => {
     let products;
-    
+
     if (args.categoryId) {
       products = await ctx.db
         .query("products")
@@ -211,7 +212,7 @@ export const listProducts = query({
         .filter((q) => q.eq(q.field("active"), true))
         .collect();
     }
-    
+
     return products.sort((a, b) => a.order - b.order);
   },
 });
@@ -224,7 +225,7 @@ export const getProduct = query({
 });
 
 export const listOrders = query({
-  args: { 
+  args: {
     establishmentId: v.id("establishments"),
     status: v.optional(v.union(v.literal("open"), v.literal("paid"), v.literal("cancelled"), v.literal("refunded")))
   },
@@ -232,12 +233,12 @@ export const listOrders = query({
     if (args.status) {
       return await ctx.db
         .query("orders")
-        .withIndex("by_establishment_status", (q) => 
+        .withIndex("by_establishment_status", (q) =>
           q.eq("establishment_id", args.establishmentId).eq("status", args.status!)
         )
         .collect();
     }
-    
+
     return await ctx.db
       .query("orders")
       .withIndex("by_establishment", (q) => q.eq("establishment_id", args.establishmentId))
@@ -313,7 +314,7 @@ export const getOrderPayments = query({
       .query("payments")
       .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
       .collect();
-    
+
     return payments;
   },
 });
@@ -334,11 +335,19 @@ export const createOrder = mutation({
     source: v.union(v.literal("pos"), v.literal("pda"), v.literal("carta"), v.literal("voice"), v.literal("agent")),
   },
   handler: async (ctx, args) => {
+    let environmentId = args.environmentId;
+    if (!environmentId && args.tableId) {
+      const table = await ctx.db.get(args.tableId);
+      if (table) {
+        environmentId = table.environment_id;
+      }
+    }
+
     const now = Date.now();
     const orderId = await ctx.db.insert("orders", {
       establishment_id: args.establishmentId,
       table_id: args.tableId,
-      environment_id: args.environmentId,
+      environment_id: environmentId,
       staff_id: args.staffId,
       customer_id: args.customerId,
       order_number: args.orderNumber,
@@ -352,8 +361,8 @@ export const createOrder = mutation({
       order_type: args.orderType,
       source: args.source,
       is_refund: false,
-      is_commission_order: false,
       guests: args.guests,
+      is_commission_order: false,
       created_at: now,
       updated_at: now,
     });
@@ -460,7 +469,7 @@ export const updateOrderItem = mutation({
           .query("order_items")
           .withIndex("by_order", (q) => q.eq("order_id", orderItem.order_id))
           .collect();
-        
+
         // Only include non-cancelled items in subtotal
         const newSubtotal = roundMoney(allItems
           .filter(item => item.item_status !== "cancelled")
@@ -500,7 +509,7 @@ export const deleteOrderItem = mutation({
         .query("order_items")
         .withIndex("by_order", (q) => q.eq("order_id", orderItem.order_id))
         .collect();
-      
+
       // Only include non-cancelled items in subtotal
       const newSubtotal = roundMoney(allItems
         .filter(item => item.item_status !== "cancelled")
@@ -512,7 +521,7 @@ export const deleteOrderItem = mutation({
         total_amount: newTotalAmount,
         updated_at: Date.now(),
       });
-      
+
       // Recalculate table status based on order items (single source of truth in Convex)
       if (order.table_id) {
         await recalculateTableStatus(ctx, order.table_id, order._id);
@@ -554,13 +563,13 @@ export const createPayment = mutation({
       .query("payments")
       .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
       .collect();
-    
+
     const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-    
+
     if (order) {
       // Usamos un pequeño margen de 0.005 para evitar problemas de precisión en coma flotante
       const isFullyPaid = totalPaid >= order.total_amount - 0.005;
-      
+
       // Update payment_status based on payment amount
       let paymentStatus: "pending" | "partial" | "paid";
       if (isFullyPaid) {
@@ -594,7 +603,7 @@ export const createPayment = mutation({
           .query("order_items")
           .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
           .collect();
-        
+
         for (const orderItem of allOrderItems) {
           await ctx.db.patch(orderItem._id, {
             item_status: "paid",
@@ -966,8 +975,8 @@ export const createRefund = mutation({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       source: "pos" as any,
       is_refund: true,
-      is_commission_order: false,
       guests: order.guests,
+      is_commission_order: false,
       created_at: Date.now(),
       updated_at: Date.now(),
       closed_at: Date.now(),
@@ -1063,13 +1072,13 @@ export const mergeTables = mutation({
   handler: async (ctx, args) => {
     const sourceTable = await ctx.db.get(args.sourceTableId);
     const targetTable = await ctx.db.get(args.targetTableId);
-    
+
     if (!sourceTable || !targetTable) throw new Error("Table not found");
 
     // Find the root table if target is already linked
     let actualTargetTable = targetTable;
     let actualTargetId = args.targetTableId;
-    
+
     // Follow the chain to find the root table
     while (actualTargetTable.merged_into_table_id) {
       actualTargetId = actualTargetTable.merged_into_table_id;
@@ -1084,7 +1093,7 @@ export const mergeTables = mutation({
     if (sourceTable.merged_into_table_id) {
       // Source is already part of a merge - transfer its order to the new target if it has one
       const sourceOrder = sourceTable.current_order_id ? await ctx.db.get(sourceTable.current_order_id) : null;
-      
+
       if (sourceOrder) {
         const sourceOrderItems = await ctx.db
           .query("order_items")
@@ -1117,7 +1126,7 @@ export const mergeTables = mutation({
             .query("order_items")
             .withIndex("by_order", (q) => q.eq("order_id", targetOrder._id))
             .collect();
-          
+
           const newSubtotal = allTargetItems
             .filter(item => item.item_status !== "cancelled")
             .reduce((sum, item) => sum + item.total_price, 0);
@@ -1205,7 +1214,7 @@ export const mergeTables = mutation({
           .query("order_items")
           .withIndex("by_order", (q) => q.eq("order_id", targetOrder._id))
           .collect();
-        
+
         const newSubtotal = allTargetItems
           .filter(item => item.item_status !== "cancelled")
           .reduce((sum, item) => sum + item.total_price, 0);
@@ -1299,20 +1308,12 @@ export const searchCustomers = query({
     query: v.string(),
   },
   handler: async (ctx, args) => {
-    const customers = await ctx.db
+    return await ctx.db
       .query("customers")
-      .withIndex("by_establishment", (q) => q.eq("establishments_id", [args.establishmentId]))
-      .collect();
-
-    const searchLower = args.query.toLowerCase();
-
-    return customers
-      .filter((customer) => {
-        const nameMatch = customer.name.toLowerCase().includes(searchLower);
-        const phoneMatch = customer.phone?.toLowerCase().includes(searchLower.replace(/\s/g, ''));
-        return nameMatch || phoneMatch;
-      })
-      .slice(0, 10); // Limit to 10 results
+      .withSearchIndex("search_name", (q) =>
+        q.search("name", args.query).eq("establishments_id", [args.establishmentId])
+      )
+      .take(10);
   },
 });
 
@@ -1370,8 +1371,8 @@ export const createReservation = mutation({
       guests: args.guests,
       notes: args.notes,
       status: "confirmed",
-      source: args.source,
       notified: false,
+      source: args.source,
       reminder_sent: false,
       created_at: Date.now(),
     });
@@ -1397,8 +1398,8 @@ export const createReservation = mutation({
       order_type: "dine_in",
       source: orderSource,
       is_refund: false,
-      is_commission_order: false,
       guests: args.guests,
+      is_commission_order: false,
       created_at: now,
       updated_at: now,
       reservation_id: reservationId,
@@ -1490,5 +1491,73 @@ export const cancelReservation = mutation({
     });
 
     return args.reservationId;
+  },
+});
+
+export const listOrdersPaginated = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    status: v.optional(v.union(v.literal("open"), v.literal("paid"), v.literal("cancelled"), v.literal("refunded"))),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    if (args.status) {
+      return await ctx.db
+        .query("orders")
+        .withIndex("by_establishment_status", (q) =>
+          q.eq("establishment_id", args.establishmentId).eq("status", args.status!)
+        )
+        .order("desc")
+        .paginate(args.paginationOpts);
+    }
+
+    return await ctx.db
+      .query("orders")
+      .withIndex("by_establishment", (q) => q.eq("establishment_id", args.establishmentId))
+      .order("desc")
+      .paginate(args.paginationOpts);
+  },
+});
+
+export const listPaymentsPaginated = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    startDate: v.optional(v.number()),
+    endDate: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    // In paginated queries, we can't filter in memory easily, so we rely on the index range
+    return await ctx.db
+      .query("payments")
+      .withIndex("by_establishment_timestamp", (q) => {
+        if (args.startDate !== undefined) {
+          return q.eq("establishment_id", args.establishmentId)
+            .gte("timestamp", args.startDate);
+        }
+        if (args.endDate !== undefined) {
+          return q.eq("establishment_id", args.establishmentId)
+            .lte("timestamp", args.endDate);
+        }
+        return q.eq("establishment_id", args.establishmentId);
+      })
+      .order("desc")
+      .paginate(args.paginationOpts);
+  },
+});
+
+export const listReservationsPaginated = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    date: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("pending"), v.literal("confirmed"), v.literal("cancelled"), v.literal("completed"), v.literal("no_show"))),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("reservations")
+      .withIndex("by_establishment", (q) => q.eq("establishment_id", args.establishmentId))
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });

@@ -125,8 +125,8 @@ export default function ComandasPage() {
     );
 
     // Convex Queries
-    const startTimestamp = date?.from ? date.from.getTime() : undefined;
-    const endTimestamp = date?.to ? date.to.getTime() : undefined;
+    const startTimestamp = date?.from ? new Date(date.from.setHours(0, 0, 0, 0)).getTime() : undefined;
+    const endTimestamp = date?.to ? new Date(date.to.setHours(23, 59, 59, 999)).getTime() : undefined;
 
     const ordersData = useQuery(
         api.orders.getOrdersForComandas,
@@ -403,7 +403,7 @@ export default function ComandasPage() {
                                             </TableCell>
                                             {viewConfig.showOrder && <TableCell className="font-medium">{order.orderNumber}</TableCell>}
                                             {viewConfig.showTime && <TableCell>{formatTime(order.createdAt)}</TableCell>}
-                                            {viewConfig.showTable && <TableCell>{order.tableLabel || '-'}</TableCell>}
+                                            {viewConfig.showTable && <TableCell>{order.tableLabel ? `${order.tableLabel}${order.environmentName ? ` (${order.environmentName})` : ''}` : '-'}</TableCell>}
                                             {viewConfig.showName && <TableCell>{order.customerName || order.staffName}</TableCell>}
                                             {viewConfig.showTotal && <TableCell>{formatEuro(order.totalAmount)}</TableCell>}
                                             {viewConfig.showStatus && <TableCell className="text-center">

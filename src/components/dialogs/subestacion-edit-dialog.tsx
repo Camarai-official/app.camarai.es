@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Tag, Palette, Info, ListTree, Package } from 'lucide-react';
+import { Settings, Tag, Palette, Info, ListTree, Package, Search } from 'lucide-react';
 import type { Id } from '@/convex/_generated/dataModel';
 
 type Station = {
@@ -48,6 +48,7 @@ export function SubestacionEditDialog({
   const [description, setDescription] = React.useState('');
   const [color, setColor] = React.useState('');
   const [active, setActive] = React.useState(true);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   React.useEffect(() => {
     if (station) {
@@ -148,6 +149,16 @@ export function SubestacionEditDialog({
             <p className="text-sm text-muted-foreground">
               Selecciona qué categorías completas o productos específicos se enviarán a esta subestación.
             </p>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar producto o categoría..."
+                className="pl-9 bg-background"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
             
             <div className="flex-1 overflow-auto border rounded-md p-4 bg-background">
               {categories.length === 0 ? (
@@ -161,6 +172,14 @@ export function SubestacionEditDialog({
                     
                     // Filter products for this category
                     const categoryProducts = products.filter(p => p.category_id === category._id);
+                    const categoryMatchesSearch = !searchQuery || category.name.toLowerCase().includes(searchQuery.toLowerCase());
+                    const filteredProducts = categoryProducts.filter(p => 
+                      categoryMatchesSearch || p.name.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
+
+                    if (filteredProducts.length === 0 && !categoryMatchesSearch) {
+                      return null;
+                    }
                     
                     return (
                       <div key={category._id} className="space-y-2">
@@ -171,13 +190,13 @@ export function SubestacionEditDialog({
                             id={`cat-${category._id}`}
                           />
                           <Label htmlFor={`cat-${category._id}`} className="font-bold text-md cursor-pointer flex-1">
-                            {category.name} <span className="text-muted-foreground font-normal text-xs ml-2">({categoryProducts.length} productos)</span>
+                            {category.name} <span className="text-muted-foreground font-normal text-xs ml-2">({filteredProducts.length} productos)</span>
                           </Label>
                         </div>
                         
-                        {!isCategoryAssigned && categoryProducts.length > 0 && (
+                        {!isCategoryAssigned && filteredProducts.length > 0 && (
                           <div className="pl-6 grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                            {categoryProducts.map(product => {
+                            {filteredProducts.map(product => {
                               const productRule = rules.find(r => r.rule_type === "product" && r.product_id === product._id);
                               const isProductAssigned = !!productRule;
                               return (

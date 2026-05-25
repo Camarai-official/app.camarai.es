@@ -27,7 +27,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogWindow size="sm" className="bg-zinc-100 dark:bg-zinc-900 border-none">
         <DialogHeader className="sr-only" title="Detalles del Pedido" description="Visualización detallada del ticket del pedido" />
-        
+
         <DialogContent>
           <div className="bg-foreground text-black p-6 font-mono text-sm shadow-sm relative m-4 mb-10 rounded-sm">
             {/* Ticket Header */}
@@ -56,8 +56,9 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
 
             {/* Customer Info */}
             <div className="flex justify-between mb-4 text-xs font-bold ">
-              <TextMD>MESA: {order.tableLabel || '-'}</TextMD>
-              <TextMD>CLIENTE: {(order.customerName || order.staffName || 'Invitado').split(' ')[0]}</TextMD>
+              <TextMD>MESA: {order.tableLabel ? `${order.tableLabel}${order.environmentName ? ` (${order.environmentName})` : ''}` : '-'}</TextMD>
+              <TextMD> Camarer@: {order.staffName}</TextMD>
+              {order.customerName && <TextMD>CLIENTE: {order.customerName.split(' ')[0]}</TextMD>}
             </div>
 
             {/* Items */}
@@ -110,17 +111,17 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
         </DialogContent>
 
         <DialogFooter className="p-6 bg-zinc-100 dark:bg-zinc-900 border-t flex gap-3">
-          <Button 
-            variant="default" 
-            className="flex-1 rounded-xl h-11 shadow-lg shadow-primary/10" 
+          <Button
+            variant="default"
+            className="flex-1 rounded-xl h-11 shadow-lg shadow-primary/10"
             startIcon={<Printer className="h-4 w-4" />}
             onClick={() => onPrint?.(order)}
           >
             Imprimir
           </Button>
-          <Button 
-            variant="outline" 
-            className="flex-1 rounded-xl h-11 bg-white dark:bg-zinc-950 shadow-sm" 
+          <Button
+            variant="outline"
+            className="flex-1 rounded-xl h-11 bg-white dark:bg-zinc-950 shadow-sm"
             startIcon={<Pencil className="h-4 w-4" />}
             onClick={() => onEdit?.(order)}
           >

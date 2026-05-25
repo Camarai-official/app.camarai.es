@@ -479,7 +479,11 @@ export default defineSchema({
     notes: v.optional(v.string()),
     source: v.union(v.literal("manual"), v.literal("whatsapp"), v.literal("reservation")),
     created_at: v.number(),
-  }).index("by_establishment", ["establishments_id"]),
+  }).index("by_establishment", ["establishments_id"])
+    .searchIndex("search_name", {
+      searchField: "name",
+      filterFields: ["establishments_id"],
+    }),
 
   // --- DOMAIN 4: HR AND ATTENDANCE ---
 
