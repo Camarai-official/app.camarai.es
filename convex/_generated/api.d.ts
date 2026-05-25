@@ -25,6 +25,7 @@ import type * as eventLog from "../eventLog.js";
 import type * as ingredients from "../ingredients.js";
 import type * as inventory from "../inventory.js";
 import type * as inventoryQueries from "../inventoryQueries.js";
+import type * as kds from "../kds.js";
 import type * as kpiBackfill from "../kpiBackfill.js";
 import type * as kpis from "../kpis.js";
 import type * as menu from "../menu.js";
@@ -61,6 +62,7 @@ declare const fullApi: ApiFromModules<{
   ingredients: typeof ingredients;
   inventory: typeof inventory;
   inventoryQueries: typeof inventoryQueries;
+  kds: typeof kds;
   kpiBackfill: typeof kpiBackfill;
   kpis: typeof kpis;
   menu: typeof menu;

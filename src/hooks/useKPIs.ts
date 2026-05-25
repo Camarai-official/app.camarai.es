@@ -44,9 +44,9 @@ export const useKPIs = () => {
 
     const numberFormatter = new Intl.NumberFormat('es-ES');
     
-    // Convert cents to euros
-    const revenueInEuros = globalKPIs.total_revenue / 100;
-    const ticketInEuros = globalKPIs.average_ticket / 100;
+    // Values are already in euros
+    const revenueInEuros = globalKPIs.total_revenue;
+    const ticketInEuros = globalKPIs.average_ticket;
     
     // Format revenue with appropriate suffix
     let revenueDisplay: string;

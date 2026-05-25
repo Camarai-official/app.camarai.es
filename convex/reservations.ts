@@ -83,6 +83,24 @@ export const createReservation = mutation({
       created_at: Date.now(),
     });
 
+    await ctx.db.insert("event_log", {
+      establishment_id: args.establishment_id,
+      type: "operational",
+      level: "info",
+      actor: "system",
+      action: "Nueva Reserva",
+      entity_type: "reservation",
+      entity_id: reservationId,
+      after: {
+        customer_name: args.customer_name || "Sin nombre",
+        guests: args.guests,
+        table_id: args.table_id || "Sin asignar",
+        reservation_time: `${args.date} ${args.start_time}`,
+        source: args.source,
+      },
+      timestamp: Date.now(),
+    });
+
     return reservationId;
   },
 });

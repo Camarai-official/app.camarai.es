@@ -142,7 +142,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
             <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} minTickGap={30} dy={10} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} tickFormatter={(value) => `€${(value / 1000).toFixed(1)}k`} dx={-10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} tickFormatter={(value) => value >= 1000 ? `€${(value / 1000).toFixed(1)}k` : `€${value}`} dx={-10} />
             <Tooltip
               cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
               content={({ active, payload, label }) => {

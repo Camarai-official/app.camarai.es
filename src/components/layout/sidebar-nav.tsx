@@ -12,6 +12,9 @@ import {
   MessageSquareText, Sun, Moon, LogOut, Check, X
 } from "lucide-react"
 
+import { useQuery, useMutation } from "convex/react"
+import { api } from "@/convex/_generated/api"
+
 import { cn } from "@/lib/utils"
 import { TextXS } from "@/components/ui/typography"
 import {
@@ -50,6 +53,7 @@ const navItems = [
   { href: "/cartas", label: "Cartas", icon: BookOpen },
   { href: "/inventario", label: "Inventario", icon: Archive },
   { href: "/pos-kds", label: "POS y KDS", icon: Monitor },
+  { href: "/pos-kds/subestaciones", label: "Subestaciones", icon: Layers },
   { href: "/personal", label: "Personal", icon: Users },
   { href: "/personal/planificacion", label: "Planificación", icon: Calendar },
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
@@ -85,7 +89,16 @@ export function SidebarNav() {
     }
   };
 
-  const pendingRequests: any[] = [] // TODO: Get from Convex
+  const updateAbsenceRequestStatus = useMutation(api.staff.updateAbsenceRequestStatus)
+  const absenceRequests = useQuery(api.staff.getAbsenceRequestsByEstablishment, 
+    activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : "skip"
+  )
+  
+  const pendingRequests = React.useMemo(() => {
+    if (!absenceRequests) return []
+    return absenceRequests.filter((req: any) => req.status === "pending")
+  }, [absenceRequests])
+  
   const pendingReservationsCount = 0 // Placeholder
   const totalNotifications = pendingRequests.length + pendingReservationsCount
 
@@ -119,13 +132,27 @@ export function SidebarNav() {
     }
   }
 
-  const handleUpdateRequest = (requestId: string, status: 'approved' | 'rejected') => {
+  const handleUpdateRequest = async (requestId: string, status: 'approved' | 'rejected') => {
     const statusEs = status === 'approved' ? 'Aprobada' : 'Rechazada'
 
-    toast({
-      title: `Solicitud ${statusEs}`,
-      description: `La solicitud de ${staff?.name} ha sido ${statusEs.toLowerCase()}.`
-    })
+    if (staff?._id) {
+      await updateAbsenceRequestStatus({
+        requestId: requestId as any,
+        status,
+        reviewed_by: staff._id as any
+      })
+      
+      toast({
+        title: `Solicitud ${statusEs}`,
+        description: `La solicitud ha sido ${statusEs.toLowerCase()}.`
+      })
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo identificar tu usuario.",
+        variant: "destructive"
+      })
+    }
   }
 
   return (

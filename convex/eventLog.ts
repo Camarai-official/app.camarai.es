@@ -1,39 +1,36 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 
 // --- QUERIES ---
 
 export const getEventLogs = query({
   args: { 
     establishmentId: v.id("establishments"),
-    limit: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
     type: v.optional(v.union(v.literal("security"), v.literal("inventory"), v.literal("operational"), v.literal("financial"))),
     level: v.optional(v.union(v.literal("info"), v.literal("warning"), v.literal("critical")))
   },
   handler: async (ctx, args) => {
-    let events = await ctx.db
+    let q = ctx.db
       .query("event_log")
       .withIndex("by_establishment_timestamp", q => q.eq("establishment_id", args.establishmentId))
-      .order("desc")
-      .collect();
+      .order("desc");
 
     // Apply filters
     if (args.type) {
-      events = events.filter(event => event.type === args.type);
+      q = q.filter(q => q.eq(q.field("type"), args.type));
     }
     
     if (args.level) {
-      events = events.filter(event => event.level === args.level);
+      q = q.filter(q => q.eq(q.field("level"), args.level));
     }
 
-    // Apply limit
-    if (args.limit) {
-      events = events.slice(0, args.limit);
-    }
+    const result = await q.paginate(args.paginationOpts);
     
     // Get staff details for actor information
     const eventsWithActorDetails = await Promise.all(
-      events.map(async (event) => {
+      result.page.map(async (event) => {
         let actorName = "Sistema";
         let actorType = "system";
         
@@ -69,7 +66,10 @@ export const getEventLogs = query({
       })
     );
 
-    return eventsWithActorDetails;
+    return {
+      ...result,
+      page: eventsWithActorDetails
+    };
   },
 });
 
