@@ -6,53 +6,60 @@ import type { Id } from "./_generated/dataModel";
 
 // Queries para Orders
 
+import { paginationOptsValidator } from "convex/server";
+
 /**
  * Query principal para la vista de Comandas (Historial de Pedidos)
- * Soporta filtros de fecha y paginación
+ * Soporta filtros de fecha, búsqueda por número de orden y paginación con cursores.
  */
 export const getOrdersForComandas = query({
   args: {
     establishmentId: v.id("establishments"),
     startDate: v.optional(v.number()), // timestamp
     endDate: v.optional(v.number()), // timestamp
-    limit: v.optional(v.number()),
-    cursor: v.optional(v.number()), // timestamp del último elemento
+    searchTerm: v.optional(v.string()),
+    paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
-    const limit = args.limit || 50;
-    
-    // Obtener órdenes por establecimiento ordenadas por fecha
-    const allOrders = await ctx.db
-      .query("orders")
-      .withIndex("by_establishment_created", (q) =>
-        q.eq("establishment_id", args.establishmentId)
-      )
-      .order("desc")
-      .collect();
-    
-    // Aplicar filtros de fecha en memoria
-    let filteredOrders = allOrders;
-    
-    if (args.startDate !== undefined) {
-      filteredOrders = filteredOrders.filter(o => o.created_at >= args.startDate!);
-    }
-    
-    if (args.endDate !== undefined) {
-      filteredOrders = filteredOrders.filter(o => o.created_at <= args.endDate!);
-    }
-    
-    // Aplicar cursor si existe (filtrar elementos anteriores al cursor)
-    if (args.cursor !== undefined) {
-      filteredOrders = filteredOrders.filter(o => o.created_at < args.cursor!);
+    let paginatedResults;
+
+    if (args.searchTerm && args.searchTerm.trim() !== "") {
+      let q = ctx.db
+        .query("orders")
+        .withSearchIndex("search_order_number", (q) =>
+          q.search("order_number", args.searchTerm!).eq("establishment_id", args.establishmentId)
+        );
+      
+      if (args.startDate !== undefined || args.endDate !== undefined) {
+         q = q.filter(q => {
+            const conditions = [];
+            if (args.startDate !== undefined) conditions.push(q.gte(q.field("created_at"), args.startDate));
+            if (args.endDate !== undefined) conditions.push(q.lte(q.field("created_at"), args.endDate));
+            return q.and(...conditions);
+         });
+      }
+      paginatedResults = await q.paginate(args.paginationOpts);
+    } else {
+      let q = ctx.db
+        .query("orders")
+        .withIndex("by_establishment_created", (q) => {
+          let filter = q.eq("establishment_id", args.establishmentId);
+          return filter;
+        });
+
+      if (args.startDate !== undefined || args.endDate !== undefined) {
+         q = q.filter(q => {
+            const conditions = [];
+            if (args.startDate !== undefined) conditions.push(q.gte(q.field("created_at"), args.startDate));
+            if (args.endDate !== undefined) conditions.push(q.lte(q.field("created_at"), args.endDate));
+            return q.and(...conditions);
+         });
+      }
+      paginatedResults = await q.order("desc").paginate(args.paginationOpts);
     }
 
-    // Aplicar límite
-    const results = filteredOrders.slice(0, limit);
-    const hasMore = filteredOrders.length > limit;
-
-    // Obtener detalles de mesas, staff y clientes para cada orden
     const ordersWithDetails = await Promise.all(
-      results.map(async (order) => {
+      paginatedResults.page.map(async (order) => {
         const table = order.table_id ? await ctx.db.get(order.table_id) : null;
         const staff = await ctx.db.get(order.staff_id);
         const customer = order.customer_id ? await ctx.db.get(order.customer_id) : null;
@@ -100,9 +107,9 @@ export const getOrdersForComandas = query({
     );
 
     return {
-      orders: ordersWithDetails,
-      hasMore,
-      nextCursor: hasMore ? results[results.length - 1]._id : null,
+      page: ordersWithDetails,
+      isDone: paginatedResults.isDone,
+      continueCursor: paginatedResults.continueCursor,
     };
   },
 });

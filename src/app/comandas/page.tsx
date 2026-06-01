@@ -27,7 +27,7 @@ import { ViewConfigDialog } from '@/components/dialogs/comandas-config-dialog';
 import { CancelPartialDialog } from '@/components/dialogs/comandas-cancel-partial-dialog';
 
 // Convex imports
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, usePaginatedQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import type { Id } from '@/convex/_generated/dataModel';
 import { useEstablishments } from '@/hooks/useEstablishments';
@@ -128,16 +128,17 @@ export default function ComandasPage() {
     const startTimestamp = date?.from ? new Date(date.from.setHours(0, 0, 0, 0)).getTime() : undefined;
     const endTimestamp = date?.to ? new Date(date.to.setHours(23, 59, 59, 999)).getTime() : undefined;
 
-    const ordersData = useQuery(
+    const { results: paginatedOrders, status: paginatedStatus, loadMore } = usePaginatedQuery(
         api.orders.getOrdersForComandas,
         activeEstablishment?.id
             ? {
                 establishmentId: activeEstablishment.id as Id<"establishments">,
                 startDate: startTimestamp,
                 endDate: endTimestamp,
-                limit: 100, // Cargamos más para filtrar en cliente
+                searchTerm: searchTerm,
             }
-            : "skip"
+            : "skip",
+        { initialNumItems: itemsPerPage }
     );
 
     const orderDetailsData = useQuery(
@@ -154,8 +155,8 @@ export default function ComandasPage() {
     const cancelOrderMutation = useMutation(api.orders.cancelOrder);
     const partialCancelOrderMutation = useMutation(api.orders.partialCancelOrder);
 
-    const orders: Order[] = ordersData?.orders || [];
-    const ordersLoading = ordersData === undefined;
+    const orders: Order[] = (paginatedOrders as Order[]) || [];
+    const ordersLoading = paginatedStatus === "LoadingFirstPage";
 
     // Config handlers
     const handleConfigChange = <K extends keyof ViewConfig>(key: K, value: ViewConfig[K]) => {
@@ -298,32 +299,13 @@ export default function ComandasPage() {
         }
     };
 
-    // Filtrar pedidos por término de búsqueda
-    const filteredOrders = orders.filter(order => {
-        const searchLower = searchTerm.toLowerCase();
-        const matchesSearch =
-            order.orderNumber.toLowerCase().includes(searchLower) ||
-            (order.customerName?.toLowerCase() || '').includes(searchLower) ||
-            (order.tableLabel?.toLowerCase() || '').includes(searchLower) ||
-            (order.environmentName?.toLowerCase() || '').includes(searchLower);
+    // En la paginación del servidor, searchTerm se envía al backend
+    // No necesitamos filtrar localmente, excepto si queremos asegurarnos en la vista
+    // Pero ya que paginamos desde el servidor, mostraremos lo devuelto.
+    const currentOrders = orders;
 
-        return matchesSearch;
-    });
-
-    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
-
-    const paginate = (pageNumber: number) => {
-        if (pageNumber < 1 || pageNumber > totalPages) return;
-        setCurrentPage(pageNumber);
-    };
-
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-    }
+    // Cuando el usuario cambie el searchTerm, la paginación se reiniciará sola 
+    // (porque los argumentos cambian), lo manejamos en el hook `usePaginatedQuery`.
 
     return (
         <PageContainer>
@@ -380,15 +362,13 @@ export default function ComandasPage() {
                                         <TableHead className="text-left">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody
-                                    key={currentPage}
-                                >
-                                    {false && (
+                                <TableBody>
+                                    {ordersLoading && (
                                         <TableRow>
                                             <TableCell colSpan={8} className="h-24 text-center">Cargando comandas...</TableCell>
                                         </TableRow>
                                     )}
-                                    {currentOrders.length === 0 && (
+                                    {!ordersLoading && currentOrders.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={8} className="h-24 text-center">No se encontraron comandas.</TableCell>
                                         </TableRow>
@@ -448,22 +428,17 @@ export default function ComandasPage() {
                     </CardContent>
                     <CardFooter className="flex justify-between items-center">
                         <div className="text-xs text-muted-foreground">
-                            Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredOrders.length)}-{Math.min(indexOfLastItem, filteredOrders.length)}</strong> de <strong>{filteredOrders.length}</strong> comandas.
+                            Mostrando <strong>{currentOrders.length}</strong> comandas cargadas.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="md" startIcon={<ChevronLeft />} onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
-                            {pageNumbers.map(number => (
-                                <Button
-                                    key={number}
-                                    variant={currentPage === number ? "default" : "outline"}
-                                    size="md"
-                                    className="hidden sm:inline-flex"
-                                    onClick={() => paginate(number)}
-                                >
-                                    {number}
-                                </Button>
-                            ))}
-                            <Button variant="outline" size="md" startIcon={<ChevronRight />} onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
+                            <Button 
+                                variant="outline" 
+                                size="md" 
+                                onClick={() => loadMore(itemsPerPage)} 
+                                disabled={paginatedStatus !== "CanLoadMore"}
+                            >
+                                {paginatedStatus === "LoadingMore" ? "Cargando..." : "Cargar Más"}
+                            </Button>
                         </div>
                     </CardFooter>
                 </Card>

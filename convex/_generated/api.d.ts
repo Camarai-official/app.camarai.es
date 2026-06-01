@@ -22,6 +22,7 @@ import type * as establishmentSettings from "../establishmentSettings.js";
 import type * as establishments from "../establishments.js";
 import type * as establishmentsHelpers from "../establishmentsHelpers.js";
 import type * as eventLog from "../eventLog.js";
+import type * as http from "../http.js";
 import type * as ingredients from "../ingredients.js";
 import type * as inventory from "../inventory.js";
 import type * as inventoryQueries from "../inventoryQueries.js";
@@ -37,6 +38,7 @@ import type * as seed from "../seed.js";
 import type * as sessions from "../sessions.js";
 import type * as staff from "../staff.js";
 import type * as staffAuth from "../staffAuth.js";
+import type * as stripe from "../stripe.js";
 
 import type {
   ApiFromModules,
@@ -59,6 +61,7 @@ declare const fullApi: ApiFromModules<{
   establishments: typeof establishments;
   establishmentsHelpers: typeof establishmentsHelpers;
   eventLog: typeof eventLog;
+  http: typeof http;
   ingredients: typeof ingredients;
   inventory: typeof inventory;
   inventoryQueries: typeof inventoryQueries;
@@ -74,6 +77,7 @@ declare const fullApi: ApiFromModules<{
   sessions: typeof sessions;
   staff: typeof staff;
   staffAuth: typeof staffAuth;
+  stripe: typeof stripe;
 }>;
 
 /**

@@ -390,7 +390,11 @@ export default defineSchema({
   }).index("by_establishment", ["establishment_id"])
     .index("by_establishment_status", ["establishment_id", "status"])
     .index("by_establishment_created", ["establishment_id", "created_at"])
-    .index("by_reservation", ["reservation_id"]),
+    .index("by_reservation", ["reservation_id"])
+    .searchIndex("search_order_number", {
+      searchField: "order_number",
+      filterFields: ["establishment_id"],
+    }),
 
   order_items: defineTable({
     order_id: v.id("orders"),

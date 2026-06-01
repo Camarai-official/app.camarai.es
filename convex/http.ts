@@ -11,7 +11,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2026-04-22.dahlia"
+      apiVersion: process.env.NEXT_PUBLIC_STRIPE_API_VERSION as any
     });
 
     const signature = request.headers.get("stripe-signature");
@@ -65,7 +65,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2026-04-22.dahlia"
+      apiVersion: process.env.NEXT_PUBLIC_STRIPE_API_VERSION as any
     });
 
     try {
@@ -86,7 +86,7 @@ http.route({
   method: "POST",
   handler: httpAction(async (ctx, request) => {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2026-04-22.dahlia"
+      apiVersion: process.env.NEXT_PUBLIC_STRIPE_API_VERSION as any
     });
 
     try {
