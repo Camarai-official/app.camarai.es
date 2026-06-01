@@ -104,7 +104,7 @@ export class WhatauthWorkerClient {
 
   /** 1) Handshake: obtain sdk_session_jwt */
   async initSession(): Promise<void> {
-    const res = await fetch(`${this.config.apiUrl}/sdk/session/init`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_WHATAUTH_ES}/sdk/session/init`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -124,7 +124,7 @@ export class WhatauthWorkerClient {
   /** 2) Open WebSocket with the session token */
   async connectWebSocket(): Promise<void> {
     if (!this.sdkSessionJwt) throw new Error('Session not initialized');
-    const wsUrl = new URL('/ws', this.config.apiUrl);
+    const wsUrl = new URL('/ws', process.env.NEXT_PUBLIC_BACKEND_WHATAUTH_ES);
     wsUrl.searchParams.set('tenant_slug', this.config.tenantSlug);
     wsUrl.searchParams.set('token', this.sdkSessionJwt);
     this.ws = new WebSocket(wsUrl.toString());
@@ -200,7 +200,7 @@ export class WhatauthWorkerClient {
     if (!this.currentAuthCode || !this.codeVerifier || !this.sdkSessionJwt) {
       throw new Error('Missing auth_code or verifier');
     }
-    const res = await fetch(`${this.config.apiUrl}/sdk/token`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_WHATAUTH_ES}/sdk/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
