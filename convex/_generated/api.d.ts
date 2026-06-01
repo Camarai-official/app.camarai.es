@@ -39,6 +39,7 @@ import type * as sessions from "../sessions.js";
 import type * as staff from "../staff.js";
 import type * as staffAuth from "../staffAuth.js";
 import type * as stripe from "../stripe.js";
+import type * as tables from "../tables.js";
 
 import type {
   ApiFromModules,
@@ -78,6 +79,7 @@ declare const fullApi: ApiFromModules<{
   staff: typeof staff;
   staffAuth: typeof staffAuth;
   stripe: typeof stripe;
+  tables: typeof tables;
 }>;
 
 /**

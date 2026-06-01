@@ -82,6 +82,22 @@ export const seedData = mutation({
       created_at: Date.now(),
     });
 
+    // 3b. STAFF VIRTUAL (Sistema) — para órdenes automáticas desde WhatsApp
+    const systemStaffId = await ctx.db.insert("staff", {
+      establishment_id: establishmentId,
+      name: "CamarAI",
+      last_name: "Sistema",
+      role: "system",
+      status: "active",
+      contract_type: "indefinite",
+      contract_start: Date.now(),
+      salary: 0,
+      irpf: 0,
+      dashboard_sections: [],
+      clock_methods: [],
+      created_at: Date.now(),
+    });
+
     // 4. CATEGORÍAS
     const categoryId = await ctx.db.insert("categories", {
       establishment_id: establishmentId,
@@ -213,6 +229,11 @@ export const seedData = mutation({
         total_clock_ins: 0
       },
 
+      // Gestión de mesas
+      table_settings: {
+        reservation_buffer_minutes: 60,
+      },
+      
       created_at: Date.now(),
       updated_at: Date.now(),
     });

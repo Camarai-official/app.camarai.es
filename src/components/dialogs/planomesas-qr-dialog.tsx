@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { 
-    QrCode, Activity, Globe, MapPin, FileText, 
+    QrCode, Activity, Globe, FileText, 
     Copy, Download, Printer as PrinterIcon 
 } from 'lucide-react';
 
@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ActionTile } from '@/components/ui/action-tile';
 
 // Layout Components
 import { Dialog, DialogWindow, DialogContent, DialogFooter, DialogHeader } from '@/components/layout/dialog';
@@ -37,19 +36,14 @@ export function QRConfigDialog({
     const { toast } = useToast();
     const [qrKey, setQrKey] = React.useState(0);
     const [qrConfig, setQrConfig] = React.useState({
-        baseUrl: 'https://camarai.app',
-        includeEnv: true,
+        waPhone: process.env.NEXT_PUBLIC_WA_BOT_PHONE || '',
         customMessage: '¡Bienvenido! Escanea para ver nuestro menú.',
     });
 
     if (!table) return null;
 
     const getQRUrl = () => {
-        let url = `${qrConfig.baseUrl}/t/${table.number}`;
-        if (qrConfig.includeEnv && activeEnv) {
-            url += `?envId=${encodeURIComponent(activeEnv.id)}`;
-        }
-        return url;
+        return `https://wa.me/${qrConfig.waPhone}?text=${encodeURIComponent(`Hola! Estoy en la mesa ${table.number} 🍽️`)}`;
     };
 
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(getQRUrl())}&t=${qrKey}`;
@@ -97,29 +91,19 @@ export function QRConfigDialog({
                         {/* Configuración */}
                         <div className="flex flex-col gap-5">
                             <div className="space-y-2">
-                                <Label variant="group">URL de Acceso</Label>
+                                <Label variant="group">Teléfono WhatsApp del Bot</Label>
                                 <div className="relative group">
                                     <div className="absolute left-3 top-1/2 -translate-y-1/2 p-1.5 bg-primary/10 rounded-lg">
                                         <Globe className="h-3.5 w-3.5 text-primary" />
                                     </div>
                                     <Input 
-                                        value={qrConfig.baseUrl}
-                                        onChange={(e) => setQrConfig(p => ({ ...p, baseUrl: e.target.value }))}
+                                        value={qrConfig.waPhone}
+                                        onChange={(e) => setQrConfig(p => ({ ...p, waPhone: e.target.value }))}
                                         className="pl-10"
-                                        placeholder="https://tu-restaurante.com"
+                                        placeholder="34612345678"
                                     />
                                 </div>
                             </div>
-
-                            <ActionTile
-                                icon={MapPin}
-                                title="Incluir Ambiente"
-                                description="Añade el identificador del salón al enlace."
-                                rightContentType="switch"
-                                switchId="include-env"
-                                switchChecked={qrConfig.includeEnv}
-                                onSwitchChange={(v) => setQrConfig(p => ({ ...p, includeEnv: v }))}
-                            />
 
                             <div className="space-y-2">
                                 <Label variant="group">Mensaje de Bienvenida</Label>

@@ -15,22 +15,28 @@ jobs:
     steps:
       # 1. Bajamos el código del Repo A
       - name: Checkout del código fuente
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      # 2. Instalar Node + Configurar el registro de GitHub (MAGIA AQUÍ)
-      - name: Instalar Node.js
-        uses: actions/setup-node@v4
+      # 2. Instalar pnpm
+      - name: Instalar pnpm
+        uses: pnpm/action-setup@v6
         with:
-          node-version: 22
-          cache: 'npm'
+          version: 11
 
-      # 3. Instalar dependencias inyectando el Token
+      # 3. Instalar Node
+      - name: Instalar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+
+      # 4. Instalar dependencias
       - name: Instalar dependencias
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
-      # 4. Construir proyecto (Build)
+      # 5. Construir proyecto (Build)
       - name: Construir proyecto (Build)
-        run: npm run build
+        run: pnpm run build
         env:
           NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
           CONVEX_SELF_HOSTED_URL: ${{ secrets.CONVEX_SELF_HOSTED_URL }}

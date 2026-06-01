@@ -3,9 +3,6 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
-
-// Queries para Orders
-
 import { paginationOptsValidator } from "convex/server";
 
 /**
@@ -110,6 +107,74 @@ export const getOrdersForComandas = query({
       page: ordersWithDetails,
       isDone: paginatedResults.isDone,
       continueCursor: paginatedResults.continueCursor,
+    };
+  },
+});
+
+export const getOrdersForSession = query({
+  args: {
+    sessionId: v.id("table_sessions"),
+  },
+  handler: async (ctx, args) => {
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) return { orders: [], tableNumber: null };
+
+    const table = await ctx.db.get(session.table_id);
+    if (!table) return { orders: [], tableNumber: null };
+
+    const environment = await ctx.db.get(table.environment_id);
+    if (!environment) return { orders: [], tableNumber: null };
+
+    // Get all orders for this table created during this session
+    const allOrders = await ctx.db
+      .query("orders")
+      .withIndex("by_establishment_created", (q) =>
+        q.eq("establishment_id", environment.establishment_id)
+      )
+      .order("desc")
+      .collect();
+
+    const sessionOrders = allOrders.filter(
+      (o) =>
+        o.table_id === session.table_id &&
+        o.created_at >= session.start_time &&
+        o.source === "carta"
+    );
+
+    // Get items for each order
+    const ordersWithItems = await Promise.all(
+      sessionOrders.map(async (order) => {
+        const items = await ctx.db
+          .query("order_items")
+          .withIndex("by_order", (q) => q.eq("order_id", order._id))
+          .collect();
+
+        return {
+          id: order._id,
+          orderNumber: order.order_number,
+          status: order.status,
+          subtotal: order.subtotal,
+          taxAmount: order.tax_amount,
+          totalAmount: order.total_amount,
+          createdAt: order.created_at,
+          items: items.map((item) => ({
+            id: item._id,
+            productName: item.product_name,
+            quantity: item.quantity,
+            unitPrice: item.unit_price,
+            totalPrice: item.total_price,
+            variant: item.variant ?? null,
+            notes: item.notes ?? null,
+            course: item.course,
+            status: item.item_status,
+          })),
+        };
+      })
+    );
+
+    return {
+      orders: ordersWithItems,
+      tableNumber: table.number,
     };
   },
 });
@@ -745,5 +810,167 @@ export const addOrderItem = mutation({
     });
 
     return { itemId, totalPrice };
+  },
+});
+
+// =============================================================================
+// PUBLIC MUTATION: Create order from the web carta (camarai_menu-privado)
+// =============================================================================
+
+/**
+ * Create a full order from the web menu app.
+ *
+ * Resolves session → table → environment → establishment internally.
+ * Uses the "system" staff member as the actor.
+ *
+ * Args:
+ *   sessionId: table_session ID
+ *   items: [{ productId, quantity, variant?, notes? }]
+ */
+export const createOrderFromCarta = mutation({
+  args: {
+    sessionId: v.id("table_sessions"),
+    items: v.array(
+      v.object({
+        productId: v.id("products"),
+        quantity: v.number(),
+        variant: v.optional(v.string()),
+        notes: v.optional(v.string()),
+      })
+    ),
+  },
+  handler: async (ctx, args) => {
+    if (args.items.length === 0) {
+      throw new Error("El pedido no tiene items");
+    }
+
+    // 1. Resolve session → table → environment → establishment
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || session.status !== "active") {
+      throw new Error("Sesión no encontrada o cerrada");
+    }
+
+    const table = await ctx.db.get(session.table_id);
+    if (!table) throw new Error("Mesa no encontrada");
+
+    const environment = await ctx.db.get(table.environment_id);
+    if (!environment) throw new Error("Entorno no encontrado");
+
+    const establishmentId = environment.establishment_id;
+
+    // 2. Get system staff (for automated orders)
+    const systemStaff = await ctx.db
+      .query("staff")
+      .withIndex("by_establishment", (q) =>
+        q.eq("establishment_id", establishmentId)
+      )
+      .filter((q) => q.eq(q.field("role"), "system"))
+      .first();
+
+    if (!systemStaff) {
+      throw new Error("No hay staff de sistema configurado");
+    }
+
+    // 3. Create the order
+    const orderNumber = `CARTA-${Date.now().toString().slice(-6)}`;
+    const now = Date.now();
+
+    const orderId = await ctx.db.insert("orders", {
+      establishment_id: establishmentId,
+      table_id: table._id,
+      staff_id: systemStaff._id,
+      order_number: orderNumber,
+      status: "open",
+      subtotal: 0,
+      tax_amount: 0,
+      discount_amount: 0,
+      total_amount: 0,
+      payment_type: "individual",
+      source: "carta",
+      guests: session.guests || 1,
+      is_commission_order: true,
+      created_at: now,
+      updated_at: now,
+    });
+
+    // Update table with current order
+    await ctx.db.patch(table._id, {
+      current_order_id: orderId,
+    });
+
+    await addOrderToEnvironment(ctx, table._id, orderId);
+
+    // 4. Add each item
+    let subtotal = 0;
+
+    for (const item of args.items) {
+      const product = await ctx.db.get(item.productId);
+      if (!product || !product.active) continue;
+
+      // Determine unit price (handle variants)
+      let unitPrice = product.price;
+      let variantName = item.variant;
+
+      if (variantName && product.variants) {
+        const variant = product.variants.find(
+          (v: any) => v.nombre === variantName || v.id === variantName
+        );
+        if (variant) {
+          unitPrice = product.price + variant.precio_extra;
+        }
+      }
+
+      const totalPrice = unitPrice * item.quantity;
+      subtotal += totalPrice;
+
+      // Determine course from category
+      const category = await ctx.db.get(product.category_id);
+      const categoryName = category?.name?.toLowerCase() || "";
+      let course: "first" | "second" | "dessert" | "drink" = "first";
+      if (categoryName.includes("postre") || categoryName.includes("dessert")) {
+        course = "dessert";
+      } else if (categoryName.includes("bebida") || categoryName.includes("drink")) {
+        course = "drink";
+      } else if (categoryName.includes("carne") || categoryName.includes("pescado") || categoryName.includes("principal")) {
+        course = "second";
+      }
+
+      await ctx.db.insert("order_items", {
+        order_id: orderId,
+        product_id: item.productId,
+        product_name: product.name,
+        quantity: item.quantity,
+        unit_price: unitPrice,
+        total_price: totalPrice,
+        variant: variantName,
+        notes: item.notes,
+        course,
+        item_status: "pending",
+      });
+    }
+
+    // 5. Recalculate totals
+    await ctx.scheduler.runAfter(0, internal.orders.recalculateOrderTotals, {
+      orderId,
+    });
+
+    // 6. Event log
+    await ctx.db.insert("event_log", {
+      establishment_id: establishmentId,
+      type: "operational",
+      level: "info",
+      actor: systemStaff._id,
+      action: "CREATE_ORDER",
+      entity_type: "orders",
+      entity_id: orderId,
+      timestamp: now,
+    });
+
+    return {
+      orderId,
+      orderNumber,
+      itemCount: args.items.length,
+      subtotal,
+    };
   },
 });

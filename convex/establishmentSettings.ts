@@ -113,6 +113,9 @@ export const createOrUpdateEstablishmentSettings = mutation({
       qr_code: v.number(),
       web_panel: v.number(),
       total_clock_ins: v.number()
+    })),
+    tableSettings: v.optional(v.object({
+      reservation_buffer_minutes: v.number(),
     }))
   },
   handler: async (ctx, args) => {
@@ -141,6 +144,7 @@ export const createOrUpdateEstablishmentSettings = mutation({
     if (args.clockInChannels !== undefined) updates.clock_in_channels = args.clockInChannels;
     if (args.whatsappIntegration !== undefined) updates.whatsapp_integration = args.whatsappIntegration;
     if (args.channelUsageStats !== undefined) updates.channel_usage_stats = args.channelUsageStats;
+    if (args.tableSettings !== undefined) updates.table_settings = args.tableSettings;
 
     await ctx.db.patch(existingSettings._id, updates);
     return existingSettings._id;
