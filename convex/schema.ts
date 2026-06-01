@@ -92,7 +92,8 @@ export default defineSchema({
       v.literal("waiter"),
       v.literal("cook"),
       v.literal("bartender"),
-      v.literal("host")
+      v.literal("host"),
+      v.literal("system")  // Virtual staff for automated WhatsApp orders
     ),
     pin: v.optional(v.string()),
     auth_id: v.optional(v.string()),
@@ -606,6 +607,11 @@ export default defineSchema({
       total_clock_ins: v.number()
     }),
 
+    // Table management settings
+    table_settings: v.optional(v.object({
+      reservation_buffer_minutes: v.number(), // Minutes before reservation to mark table as reserved (default 60)
+    })),
+
     created_at: v.number(),
     updated_at: v.number(),
   }).index("by_establishment", ["establishment_id"]),
@@ -822,6 +828,8 @@ export default defineSchema({
     start_time: v.number(),
     end_time: v.optional(v.number()),
     clients: v.optional(v.array(v.any())), // Info de clientes en la sesión
+    guests: v.optional(v.number()), // Max devices allowed (1 per guest, set by first phone)
+    client_allergens: v.optional(v.any()), // { phone: allergens[] } — per-phone allergens for cross-warnings
     created_at: v.number(),
     updated_at: v.number(),
   }).index("by_table_status", ["table_id", "status"])
