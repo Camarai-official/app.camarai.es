@@ -8,7 +8,7 @@ export const mockOrders: Order[] = [
   { order: '33', time: '11:15', date: '2026-05-25', table: 'T3', name: 'Emily Davis', total: '\u20ac43.00', status: 'Completado' },
   { order: '29', time: '16:00', date: '2026-05-24', table: 'T4', name: 'Chris Brown', total: '\u20ac14.50', status: 'Completado' },
   { order: '37', time: '13:00', date: '2026-05-22', table: 'T5', name: 'Sarah Wilson', total: '\u20ac40.00', status: 'Completado' },
-];
+] as any as Order[];
 
 export type OrderProduct = {
   id: string;

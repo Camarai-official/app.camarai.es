@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Progress } from '@/components/ui/progress';
 import { TextSM, H4 } from '@/components/ui/typography';
 import type { Product } from '@/data/mock-data';
+import type { Order } from '@/types/orders';
 
 // --- TopProductsCard ---
 type TopProductsCardProps = {
@@ -69,11 +70,6 @@ export function TopProductsCard({ products }: TopProductsCardProps) {
 }
 
 // --- PeakHoursCard ---
-type Order = {
-  time: string;
-  total: string;
-};
-
 type PeakHoursCardProps = {
   orders: Order[];
 };
@@ -92,12 +88,13 @@ export function PeakHoursCard({ orders }: PeakHoursCardProps) {
     const ordersByHour: { [key: string]: { count: number; revenue: number } } = {};
 
     orders.forEach(order => {
-      const hour = order.time.split(':')[0];
+      if (!order.createdAt) return;
+      const hour = new Date(order.createdAt).getHours().toString().padStart(2, '0');
       if (!ordersByHour[hour]) {
         ordersByHour[hour] = { count: 0, revenue: 0 };
       }
       ordersByHour[hour].count++;
-      ordersByHour[hour].revenue += parseFloat(order.total.replace('€', ''));
+      ordersByHour[hour].revenue += order.totalAmount || 0;
     });
 
     let peakRevenueHour = 'N/A';

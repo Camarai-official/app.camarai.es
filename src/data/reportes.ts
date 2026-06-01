@@ -7,24 +7,24 @@ export type { ShiftLog, TimeReportEntry } from '@/types/staff';
 export type { Movement } from '@/types/reports';
 
 export const allOrders: Order[] = [
-  { order: '42', time: '14:30', date: '2026-02-02', table: '07', name: 'Alice Smith', total: '\u20AC350', status: 'En Progreso' },
-  { order: '18', time: '09:45', date: '2026-02-02', table: '12', name: 'Michael Johnson', total: '\u20AC150', status: 'Cancelado' },
-  { order: '33', time: '11:15', date: '2026-02-02', table: '09', name: 'Emily Davis', total: '\u20AC500', status: 'Completado' },
-  { order: '29', time: '16:00', date: '2026-02-02', table: '05', name: 'Chris Brown', total: '\u20AC250', status: 'Completado' },
-  { order: '37', time: '13:00', date: '2026-02-02', table: '10', name: 'Sarah Wilson', total: '\u20AC400', status: 'Completado' },
-  { order: '22', time: '17:30', date: '2026-02-02', table: '02', name: 'David Lee', total: '\u20AC600', status: 'Completado' },
-  { order: '43', time: '14:35', date: '2026-02-02', table: '07', name: 'Jane Doe', total: '\u20AC320', status: 'En Progreso' },
-  { order: '44', time: '15:00', date: '2026-02-02', table: '03', name: 'Laura White', total: '\u20AC120', status: 'Completado' },
-  { order: '45', time: '18:00', date: '2026-02-02', table: '06', name: 'Peter Pan', total: '\u20AC120', status: 'Completado' },
-  { order: '46', time: '19:00', date: '2026-02-02', table: '08', name: 'Bruce Wayne', total: '\u20AC120', status: 'Completado' },
-];
+  { order: '42', time: '14:30', date: '2026-02-02', table: '07', name: 'Alice Smith', total: '\u20AC350', status: 'open' },
+  { order: '18', time: '09:45', date: '2026-02-02', table: '12', name: 'Michael Johnson', total: '\u20AC150', status: 'cancelled' },
+  { order: '33', time: '11:15', date: '2026-02-02', table: '09', name: 'Emily Davis', total: '\u20AC500', status: 'paid' },
+  { order: '29', time: '16:00', date: '2026-02-02', table: '05', name: 'Chris Brown', total: '\u20AC250', status: 'paid' },
+  { order: '37', time: '13:00', date: '2026-02-02', table: '10', name: 'Sarah Wilson', total: '\u20AC400', status: 'paid' },
+  { order: '22', time: '17:30', date: '2026-02-02', table: '02', name: 'David Lee', total: '\u20AC600', status: 'paid' },
+  { order: '43', time: '14:35', date: '2026-02-02', table: '07', name: 'Jane Doe', total: '\u20AC320', status: 'open' },
+  { order: '44', time: '15:00', date: '2026-02-02', table: '03', name: 'Laura White', total: '\u20AC120', status: 'paid' },
+  { order: '45', time: '18:00', date: '2026-02-02', table: '06', name: 'Peter Pan', total: '\u20AC120', status: 'paid' },
+  { order: '46', time: '19:00', date: '2026-02-02', table: '08', name: 'Bruce Wayne', total: '\u20AC120', status: 'paid' },
+] as any as Order[];
 
 export const mockReportOrderDetails: { [key: string]: OrderDetails } = {
   '42': { ...allOrders[0], items: [{ name: 'Solomillo de Ternera', quantity: 2, price: 28.00 }, { name: 'Ensalada César', quantity: 1, price: 14.50 }], subtotal: 70.50, tax: 14.81 },
   '18': { ...allOrders[1], items: [{ name: 'Café Expreso', quantity: 2, price: 1.80 }], subtotal: 3.60, tax: 0.76 },
   '33': { ...allOrders[2], items: [{ name: 'Paella de Mariscos (2 pers.)', quantity: 1, price: 38.00 }, { name: 'Agua Mineral', quantity: 2, price: 2.50 }], subtotal: 43.00, tax: 9.03 },
   '29': { ...allOrders[3], items: [{ name: 'Hamburguesa de Vacuno Clásica', quantity: 4, price: 14.50 }], subtotal: 58.00, tax: 12.18 },
-};
+} as any;
 
 export const mockStaffTotals = {
   'staff-1': { name: 'Laura García', regular: 160, extra: 8.5 },

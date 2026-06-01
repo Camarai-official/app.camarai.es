@@ -1,8 +1,6 @@
 import { TextMD, H4 } from "@/components/ui/typography";
-import * as React from 'react';
 import { FileText, Users2, Clock, CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
 import { Dialog, DialogWindow, DialogContent, DialogHeader, DialogFooter, DialogClose } from '@/components/layout/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -21,11 +19,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
 
     const getStatusInfo = (status: Order['status']) => {
         switch (status) {
-            case 'Completado': 
+            case 'paid': 
                 return { variant: 'completed' as const, icon: CheckCircle };
-            case 'En Progreso': 
+            case 'open': 
                 return { variant: 'in-progress' as const, icon: Clock };
-            case 'Cancelado': 
+            case 'cancelled': 
+            case 'refunded':
                 return { variant: 'cancelled' as const, icon: XCircle };
             default: 
                 return { variant: 'secondary' as const, icon: AlertCircle };
@@ -39,7 +38,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
             <DialogWindow size="md">
                 <DialogHeader
                     icon={FileText}
-                    title={`Comanda #${order.order}`}
+                    title={`Comanda #${order.orderNumber}`}
                     description={`Resumen detallado del pedido finalizado.`}
                 />
                 
@@ -50,7 +49,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                             title="Mesa"
                             description="Ubicación asignada"
                             rightContentType="badge"
-                            badgeText={order.table}
+                            badgeText={order.tableLabel || order.tableNumber?.toString() || 'Sin Mesa'}
                             badgeVariant="outline"
                         />
                          <ActionTile
@@ -76,10 +75,10 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                             </TableHeader>
                             <TableBody>
                                 {order.items.map(item => (
-                                    <TableRow key={item.name}>
-                                        <TableCell variant="medium">{item.name}</TableCell>
+                                    <TableRow key={item._id || item.productName}>
+                                        <TableCell variant="medium">{item.productName}</TableCell>
                                         <TableCell align="center">{item.quantity}</TableCell>
-                                        <TableCell align="right">€{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                        <TableCell align="right">€{(item.unitPrice * item.quantity).toFixed(2)}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -93,12 +92,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                         </div>
                         <div className="flex justify-between text-sm text-muted-foreground">
                             <TextMD>Impuestos</TextMD>
-                            <TextMD>€{order.tax.toFixed(2)}</TextMD>
+                            <TextMD>€{order.taxAmount.toFixed(2)}</TextMD>
                         </div>
                         <Separator margin="xs" />
                         <div className="flex justify-between items-center">
                             <H4>Total</H4>
-                            <H4 className="text-primary">{order.total}</H4>
+                            <H4 className="text-primary">€{order.totalAmount.toFixed(2)}</H4>
                         </div>
                     </div>
                 </DialogContent>
