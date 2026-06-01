@@ -562,6 +562,26 @@ export const createClockIncident = mutation({
       detected_at: Date.now(),
     });
 
+    const staff = await ctx.db.get(args.staffId);
+    const staffName = staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Empleado";
+
+    await ctx.db.insert("event_log", {
+      establishment_id: args.establishmentId,
+      type: "operational",
+      level: "critical",
+      actor: args.staffId,
+      action: "Incidencia Fichaje",
+      entity_type: "clock_incident",
+      entity_id: incidentId,
+      after: {
+        incident_type: args.type,
+        description: args.description,
+        staff_name: staffName,
+        incident_time: Date.now()
+      },
+      timestamp: Date.now(),
+    });
+
     return incidentId;
   },
 });

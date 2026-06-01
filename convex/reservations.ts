@@ -10,7 +10,6 @@ export const createReservation = mutation({
     customer_email: v.optional(v.string()),
     date: v.string(), // ISO "YYYY-MM-DD"
     start_time: v.string(), // "HH:mm"
-    end_time: v.string(), // "HH:mm"
     guests: v.number(),
     table_id: v.optional(v.id("tables")),
     notes: v.optional(v.string()),
@@ -74,7 +73,6 @@ export const createReservation = mutation({
       customer_email: args.customer_email,
       date: args.date,
       start_time: args.start_time,
-      end_time: args.end_time,
       guests: args.guests,
       table_id: args.table_id,
       notes: args.notes,
@@ -83,6 +81,24 @@ export const createReservation = mutation({
       notified: false,
       reminder_sent: false,
       created_at: Date.now(),
+    });
+
+    await ctx.db.insert("event_log", {
+      establishment_id: args.establishment_id,
+      type: "operational",
+      level: "info",
+      actor: "system",
+      action: "Nueva Reserva",
+      entity_type: "reservation",
+      entity_id: reservationId,
+      after: {
+        customer_name: args.customer_name || "Sin nombre",
+        guests: args.guests,
+        table_id: args.table_id || "Sin asignar",
+        reservation_time: `${args.date} ${args.start_time}`,
+        source: args.source,
+      },
+      timestamp: Date.now(),
     });
 
     return reservationId;
@@ -135,7 +151,6 @@ export const getAvailableTables = query({
     establishment_id: v.id("establishments"),
     date: v.string(),
     start_time: v.string(),
-    end_time: v.string(),
     guests: v.number(),
   },
   handler: async (ctx, args) => {
@@ -178,21 +193,12 @@ export const getAvailableTables = query({
       (reservation: any) => reservation.date === args.date
     );
 
-    // Verificar conflictos de tiempo
+    // Verificar conflictos de horario (misma mesa, mismo start_time)
     const availableTables = suitableTables.filter(table => {
       const hasConflict = existingReservations.some((reservation: any) => {
         if (reservation.table_id === table._id && reservation.status !== "cancelled") {
-          // Verificar si hay superposición de horarios
-          const reservationStart = parseTime(reservation.start_time);
-          const reservationEnd = parseTime(reservation.end_time);
-          const newStart = parseTime(args.start_time);
-          const newEnd = parseTime(args.end_time);
-
-          return (
-            (newStart >= reservationStart && newStart < reservationEnd) ||
-            (newEnd > reservationStart && newEnd <= reservationEnd) ||
-            (newStart <= reservationStart && newEnd >= reservationEnd)
-          );
+          // Sin end_time, solo comprobamos si coincide el start_time
+          return reservation.start_time === args.start_time;
         }
         return false;
       });
@@ -258,7 +264,6 @@ export const updateReservation = mutation({
     customer_email: v.optional(v.string()),
     date: v.optional(v.string()),
     start_time: v.optional(v.string()),
-    end_time: v.optional(v.string()),
     guests: v.optional(v.number()),
     table_id: v.optional(v.id("tables")),
     notes: v.optional(v.string()),
@@ -277,7 +282,6 @@ export const updateReservation = mutation({
     if (args.customer_email !== undefined) updateData.customer_email = args.customer_email;
     if (args.date !== undefined) updateData.date = args.date;
     if (args.start_time !== undefined) updateData.start_time = args.start_time;
-    if (args.end_time !== undefined) updateData.end_time = args.end_time;
     if (args.guests !== undefined) updateData.guests = args.guests;
     if (args.table_id !== undefined) updateData.table_id = args.table_id;
     if (args.notes !== undefined) updateData.notes = args.notes;

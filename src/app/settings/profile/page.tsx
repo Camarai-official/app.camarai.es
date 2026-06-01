@@ -12,7 +12,7 @@ import { useEstablishments } from '@/hooks/useEstablishments';
 
 import type { Establishment } from '@/data/establishments';
 
-import { mockUser, User } from '@/data/mock-data';
+import { useAuth } from '@/hooks/useAuth';
 
 import { useDevices } from '@/hooks/useDevices';
 
@@ -70,44 +70,42 @@ function ProfileSettingsPageContent() {
     const companyFileInputRef = React.useRef<HTMLInputElement>(null);
 
     const { toast } = useToast();
-    const { 
-        activeEstablishment, 
-        updateEstablishment, 
-        removeEstablishment, 
-        establishments, 
+    const {
+        activeEstablishment,
+        updateEstablishment,
+        removeEstablishment,
+        establishments,
         addEstablishment,
-        isInitialized 
+        isInitialized
     } = useEstablishments();
 
+    const { staff } = useAuth();
 
+    const [user, setUser] = React.useState<any>({});
 
-    // Local user state replacing useUser hook
+    React.useEffect(() => {
+        if (staff) {
+            setUser({
+                name: [staff.name, staff.last_name].filter(Boolean).join(' ') || '',
+                email: staff.email || '',
+                phone: staff.phone || '',
+                avatar: staff.photo_url || ''
+            });
+        }
+    }, [staff]);
 
-    const [user, setUser] = React.useState<Partial<User>>(mockUser);
-
-    const updateUser = (updatedUser: Partial<User>) => {
-
-        setUser(prev => ({ ...prev, ...updatedUser }));
-
+    const updateUser = (updatedUser: any) => {
+        setUser((prev: any) => ({ ...prev, ...updatedUser }));
     };
 
-
-
     const router = useRouter();
-
     const searchParams = useSearchParams();
-
     const currentTabParam = searchParams.get('tab');
-
     const activeTab = currentTabParam && VALID_TABS.has(currentTabParam) ? currentTabParam : 'profile';
 
-
-
     // Local state for the form fields
-
     const [localEstablishment, setLocalEstablishment] = React.useState<Partial<Establishment> | null>(null);
-
-    const [localUser, setLocalUser] = React.useState<Partial<User> | null>(null);
+    const [localUser, setLocalUser] = React.useState<any>(null);
 
 
 

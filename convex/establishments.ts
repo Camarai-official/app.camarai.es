@@ -9,6 +9,43 @@ export const getEstablishments = query({
   },
 });
 
+/**
+ * Returns only the establishments accessible to the authenticated staff member.
+ * - Owners, admins and managers → all establishments of their company.
+ * - Other roles (waiter, cook, etc.) → only their own establishment.
+ */
+export const getEstablishmentsByAuthId = query({
+  args: { auth_id: v.string() },
+  handler: async (ctx, args) => {
+    // 1. Find the staff member by auth_id
+    const staffMember = await ctx.db
+      .query("staff")
+      .withIndex("by_auth_id", (q) => q.eq("auth_id", args.auth_id))
+      .first();
+
+    if (!staffMember) return [];
+
+    // 2. Get their establishment to find the company
+    const ownEstablishment = await ctx.db.get(staffMember.establishment_id);
+    if (!ownEstablishment) return [];
+
+    const companyRoles = ["owner", "admin", "manager"];
+
+    // 3. Owners/admins/managers see all establishments of the company
+    if (companyRoles.includes(staffMember.role)) {
+      return await ctx.db
+        .query("establishments")
+        .withIndex("by_company", (q) =>
+          q.eq("company_id", ownEstablishment.company_id)
+        )
+        .collect();
+    }
+
+    // 4. Other roles only see their own establishment
+    return [ownEstablishment];
+  },
+});
+
 export const getEstablishmentById = query({
   args: { establishmentId: v.id("establishments") },
   handler: async (ctx, args) => {
@@ -114,7 +151,8 @@ async function initializeEstablishmentData(ctx: any, establishmentId: any) {
 
 export const createFirstEstablishment = mutation({
   args: {
-    name: v.string(),
+    companyName: v.string(),
+    establishmentName: v.string(),
     ownerId: v.string(),
   },
   handler: async (ctx, args) => {
@@ -132,8 +170,8 @@ export const createFirstEstablishment = mutation({
 
     // 2. Create the company
     const companyId = await ctx.db.insert("companies", {
-      name: `${args.name} Group`,
-      legal_name: args.name,
+      name: args.companyName,
+      legal_name: args.companyName,
       nif: "PENDING",
       email: "admin@example.com",
       country: "España",
@@ -147,7 +185,7 @@ export const createFirstEstablishment = mutation({
     // 3. Create the establishment
     const establishmentId = await ctx.db.insert("establishments", {
       company_id: companyId,
-      name: args.name,
+      name: args.establishmentName,
       cif: "PENDING",
       owner_id: args.ownerId,
       plan: "pro",

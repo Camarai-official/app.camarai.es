@@ -1,7 +1,6 @@
-import { TextXS, H4 } from "@/components/ui/typography";
-
 'use client';
 
+import { TextXS, H4 } from "@/components/ui/typography";
 import * as React from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { format, addHours, startOfDay, subDays, differenceInDays } from 'date-fns';
@@ -133,7 +132,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
       </CardHeader>
 
       <CardContent className="flex-1 w-full min-h-[300px]">
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={300} minHeight={300} minWidth={1}>
           <AreaChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -143,7 +142,7 @@ export function SalesChart({ globalDate }: { globalDate?: DateRange }) {
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted-foreground))" opacity={0.1} />
             <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} minTickGap={30} dy={10} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} tickFormatter={(value) => `€${(value / 1000).toFixed(1)}k`} dx={-10} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500} tickLine={false} axisLine={false} tickFormatter={(value) => value >= 1000 ? `€${(value / 1000).toFixed(1)}k` : `€${value}`} dx={-10} />
             <Tooltip
               cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '4 4' }}
               content={({ active, payload, label }) => {

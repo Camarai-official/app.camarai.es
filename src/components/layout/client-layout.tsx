@@ -4,6 +4,7 @@ import * as React from 'react';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { EstablishmentProvider } from '../../hooks/EstablishmentContext';
+import { AuthProvider, useAuth } from '../../hooks/useAuth';
 import { Toaster } from '@/components/ui/toaster';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -74,6 +75,32 @@ function MainContent({ children }: { children: React.ReactNode }) {
 
 function AppShell({ children }: { children: React.ReactNode }) {
   useScrollbarCompensation();
+  const { isAuthenticated } = useAuth();
+  const pathname = usePathname();
+
+  // If not authenticated and not on login page, we could redirect, 
+  // but it's better to handle it by showing only login page content
+  // or using a layout-level check.
+  
+  const isLoginPage = pathname === '/login';
+
+  if (!isAuthenticated && !isLoginPage) {
+    // We can't use redirect() here as it's a client component and we want to avoid infinite loops
+    // or flickering. The useAuth hook handles initial loading.
+    if (typeof window !== 'undefined') {
+       window.location.href = '/login';
+    }
+    return null;
+  }
+
+  if (isLoginPage) {
+    return (
+      <>
+        {children}
+        <Toaster />
+      </>
+    );
+  }
 
   return (
     <EstablishmentProvider>
@@ -92,13 +119,19 @@ function AppShell({ children }: { children: React.ReactNode }) {
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const client = getConvexClient();
 
+  const content = (
+    <AuthProvider>
+      <AppShell>{children}</AppShell>
+    </AuthProvider>
+  );
+
   if (client) {
     return (
       <ConvexProvider client={client}>
-        <AppShell>{children}</AppShell>
+        {content}
       </ConvexProvider>
     );
   }
 
-  return <AppShell>{children}</AppShell>;
+  return content;
 }

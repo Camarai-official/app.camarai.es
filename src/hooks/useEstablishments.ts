@@ -3,12 +3,18 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import type { Establishment } from '@/data/establishments';
 import { useEstablishmentContext } from './EstablishmentContext';
+import { useAuth } from './useAuth';
 
 const ACTIVE_ESTABLISHMENT_KEY = 'activeEstablishmentId';
 
 export const useEstablishments = () => {
-  const convexEstablishments = useQuery(api.establishments.getEstablishments);
+  const { authId } = useAuth();
   const { activeId, setActiveId } = useEstablishmentContext();
+
+  const convexEstablishments = useQuery(
+    api.establishments.getEstablishmentsByAuthId,
+    authId ? { auth_id: authId } : 'skip'
+  );
 
   const establishments = React.useMemo(() => {
     if (!convexEstablishments) return [];
@@ -97,7 +103,8 @@ export const useEstablishments = () => {
         // TODO: REVISAR ESTA PARTE CUANDO EXISTA LOGIN
         // First establishment with data
         return await createFirstMutation({
-          name: data.name,
+          companyName: data.name,
+          establishmentName: data.name,
           ownerId: "user_owner_01",
           // We should ideally pass more data here, but for now we follow the existing schema
         });
@@ -105,7 +112,8 @@ export const useEstablishments = () => {
     }
 
     return await createFirstMutation({
-      name: "Mi Restaurante",
+      companyName: "Mi Compañía",
+      establishmentName: "Mi Restaurante",
       ownerId: "user_owner_01",
     });
   }, [createFirstMutation, createMutation, activeEstablishment?.companyId]);

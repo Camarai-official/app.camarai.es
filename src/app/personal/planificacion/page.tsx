@@ -114,8 +114,8 @@ export default function PlanificacionPage() {
         member.nombre,
         ...days.map(day => {
           const entries = getEntries(member.id, day);
-          return entries.length > 0 
-            ? entries.map(e => `${e.start_time} - ${e.end_time}`).join(" | ") 
+          return entries.length > 0
+            ? entries.map(e => `${e.start_time} - ${e.end_time}`).join(" | ")
             : "";
         })
       ];
@@ -145,14 +145,14 @@ export default function PlanificacionPage() {
     // Usar ExcelJS con buffer para navegador
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Planificación");
-    
+
     allData.forEach((row, rowIndex) => {
       worksheet.addRow(row);
     });
-    
+
     const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { 
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -235,7 +235,7 @@ export default function PlanificacionPage() {
 
       const finalY = (doc as any).lastAutoTable.finalY || 100;
       const motivosRows: string[][] = [];
-      
+
       staff.forEach(member => {
         days.forEach(day => {
           const entries = getEntries(member.id, day);
@@ -250,7 +250,7 @@ export default function PlanificacionPage() {
       if (motivosRows.length > 0) {
         doc.setFontSize(12);
         doc.text("Registro de Motivos", 40, finalY + 30);
-        
+
         autoTable(doc, {
           head: [["Empleado", "Día", "Motivo"]],
           body: motivosRows,
@@ -276,6 +276,128 @@ export default function PlanificacionPage() {
     } catch (error) {
       console.error(error);
       toast({ title: "Error al generar PDF", variant: "destructive" });
+    }
+  };
+
+  const handleExportPDFByStaff = async () => {
+    if (!staff || !days) return;
+
+    toast({ title: "Generando PDFs...", description: "Por favor espera un momento." });
+
+    try {
+      for (const member of staff) {
+        const doc = new jspdf({
+          orientation: 'portrait',
+          unit: 'pt',
+          format: 'a4'
+        });
+
+        const monthName = format(currentDate, "MMMM", { locale: es });
+        const year = format(currentDate, "yyyy");
+        const title = `Planificación: ${member.nombre} - ${monthName.toUpperCase()} ${year}`;
+        
+        doc.setFontSize(16);
+        doc.text(title, 40, 40);
+
+        const headers = ["Día", "Fecha", "Horario", "Horas", "Notas"];
+        let totalMonthHours = 0;
+        let weekHours = 0;
+        let weekStartDay: Date | null = days[0];
+
+        const body: any[] = [];
+        
+        days.forEach((day, index) => {
+          const dayName = format(day, "EEEE", { locale: es });
+          const dateStr = format(day, "dd/MM/yyyy");
+          const entries = getEntries(member.id, day);
+          
+          const timeStr = entries.map(e => `${e.start_time} - ${e.end_time}`).join('\n');
+          const notesStr = entries.map(e => e.notes || "").filter(Boolean).join('\n');
+          
+          let totalHoursDay = 0;
+          entries.forEach(e => {
+            const [startH, startM] = e.start_time.split(':').map(Number);
+            const [endH, endM] = e.end_time.split(':').map(Number);
+            let mins = (endH * 60 + endM) - (startH * 60 + startM);
+            if (mins < 0) mins += 24 * 60;
+            totalHoursDay += mins / 60;
+          });
+          totalMonthHours += totalHoursDay;
+          weekHours += totalHoursDay;
+          const hoursStr = totalHoursDay > 0 ? `${Number(totalHoursDay.toFixed(2))}h` : "-";
+
+          body.push([
+            dayName.charAt(0).toUpperCase() + dayName.slice(1), 
+            dateStr, 
+            timeStr || "Libre", 
+            hoursStr,
+            notesStr
+          ]);
+
+          if (day.getDay() === 0 || index === days.length - 1) {
+            const weekStartStr = weekStartDay ? format(weekStartDay, "dd/MM") : "";
+            const weekEndStr = format(day, "dd/MM");
+            body.push([
+              { content: `TOTAL SEMANA (${weekStartStr} al ${weekEndStr})`, colSpan: 3, styles: { halign: 'right', fontStyle: 'italic' } },
+              { content: `${Number(weekHours.toFixed(2))}h`, styles: { fontStyle: 'bold' } },
+              ""
+            ]);
+            
+            weekHours = 0;
+            if (index < days.length - 1) {
+              weekStartDay = days[index + 1];
+            }
+          }
+        });
+
+        body.push([
+          { content: "TOTAL MES", colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
+          { content: `${Number(totalMonthHours.toFixed(2))}h`, styles: { fontStyle: 'bold' } },
+          ""
+        ]);
+
+        autoTable(doc, {
+          head: [headers],
+          body: body,
+          startY: 60,
+          theme: 'grid',
+          styles: {
+            fontSize: 10,
+            cellPadding: 6,
+          },
+          headStyles: {
+            fillColor: [30, 41, 59],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold'
+          },
+          didParseCell: (data) => {
+            if (data.section === 'body') {
+              const rowData = data.row.raw as any[];
+              const isTotalRow = rowData[0] && typeof rowData[0] === 'object' && rowData[0].content && String(rowData[0].content).includes('TOTAL');
+              
+              if (isTotalRow) {
+                data.cell.styles.fillColor = [241, 245, 249];
+              } else {
+                const dayName = rowData[0];
+                if (dayName === 'Domingo' || dayName === 'Sábado') {
+                  data.cell.styles.fillColor = [241, 245, 249];
+                }
+                if (data.column.index === 2 && data.cell.text[0] === "Libre") {
+                  data.cell.styles.textColor = [156, 163, 175];
+                }
+              }
+            }
+          }
+        });
+
+        const safeName = member.nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        doc.save(`planificacion_${monthName}_${year}_${safeName}.pdf`);
+      }
+      
+      toast({ title: "PDFs exportados correctamente" });
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error al generar PDFs", variant: "destructive" });
     }
   };
 
@@ -373,6 +495,10 @@ export default function PlanificacionPage() {
                   <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
                     <FileDown className="w-4 h-4 mr-2 text-destructive" />
                     PDF (.pdf)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportPDFByStaff} className="cursor-pointer">
+                    <FileDown className="w-4 h-4 mr-2 text-destructive" />
+                    PDF por Staff
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

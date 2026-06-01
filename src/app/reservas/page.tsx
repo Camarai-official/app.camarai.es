@@ -17,7 +17,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTrigger, DialogClose, DialogWindow } from '@/components/layout/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { format, addMonths, startOfMonth, parse } from 'date-fns';
+import { format, addMonths, startOfMonth } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -41,7 +41,6 @@ type LocalReservation = {
   phone: string;
   guests: number;
   startTime: string;
-  endTime: string;
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
   notes?: string;
   environmentId?: string;
@@ -58,14 +57,13 @@ const transformLocalToDialog = (local: LocalReservation): Reservation => {
         'completed': 'Completada',
         'no_show': 'Pendiente' // Map no_show to Pendiente for dialog
     };
-    
+
     return {
         id: local.id,
         customerName: local.customerName,
         phone: local.phone,
         guests: local.guests,
         startTime: local.startTime,
-        endTime: local.endTime,
         status: statusMap[local.status] || 'Pendiente',
         notes: local.notes,
         environmentId: local.environmentId,
@@ -81,14 +79,13 @@ const transformDialogToLocal = (dialog: Reservation): LocalReservation => {
         'Cancelada': 'cancelled',
         'Completada': 'completed'
     };
-    
+
     return {
         id: dialog.id,
         customerName: dialog.customerName,
         phone: dialog.phone,
         guests: dialog.guests,
         startTime: dialog.startTime,
-        endTime: dialog.endTime,
         status: statusMap[dialog.status] || 'pending',
         notes: dialog.notes,
         environmentId: dialog.environmentId,
@@ -108,15 +105,15 @@ export default function ReservasPage() {
     const { activeEstablishment } = useEstablishments();
     const [collapsedReservations, setCollapsedReservations] = React.useState<Set<string>>(new Set());
     const [showTableAssignmentPopup, setShowTableAssignmentPopup] = React.useState<{ reservationId: string; availableTables: any[] } | null>(null);
-    const environments = useQuery(api.environments.getEnvironmentsByEstablishment, 
+    const environments = useQuery(api.environments.getEnvironmentsByEstablishment,
         activeEstablishment ? { establishmentId: activeEstablishment.id as Id<"establishments"> } : "skip"
     ) || [];
-    
+
     // Convex hooks
     const createReservation = useMutation(api.reservations.createReservation);
     const updateReservation = useMutation(api.reservations.updateReservation);
     const updateReservationStatus = useMutation(api.reservations.updateReservationStatus);
-    const getReservations = useQuery(api.reservations.getReservations, 
+    const getReservations = useQuery(api.reservations.getReservations,
         activeEstablishment ? {
             establishment_id: activeEstablishment.id as Id<"establishments">,
             date: format(selectedDate, 'yyyy-MM-dd')
@@ -141,7 +138,6 @@ export default function ReservasPage() {
             email: r.customer_email || '',
             date: r.date,
             startTime: r.start_time,
-            endTime: r.end_time,
             guests: r.guests,
             status: r.status,
             notes: r.notes,
@@ -190,24 +186,14 @@ export default function ReservasPage() {
                     const hasConflict = todaysReservations.some(r => {
                         // Skip the current reservation and cancelled reservations
                         if (r._id === id || r.status === 'cancelled') return false;
-                        
-                        // Check if same table and overlapping time
+
+                        // Check if same table and same start time
                         if (r.table_id === reservation.tableId && r.environmentId === reservation.environmentId) {
-                            const rStart = parse(r.start_time, 'HH:mm', new Date());
-                            const rEnd = parse(r.end_time, 'HH:mm', new Date());
-                            const reservationStart = parse(reservation.startTime, 'HH:mm', new Date());
-                            const reservationEnd = parse(reservation.endTime, 'HH:mm', new Date());
-                            
-                            // Handle overnight
-                            if (rEnd < rStart) rEnd.setDate(rEnd.getDate() + 1);
-                            if (reservationEnd < reservationStart) reservationEnd.setDate(reservationEnd.getDate() + 1);
-                            
-                            // Check for overlap: (Start1 < End2) AND (End1 > Start2)
-                            return reservationStart < rEnd && reservationEnd > rStart;
+                            return r.start_time === reservation.startTime;
                         }
                         return false;
                     });
-                    
+
                     if (hasConflict) {
                         toast({
                             title: "Conflicto de Reserva",
@@ -218,12 +204,12 @@ export default function ReservasPage() {
                     }
                 }
             }
-            
+
             await updateReservationStatus({
                 reservationId: id as Id<"reservations">,
                 status: newStatus as any
             });
-            
+
             toast({
                 title: `Reserva ${newStatus === 'confirmed' ? 'Confirmada' : newStatus === 'cancelled' ? 'Cancelada' : newStatus === 'completed' ? 'Completada' : newStatus === 'pending' ? 'Pendiente' : 'No Show'}`,
                 description: `La reserva ha sido marcada como ${newStatus === 'confirmed' ? 'Confirmada' : newStatus === 'cancelled' ? 'Cancelada' : newStatus === 'completed' ? 'Completada' : newStatus === 'pending' ? 'Pendiente' : 'No Show'}.`
@@ -258,12 +244,11 @@ export default function ReservasPage() {
                     customer_email: undefined,
                     date: format(selectedDate, 'yyyy-MM-dd'),
                     start_time: reservationData.startTime,
-                    end_time: reservationData.endTime,
                     guests: reservationData.guests,
                     table_id: reservationData.tableId ? (reservationData.tableId as Id<"tables">) : undefined,
                     notes: reservationData.notes,
                 });
-                
+
                 toast({
                     title: "Reserva Actualizada",
                     description: `La reserva de ${reservationData.customerName} ha sido modificada.`
@@ -277,13 +262,12 @@ export default function ReservasPage() {
                     customer_email: undefined, // TODO: Add to form if needed
                     date: format(selectedDate, 'yyyy-MM-dd'),
                     start_time: reservationData.startTime,
-                    end_time: reservationData.endTime,
                     guests: reservationData.guests,
                     table_id: reservationData.tableId ? (reservationData.tableId as Id<"tables">) : undefined,
                     notes: reservationData.notes,
                     source: "dashboard"
                 });
-                
+
                 toast({
                     title: "Reserva Creada",
                     description: `La reserva de ${reservationData.customerName} ha sido creada.`
@@ -342,7 +326,6 @@ export default function ReservasPage() {
             phone: reservationData.phone,
             guests: reservationData.guests,
             startTime: reservationData.startTime,
-            endTime: reservationData.endTime,
             status: transformDialogToLocal({ ...reservationData, id: '' } as Reservation).status,
             notes: reservationData.notes,
             environmentId: reservationData.environmentId,
@@ -358,7 +341,6 @@ export default function ReservasPage() {
             phone: reservation.phone,
             guests: reservation.guests,
             startTime: reservation.startTime,
-            endTime: reservation.endTime,
             status: reservation.status ? transformDialogToLocal({ ...reservation, id: '' } as Reservation).status : undefined,
             notes: reservation.notes,
             environmentId: reservation.environmentId,
@@ -372,9 +354,9 @@ export default function ReservasPage() {
         if (reservation.status === 'cancelled' && collapsedReservations.has(reservation.id)) {
             // Get available tables for this reservation
             const availableEnvironments = getAvailableTablesForReservation(reservation);
-            
+
             // Format available tables for popup
-            const availableTables = availableEnvironments.flatMap(env => 
+            const availableTables = availableEnvironments.flatMap(env =>
                 env.tables.map(table => ({
                     environment: env,
                     table: table
@@ -441,15 +423,7 @@ export default function ReservasPage() {
     };
 
     const getAvailableTablesForReservation = React.useCallback((reservation: Partial<LocalReservation>) => {
-        if (!reservation.startTime || !reservation.endTime) return environments;
-
-        const reservationStart = parse(`${reservation.startTime}`, 'HH:mm', new Date());
-        const reservationEnd = parse(`${reservation.endTime}`, 'HH:mm', new Date());
-
-        // Handle overnight
-        if (reservationEnd < reservationStart) {
-            reservationEnd.setDate(reservationEnd.getDate() + 1);
-        }
+        if (!reservation.startTime) return environments;
 
         const todaysReservations = getReservations || [];
         const occupiedTables = new Set<string>(); // "envId-tableId"
@@ -457,17 +431,13 @@ export default function ReservasPage() {
         todaysReservations.forEach(r => {
             // Skip cancelled reservations - they don't block tables
             if (r.status === 'cancelled') return;
-            
-            if (r.table_id && r.environmentId) {
-                const rStart = parse(r.start_time, 'HH:mm', new Date());
-                const rEnd = parse(r.end_time, 'HH:mm', new Date());
-                if (rEnd < rStart) rEnd.setDate(rEnd.getDate() + 1);
 
-                const hasOverlap = reservationStart < rEnd && reservationEnd > rStart;
+            if (r.table_id && r.environmentId) {
+                // Sin end_time, conflicto = misma mesa + mismo start_time
+                const isSameStartTime = r.start_time === reservation.startTime;
                 const isSameReservation = r._id === reservation.id;
-                const shouldCheckConflict = !isSameReservation;
-                
-                if (hasOverlap && shouldCheckConflict) {
+
+                if (isSameStartTime && !isSameReservation) {
                     occupiedTables.add(`${r.environmentId}-${r.table_id}`);
                 }
             }
@@ -599,11 +569,11 @@ export default function ReservasPage() {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                
+
                                 <div className="flex flex-row items-center gap-2 w-full">
-                                    <Button 
-                                        variant='default' 
-                                        onClick={handleOpenNewReservation} 
+                                    <Button
+                                        variant='default'
+                                        onClick={handleOpenNewReservation}
                                         size="md"
                                         className="flex-1 w-full"
                                         startIcon={<PlusCircle />}
@@ -611,10 +581,10 @@ export default function ReservasPage() {
                                     >
                                         Crear
                                     </Button>
-                                    
-                                    <Button 
-                                        variant="outline" 
-                                        size="md" 
+
+                                    <Button
+                                        variant="outline"
+                                        size="md"
                                         onClick={() => setIsWhatsAppConfigOpen(true)}
                                         className="flex-1 w-full"
                                         startIcon={<MessageSquare />}
@@ -635,11 +605,11 @@ export default function ReservasPage() {
                                         const assignedTable = assignedEnv
                                             ? assignedEnv.tables.find((t) => t.id === res.tableId)
                                             : null;
-                                        
+
                                         const description = (
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-3 text-xs opacity-80">
-                                                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{res.startTime} - {res.endTime}</span>
+                                                    <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{res.startTime}</span>
                                                     <span className="flex items-center gap-1"><Users className="h-3 w-3" />{res.guests}</span>
                                                 </div>
                                                 {assignedTable && assignedEnv && (

@@ -11,6 +11,7 @@
 import type * as agentChat from "../agentChat.js";
 import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
+import type * as caja from "../caja.js";
 import type * as categories from "../categories.js";
 import type * as companies from "../companies.js";
 import type * as crons from "../crons.js";
@@ -21,9 +22,11 @@ import type * as establishmentSettings from "../establishmentSettings.js";
 import type * as establishments from "../establishments.js";
 import type * as establishmentsHelpers from "../establishmentsHelpers.js";
 import type * as eventLog from "../eventLog.js";
+import type * as http from "../http.js";
 import type * as ingredients from "../ingredients.js";
 import type * as inventory from "../inventory.js";
 import type * as inventoryQueries from "../inventoryQueries.js";
+import type * as kds from "../kds.js";
 import type * as kpiBackfill from "../kpiBackfill.js";
 import type * as kpis from "../kpis.js";
 import type * as menu from "../menu.js";
@@ -34,6 +37,8 @@ import type * as reservations from "../reservations.js";
 import type * as seed from "../seed.js";
 import type * as sessions from "../sessions.js";
 import type * as staff from "../staff.js";
+import type * as staffAuth from "../staffAuth.js";
+import type * as stripe from "../stripe.js";
 import type * as tables from "../tables.js";
 
 import type {
@@ -46,6 +51,7 @@ declare const fullApi: ApiFromModules<{
   agentChat: typeof agentChat;
   analytics: typeof analytics;
   auth: typeof auth;
+  caja: typeof caja;
   categories: typeof categories;
   companies: typeof companies;
   crons: typeof crons;
@@ -56,9 +62,11 @@ declare const fullApi: ApiFromModules<{
   establishments: typeof establishments;
   establishmentsHelpers: typeof establishmentsHelpers;
   eventLog: typeof eventLog;
+  http: typeof http;
   ingredients: typeof ingredients;
   inventory: typeof inventory;
   inventoryQueries: typeof inventoryQueries;
+  kds: typeof kds;
   kpiBackfill: typeof kpiBackfill;
   kpis: typeof kpis;
   menu: typeof menu;
@@ -69,6 +77,8 @@ declare const fullApi: ApiFromModules<{
   seed: typeof seed;
   sessions: typeof sessions;
   staff: typeof staff;
+  staffAuth: typeof staffAuth;
+  stripe: typeof stripe;
   tables: typeof tables;
 }>;
 

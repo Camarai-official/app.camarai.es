@@ -1,12 +1,9 @@
 'use client';
-import { H3 } from '@/components/ui/typography';
-
 
 import * as React from 'react';
-import { addDays, format, isWithinInterval, parse } from 'date-fns';
+import { addDays, format, isWithinInterval } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import {
-    CalendarIcon,
     MoreHorizontal,
     ChevronLeft,
     ChevronRight,
@@ -16,27 +13,29 @@ import {
     Printer,
     Eye,
     Activity,
-    PlayCircle,
     CheckCircle,
     XCircle,
     FileText,
     CreditCard,
     Ban } from 'lucide-react';
 
-import type { Order, OrderDetails, OrderStatus } from '@/types/orders';
-import { mockOrderDetails, mockOrderProducts, mockOrderTables, mockOrders } from '@/data/orders';
+import type { Order, OrderDetails, OrderItem } from '@/types/orders';
 import { exportFields, defaultViewConfig, type ViewConfig } from '@/app/comandas/_data/config';
 import { EditOrderDialog } from '@/components/dialogs/comandas-edit-order-dialog';
 import { OrderDetailsDialog } from '@/components/dialogs/comandas-order-details-dialog';
 import { ViewConfigDialog } from '@/components/dialogs/comandas-config-dialog';
+import { CancelPartialDialog } from '@/components/dialogs/comandas-cancel-partial-dialog';
+
+// Convex imports
+import { useQuery, useMutation, usePaginatedQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import type { Id } from '@/convex/_generated/dataModel';
+import { useEstablishments } from '@/hooks/useEstablishments';
 
 import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '@/components/ui/dropdown-menu';
 import {
     AlertDialog,
@@ -49,40 +48,65 @@ import {
     AlertDialogTitle,
 } from "@/components/dialogs/global-alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/layout/page-header';
-import { ExportModal } from '@/components/dialogs/comandas-export-dialog';
+import { ExportModal, type ExportFormat } from '@/components/dialogs/comandas-export-dialog';
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { SearchInput } from '@/components/ui/search-input';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 
+// Helper para formatear precios en euros
+const formatEuro = (amount: number) => {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(amount);
+};
+
+// Helper para formatear timestamps
+const formatTime = (timestamp: number) => {
+    return format(new Date(timestamp), 'HH:mm');
+};
+
+const formatDate = (timestamp: number) => {
+    return format(new Date(timestamp), 'yyyy-MM-dd');
+};
+
+// Map de status para UI
+const statusLabels: Record<string, string> = {
+    'open': 'Abierto',
+    'paid': 'Pagado',
+    'cancelled': 'Cancelado',
+    'refunded': 'Reembolsado'
+};
+
+const statusVariants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline' | 'completed' | 'in-progress' | 'cancelled'> = {
+    'open': 'in-progress',
+    'paid': 'completed',
+    'cancelled': 'cancelled',
+    'refunded': 'cancelled'
+};
+
 export default function ComandasPage() {
     const { toast } = useToast();
+    const { activeEstablishment } = useEstablishments();
 
-    // Estado local para las comandas (inicializado con mock data)
-    const [orders, setOrders] = React.useState<Order[]>(mockOrders);
-    const ordersLoading = false;
-
-    // Estados para los filtros y la paginación.
+    // Estados para los filtros y la paginación
     const [date, setDate] = React.useState<DateRange | undefined>({
         from: addDays(new Date(), -7),
-        to: new Date() });
+        to: new Date()
+    });
     const [searchTerm, setSearchTerm] = React.useState('');
     const [currentPage, setCurrentPage] = React.useState(1);
     const [itemsPerPage, setItemsPerPage] = React.useState(defaultViewConfig.itemsPerPage);
-    const [isAnimating, setIsAnimating] = React.useState(false);
 
     // Estados para selección múltiple
     const [selectedOrders, setSelectedOrders] = React.useState<Set<string>>(new Set());
 
-    // Estados para el diálogo de detalles.
-    const [selectedOrder, setSelectedOrder] = React.useState<OrderDetails | null>(null);
+    // Estados para el diálogo de detalles
+    const [selectedOrderId, setSelectedOrderId] = React.useState<string | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
 
     // Estado para el diálogo de edición
-    const [editingOrder, setEditingOrder] = React.useState<OrderDetails | null>(null);
+    const [editingOrderId, setEditingOrderId] = React.useState<string | null>(null);
     const [isEditOpen, setIsEditOpen] = React.useState(false);
 
     // Export and configuration states
@@ -90,17 +114,49 @@ export default function ComandasPage() {
     const [isConfigOpen, setIsConfigOpen] = React.useState(false);
     const [viewConfig, setViewConfig] = React.useState<ViewConfig>(defaultViewConfig);
 
-    // Estado para el diálogo de confirmación de anulación
-    const [isCancelDialogOpen, setIsCancelDialogOpen] = React.useState(false);
-    const [orderToCancel, setOrderToCancel] = React.useState<Order | null>(null);
+    // Estado para el diálogo de anulación parcial
+    const [isPartialCancelOpen, setIsPartialCancelOpen] = React.useState(false);
+    const [orderToPartialCancel, setOrderToPartialCancel] = React.useState<Order | null>(null);
 
-    type ExportOptions = { format: string; fields: string[]; dateRange?: DateRange };
+    // Query para obtener detalles de la orden a anular parcialmente
+    const partialCancelOrderDetails = useQuery(
+        api.orders.getOrderDetails,
+        orderToPartialCancel ? { orderId: orderToPartialCancel._id as Id<"orders"> } : "skip"
+    );
 
-    // Export handler
-    const handleExport = async (options: ExportOptions) => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log('Exporting:', options);
-    };
+    // Convex Queries
+    const startTimestamp = date?.from ? new Date(date.from.setHours(0, 0, 0, 0)).getTime() : undefined;
+    const endTimestamp = date?.to ? new Date(date.to.setHours(23, 59, 59, 999)).getTime() : undefined;
+
+    const { results: paginatedOrders, status: paginatedStatus, loadMore } = usePaginatedQuery(
+        api.orders.getOrdersForComandas,
+        activeEstablishment?.id
+            ? {
+                establishmentId: activeEstablishment.id as Id<"establishments">,
+                startDate: startTimestamp,
+                endDate: endTimestamp,
+                searchTerm: searchTerm,
+            }
+            : "skip",
+        { initialNumItems: itemsPerPage }
+    );
+
+    const orderDetailsData = useQuery(
+        api.orders.getOrderDetails,
+        selectedOrderId ? { orderId: selectedOrderId as Id<"orders"> } : "skip"
+    );
+
+    const editingOrderDetails = useQuery(
+        api.orders.getOrderDetails,
+        editingOrderId ? { orderId: editingOrderId as Id<"orders"> } : "skip"
+    );
+
+    // Convex Mutations
+    const cancelOrderMutation = useMutation(api.orders.cancelOrder);
+    const partialCancelOrderMutation = useMutation(api.orders.partialCancelOrder);
+
+    const orders: Order[] = (paginatedOrders as Order[]) || [];
+    const ordersLoading = paginatedStatus === "LoadingFirstPage";
 
     // Config handlers
     const handleConfigChange = <K extends keyof ViewConfig>(key: K, value: ViewConfig[K]) => {
@@ -114,12 +170,23 @@ export default function ComandasPage() {
     const handleSaveConfig = () => {
         toast({
             title: 'Configuración guardada',
-            description: 'Los ajustes de visualización se han aplicado.' });
+            description: 'Los ajustes de visualización se han aplicado.'
+        });
         setIsConfigOpen(false);
+    };
+
+    const handleExport = async (options: {
+        format: ExportFormat;
+        fields: string[];
+        dateRange?: { from: Date | undefined; to: Date | undefined };
+    }) => {
+        // TODO: Implement actual export logic (API call or file generation)
+        console.log('Exporting orders:', options);
     };
 
     React.useEffect(() => {
         setCurrentPage(1);
+        setSelectedOrders(new Set());
     }, [searchTerm, date]);
 
     // Handlers de selección
@@ -137,8 +204,7 @@ export default function ComandasPage() {
         if (selectedOrders.size === currentOrders.length && currentOrders.length > 0) {
             setSelectedOrders(new Set());
         } else {
-            const newSelected = new Set();
-            currentOrders.forEach(order => newSelected.add(order.order));
+            const newSelected = new Set(currentOrders.map(o => o._id));
             setSelectedOrders(newSelected as Set<string>);
         }
     };
@@ -146,94 +212,100 @@ export default function ComandasPage() {
     const handlePrintSelected = () => {
         toast({
             title: "Imprimiendo tickets",
-            description: `Enviando ${selectedOrders.size} tickets a la impresora...` });
-        // Aquí iría la lógica real de impresión
+            description: `Enviando ${selectedOrders.size} tickets a la impresora...`
+        });
     };
 
     const handleViewDetails = (order: Order) => {
-        const items = (mockOrderDetails as any)[order.order] || [];
-        const subtotal = items.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
-        const tax = subtotal * 0.21;
-        setSelectedOrder({ ...order, items, subtotal, tax });
+        setSelectedOrderId(order._id);
         setIsDetailsOpen(true);
     };
 
     const handleEditOrder = (order: Order) => {
-        const items = (mockOrderDetails as any)[order.order] || [];
-        const subtotal = items.reduce((acc: number, item: any) => acc + item.price * item.quantity, 0);
-        const tax = subtotal * 0.21;
-        setEditingOrder({ ...order, items, subtotal, tax });
+        setEditingOrderId(order._id);
         setIsEditOpen(true);
     };
 
     const handleSaveEditedOrder = (updatedOrder: OrderDetails) => {
-        setOrders(prevOrders => prevOrders.map(o =>
-            o.order === updatedOrder.order
-                ? { ...o, name: updatedOrder.name, table: updatedOrder.table, total: updatedOrder.total }
-                : o
-        ));
-
-        (mockOrderDetails as any)[updatedOrder.order] = updatedOrder.items;
-
         toast({
             title: "Comanda actualizada",
-            description: `La comanda #${updatedOrder.order} ha sido modificada correctamente.` });
+            description: `La comanda #${updatedOrder.orderNumber} ha sido modificada correctamente.`
+        });
+        setIsEditOpen(false);
+        setEditingOrderId(null);
     };
 
-    const handleStatusChange = (orderOrder: string, newStatus: OrderStatus) => {
-        setOrders(prevOrders => prevOrders.map(o =>
-            o.order === orderOrder ? { ...o, status: newStatus } : o
-        ));
-
-        toast({
-            title: "Estado Actualizado",
-            description: `La comanda #${orderOrder} ahora está ${newStatus}.` });
+    const handleStatusChange = async (orderId: string, newStatus: string) => {
+        if (newStatus === 'cancelled') {
+            try {
+                await cancelOrderMutation({
+                    orderId: orderId as Id<"orders">,
+                    reason: "Cancelado desde panel de comandas"
+                });
+                toast({
+                    title: "Comanda cancelada",
+                    description: "La comanda ha sido cancelada correctamente."
+                });
+            } catch (error) {
+                toast({
+                    title: "Error",
+                    description: "No se pudo cancelar la comanda.",
+                    variant: "destructive"
+                });
+            }
+        } else {
+            toast({
+                title: "Estado Actualizado",
+                description: `La comanda ahora está ${statusLabels[newStatus] || newStatus}.`
+            });
+        }
     };
 
     const handleAnularComanda = (order: Order) => {
-        setOrderToCancel(order);
-        setIsCancelDialogOpen(true);
+        setOrderToPartialCancel(order);
+        setIsPartialCancelOpen(true);
     };
 
-    const confirmAnularComanda = () => {
-        if (orderToCancel) {
-            handleStatusChange(orderToCancel.order, 'Cancelado');
-            setIsCancelDialogOpen(false);
-            setOrderToCancel(null);
+    const handlePartialCancelConfirm = async (itemsToCancel: OrderItem[]) => {
+        if (orderToPartialCancel && itemsToCancel.length > 0) {
+            try {
+                const itemIds = itemsToCancel.map(item => item._id);
+                const result = await partialCancelOrderMutation({
+                    orderId: orderToPartialCancel._id as Id<"orders">,
+                    itemIdsToCancel: itemIds as Id<"order_items">[],
+                    reason: "Anulación parcial desde panel de comandas"
+                });
+
+                if (result.newOrderId) {
+                    toast({
+                        title: "Anulación parcial completada",
+                        description: `Se anularon ${itemsToCancel.length} productos. Se creó una nueva comanda con los productos restantes.`
+                    });
+                } else {
+                    toast({
+                        title: "Comanda anulada",
+                        description: `La comanda #${orderToPartialCancel.orderNumber} ha sido anulada completamente.`
+                    });
+                }
+            } catch (error) {
+                toast({
+                    title: "Error",
+                    description: "No se pudo procesar la anulación.",
+                    variant: "destructive"
+                });
+            }
+            setIsPartialCancelOpen(false);
+            setOrderToPartialCancel(null);
         }
     };
 
-    const filteredOrders = orders.filter(order => {
-        const matchesSearch =
-            order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.order.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            order.table.toLowerCase().includes(searchTerm.toLowerCase());
+    // En la paginación del servidor, searchTerm se envía al backend
+    // No necesitamos filtrar localmente, excepto si queremos asegurarnos en la vista
+    // Pero ya que paginamos desde el servidor, mostraremos lo devuelto.
+    const currentOrders = orders;
 
-        let matchesDate = true;
-        if (date?.from && date?.to && order.date) {
-            const orderDate = parse(order.date, 'yyyy-MM-dd', new Date());
-            matchesDate = isWithinInterval(orderDate, { start: date.from, end: date.to });
-        }
-
-        return matchesSearch && matchesDate;
-    });
-
-    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
-
-    const paginate = (pageNumber: number) => {
-        if (pageNumber < 1 || pageNumber > totalPages) return;
-        setIsAnimating(true);
-        setCurrentPage(pageNumber);
-        setIsAnimating(false);
-    };
-
-    const pageNumbers = [];
-    for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
-    }
+    // Cuando el usuario cambie el searchTerm, la paginación se reiniciará sola 
+    // (porque los argumentos cambian), lo manejamos en el hook `usePaginatedQuery`.
 
     return (
         <PageContainer>
@@ -287,46 +359,36 @@ export default function ComandasPage() {
                                         {viewConfig.showName && <TableHead>Nombre</TableHead>}
                                         {viewConfig.showTotal && <TableHead>Total</TableHead>}
                                         {viewConfig.showStatus && <TableHead className="text-center">Estado</TableHead>}
-                                        <TableHead><span className="sr-only">Acciones</span></TableHead>
+                                        <TableHead className="text-left">Acciones</TableHead>
                                     </TableRow>
                                 </TableHeader>
-                                <TableBody
-                                    key={currentPage}
-                                >
-                                    {false && (
+                                <TableBody>
+                                    {ordersLoading && (
                                         <TableRow>
                                             <TableCell colSpan={8} className="h-24 text-center">Cargando comandas...</TableCell>
                                         </TableRow>
                                     )}
-                                    {currentOrders.length === 0 && (
+                                    {!ordersLoading && currentOrders.length === 0 && (
                                         <TableRow>
                                             <TableCell colSpan={8} className="h-24 text-center">No se encontraron comandas.</TableCell>
                                         </TableRow>
                                     )}
                                     {currentOrders.map((order) => (
-                                        <TableRow key={order.order}>
+                                        <TableRow key={order._id}>
                                             <TableCell>
                                                 <Checkbox
-                                                    checked={selectedOrders.has(order.order)}
-                                                    onCheckedChange={() => toggleOrderSelection(order.order)}
+                                                    checked={selectedOrders.has(order._id)}
+                                                    onCheckedChange={() => toggleOrderSelection(order._id)}
                                                 />
                                             </TableCell>
-                                            {viewConfig.showOrder && <TableCell className="font-medium">{order.order}</TableCell>}
-                                            {viewConfig.showTime && <TableCell>{order.time}</TableCell>}
-                                            {viewConfig.showTable && <TableCell>{order.table}</TableCell>}
-                                            {viewConfig.showName && <TableCell>{order.name}</TableCell>}
-                                            {viewConfig.showTotal && <TableCell>{order.total}</TableCell>}
+                                            {viewConfig.showOrder && <TableCell className="font-medium">{order.orderNumber}</TableCell>}
+                                            {viewConfig.showTime && <TableCell>{formatTime(order.createdAt)}</TableCell>}
+                                            {viewConfig.showTable && <TableCell>{order.tableLabel ? `${order.tableLabel}${order.environmentName ? ` (${order.environmentName})` : ''}` : '-'}</TableCell>}
+                                            {viewConfig.showName && <TableCell>{order.customerName || order.staffName}</TableCell>}
+                                            {viewConfig.showTotal && <TableCell>{formatEuro(order.totalAmount)}</TableCell>}
                                             {viewConfig.showStatus && <TableCell className="text-center">
-                                                <Badge
-                                                    variant={
-                                                        order.status === 'Completado'
-                                                            ? 'completed'
-                                                            : order.status === 'En Progreso'
-                                                                ? 'in-progress'
-                                                                : 'cancelled'
-                                                    }
-                                                >
-                                                    {order.status}
+                                                <Badge variant={order.totalAmount < 0 ? 'cancelled' : (statusVariants[order.status] || 'default')}>
+                                                    {order.totalAmount < 0 ? 'Devuelto' : (statusLabels[order.status] || order.status)}
                                                 </Badge>
                                             </TableCell>}
                                             <TableCell>
@@ -346,39 +408,15 @@ export default function ComandasPage() {
                                                             <Pencil />
                                                             Editar comanda
                                                         </DropdownMenuItem>
-                                                        <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger>
-                                                                <Activity />
-                                                                Cambiar Estado
-                                                            </DropdownMenuSubTrigger>
-                                                            <DropdownMenuSubContent>
-                                                                <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'En Progreso')}>
-                                                                    <PlayCircle />
-                                                                    En Progreso
+                                                        {order.status === 'open' && (
+                                                            <>
+                                                                <DropdownMenuSeparator />
+                                                                <DropdownMenuItem onClick={() => handleAnularComanda(order)}>
+                                                                    <Ban />
+                                                                    Anular comanda
                                                                 </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Completado')}>
-                                                                    <CheckCircle />
-                                                                    Completado
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => handleStatusChange(order.order, 'Cancelado')}>
-                                                                    <XCircle />
-                                                                    Cancelado
-                                                                </DropdownMenuItem>
-                                                            </DropdownMenuSubContent>
-                                                        </DropdownMenuSub>
-                                                        <DropdownMenuItem>
-                                                            <FileText />
-                                                            Exportar a PDF
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem>
-                                                            <CreditCard />
-                                                            Marcar como pagada
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => handleAnularComanda(order)}>
-                                                            <Ban />
-                                                            Anular comanda
-                                                        </DropdownMenuItem>
+                                                            </>
+                                                        )}
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
@@ -390,22 +428,17 @@ export default function ComandasPage() {
                     </CardContent>
                     <CardFooter className="flex justify-between items-center">
                         <div className="text-xs text-muted-foreground">
-                            Mostrando <strong>{Math.min(indexOfFirstItem + 1, filteredOrders.length)}-{Math.min(indexOfLastItem, filteredOrders.length)}</strong> de <strong>{filteredOrders.length}</strong> comandas.
+                            Mostrando <strong>{currentOrders.length}</strong> comandas cargadas.
                         </div>
                         <div className="flex justify-end items-center gap-2">
-                            <Button variant="outline" size="md" startIcon={<ChevronLeft />} onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1} />
-                            {pageNumbers.map(number => (
-                                <Button
-                                    key={number}
-                                    variant={currentPage === number ? "default" : "outline"}
-                                    size="md"
-                                    className="hidden sm:inline-flex"
-                                    onClick={() => paginate(number)}
-                                >
-                                    {number}
-                                </Button>
-                            ))}
-                            <Button variant="outline" size="md" startIcon={<ChevronRight />} onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages} />
+                            <Button 
+                                variant="outline" 
+                                size="md" 
+                                onClick={() => loadMore(itemsPerPage)} 
+                                disabled={paginatedStatus !== "CanLoadMore"}
+                            >
+                                {paginatedStatus === "LoadingMore" ? "Cargando..." : "Cargar Más"}
+                            </Button>
                         </div>
                     </CardFooter>
                 </Card>
@@ -413,25 +446,23 @@ export default function ComandasPage() {
             <OrderDetailsDialog
                 open={isDetailsOpen}
                 onOpenChange={setIsDetailsOpen}
-                order={selectedOrder}
+                order={orderDetailsData as OrderDetails | null}
                 onEdit={(order) => {
                     setIsDetailsOpen(false);
-                    handleEditOrder(order as unknown as Order);
+                    handleEditOrder(order as Order);
                 }}
                 onPrint={(order) => {
                     toast({
                         title: "Imprimiendo ticket",
-                        description: `Enviando ticket #${order.order} a la impresora...` });
+                        description: `Enviando ticket #${order.orderNumber} a la impresora...` });
                 }}
             />
 
             <EditOrderDialog
                 open={isEditOpen}
                 onOpenChange={setIsEditOpen}
-                order={editingOrder}
+                order={editingOrderDetails as OrderDetails | null}
                 onSave={handleSaveEditedOrder}
-                products={mockOrderProducts}
-                tables={mockOrderTables}
             />
 
             <ExportModal
@@ -452,25 +483,12 @@ export default function ComandasPage() {
                 onSave={handleSaveConfig}
             />
 
-            <AlertDialog open={isCancelDialogOpen} onOpenChange={setIsCancelDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>¿Estás completamente seguro?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Esta acción anulará la comanda #{orderToCancel?.order}. No podrás deshacer esta acción una vez confirmada.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Volver</AlertDialogCancel>
-                        <AlertDialogAction 
-                            onClick={confirmAnularComanda}
-                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                            Anular Comanda
-                        </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            <CancelPartialDialog
+                order={partialCancelOrderDetails || null}
+                open={isPartialCancelOpen}
+                onOpenChange={setIsPartialCancelOpen}
+                onConfirm={handlePartialCancelConfirm}
+            />
         </PageContainer>
     );
 }

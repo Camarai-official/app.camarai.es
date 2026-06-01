@@ -3,8 +3,113 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
+import { paginationOptsValidator } from "convex/server";
 
-// Queries para Orders
+/**
+ * Query principal para la vista de Comandas (Historial de Pedidos)
+ * Soporta filtros de fecha, búsqueda por número de orden y paginación con cursores.
+ */
+export const getOrdersForComandas = query({
+  args: {
+    establishmentId: v.id("establishments"),
+    startDate: v.optional(v.number()), // timestamp
+    endDate: v.optional(v.number()), // timestamp
+    searchTerm: v.optional(v.string()),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    let paginatedResults;
+
+    if (args.searchTerm && args.searchTerm.trim() !== "") {
+      let q = ctx.db
+        .query("orders")
+        .withSearchIndex("search_order_number", (q) =>
+          q.search("order_number", args.searchTerm!).eq("establishment_id", args.establishmentId)
+        );
+      
+      if (args.startDate !== undefined || args.endDate !== undefined) {
+         q = q.filter(q => {
+            const conditions = [];
+            if (args.startDate !== undefined) conditions.push(q.gte(q.field("created_at"), args.startDate));
+            if (args.endDate !== undefined) conditions.push(q.lte(q.field("created_at"), args.endDate));
+            return q.and(...conditions);
+         });
+      }
+      paginatedResults = await q.paginate(args.paginationOpts);
+    } else {
+      let q = ctx.db
+        .query("orders")
+        .withIndex("by_establishment_created", (q) => {
+          let filter = q.eq("establishment_id", args.establishmentId);
+          return filter;
+        });
+
+      if (args.startDate !== undefined || args.endDate !== undefined) {
+         q = q.filter(q => {
+            const conditions = [];
+            if (args.startDate !== undefined) conditions.push(q.gte(q.field("created_at"), args.startDate));
+            if (args.endDate !== undefined) conditions.push(q.lte(q.field("created_at"), args.endDate));
+            return q.and(...conditions);
+         });
+      }
+      paginatedResults = await q.order("desc").paginate(args.paginationOpts);
+    }
+
+    const ordersWithDetails = await Promise.all(
+      paginatedResults.page.map(async (order) => {
+        const table = order.table_id ? await ctx.db.get(order.table_id) : null;
+        const staff = await ctx.db.get(order.staff_id);
+        const customer = order.customer_id ? await ctx.db.get(order.customer_id) : null;
+        const environment = order.environment_id ? await ctx.db.get(order.environment_id) : null;
+
+        return {
+          _id: order._id,
+          orderNumber: order.order_number,
+          createdAt: order.created_at,
+          updatedAt: order.updated_at,
+          closedAt: order.closed_at,
+          status: order.status,
+          totalAmount: order.total_amount,
+          subtotal: order.subtotal,
+          taxAmount: order.tax_amount,
+          discountAmount: order.discount_amount,
+          discountReason: order.discount_reason,
+          notes: order.notes,
+          paymentType: order.payment_type,
+          paymentStatus: order.payment_status,
+          orderType: order.order_type,
+          source: order.source,
+          isRefund: order.is_refund,
+          isCommissionOrder: order.is_commission_order,
+          guests: order.guests,
+          // Table info
+          tableId: order.table_id,
+          tableLabel: table?.label || table?.number?.toString() || null,
+          // Environment info
+          environmentId: order.environment_id,
+          environmentName: environment?.name || null,
+          // Staff info
+          staffId: order.staff_id,
+          staffName: staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Desconocido",
+          // Customer info
+          customerId: order.customer_id,
+          customerName: customer?.name || null,
+          // Delivery info
+          deliveryAddress: order.delivery_address,
+          deliveryCity: order.delivery_city,
+          deliveryPhone: order.delivery_phone,
+          trackingCode: order.tracking_code,
+        };
+      })
+    );
+
+    return {
+      page: ordersWithDetails,
+      isDone: paginatedResults.isDone,
+      continueCursor: paginatedResults.continueCursor,
+    };
+  },
+});
 
 export const getOrdersForSession = query({
   args: {
@@ -70,6 +175,111 @@ export const getOrdersForSession = query({
     return {
       orders: ordersWithItems,
       tableNumber: table.number,
+    };
+  },
+});
+
+/**
+ * Query para obtener detalles completos de una orden con sus items
+ */
+export const getOrderDetails = query({
+  args: {
+    orderId: v.id("orders"),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.orderId);
+    if (!order) return null;
+
+    // Get items
+    const items = await ctx.db
+      .query("order_items")
+      .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
+      .collect();
+
+    // Get related entities
+    const table = order.table_id ? await ctx.db.get(order.table_id) : null;
+    const staff = await ctx.db.get(order.staff_id);
+    const customer = order.customer_id ? await ctx.db.get(order.customer_id) : null;
+    const environment = order.environment_id ? await ctx.db.get(order.environment_id) : null;
+
+    // Get payments
+    const payments = await ctx.db
+      .query("payments")
+      .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
+      .collect();
+
+    return {
+      _id: order._id,
+      orderNumber: order.order_number,
+      createdAt: order.created_at,
+      updatedAt: order.updated_at,
+      closedAt: order.closed_at,
+      status: order.status,
+      totalAmount: order.total_amount,
+      subtotal: order.subtotal,
+      taxAmount: order.tax_amount,
+      discountAmount: order.discount_amount,
+      discountReason: order.discount_reason,
+      notes: order.notes,
+      paymentType: order.payment_type,
+      paymentStatus: order.payment_status,
+      orderType: order.order_type,
+      source: order.source,
+      isRefund: order.is_refund,
+      isCommissionOrder: order.is_commission_order,
+      guests: order.guests,
+      // Table info
+      tableId: order.table_id,
+      tableLabel: table?.label || table?.number?.toString() || null,
+      tableNumber: table?.number || null,
+      // Environment info
+      environmentId: order.environment_id,
+      environmentName: environment?.name || null,
+      // Staff info
+      staffId: order.staff_id,
+      staffName: staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Desconocido",
+      // Customer info
+      customerId: order.customer_id,
+      customerName: customer?.name || null,
+      customerPhone: customer?.phone || null,
+      customerEmail: customer?.email || null,
+      // Items
+      items: items.map(item => ({
+        _id: item._id,
+        productId: item.product_id,
+        productName: item.product_name,
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        totalPrice: item.total_price,
+        variant: item.variant,
+        notes: item.notes,
+        course: item.course,
+        itemStatus: item.item_status,
+        sentToKitchenAt: item.sent_to_kitchen_at,
+        readyAt: item.ready_at,
+        clientId: item.client_id,
+        paymentStatus: item.payment_status,
+        paymentMethod: item.payment_method,
+        paidAt: item.paid_at,
+      })),
+      // Payments
+      payments: payments.map(payment => ({
+        _id: payment._id,
+        method: payment.method,
+        amount: payment.amount,
+        tip: payment.tip,
+        reference: payment.reference,
+        staffId: payment.staff_id,
+        timestamp: payment.timestamp,
+      })),
+      // Delivery info
+      deliveryAddress: order.delivery_address,
+      deliveryPostalCode: order.delivery_postal_code,
+      deliveryCity: order.delivery_city,
+      deliveryPhone: order.delivery_phone,
+      trackingCode: order.tracking_code,
+      origenWhatsapp: order.origen_whatsapp,
+      metodoPago: order.metodo_pago,
     };
   },
 });
@@ -199,9 +409,18 @@ export const createOrder = mutation({
   handler: async (ctx, args) => {
     const orderNumber = `ORD-${Date.now().toString().slice(-6)}`;
     
+    let environmentId;
+    if (args.tableId) {
+      const table = await ctx.db.get(args.tableId);
+      if (table) {
+        environmentId = table.environment_id;
+      }
+    }
+
     const orderId = await ctx.db.insert("orders", {
       establishment_id: args.establishmentId,
       table_id: args.tableId,
+      environment_id: environmentId,
       staff_id: args.staffId,
       order_number: orderNumber,
       status: "open",
@@ -292,7 +511,7 @@ export const finalizeAndPayOrder = mutation({
     // 5. Liberamos la mesa a estado 'dirty' y removemos del ambiente
     if (order.table_id) {
       await ctx.db.patch(order.table_id, {
-        status: "dirty",
+        status: "maintenance",
         current_order_id: undefined,
       });
 
@@ -364,6 +583,159 @@ export const cancelOrder = mutation({
     });
 
     return { success: true };
+  },
+});
+
+/**
+ * Anula productos seleccionados de una orden y crea una nueva orden con los productos restantes
+ */
+export const partialCancelOrder = mutation({
+  args: {
+    orderId: v.id("orders"),
+    itemIdsToCancel: v.array(v.id("order_items")),
+    reason: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db.get(args.orderId);
+    if (!order) throw new Error("Orden no encontrada");
+    if (order.status !== "open") throw new Error("Solo se pueden anular productos de órdenes abiertas");
+
+    // Get all items from the order
+    const allItems = await ctx.db
+      .query("order_items")
+      .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
+      .collect();
+
+    // Identify items to cancel and items to keep
+    const itemsToCancel = allItems.filter(item => args.itemIdsToCancel.includes(item._id));
+    const itemsToKeep = allItems.filter(item => !args.itemIdsToCancel.includes(item._id));
+
+    if (itemsToCancel.length === 0) throw new Error("No se encontraron productos para anular");
+    if (itemsToKeep.length === 0) {
+      // If all items are being cancelled, just cancel the whole order
+      await ctx.db.patch(args.orderId, {
+        status: "cancelled",
+        closed_at: Date.now(),
+        updated_at: Date.now(),
+      });
+
+      // Liberar mesa
+      if (order.table_id) {
+        await ctx.db.patch(order.table_id, {
+          status: "free",
+          current_order_id: undefined,
+        });
+        await removeOrderFromEnvironment(ctx, order.table_id, args.orderId);
+      }
+
+      await ctx.db.insert("event_log", {
+        establishment_id: order.establishment_id,
+        type: "operational",
+        level: "warning",
+        actor: order.staff_id,
+        action: "ORDER_CANCELLED",
+        entity_type: "orders",
+        entity_id: args.orderId,
+        timestamp: Date.now(),
+      });
+
+      return { success: true, newOrderId: null };
+    }
+
+    // Mark cancelled items
+    for (const item of itemsToCancel) {
+      await ctx.db.patch(item._id, {
+        item_status: "cancelled",
+      });
+    }
+
+    // Create new order with remaining items
+    const newOrderNumber = `${order.order_number}-R`;
+    const newOrderId = await ctx.db.insert("orders", {
+      establishment_id: order.establishment_id,
+      table_id: order.table_id,
+      staff_id: order.staff_id,
+      order_number: newOrderNumber,
+      status: "open",
+      subtotal: 0,
+      tax_amount: 0,
+      discount_amount: 0,
+      total_amount: 0,
+      payment_type: order.payment_type,
+      source: order.source,
+      guests: order.guests,
+      notes: order.notes,
+      is_commission_order: order.is_commission_order,
+      created_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
+    // Move remaining items to new order
+    for (const item of itemsToKeep) {
+      await ctx.db.patch(item._id, {
+        order_id: newOrderId,
+      });
+    }
+
+    // Recalculate totals for both orders
+    await ctx.scheduler.runAfter(0, internal.orders.recalculateOrderTotals, {
+      orderId: args.orderId,
+    });
+    await ctx.scheduler.runAfter(0, internal.orders.recalculateOrderTotals, {
+      orderId: newOrderId,
+    });
+
+    // Transfer table to new order
+    if (order.table_id) {
+      await ctx.db.patch(order.table_id, {
+        current_order_id: newOrderId,
+      });
+      await ctx.db.patch(newOrderId, {
+        table_id: order.table_id,
+      });
+    }
+
+    // Close original order
+    await ctx.db.patch(args.orderId, {
+      status: "cancelled",
+      closed_at: Date.now(),
+      updated_at: Date.now(),
+    });
+
+    // Audit logs
+    await ctx.db.insert("event_log", {
+      establishment_id: order.establishment_id,
+      type: "operational",
+      level: "warning",
+      actor: order.staff_id,
+      action: "ORDER_PARTIAL_CANCEL",
+      entity_type: "orders",
+      entity_id: args.orderId,
+      after: {
+        newOrderId,
+        itemsCancelled: itemsToCancel.length,
+        itemsKept: itemsToKeep.length,
+        reason: args.reason,
+      },
+      timestamp: Date.now(),
+    });
+
+    await ctx.db.insert("event_log", {
+      establishment_id: order.establishment_id,
+      type: "operational",
+      level: "info",
+      actor: order.staff_id,
+      action: "ORDER_CREATED_FROM_PARTIAL",
+      entity_type: "orders",
+      entity_id: newOrderId,
+      after: {
+        originalOrderId: args.orderId,
+        itemsTransferred: itemsToKeep.length,
+      },
+      timestamp: Date.now(),
+    });
+
+    return { success: true, newOrderId };
   },
 });
 

@@ -15,6 +15,7 @@ import { useEstablishments } from '@/hooks/useEstablishments';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { PageHeader } from '@/components/layout/page-header';
+import { useAuth } from '@/hooks/useAuth';
 import { PageContent } from '@/components/layout/page-content';
 import { PageContainer } from '@/components/layout/page-container';
 import { DashboardConfigDialog, type DashboardConfig } from '@/components/dialogs/dashboard-config-dialog';
@@ -22,13 +23,6 @@ import { DashboardConfigDialog, type DashboardConfig } from '@/components/dialog
 // ✅ MOCK DATA - Solo para usuario (sin datos reales de auth aún)
 import { CalendarDateRangePicker } from '@/components/ui/date-range-picker';
 import { generateCSV, prepareDashboardExportData } from '@/lib/export-utils';
-
-const mockUser = {
-    firstName: 'Fenix',
-    lastName: 'Admin',
-    email: 'admin@camarai.es',
-    avatar: ''
-};
 
 const ChartFallback = () => (
     <div className="h-[200px] w-full rounded-md bg-muted/30" />
@@ -67,14 +61,14 @@ const RecentOrders = dynamic(() => import('@/components/features/dashboard/recen
 /**
  * @fileoverview Página principal del panel de administración (Dashboard).
  * Ofrece una vista general del rendimiento del restaurante utilizando datos reales de Convex.
- * 
+ *
  * ✅ DATOS REALES: Usa Convex para KPIs, ventas, reservas, ambientes, stock, staff y productos
  */
 
 
 /**
  * Componente principal para la página del Dashboard.
- * 
+ *
  * Este componente integra varios sub-componentes para mostrar una vista general del negocio.
  * Todos los datos principales provienen de Convex (KPIs HyperFast, ventas, reservas, etc.)
  *
@@ -101,9 +95,8 @@ const defaultDashboardConfig: DashboardConfig = {
 };
 
 export default function Home() {
-    // ✅ Datos mock directos (sin hooks)
-    const user = mockUser;
     const { toast } = useToast();
+    const { staff: currentStaff } = useAuth();
 
     // ✅ HyperFast KPIs - Datos reales de Convex
     const { formattedKPIs, isLoading } = useKPIs();
@@ -133,15 +126,6 @@ export default function Home() {
         unidad_medida: 'un',
     })) || [];
 
-    // ✅ Real Staff from Convex
-    const staffData = useQuery(
-        api.staff.getStaffByEstablishment,
-        activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : 'skip'
-    );
-
-    // Use real staff data or empty array
-    const staffMembers = staffData || [];
-
     // ✅ Real Products from Convex
     const productsData = useQuery(
         api.products.getProducts,
@@ -165,8 +149,8 @@ export default function Home() {
 
     React.useEffect(() => {
         setMounted(true);
-        // Una vez montado, podemos poner la fecha real si queremos, 
-        // pero para evitar el salto visual, mantendremos una fecha base 
+        // Una vez montado, podemos poner la fecha real si queremos,
+        // pero para evitar el salto visual, mantendremos una fecha base
         // o actualizaremos aquí.
     }, []);
 
@@ -220,7 +204,7 @@ export default function Home() {
     return (
         <PageContainer>
             <PageHeader
-                title={<>Buenos días, {user?.firstName || 'Fenix'}!</>}
+                title={<>Buenos días, {currentStaff?.name || 'Usuario'}!</>}
                 actions={
                     <div className="flex items-stretch gap-2 flex-row sm:items-center">
                         <CalendarDateRangePicker date={date} setDate={setDate} />
@@ -235,7 +219,7 @@ export default function Home() {
                                     description: "Función de exportación requiere datos reales de Convex."
                                 });
                             }}
-                        >       
+                        >
                             <Download/>
                         </Button>
                         <Button variant="outline" size="md" onClick={() => setConfigOpen(true)}>
@@ -294,9 +278,9 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Gráfico de Reservas */}
                         {dashboardConfig.revenueChart && (
-                            <RevenueChart 
-                                date={date} 
-                                className={cn(dashboardConfig.occupancyChart ? "lg:col-span-2" : "lg:col-span-3")} 
+                            <RevenueChart
+                                date={date}
+                                className={cn(dashboardConfig.occupancyChart ? "lg:col-span-2" : "lg:col-span-3")}
                             />
                         )}
                         {/* Gráfico de Aforo */}
@@ -336,8 +320,8 @@ export default function Home() {
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Tabla de Comandas Recientes */}
                         {dashboardConfig.recentOrders && (
-                            <RecentOrders 
-                                date={date} 
+                            <RecentOrders
+                                date={date}
                                 className={cn(dashboardConfig.stockAlerts ? "lg:col-span-2" : "lg:col-span-3")}
                             />
                         )}
@@ -373,7 +357,7 @@ export default function Home() {
                     </div>
                 )}
 
-                <DashboardConfigDialog 
+                <DashboardConfigDialog
                     open={configOpen}
                     onOpenChange={setConfigOpen}
                     config={dashboardConfig}

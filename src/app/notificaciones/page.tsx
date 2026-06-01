@@ -22,7 +22,7 @@ import {
 import { cn } from '@/lib/utils';
 
 // Convex imports
-import { useQuery } from 'convex/react';
+import { useQuery, usePaginatedQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 
 // UI Components
@@ -55,8 +55,16 @@ export default function NotificationsPage() {
         ? establishmentsData[0]._id 
         : null;
     
-    // Obtener eventos del log de Convex
-    const eventsData = useQuery(api.eventLog.getEventLogs, establishmentId ? { establishmentId, limit: 100 } : "skip");
+    // Obtener eventos del log de Convex con paginación
+    const { 
+        results: eventsData, 
+        status, 
+        loadMore 
+    } = usePaginatedQuery(
+        api.eventLog.getEventLogs, 
+        establishmentId ? { establishmentId } : "skip",
+        { initialNumItems: 50 }
+    );
     
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
     const [filterConfig, setFilterConfig] = React.useState<NotificationsFilterConfig>({
@@ -218,6 +226,24 @@ export default function NotificationsPage() {
                                     showEnv: true,
                                     showCritical: false
                                 })}>Restablecer filtros</Button>
+                            </div>
+                        )}
+
+                        {status === "CanLoadMore" && (
+                            <div className="py-4 flex justify-center border-t">
+                                <Button 
+                                    variant="outline" 
+                                    onClick={() => loadMore(50)}
+                                >
+                                    Cargar más sucesos
+                                </Button>
+                            </div>
+                        )}
+                        {status === "LoadingMore" && (
+                            <div className="py-4 flex justify-center border-t">
+                                <Button variant="outline" disabled>
+                                    Cargando...
+                                </Button>
                             </div>
                         )}
                     </CardContent>

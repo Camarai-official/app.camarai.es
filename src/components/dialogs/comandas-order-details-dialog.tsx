@@ -27,7 +27,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogWindow size="sm" className="bg-zinc-100 dark:bg-zinc-900 border-none">
         <DialogHeader className="sr-only" title="Detalles del Pedido" description="Visualización detallada del ticket del pedido" />
-        
+
         <DialogContent>
           <div className="bg-foreground text-black p-6 font-mono text-sm shadow-sm relative m-4 mb-10 rounded-sm">
             {/* Ticket Header */}
@@ -47,17 +47,18 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
               <TextXS className="text-gray-500">Tel: +34 912 345 678</TextXS>
 
               <div className="mt-4 border-b-2 border-dashed border-gray-300 pb-4">
-                <h3 className="text-xl font-bold">Ticket #{order.order}</h3>
+                <h3 className="text-xl font-bold">Ticket #{order.orderNumber}</h3>
                 <TextXS className="text-gray-400">
-                  {order.date ? order.date : new Date().toLocaleDateString()} - {order.time}
+                  {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : new Date().toLocaleDateString()} - {order.createdAt ? new Date(order.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}
                 </TextXS>
               </div>
             </div>
 
             {/* Customer Info */}
             <div className="flex justify-between mb-4 text-xs font-bold ">
-              <TextMD>MESA: {order.table}</TextMD>
-              <TextMD>CLIENTE: {order.name.split(' ')[0]}</TextMD>
+              <TextMD>MESA: {order.tableLabel ? `${order.tableLabel}${order.environmentName ? ` (${order.environmentName})` : ''}` : '-'}</TextMD>
+              <TextMD> Camarer@: {order.staffName}</TextMD>
+              {order.customerName && <TextMD>CLIENTE: {order.customerName.split(' ')[0]}</TextMD>}
             </div>
 
             {/* Items */}
@@ -70,8 +71,8 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between items-start">
                   <H4>{item.quantity}</H4>
-                  <TextMD>{item.name}</TextMD>
-                  <TextMD>€{(item.price * item.quantity).toFixed(2)}</TextMD>
+                  <TextMD>{item.productName}</TextMD>
+                  <TextMD>€{(item.unitPrice * item.quantity).toFixed(2)}</TextMD>
                 </div>
               ))}
             </div>
@@ -83,12 +84,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
                 <TextMD>€{order.subtotal.toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-gray-600">
-                <TextMD>Impuestos (21%)</TextMD>
-                <TextMD>€{order.tax.toFixed(2)}</TextMD>
+                <TextMD>Impuestos</TextMD>
+                <TextMD>€{order.taxAmount.toFixed(2)}</TextMD>
               </div>
               <div className="flex justify-between text-xl font-bold mt-2 pt-2 border-t border-black">
                 <TextMD>TOTAL</TextMD>
-                <TextMD>{order.total}</TextMD>
+                <TextMD>€{order.totalAmount.toFixed(2)}</TextMD>
               </div>
             </div>
 
@@ -110,17 +111,17 @@ export function OrderDetailsDialog({ order, open, onOpenChange, onEdit, onPrint 
         </DialogContent>
 
         <DialogFooter className="p-6 bg-zinc-100 dark:bg-zinc-900 border-t flex gap-3">
-          <Button 
-            variant="default" 
-            className="flex-1 rounded-xl h-11 shadow-lg shadow-primary/10" 
+          <Button
+            variant="default"
+            className="flex-1 rounded-xl h-11 shadow-lg shadow-primary/10"
             startIcon={<Printer className="h-4 w-4" />}
             onClick={() => onPrint?.(order)}
           >
             Imprimir
           </Button>
-          <Button 
-            variant="outline" 
-            className="flex-1 rounded-xl h-11 bg-white dark:bg-zinc-950 shadow-sm" 
+          <Button
+            variant="outline"
+            className="flex-1 rounded-xl h-11 bg-white dark:bg-zinc-950 shadow-sm"
             startIcon={<Pencil className="h-4 w-4" />}
             onClick={() => onEdit?.(order)}
           >

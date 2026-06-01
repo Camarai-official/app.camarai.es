@@ -129,8 +129,8 @@ export function RevenueChart({ date, className }: RevenueChartProps) {
         }
       />
       <CardContent className="flex-1">
-        <div className="w-full h-full">
-          <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full h-full min-h-[300px]">
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid 
                 strokeDasharray="3 3" 

@@ -43,7 +43,7 @@ export interface ExtendedStaffMember extends StaffMember {
     departamento?: string;
     tipo_contrato?: string;
     fecha_alta?: string;
-    nivelAcceso?: 'camarero' | 'encargado' | 'jefe' | 'personalizado';
+    nivelAcceso?: 'camarero' | 'cocinero' | 'encargado' | 'jefe' | 'personalizado';
     permisos?: string[];
     establecimientos_asignados?: string[];
     horas_extra_habilitadas?: boolean;
@@ -111,7 +111,7 @@ const permisosDisponibles = [
     { id: 'whatsapp_config', label: 'Configurar WhatsApp', icon: MessageSquare, description: 'Ajustes del bot de WhatsApp.' },
 ];
 
-type NivelAcceso = 'camarero' | 'encargado' | 'jefe' | 'personalizado';
+type NivelAcceso = 'camarero' | 'cocinero' | 'encargado' | 'jefe' | 'personalizado';
 
 const nivelesAcceso: { id: NivelAcceso; label: string; description: string; permisos: string[]; icon: React.ElementType }[] = [
     {
@@ -134,6 +134,13 @@ const nivelesAcceso: { id: NivelAcceso; label: string; description: string; perm
         description: 'Acceso total a todas las funciones',
         permisos: permisosDisponibles.map(p => p.id),
         icon: Crown
+    },
+    {
+        id: 'cocinero',
+        label: 'Cocinero',
+        description: 'Acceso exclusivo a KDS de cocina',
+        permisos: ['kds'],
+        icon: ChefHat
     },
     {
         id: 'personalizado',
@@ -186,10 +193,12 @@ export function EmployeeDialog({
         const jefePermisos = nivelesAcceso.find(n => n.id === 'jefe')!.permisos;
         const encargadoPermisos = nivelesAcceso.find(n => n.id === 'encargado')!.permisos;
         const camareroPermisos = nivelesAcceso.find(n => n.id === 'camarero')!.permisos;
+        const cocineroPermisos = nivelesAcceso.find(n => n.id === 'cocinero')!.permisos;
 
         if (jefePermisos.every(p => permisos.includes(p))) return 'jefe';
         if (encargadoPermisos.every(p => permisos.includes(p))) return 'encargado';
         if (camareroPermisos.every(p => permisos.includes(p))) return 'camarero';
+        if (cocineroPermisos.every(p => permisos.includes(p))) return 'cocinero';
         return 'personalizado';
     };
 
@@ -220,6 +229,7 @@ export function EmployeeDialog({
         // Map access level to Convex role
         const roleMapping: Record<NivelAcceso, string> = {
             'camarero': 'camarero',
+            'cocinero': 'cocinero',
             'encargado': 'gerente',
             'jefe': 'admin',
             'personalizado': 'camarero' // Default for custom
@@ -228,6 +238,7 @@ export function EmployeeDialog({
         // Define clock methods for each access level
         const clockMethodsByLevel: Record<NivelAcceso, ('app' | 'whatsapp' | 'qr' | 'web')[]> = {
             'camarero': ['app', 'qr'], // Basic methods
+            'cocinero': ['app', 'qr'], // Cocinero methods
             'encargado': ['app', 'qr', 'web'], // + web access
             'jefe': ['app', 'whatsapp', 'qr', 'web'], // All methods
             'personalizado': ['app', 'qr'] // Default for custom

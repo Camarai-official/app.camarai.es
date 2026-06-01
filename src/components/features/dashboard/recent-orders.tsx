@@ -80,13 +80,16 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
         return new Date(timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
     };
 
-    // Format total from cents to euros
+    // Format total
     const formatTotal = (amount: number) => {
-        return `€${(amount / 100).toFixed(2)}`;
+        return `€${amount.toFixed(2)}`;
     };
 
     // Map status to badge variant
-    const getStatusVariant = (status: string) => {
+    const getStatusVariant = (status: string, totalAmount?: number) => {
+        if (totalAmount !== undefined && totalAmount < 0) {
+            return 'cancelled';
+        }
         switch (status) {
             case 'paid': return 'completed';
             case 'open': return 'in-progress';
@@ -96,7 +99,10 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
     };
 
     // Map status to display text
-    const getStatusText = (status: string) => {
+    const getStatusText = (status: string, totalAmount?: number) => {
+        if (totalAmount !== undefined && totalAmount < 0) {
+            return 'Devuelto';
+        }
         switch (status) {
             case 'paid': return 'Completado';
             case 'open': return 'En Progreso';
@@ -164,8 +170,8 @@ export function RecentOrders({ className, date }: RecentOrdersProps) {
                                         <TableCell>{order.staffName}</TableCell>
                                         <TableCell>{formatTotal(order.totalAmount)}</TableCell>
                                         <TableCell align="center">
-                                            <Badge variant={getStatusVariant(order.status)}>
-                                                {getStatusText(order.status)}
+                                            <Badge variant={getStatusVariant(order.status, order.totalAmount)}>
+                                                {getStatusText(order.status, order.totalAmount)}
                                             </Badge>
                                         </TableCell>
                                         <TableCell align="center">

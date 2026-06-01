@@ -12,11 +12,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipProvider, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ConfigItem } from '@/components/ui/config-item';
 import { CheckCircle2 } from 'lucide-react';
-import type { User } from '@/data/mock-data';
 import { ActionTile } from '@/components/ui/action-tile';
 
+export type LocalUserProfile = {
+    name?: string;
+    email?: string;
+    phone?: string;
+    avatar?: string;
+};
+
 type ProfileTabProps = {
-    localUser: Partial<User> | null;
+    localUser: LocalUserProfile | null;
     profileFileInputRef: RefObject<HTMLInputElement>;
     onProfileImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onUserInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -51,7 +57,7 @@ export function ProfileTab({
                                 <div className="relative">
                                     <Avatar className="h-24 w-24">
                                         <AvatarImage src={localUser.avatar} alt="@user" data-ai-hint="profile user" />
-                                        <AvatarFallback>{localUser.firstName?.charAt(0)}</AvatarFallback>
+                                        <AvatarFallback>{localUser.name?.charAt(0)}</AvatarFallback>
                                     </Avatar>
                                     <Button size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8" onClick={() => profileFileInputRef.current?.click()}>
                                         <Camera className="h-4 w-4" />
@@ -61,7 +67,7 @@ export function ProfileTab({
                                 </div>
                                 <div className="grid grid-cols-1 gap-1.5 flex-grow text-center md:text-left">
                                     <div>
-                                        <H2>{localUser.firstName} {localUser.lastName}</H2>
+                                        <H2>{localUser.name}</H2>
                                         <TextMD className="text-muted-foreground">{localUser.email}</TextMD>
                                     </div>
                                     <TextSM className="text-muted-foreground">Último login: 12/07/2024 10:30 AM</TextSM>
@@ -70,44 +76,22 @@ export function ProfileTab({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="firstName">Nombre</Label>
-                                    <Input id="firstName" value={localUser.firstName || ''} onChange={onUserInputChange} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="lastName">Apellidos</Label>
-                                    <Input id="lastName" value={localUser.lastName || ''} onChange={onUserInputChange} />
+                                    <Label htmlFor="name">Nombre</Label>
+                                    <Input id="name" value={localUser.name || ''} onChange={onUserInputChange} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Email</Label>
                                     <Input id="email" type="email" value={localUser.email || ''} onChange={onUserInputChange} />
                                 </div>
+
                                 <div className="space-y-2">
                                     <Label htmlFor="phone">Teléfono</Label>
-                                    <Input id="phone" type="tel" defaultValue="+34 600 000 000" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="password">Contraseña</Label>
-                                    <Input id="password" type="password" placeholder="••••••••" />
+                                    <Input id="phone" type="tel" value={localUser.phone || ''} onChange={onUserInputChange} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="pin">PIN de seguridad</Label>
                                     <Input id="pin" type="password" maxLength={4} placeholder="••••" />
                                 </div>
-                                <ActionTile
-                                    icon={CheckCircle2}
-                                    iconColor="#22c55e"
-                                    title="Estado de la Cuenta"
-                                    description="Estado actual de tu perfil de usuario."
-                                    variant="outline"
-                                    padding="md"
-                                    rightContentType="select"
-                                    selectValue="activo"
-                                    onSelectChange={() => {}}
-                                    selectOptions={[
-                                        { value: 'activo', label: 'Activo' },
-                                        { value: 'inactivo', label: 'Inactivo' }
-                                    ]}
-                                />
                             </div>
                         </>
                     ) : (
@@ -121,4 +105,3 @@ export function ProfileTab({
         </TabsContent>
     );
 }
-

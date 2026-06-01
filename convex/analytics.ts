@@ -217,7 +217,7 @@ export const getSalesByPeriod = query({
     // Convert to array and sort by date
     const result = Array.from(groupedData.entries()).map(([label, value]) => ({
       label,
-      value: value / 100, // Convert cents to euros
+      value: value,
     }));
 
     return result;
@@ -247,7 +247,7 @@ export const getCostBreakdown = query({
 
     // Agrupar costes por tipo
     const costByType = new Map<string, number>();
-    
+
     for (const movement of movements) {
       const current = costByType.get(movement.type) || 0;
       costByType.set(movement.type, current + movement.total_cost);
@@ -257,17 +257,17 @@ export const getCostBreakdown = query({
     const breakdown = [
       {
         name: 'Ingredientes',
-        value: (costByType.get("purchase") || 0) / 100, // Convert cents to euros
+        value: (costByType.get("purchase") || 0),
         color: "bg-chart-1"
       },
       {
         name: 'Mermas',
-        value: (costByType.get("waste") || 0) / 100,
+        value: (costByType.get("waste") || 0),
         color: "bg-chart-4"
       },
       {
         name: 'Ajustes',
-        value: (costByType.get("adjustment") || 0) / 100,
+        value: (costByType.get("adjustment") || 0),
         color: "bg-chart-5"
       },
     ];
@@ -327,7 +327,7 @@ export const getStaffSalesRanking = query({
           id: staffSales.staffId,
           name: staff ? `${staff.name} ${staff.last_name || ""}`.trim() : "Unknown",
           avatar: staff?.photo_url || "",
-          sales: staffSales.totalSales / 100, // Convert cents to euros
+          sales: staffSales.totalSales,
           orderCount: staffSales.orderCount,
         };
       })
