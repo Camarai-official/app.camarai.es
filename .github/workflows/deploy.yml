@@ -56,6 +56,9 @@ jobs:
       - name: Configurar Dominio Personalizado (CNAME)
         run: echo "dash.camarai.es" > out/CNAME
 
+      - name: Eliminar workflows del output
+        run: rm -rf out/.github
+
       # 7. Desplegar al Repositorio B
       - name: Desplegar al Repositorio B
         uses: JamesIves/github-pages-deploy-action@v4
