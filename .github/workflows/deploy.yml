@@ -3,7 +3,7 @@ name: Desplegar a Repo Externo
 on:
   push:
     branches:
-      - main  # O 'master', la rama donde tienes tu código estable
+      - main
 
 permissions:
   contents: write
@@ -15,17 +15,20 @@ jobs:
     steps:
       # 1. Bajamos el código del Repo A
       - name: Checkout del código fuente
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          fetch-depth: 0
 
       # 2. Instalar pnpm
       - name: Instalar pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
         with:
           version: 11
 
       # 3. Instalar Node
       - name: Instalar Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: 'pnpm'
@@ -43,23 +46,21 @@ jobs:
           CONVEX_SELF_HOSTED_ADMIN_KEY: ${{ secrets.CONVEX_SELF_HOSTED_ADMIN_KEY }}
           CONVEX_DEPLOYMENT: ${{ secrets.CONVEX_DEPLOYMENT }}
 
-      # 4.1 Fix 404 for SPA
+      # 6. Optimizaciones para GitHub Pages
       - name: Fix 404 for SPA
         run: cp out/index.html out/404.html
 
-      # 4.2 Evitar que Jekyll ignore archivos de Tailwind (_next)
       - name: Add .nojekyll
         run: touch out/.nojekyll
 
-      # 4.3 Dominio Personalizado
       - name: Configurar Dominio Personalizado (CNAME)
         run: echo "dash.camarai.es" > out/CNAME
 
-      # 5. Desplegar al Repositorio B
+      # 7. Desplegar al Repositorio B
       - name: Desplegar al Repositorio B
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          token: ${{ secrets.API_TOKEN_GITHUB }} # Reutilizamos el token para subir
+          token: ${{ secrets.API_TOKEN_GITHUB }}
           folder: out
           repository-name: Camarai-official/dash.camarai.es
           branch: main
