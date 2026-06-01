@@ -22,6 +22,8 @@ export const createKitchenStation = mutation({
     preparation_types: v.array(v.string()),
     average_preparation_time: v.optional(v.number()),
     active: v.boolean(),
+    station: v.optional(v.boolean()),
+    parent_station_id: v.optional(v.id("kitchen_stations")),
   },
   handler: async (ctx, args) => {
     const { establishmentId, ...data } = args;
@@ -44,6 +46,8 @@ export const updateKitchenStation = mutation({
     preparation_types: v.optional(v.array(v.string())),
     average_preparation_time: v.optional(v.number()),
     active: v.optional(v.boolean()),
+    station: v.optional(v.boolean()),
+    parent_station_id: v.optional(v.id("kitchen_stations")),
   },
   handler: async (ctx, args) => {
     const { stationId, ...updates } = args;
@@ -59,11 +63,11 @@ export const deleteKitchenStation = mutation({
       .query("kds_routing_rules")
       .withIndex("by_station", (q) => q.eq("station_id", args.stationId))
       .collect();
-      
+
     for (const rule of rules) {
       await ctx.db.delete(rule._id);
     }
-    
+
     await ctx.db.delete(args.stationId);
   },
 });

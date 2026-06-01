@@ -53,7 +53,7 @@ const navItems = [
   { href: "/cartas", label: "Cartas", icon: BookOpen },
   { href: "/inventario", label: "Inventario", icon: Archive },
   { href: "/pos-kds", label: "POS y KDS", icon: Monitor },
-  { href: "/pos-kds/subestaciones", label: "Subestaciones", icon: Layers },
+  { href: "/pos-kds/estaciones", label: "Estaciones", icon: Layers },
   { href: "/personal", label: "Personal", icon: Users },
   { href: "/personal/planificacion", label: "Planificación", icon: Calendar },
   { href: "/notificaciones", label: "Notificaciones", icon: Bell },
@@ -90,15 +90,15 @@ export function SidebarNav() {
   };
 
   const updateAbsenceRequestStatus = useMutation(api.staff.updateAbsenceRequestStatus)
-  const absenceRequests = useQuery(api.staff.getAbsenceRequestsByEstablishment, 
+  const absenceRequests = useQuery(api.staff.getAbsenceRequestsByEstablishment,
     activeEstablishment?.id ? { establishmentId: activeEstablishment.id as any } : "skip"
   )
-  
+
   const pendingRequests = React.useMemo(() => {
     if (!absenceRequests) return []
     return absenceRequests.filter((req: any) => req.status === "pending")
   }, [absenceRequests])
-  
+
   const pendingReservationsCount = 0 // Placeholder
   const totalNotifications = pendingRequests.length + pendingReservationsCount
 
@@ -141,7 +141,7 @@ export function SidebarNav() {
         status,
         reviewed_by: staff._id as any
       })
-      
+
       toast({
         title: `Solicitud ${statusEs}`,
         description: `La solicitud ha sido ${statusEs.toLowerCase()}.`

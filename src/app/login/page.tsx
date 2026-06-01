@@ -16,7 +16,7 @@ interface AuthData {
 
 const WHATAUTH_CONFIG = {
   whatsappNumber: '34632202351',
-  backendUrl: 'https://worker.whatauth.es',
+  backendUrl: process.env.NEXT_PUBLIC_BACKEND_WHATAUTH_ES,
   clientId: 'camarai_web_app_znDthHATCK63KPh',
   tenantSlug: 'Camarai_web',
 } as const;

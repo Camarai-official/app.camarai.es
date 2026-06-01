@@ -68,6 +68,16 @@ export default defineSchema({
       evolution_api_key: v.optional(v.string()),
     })),
     active: v.optional(v.boolean()),
+    pos_settings: v.optional(v.object({
+      reservation_window_minutes: v.number(),
+      iva_rate: v.optional(v.number()),
+      printed_grace_period_ms: v.optional(v.number()),
+      reservation_service_hours: v.optional(v.object({
+        opensAt: v.string(),
+        closesAt: v.string(),
+        slotMinutes: v.number(),
+      })),
+    })),
     created_at: v.number(),
   }).index("by_company", ["company_id"]),
 
@@ -354,6 +364,7 @@ export default defineSchema({
     total_amount: v.number(),
     subtotal: v.number(),
     tax_amount: v.number(),
+    platform_fee_amount: v.optional(v.number()),
     discount_amount: v.number(),
     discount_reason: v.optional(v.string()),
     notes: v.optional(v.string()),
@@ -1056,6 +1067,8 @@ export default defineSchema({
     preparation_types: v.array(v.string()), // Tipos de preparación: ["grilled", "fried", "baked"]
     average_preparation_time: v.optional(v.number()), // Tiempo medio en minutos
     active: v.boolean(),
+    station: v.optional(v.boolean()),
+    parent_station_id: v.optional(v.id("kitchen_stations")),
     created_at: v.number(),
   }).index("by_establishment", ["establishment_id"])
     .index("by_establishment_active", ["establishment_id", "active"]),

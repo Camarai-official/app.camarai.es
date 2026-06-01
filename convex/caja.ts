@@ -12,13 +12,13 @@ const roundMoney = (value: number) => Math.round(value * 100) / 100;
 
 /**
  * Recalcula y actualiza el estado de una mesa basado en los items de su orden.
- * 
+ *
  * Reglas:
  * - OCUPADA (occupied): Si hay items en cocina (pending, preparing/preparing->SENT, ready)
  * - ESPERA_PAGO (waiting_payment): Si todos los items están entregados (served->DELIVERED) o pagados (paid),
  *                                   y hay al menos uno entregado sin pagar
  * - No cambia: Si la mesa está en estado terminal (free, paid, maintenance, reserved, linked)
- * 
+ *
  * @param ctx Contexto de Convex
  * @param tableId ID de la mesa a actualizar
  * @param orderId ID de la orden (opcional, se busca si no se proporciona)
@@ -31,8 +31,8 @@ async function recalculateTableStatus(
   const table = await ctx.db.get(tableId) as Doc<"tables"> | null;
   if (!table) return;
 
-  // No recalcular si la mesa está en estado terminal o no tiene orden
-  if (['free', 'paid', 'maintenance', 'reserved', 'linked'].includes(table.status)) {
+  // No recalcular si la mesa está en estado terminal (sin orden activa válida para esto)
+  if (['free', 'maintenance', 'reserved', 'linked'].includes(table.status)) {
     return;
   }
 
@@ -57,9 +57,13 @@ async function recalculateTableStatus(
   const hasUnpaidItems = activeItems.some((item: Doc<"order_items">) => item.item_status !== "paid");
 
   // Determinar estado objetivo
-  let targetStatus: "occupied" | "waiting_payment" = "occupied";
+  let targetStatus: "occupied" | "waiting_payment" | "paid" = "occupied";
 
-  if (!hasKitchenItems && hasDeliveredItems && hasUnpaidItems) {
+  if (!hasKitchenItems && !hasUnpaidItems) {
+    // Si no hay nada pendiente en cocina y no hay nada sin pagar, está todo pagado
+    targetStatus = "paid";
+  } else if (!hasKitchenItems && hasDeliveredItems && hasUnpaidItems) {
+    // Si no hay nada pendiente, hay algo servido y faltan cosas por pagar
     targetStatus = "waiting_payment";
   }
 
@@ -382,7 +386,7 @@ export const addOrderItem = mutation({
     variant: v.optional(v.string()),
     notes: v.optional(v.string()),
     course: v.union(v.literal("first"), v.literal("second"), v.literal("dessert"), v.literal("drink")),
-    itemStatus: v.optional(v.union(v.literal("pending"), v.literal("preparing"), v.literal("ready"), v.literal("served"), v.literal("cancelled"))),
+    itemStatus: v.optional(v.union(v.literal("pending"), v.literal("preparing"), v.literal("ready"), v.literal("served"), v.literal("cancelled"), v.literal("paid"))),
   },
   handler: async (ctx, args) => {
     const itemStatus = args.itemStatus || "pending";
@@ -412,11 +416,13 @@ export const addOrderItem = mutation({
         const newSubtotal = roundMoney(order.subtotal + args.totalPrice);
         // TODO: Calculate tax based on product tax rate
         const newTaxAmount = order.tax_amount;
+        const newPlatformFee = newSubtotal > 10.00 ? 0.30 : 0;
         const newTotalAmount = roundMoney(newSubtotal + newTaxAmount - order.discount_amount);
 
         await ctx.db.patch(args.orderId, {
           subtotal: newSubtotal,
           tax_amount: newTaxAmount,
+          platform_fee_amount: newPlatformFee,
           total_amount: newTotalAmount,
           updated_at: Date.now(),
         });
@@ -432,7 +438,7 @@ export const updateOrderItem = mutation({
     orderItemId: v.id("order_items"),
     quantity: v.optional(v.number()),
     notes: v.optional(v.string()),
-    itemStatus: v.optional(v.union(v.literal("pending"), v.literal("preparing"), v.literal("ready"), v.literal("served"), v.literal("cancelled"))),
+    itemStatus: v.optional(v.union(v.literal("pending"), v.literal("preparing"), v.literal("ready"), v.literal("served"), v.literal("cancelled"), v.literal("paid"))),
   },
   handler: async (ctx, args) => {
     const orderItem = await ctx.db.get(args.orderItemId);
@@ -474,10 +480,12 @@ export const updateOrderItem = mutation({
         const newSubtotal = roundMoney(allItems
           .filter(item => item.item_status !== "cancelled")
           .reduce((sum, item) => sum + item.total_price, 0));
+        const newPlatformFee = newSubtotal > 10.00 ? 0.30 : 0;
         const newTotalAmount = roundMoney(newSubtotal + order.tax_amount - order.discount_amount);
 
         await ctx.db.patch(orderItem.order_id, {
           subtotal: newSubtotal,
+          platform_fee_amount: newPlatformFee,
           total_amount: newTotalAmount,
           updated_at: Date.now(),
         });
@@ -514,10 +522,12 @@ export const deleteOrderItem = mutation({
       const newSubtotal = roundMoney(allItems
         .filter(item => item.item_status !== "cancelled")
         .reduce((sum, item) => sum + item.total_price, 0));
+      const newPlatformFee = newSubtotal > 10.00 ? 0.30 : 0;
       const newTotalAmount = roundMoney(newSubtotal + order.tax_amount - order.discount_amount);
 
       await ctx.db.patch(orderItem.order_id, {
         subtotal: newSubtotal,
+        platform_fee_amount: newPlatformFee,
         total_amount: newTotalAmount,
         updated_at: Date.now(),
       });
@@ -597,18 +607,27 @@ export const createPayment = mutation({
             item_status: "paid",
           });
         }
-      } else if (totalPaid >= order.total_amount) {
+      } else if (isFullyPaid) {
         // If paying for the entire order and fully paid, mark all items as paid
         const allOrderItems = await ctx.db
           .query("order_items")
           .withIndex("by_order", (q) => q.eq("order_id", args.orderId))
           .collect();
 
+        const allItemIds = [];
         for (const orderItem of allOrderItems) {
-          await ctx.db.patch(orderItem._id, {
-            item_status: "paid",
-          });
+          if (orderItem.item_status !== "cancelled") {
+            allItemIds.push(orderItem._id);
+            await ctx.db.patch(orderItem._id, {
+              item_status: "paid",
+            });
+          }
         }
+        
+        // Update the payment record to include ALL item IDs so the UI knows they are paid
+        await ctx.db.patch(paymentId, {
+          order_item_ids: allItemIds,
+        });
       }
 
       // If fully paid, also update order status and table status
@@ -729,17 +748,19 @@ export const updateTableWithOrder = mutation({
     // If status is explicitly provided, use it
     if (args.status) {
       updates.status = args.status;
-    } else {
-      // If orderId is provided, set status to occupied, otherwise free
-      if (args.orderId) {
+    } else if (args.orderId) {
+      // If orderId is provided but no status, only change to occupied if it was free/reserved
+      // Preserve waiting_payment, paid, linked, or occupied
+      if (!table.status || ['free', 'reserved'].includes(table.status)) {
         updates.status = "occupied";
         updates.opened_at = table.opened_at ?? Date.now();
-      } else {
-        updates.status = "free";
-        updates.guests_count = 0;
-        updates.current_total = undefined;
-        updates.opened_at = undefined;
       }
+    } else {
+      // If no orderId is provided, table becomes free
+      updates.status = "free";
+      updates.guests_count = 0;
+      updates.current_total = undefined;
+      updates.opened_at = undefined;
     }
 
     await ctx.db.patch(args.tableId, updates);
@@ -1041,11 +1062,13 @@ export const createRefund = mutation({
     );
 
     const newSubtotal = activeItems.reduce((sum, item) => sum + item.total_price, 0);
-    const newTotalAmount = newSubtotal + order.tax_amount - order.discount_amount;
+    const newPlatformFee = 0;
+    const newTotalAmount = newSubtotal + order.tax_amount + newPlatformFee - order.discount_amount;
 
     // Update original order
     await ctx.db.patch(args.orderId, {
       subtotal: newSubtotal,
+      platform_fee_amount: newPlatformFee,
       total_amount: newTotalAmount,
       updated_at: Date.now(),
     });
@@ -1130,10 +1153,12 @@ export const mergeTables = mutation({
           const newSubtotal = allTargetItems
             .filter(item => item.item_status !== "cancelled")
             .reduce((sum, item) => sum + item.total_price, 0);
-          const newTotalAmount = newSubtotal + targetOrder.tax_amount - targetOrder.discount_amount;
+          const newPlatformFee = 0;
+          const newTotalAmount = newSubtotal + targetOrder.tax_amount + newPlatformFee - targetOrder.discount_amount;
 
           await ctx.db.patch(targetOrder._id, {
             subtotal: newSubtotal,
+            platform_fee_amount: newPlatformFee,
             total_amount: newTotalAmount,
             updated_at: Date.now(),
           });
@@ -1218,10 +1243,12 @@ export const mergeTables = mutation({
         const newSubtotal = allTargetItems
           .filter(item => item.item_status !== "cancelled")
           .reduce((sum, item) => sum + item.total_price, 0);
-        const newTotalAmount = newSubtotal + targetOrder.tax_amount - targetOrder.discount_amount;
+        const newPlatformFee = 0;
+        const newTotalAmount = newSubtotal + targetOrder.tax_amount + newPlatformFee - targetOrder.discount_amount;
 
         await ctx.db.patch(targetOrder._id, {
           subtotal: newSubtotal,
+          platform_fee_amount: newPlatformFee,
           total_amount: newTotalAmount,
           updated_at: Date.now(),
         });
@@ -1469,6 +1496,20 @@ export const updateReservation = mutation({
     // Handle table change
     if (args.tableId !== undefined && args.tableId !== reservation.table_id) {
       updates.table_id = args.tableId;
+
+      // Buscar si existe un pedido asociado a esta reserva
+      const order = await ctx.db
+        .query("orders")
+        .withIndex("by_reservation", (q) => q.eq("reservation_id", args.reservationId))
+        .first();
+
+      if (order) {
+        // Actualizar el pedido para que tenga la misma mesa
+        await ctx.db.patch(order._id, {
+          table_id: args.tableId,
+          updated_at: Date.now(),
+        });
+      }
     }
 
     await ctx.db.patch(args.reservationId, updates);
@@ -1559,5 +1600,37 @@ export const listReservationsPaginated = query({
       .withIndex("by_establishment", (q) => q.eq("establishment_id", args.establishmentId))
       .order("desc")
       .paginate(args.paginationOpts);
+  },
+});
+
+export const updateEstablishmentSettings = mutation({
+  args: {
+    establishmentId: v.id("establishments"),
+    posSettings: v.object({
+      reservation_window_minutes: v.optional(v.number()),
+      iva_rate: v.optional(v.number()),
+      printed_grace_period_ms: v.optional(v.number()),
+      reservation_service_hours: v.optional(v.object({
+        opensAt: v.string(),
+        closesAt: v.string(),
+        slotMinutes: v.number(),
+      })),
+    }),
+  },
+  handler: async (ctx, args) => {
+    const establishment = await ctx.db.get(args.establishmentId);
+    if (!establishment) throw new Error("Establishment not found");
+
+    const currentSettings = establishment.pos_settings || {};
+    const updatedSettings = {
+      ...currentSettings,
+      ...args.posSettings,
+    };
+
+    await ctx.db.patch(args.establishmentId, {
+      pos_settings: updatedSettings as any,
+    });
+
+    return args.establishmentId;
   },
 });
