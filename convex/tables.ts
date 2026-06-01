@@ -193,7 +193,7 @@ export const occupyFromQR = mutation({
     const table = await ctx.db.get(args.tableId);
     if (!table) throw new Error("Mesa no encontrada");
 
-    if (table.status === "dirty") {
+    if (table.status === "maintenance") {
       throw new Error(
         `La mesa ${table.number} está pendiente de limpieza. Avisa a un camarero.`
       );
@@ -397,9 +397,9 @@ export const markTableClean = mutation({
     const table = await ctx.db.get(args.tableId);
     if (!table) throw new Error("Mesa no encontrada");
 
-    if (table.status !== "dirty") {
+    if (table.status !== "maintenance") {
       throw new Error(
-        `Solo se pueden limpiar mesas en estado 'dirty' (estado actual: ${table.status})`
+        `Solo se pueden limpiar mesas en estado 'maintenance' (estado actual: ${table.status})`
       );
     }
 
