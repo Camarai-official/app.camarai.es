@@ -143,23 +143,23 @@ export function BillingTab({
                                 )}
                             >
                                 {currentOrders.map((order) => (
-                                    <TableRow key={order.order}>
-                                        <TableCell className="font-medium">{order.order}</TableCell>
-                                        <TableCell>{order.time}</TableCell>
-                                        <TableCell>{order.table}</TableCell>
-                                        <TableCell>{order.name}</TableCell>
-                                        <TableCell>{order.total}</TableCell>
+                                    <TableRow key={order.orderNumber}>
+                                        <TableCell className="font-medium">{order.orderNumber}</TableCell>
+                                        <TableCell>{order.createdAt ? format(new Date(order.createdAt), "HH:mm") : ''}</TableCell>
+                                        <TableCell>{order.tableLabel || 'Sin mesa'}</TableCell>
+                                        <TableCell>{order.customerName || 'Cliente'}</TableCell>
+                                        <TableCell>€{order.totalAmount?.toFixed(2) || '0.00'}</TableCell>
                                         <TableCell className="text-center">
                                             <Badge
                                                 variant={
-                                                    order.status === 'Completado'
+                                                    order.status === 'paid'
                                                         ? 'completed'
-                                                        : order.status === 'En Progreso'
+                                                        : order.status === 'open'
                                                             ? 'in-progress'
                                                             : 'cancelled'
                                                 }
                                             >
-                                                {order.status}
+                                                {order.status === 'paid' ? 'Completado' : order.status === 'open' ? 'En Progreso' : 'Cancelado'}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
@@ -171,7 +171,7 @@ export function BillingTab({
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end">
                                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => onViewDetails(order.order)}><Eye />Ver detalles</DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => onViewDetails(order.orderNumber)}><Eye />Ver detalles</DropdownMenuItem>
                                                     <DropdownMenuItem><Download />Descargar PDF</DropdownMenuItem>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem><Monitor />Reabrir en TPV</DropdownMenuItem>

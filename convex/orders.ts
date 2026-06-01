@@ -57,10 +57,10 @@ export const getOrdersForComandas = query({
 
     const ordersWithDetails = await Promise.all(
       paginatedResults.page.map(async (order) => {
-        const table = order.table_id ? await ctx.db.get(order.table_id) : null;
-        const staff = await ctx.db.get(order.staff_id);
-        const customer = order.customer_id ? await ctx.db.get(order.customer_id) : null;
-        const environment = order.environment_id ? await ctx.db.get(order.environment_id) : null;
+        const table = order.table_id ? await ctx.db.get(order.table_id as Id<"tables">) : null;
+        const staff = await ctx.db.get(order.staff_id as Id<"staff">);
+        const customer = order.customer_id ? await ctx.db.get(order.customer_id as Id<"customers">) : null;
+        const environment = order.environment_id ? await ctx.db.get(order.environment_id as Id<"environments">) : null;
 
         return {
           _id: order._id,
