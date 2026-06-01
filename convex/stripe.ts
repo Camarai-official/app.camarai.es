@@ -12,7 +12,7 @@ export const createCheckoutSession = action({
   handler: async (ctx, args) => {
     // Inicializamos Stripe con la variable de entorno de Convex
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: "2026-04-22.dahlia"
+      apiVersion: process.env.NEXT_PUBLIC_STRIPE_API_VERSION as any
     });
 
     try {
