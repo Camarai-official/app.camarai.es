@@ -1,0 +1,110 @@
+{
+  "name": "Camarai Dashboard",
+  "short_name": "Dashboard",
+  "description": "Panel de administración Camarai para hostelería: métricas, reportes, inventario y gestión.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "any",
+  "theme_color": "#9B6EFD",
+  "background_color": "#111827",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
+
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Inicio",
+      "description": "Panel principal con métricas",
+      "url": "/",
+      "icons": [{ "src": "/assets/icons/96x96.webp", "sizes": "96x96", "type": "image/webp" }]
+    },
+    {
+      "name": "Reportes",
+      "short_name": "Reportes",
+      "description": "Informes y analíticas",
+      "url": "/reportes",
+      "icons": [{ "src": "/assets/icons/96x96.webp", "sizes": "96x96", "type": "image/webp" }]
+    },
+    {
+      "name": "Inventario",
+      "short_name": "Inventario",
+      "description": "Gestión de stock e ingredientes",
+      "url": "/inventario",
+      "icons": [{ "src": "/assets/icons/96x96.webp", "sizes": "96x96", "type": "image/webp" }]
+    }
+  ],
+
+  "icons": [
+    {
+      "src": "/assets/icons/72x72.webp",
+      "sizes": "72x72",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/96x96.webp",
+      "sizes": "96x96",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/128x128.webp",
+      "sizes": "128x128",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/144x144.webp",
+      "sizes": "144x144",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/152x152.webp",
+      "sizes": "152x152",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/180x180.webp",
+      "sizes": "180x180",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/192x192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/384x384.webp",
+      "sizes": "384x384",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/512x512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/512x512_maskable.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/icons/180x180_apple.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

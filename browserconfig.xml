@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+  <msapplication>
+    <tile>
+      <!-- Tile pequeño — 70x70 (escala desde 128x128) -->
+      <square70x70logo src="/assets/icons/128x128.webp"/>
+
+      <!-- Tile mediano — 150x150 (escala desde 144x144) -->
+      <square150x150logo src="/assets/icons/144x144.webp"/>
+
+      <!-- Tile grande — 310x310 -->
+      <square310x310logo src="/assets/icons/384x384.webp"/>
+
+      <!-- Color de fondo del tile en el menú inicio de Windows -->
+      <TileColor>#111827</TileColor>
+    </tile>
+
+    <notification>
+      <!-- Frecuencia de polling para notificaciones badge (minutos) -->
+      <frequency>30</frequency>
+      <cycle>1</cycle>
+    </notification>
+  </msapplication>
+</browserconfig>
