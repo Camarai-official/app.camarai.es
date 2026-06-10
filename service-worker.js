@@ -147,9 +147,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ── 4. Assets estáticos → Cache First ─────────────────────
-  // Los bundles de Next.js en /_next/static/ tienen hash en el nombre
-  // así que es seguro cachearlos indefinidamente.
+  // ── 4. Assets estáticos → Network First ──────────────────
+  // Cambio de Cache First a Network First para Next.js chunks
+  // para evitar servir versiones obsoletas de módulos dinámicos.
+  // Los assets hasheados se cachean pero siempre validamos con red primero.
 
   // Ignorar peticiones de desarrollo de Next.js
   if (
@@ -160,11 +161,15 @@ self.addEventListener('fetch', (event) => {
     return; // Bypass SW
   }
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
+  // Excluir node_modules del caching - siempre Network First
+  if (url.pathname.includes('node_modules')) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
-      return fetch(request).then((response) => {
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
         // Solo cachear respuestas válidas y del mismo origen
         if (
           !response ||
@@ -178,8 +183,11 @@ self.addEventListener('fetch', (event) => {
           cache.put(request, responseToCache);
         });
         return response;
-      });
-    })
+      })
+      .catch(() => {
+        // Si falla la red, intentar caché
+        return caches.match(request);
+      })
   );
 });
 
