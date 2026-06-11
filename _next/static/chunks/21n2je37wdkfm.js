@@ -1,0 +1,3 @@
+(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,71431,e=>{"use strict";var t=e.i(85511);e.s(["generateCSV",0,(e,o)=>{if(!e.length)return;let i=Object.keys(e[0]),n=new Blob([[i.join(","),...e.map(e=>i.map(t=>{let o=e[t];return"string"==typeof o?`"${o}"`:o}).join(","))].join("\n")],{type:"text/csv;charset=utf-8;"}),d=document.createElement("a");if(void 0!==d.download){let e=URL.createObjectURL(n);d.setAttribute("href",e),d.setAttribute("download",`${o}-${(0,t.format)(new Date,"yyyy-MM-dd")}.csv`),d.style.visibility="hidden",document.body.appendChild(d),d.click(),document.body.removeChild(d)}}])}]);
+
+//# sourceMappingURL=1tw2obqgnbch4.js.map
